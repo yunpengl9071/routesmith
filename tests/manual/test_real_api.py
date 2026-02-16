@@ -7,10 +7,20 @@ Set environment variables before running:
   export OPENAI_API_KEY=sk-...
 
 Run with: python tests/manual/test_real_api.py
+
+NOTE: These tests are skipped by pytest by default unless API keys are set.
 """
 
 import os
 import sys
+
+import pytest
+
+# Skip all tests in this module unless API keys are set
+pytestmark = pytest.mark.skipif(
+    not os.getenv("OPENAI_API_KEY") and not os.getenv("GROQ_API_KEY") and not os.getenv("ANTHROPIC_API_KEY"),
+    reason="Requires API keys. Set OPENAI_API_KEY, GROQ_API_KEY, or ANTHROPIC_API_KEY to run."
+)
 
 
 def check_api_keys():
