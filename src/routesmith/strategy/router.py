@@ -86,31 +86,32 @@ class Router:
         min_quality: float,
     ) -> str:
         """
-        Direct routing: select single best model.
+        Direct routing: select cheapest model meeting quality threshold.
 
-        Optimizes for quality while respecting cost constraints.
+        Optimizes for cost while respecting quality constraints.
         """
-        # Filter by cost constraint
+        # Filter by cost constraint first
         if max_cost is not None:
             candidates = self.registry.filter_by_cost(max_cost)
         else:
             candidates = self.registry.list_models()
 
         if not candidates:
-            # Fallback to cheapest model if no candidates meet constraints
+            # Fallback to cheapest model if no candidates meet cost constraints
             cheapest = self.registry.get_cheapest()
             if cheapest:
                 return cheapest.model_id
             raise ValueError("No models available")
 
-        # Get quality predictions
-        model_ids = [m.model_id for m in candidates]
-        prediction = self.predictor.predict_best(messages, model_ids, min_quality)
+        # Filter by quality threshold
+        quality_candidates = [m for m in candidates if m.quality_score >= min_quality]
 
-        if prediction:
-            return prediction.model_id
+        if quality_candidates:
+            # Return cheapest model meeting quality threshold
+            cheapest_qualifying = min(quality_candidates, key=lambda m: m.cost_per_1k_total)
+            return cheapest_qualifying.model_id
 
-        # Fallback: return highest quality model that meets cost constraint
+        # No model meets quality threshold - fall back to highest quality available
         best = self.registry.get_best_quality(max_cost)
         if best:
             return best.model_id
