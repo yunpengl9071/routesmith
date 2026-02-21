@@ -87,16 +87,16 @@ def test_groq_routing():
 
     rs = RouteSmith()
     rs.register_model(
-        "groq/llama-3.1-70b-versatile",
+        "groq/llama-3.3-70b-versatile",
+        cost_per_1k_input=0.00059,
+        cost_per_1k_output=0.00079,
+        quality_score=0.90,
+    )
+    rs.register_model(
+        "groq/llama-3.3-70b-specdec",
         cost_per_1k_input=0.00059,
         cost_per_1k_output=0.00079,
         quality_score=0.88,
-    )
-    rs.register_model(
-        "groq/llama-3.1-8b-instant",
-        cost_per_1k_input=0.00005,
-        cost_per_1k_output=0.00008,
-        quality_score=0.75,
     )
 
     response = rs.completion(
