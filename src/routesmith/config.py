@@ -59,6 +59,7 @@ class RouteSmithConfig:
     # Feedback loop
     feedback_enabled: bool = True
     feedback_sample_rate: float = 0.1  # Fraction of requests to evaluate
+    feedback_storage_path: str | None = None  # SQLite path; None = in-memory only
 
     # Performance
     routing_timeout_ms: int = 50  # Max time for routing decision
@@ -87,6 +88,7 @@ class RouteSmithConfig:
             budget=self.budget,
             feedback_enabled=self.feedback_enabled,
             feedback_sample_rate=self.feedback_sample_rate,
+            feedback_storage_path=self.feedback_storage_path,
             routing_timeout_ms=self.routing_timeout_ms,
             enable_telemetry=self.enable_telemetry,
             litellm_params=self.litellm_params,
@@ -114,6 +116,7 @@ class RouteSmithConfig:
             budget=new_budget,
             feedback_enabled=self.feedback_enabled,
             feedback_sample_rate=self.feedback_sample_rate,
+            feedback_storage_path=self.feedback_storage_path,
             routing_timeout_ms=self.routing_timeout_ms,
             enable_telemetry=self.enable_telemetry,
             litellm_params=self.litellm_params,
