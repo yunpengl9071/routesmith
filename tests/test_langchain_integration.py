@@ -404,6 +404,12 @@ class TestFactoryMethods:
         models = [m.model_id for m in llm.routesmith.registry.list_models()]
         assert any("claude" in m for m in models)
 
+    def test_with_groq_models(self):
+        llm = ChatRouteSmith.with_groq_models()
+        assert isinstance(llm, ChatRouteSmith)
+        models = [m.model_id for m in llm.routesmith.registry.list_models()]
+        assert any("llama" in m for m in models)
+
     def test_factory_with_custom_kwargs(self):
         llm = ChatRouteSmith.with_openai_models(min_quality=0.9, max_cost=0.01)
         assert llm.min_quality == 0.9

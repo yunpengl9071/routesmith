@@ -343,6 +343,20 @@ class ChatRouteSmith(BaseChatModel):
         return instance
 
     @classmethod
+    def with_groq_models(cls, **kwargs: Any) -> ChatRouteSmith:
+        """Create a ChatRouteSmith pre-configured with common Groq models."""
+        instance = cls(**kwargs)
+        models = [
+            ("groq/llama-3.3-70b-versatile", 0.00059, 0.00079, 0.90),
+            ("groq/llama-3.1-8b-instant", 0.00005, 0.00008, 0.75),
+        ]
+        for model_id, inp, out, quality in models:
+            instance.routesmith.register_model(
+                model_id, cost_per_1k_input=inp, cost_per_1k_output=out, quality_score=quality
+            )
+        return instance
+
+    @classmethod
     def with_anthropic_models(cls, **kwargs: Any) -> ChatRouteSmith:
         """Create a ChatRouteSmith pre-configured with common Anthropic models."""
         instance = cls(**kwargs)
