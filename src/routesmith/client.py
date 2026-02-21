@@ -64,8 +64,10 @@ class RouteSmith:
         """
         self.config = config or RouteSmithConfig()
         self.registry = registry or ModelRegistry()
-        self.router = Router(self.config, self.registry)
         self.feedback = FeedbackCollector(self.config, registry=self.registry)
+        self.router = Router(
+            self.config, self.registry, storage=self.feedback._storage
+        )
         self._request_count = 0
         self._total_cost = 0.0
         self._counterfactual_cost = 0.0  # Cost if always used most expensive model
