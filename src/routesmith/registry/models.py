@@ -22,7 +22,19 @@ class ModelConfig:
     supports_function_calling: bool = True
     supports_vision: bool = False
     supports_json_mode: bool = True
+    capabilities: set[str] = field(default_factory=set)
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Auto-populate capabilities from boolean flags."""
+        if self.supports_function_calling:
+            self.capabilities.add("tool_calling")
+        if self.supports_vision:
+            self.capabilities.add("vision")
+        if self.supports_json_mode:
+            self.capabilities.add("json_mode")
+        if self.supports_streaming:
+            self.capabilities.add("streaming")
 
     @property
     def cost_per_1k_total(self) -> float:
@@ -49,6 +61,11 @@ class ModelRegistry:
         latency_p50_ms: float = 500.0,
         latency_p99_ms: float = 2000.0,
         context_window: int = 128000,
+        capabilities: set[str] | None = None,
+        supports_function_calling: bool = True,
+        supports_vision: bool = False,
+        supports_json_mode: bool = True,
+        supports_streaming: bool = True,
         **kwargs: Any,
     ) -> ModelConfig:
         """
@@ -62,6 +79,11 @@ class ModelRegistry:
             latency_p50_ms: Median latency in milliseconds
             latency_p99_ms: 99th percentile latency
             context_window: Maximum context size
+            capabilities: Explicit capability set (merged with auto-detected)
+            supports_function_calling: Whether the model supports tool/function calling
+            supports_vision: Whether the model supports image inputs
+            supports_json_mode: Whether the model supports JSON mode
+            supports_streaming: Whether the model supports streaming
             **kwargs: Additional model metadata
 
         Returns:
@@ -75,6 +97,11 @@ class ModelRegistry:
             latency_p50_ms=latency_p50_ms,
             latency_p99_ms=latency_p99_ms,
             context_window=context_window,
+            supports_function_calling=supports_function_calling,
+            supports_vision=supports_vision,
+            supports_json_mode=supports_json_mode,
+            supports_streaming=supports_streaming,
+            capabilities=capabilities or set(),
             metadata=kwargs,
         )
         self._models[model_id] = config
@@ -115,16 +142,11 @@ class ModelRegistry:
 
     def get_by_capability(self, capability: str) -> list[ModelConfig]:
         """Get models supporting a specific capability."""
-        capability_map = {
-            "vision": lambda m: m.supports_vision,
-            "function_calling": lambda m: m.supports_function_calling,
-            "json_mode": lambda m: m.supports_json_mode,
-            "streaming": lambda m: m.supports_streaming,
-        }
-        filter_fn = capability_map.get(capability)
-        if filter_fn:
-            return [m for m in self._models.values() if filter_fn(m)]
-        return []
+        return [m for m in self._models.values() if capability in m.capabilities]
+
+    def filter_by_capabilities(self, required: set[str]) -> list[ModelConfig]:
+        """Get models supporting all required capabilities."""
+        return [m for m in self._models.values() if required.issubset(m.capabilities)]
 
     def sorted_by_cost(self, descending: bool = False) -> list[ModelConfig]:
         """Get models sorted by cost."""

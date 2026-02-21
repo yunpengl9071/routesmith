@@ -73,6 +73,29 @@ class RouteSmith:
         self._counterfactual_cost = 0.0  # Cost if always used most expensive model
         self._last_routing_metadata: RoutingMetadata | None = None
 
+    @staticmethod
+    def _has_image_content(message: dict[str, Any]) -> bool:
+        """Check if a message contains image content."""
+        content = message.get("content")
+        if isinstance(content, list):
+            return any(
+                isinstance(part, dict) and part.get("type") == "image_url"
+                for part in content
+            )
+        return False
+
+    @staticmethod
+    def _detect_required_capabilities(
+        messages: list[dict[str, Any]], kwargs: dict[str, Any]
+    ) -> set[str]:
+        """Auto-detect required capabilities from messages and kwargs."""
+        required: set[str] = set()
+        if "tools" in kwargs or "functions" in kwargs:
+            required.add("tool_calling")
+        if any(RouteSmith._has_image_content(m) for m in messages):
+            required.add("vision")
+        return required
+
     def register_model(
         self,
         model_id: str,
@@ -143,6 +166,9 @@ class RouteSmith:
         routing_reason = ""
         models_considered = [m.model_id for m in self.registry.list_models()]
 
+        # Auto-detect required capabilities
+        required_capabilities = self._detect_required_capabilities(messages, kwargs)
+
         # If specific model requested, skip routing
         if model:
             selected_model = model
@@ -154,6 +180,7 @@ class RouteSmith:
                 strategy=effective_strategy,
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
+                required_capabilities=required_capabilities or None,
             )
             routing_reason = self._get_routing_reason(
                 effective_strategy, selected_model, max_cost, min_quality
@@ -162,11 +189,17 @@ class RouteSmith:
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
 
         # Execute completion via LiteLLM
-        response = litellm.completion(
-            model=selected_model,
-            messages=messages,
-            **{**self.config.litellm_params, **kwargs},
-        )
+        try:
+            response = litellm.completion(
+                model=selected_model,
+                messages=messages,
+                **{**self.config.litellm_params, **kwargs},
+            )
+        except Exception as e:
+            self.feedback.record_outcome(
+                request_id=request_id, success=False, feedback=str(e)
+            )
+            raise
 
         # Track costs and calculate counterfactual
         actual_cost = 0.0
@@ -282,6 +315,9 @@ class RouteSmith:
         self._request_count += 1
         request_id = uuid.uuid4().hex[:16]
 
+        # Auto-detect required capabilities
+        required_capabilities = self._detect_required_capabilities(messages, kwargs)
+
         # Determine routing strategy
         effective_strategy = strategy or self.config.default_strategy
         routing_reason = ""
@@ -298,6 +334,7 @@ class RouteSmith:
                 strategy=effective_strategy,
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
+                required_capabilities=required_capabilities or None,
             )
             routing_reason = self._get_routing_reason(
                 effective_strategy, selected_model, max_cost, min_quality
@@ -306,11 +343,17 @@ class RouteSmith:
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
 
         # Execute completion via LiteLLM
-        response = await litellm.acompletion(
-            model=selected_model,
-            messages=messages,
-            **{**self.config.litellm_params, **kwargs},
-        )
+        try:
+            response = await litellm.acompletion(
+                model=selected_model,
+                messages=messages,
+                **{**self.config.litellm_params, **kwargs},
+            )
+        except Exception as e:
+            self.feedback.record_outcome(
+                request_id=request_id, success=False, feedback=str(e)
+            )
+            raise
 
         # Track costs and calculate counterfactual
         actual_cost = 0.0
