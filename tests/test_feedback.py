@@ -445,12 +445,12 @@ class TestRouteSmithFeedbackIntegration:
         rid = response._routesmith_request_id
 
         # Record outcome
-        old_prior = client.router.predictor.model_quality_priors.get("test-model", 0.5)
+        old_prior = client.router.predictor._ema_priors.get("test-model", 0.5)
         found = client.record_outcome(rid, score=0.95)
         assert found is True
 
         # Predictor should have been updated
-        new_prior = client.router.predictor.model_quality_priors.get("test-model")
+        new_prior = client.router.predictor._ema_priors.get("test-model")
         assert new_prior != old_prior
 
     @patch("routesmith.client.litellm")
