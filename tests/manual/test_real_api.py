@@ -160,6 +160,74 @@ def test_cost_savings_demo():
     return True
 
 
+def test_feedback_system():
+    """Test feedback collection: request IDs, outcome recording, and SQLite storage."""
+    from routesmith import RouteSmith, RouteSmithConfig
+
+    print("Testing feedback system...")
+
+    config = RouteSmithConfig(
+        feedback_enabled=True,
+        feedback_sample_rate=1.0,
+        feedback_storage_path=":memory:",
+    )
+    rs = RouteSmith(config=config)
+    rs.register_model(
+        "gpt-4o-mini",
+        cost_per_1k_input=0.00015,
+        cost_per_1k_output=0.0006,
+        quality_score=0.85,
+    )
+
+    # 1. Completion should generate request_id
+    response = rs.completion(
+        messages=[{"role": "user", "content": "What is 2+2? Reply with just the number."}],
+        include_metadata=True,
+    )
+
+    rid = response._routesmith_request_id
+    assert rid is not None and len(rid) == 16, f"Bad request_id: {rid}"
+    assert response.routesmith_metadata["request_id"] == rid
+    assert rs.last_routing_metadata.request_id == rid
+    print(f"  request_id: {rid}")
+    print(f"  Response: {response.choices[0].message.content}")
+
+    # 2. Record should be in storage
+    stored = rs.feedback._storage.get_record(rid)
+    assert stored is not None, "Record not found in storage"
+    print(f"  Stored in SQLite: model={stored['model_id']}, latency={stored['latency_ms']:.1f}ms")
+
+    # 3. Implicit signals should be persisted
+    conn = rs.feedback._storage._get_conn()
+    signals = conn.execute(
+        "SELECT signal_name, signal_value FROM outcome_signals WHERE request_id = ?",
+        (rid,),
+    ).fetchall()
+    assert len(signals) == 6, f"Expected 6 signals, got {len(signals)}"
+    print(f"  Implicit signals: {[(s['signal_name'], s['signal_value']) for s in signals]}")
+
+    # 4. Record outcome and verify predictor update
+    old_prior = rs.router.predictor.model_quality_priors.get("gpt-4o-mini")
+    rs.record_outcome(rid, score=0.95, feedback="correct answer")
+    new_prior = rs.router.predictor.model_quality_priors.get("gpt-4o-mini")
+    assert new_prior != old_prior, "Predictor was not updated"
+    print(f"  Predictor updated: {old_prior:.4f} -> {new_prior:.4f}")
+
+    # 5. Verify outcome in storage
+    stored = rs.feedback._storage.get_record(rid)
+    assert stored["quality_score"] == 0.95
+    assert stored["user_feedback"] == "correct answer"
+    print(f"  Outcome stored: score={stored['quality_score']}, feedback='{stored['user_feedback']}'")
+
+    # 6. Training data should be available
+    training = rs.feedback._storage.get_training_data()
+    assert len(training) >= 1
+    print(f"  Training data rows: {len(training)}")
+
+    print("  Feedback system test PASSED")
+    return True
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("RouteSmith Real API Tests")
@@ -200,6 +268,15 @@ if __name__ == "__main__":
                 tests_passed += 1
         except Exception as e:
             print(f"  Cost savings demo FAILED: {e}")
+        print()
+
+    if available["openai"]:
+        tests_run += 1
+        try:
+            if test_feedback_system():
+                tests_passed += 1
+        except Exception as e:
+            print(f"  Feedback system test FAILED: {e}")
         print()
 
     print("=" * 60)
