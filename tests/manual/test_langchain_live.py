@@ -346,14 +346,14 @@ def test_supervisor_agent():
     llm = _make_llm_for_tools()
 
     @tool
-    def add(a: int, b: int) -> int:
-        """Add two numbers together."""
-        return a + b
+    def add(a: str, b: str) -> str:
+        """Add two numbers together. Arguments are numeric strings."""
+        return str(int(a) + int(b))
 
     @tool
-    def multiply(a: int, b: int) -> int:
-        """Multiply two numbers together."""
-        return a * b
+    def multiply(a: str, b: str) -> str:
+        """Multiply two numbers together. Arguments are numeric strings."""
+        return str(int(a) * int(b))
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
