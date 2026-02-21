@@ -42,11 +42,11 @@ def extractor(registry):
 
 class TestFeatureVector:
     def test_feature_count(self, extractor):
-        """Extract produces exactly 18 features."""
+        """Extract produces exactly 19 features."""
         msgs = [{"role": "user", "content": "Hello"}]
         fv = extractor.extract(msgs, "gpt-4o")
-        assert len(fv.features) == 18
-        assert len(fv.feature_names) == 18
+        assert len(fv.features) == 19
+        assert len(fv.feature_names) == 19
 
     def test_feature_names_match_length(self, extractor):
         """feature_names length always matches features length."""
@@ -87,7 +87,7 @@ class TestMessageFeatures:
     def test_empty_messages(self, extractor):
         fv = extractor.extract([], "gpt-4o")
         # All message features should be 0
-        for i in range(10):
+        for i in range(11):
             assert fv.features[i] == 0.0
 
     def test_word_count_and_avg_word_length(self, extractor):
@@ -103,33 +103,33 @@ class TestModelFeatures:
     def test_known_model(self, extractor):
         msgs = [{"role": "user", "content": "Hi"}]
         fv = extractor.extract(msgs, "gpt-4o")
-        # cost_per_1k_input
-        assert fv.features[10] == 0.005
+        # cost_per_1k_input (index 11 after tools_present at 10)
+        assert fv.features[11] == 0.005
         # cost_per_1k_output
-        assert fv.features[11] == 0.015
+        assert fv.features[12] == 0.015
         # quality_prior
-        assert fv.features[12] == 0.95
+        assert fv.features[13] == 0.95
         # latency_p50_ms
-        assert fv.features[13] == 800.0
+        assert fv.features[14] == 800.0
         # context_window_log
-        assert abs(fv.features[14] - math.log(128000)) < 0.01
+        assert abs(fv.features[15] - math.log(128000)) < 0.01
         # supports_function_calling
-        assert fv.features[15] == 1.0
-        # supports_vision
         assert fv.features[16] == 1.0
-        # supports_json_mode
+        # supports_vision
         assert fv.features[17] == 1.0
+        # supports_json_mode
+        assert fv.features[18] == 1.0
 
     def test_known_model_no_vision(self, extractor):
         fv = extractor.extract([{"role": "user", "content": "Hi"}], "gpt-4o-mini")
-        assert fv.features[16] == 0.0  # no vision
+        assert fv.features[17] == 0.0  # no vision
 
     def test_unknown_model(self, extractor):
         fv = extractor.extract([{"role": "user", "content": "Hi"}], "unknown-model")
         # Should return defaults without crashing
-        assert len(fv.features) == 18
+        assert len(fv.features) == 19
         # quality_prior default = 0.5
-        assert fv.features[12] == 0.5
+        assert fv.features[13] == 0.5
 
 
 class TestPerformance:
