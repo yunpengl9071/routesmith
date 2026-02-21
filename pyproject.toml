@@ -64,6 +64,12 @@ predictor = [
 langchain = [
     "langchain-core>=0.3.0",
 ]
+langchain-agents = [
+    "langchain-core>=0.3.0",
+    "langgraph>=1.0.0",
+    "langgraph-supervisor>=0.0.20",
+    "langgraph-swarm>=0.1.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/routesmith/routesmith"

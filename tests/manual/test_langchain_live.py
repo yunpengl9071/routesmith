@@ -332,6 +332,168 @@ def test_cost_tracking():
     print("   PASSED")
 
 
+# ── 9. Supervisor multi-agent ──────────────────────────────────────────────
+
+def test_supervisor_agent():
+    """Supervisor delegates to specialist sub-agents."""
+    from langgraph_supervisor import create_supervisor
+    from langgraph.prebuilt import create_react_agent
+    from langchain_core.messages import AIMessage, ToolMessage
+    from langchain_core.tools import tool
+
+    print("9. Supervisor multi-agent...")
+
+    llm = _make_llm_for_tools()
+
+    @tool
+    def add(a: int, b: int) -> int:
+        """Add two numbers together."""
+        return a + b
+
+    @tool
+    def multiply(a: int, b: int) -> int:
+        """Multiply two numbers together."""
+        return a * b
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+
+        math_agent = create_react_agent(
+            llm, [add, multiply],
+            name="math_agent",
+            prompt="You are a math specialist. Always use tools for calculations.",
+        )
+        general_agent = create_react_agent(
+            llm, [],
+            name="general_agent",
+            prompt="You answer general knowledge questions briefly.",
+        )
+
+        supervisor = create_supervisor(
+            [math_agent, general_agent],
+            model=llm,
+            prompt=(
+                "You are a supervisor. Route math questions to math_agent "
+                "and everything else to general_agent."
+            ),
+        ).compile()
+
+    result = supervisor.invoke(
+        {"messages": [{"role": "user", "content": "What is 15 + 27?"}]}
+    )
+    messages = result["messages"]
+
+    # Print conversation trace
+    for m in messages:
+        role = type(m).__name__
+        name = getattr(m, "name", None)
+        prefix = f"{role}({name})" if name else role
+        if isinstance(m, AIMessage) and m.tool_calls:
+            tools = [tc["name"] for tc in m.tool_calls]
+            print(f"   {prefix}: [tool_calls: {tools}]")
+        else:
+            print(f"   {prefix}: {str(m.content)[:80]}")
+
+    # The math agent should have been invoked and used the add tool
+    tool_msgs = [m for m in messages if isinstance(m, ToolMessage)]
+    assert len(tool_msgs) >= 1, "No tools were called"
+
+    # Final answer should contain 42
+    final = messages[-1]
+    assert isinstance(final, AIMessage)
+    assert "42" in final.content, f"Expected 42 in final answer: {final.content}"
+
+    # Verify cost tracking across all agents
+    stats = llm.routesmith.stats
+    # Supervisor call + math_agent calls (at least tool call + final answer)
+    assert stats["request_count"] >= 3, f"Expected >=3 requests, got {stats['request_count']}"
+    print(f"   Total LLM calls: {stats['request_count']}")
+    print(f"   Total cost: ${stats['total_cost_usd']:.6f}")
+    print("   PASSED")
+
+
+# ── 10. Swarm multi-agent ─────────────────────────────────────────────────
+
+def test_swarm_agent():
+    """Swarm agents hand off to each other."""
+    from langgraph_swarm import create_swarm, create_handoff_tool
+    from langgraph.prebuilt import create_react_agent
+    from langchain_core.messages import AIMessage
+    from langchain_core.tools import tool
+
+    print("10. Swarm multi-agent (handoff)...")
+
+    llm = _make_llm_for_tools()
+
+    @tool
+    def lookup_order(order_id: str) -> str:
+        """Look up an order by ID."""
+        orders = {"ORD-123": "Shipped, arriving tomorrow", "ORD-456": "Processing"}
+        return orders.get(order_id, f"Order {order_id} not found")
+
+    @tool
+    def check_inventory(product: str) -> str:
+        """Check inventory for a product."""
+        inventory = {"widget": "52 in stock", "gadget": "out of stock"}
+        return inventory.get(product.lower(), f"{product}: unknown")
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+
+        support_agent = create_react_agent(
+            llm,
+            [lookup_order, create_handoff_tool(agent_name="sales_agent")],
+            name="support_agent",
+            prompt=(
+                "You are a support agent. Help with order lookups. "
+                "If the user asks about buying or inventory, hand off to sales_agent."
+            ),
+        )
+        sales_agent = create_react_agent(
+            llm,
+            [check_inventory, create_handoff_tool(agent_name="support_agent")],
+            name="sales_agent",
+            prompt=(
+                "You are a sales agent. Help with inventory and purchases. "
+                "If the user asks about an existing order, hand off to support_agent."
+            ),
+        )
+
+        swarm = create_swarm(
+            [support_agent, sales_agent],
+            default_active_agent="support_agent",
+        ).compile()
+
+    # Ask about an order — support_agent should handle directly
+    result = swarm.invoke(
+        {"messages": [{"role": "user", "content": "What's the status of order ORD-123?"}]}
+    )
+    messages = result["messages"]
+
+    for m in messages:
+        role = type(m).__name__
+        name = getattr(m, "name", None)
+        prefix = f"{role}({name})" if name else role
+        print(f"   {prefix}: {str(m.content)[:80]}")
+
+    # Should have used lookup_order tool
+    from langchain_core.messages import ToolMessage
+    tool_msgs = [m for m in messages if isinstance(m, ToolMessage)]
+    assert len(tool_msgs) >= 1, "No tools were called"
+
+    # Final answer should mention shipping/arriving
+    final = messages[-1]
+    assert isinstance(final, AIMessage)
+    content_lower = final.content.lower()
+    assert "ship" in content_lower or "tomorrow" in content_lower or "arriving" in content_lower, \
+        f"Expected shipping info in answer: {final.content}"
+
+    stats = llm.routesmith.stats
+    print(f"   Total LLM calls: {stats['request_count']}")
+    print(f"   Total cost: ${stats['total_cost_usd']:.6f}")
+    print("   PASSED")
+
+
 # ── Runner ────────────────────────────────────────────────────────────────
 
 # Tests that involve tool calling may hit flaky Groq tool_use_failed errors.
@@ -341,6 +503,8 @@ _TOOL_CALLING_TESTS = {
     test_react_agent_loop,
     test_react_agent_multi_tool,
     test_cost_tracking,
+    test_supervisor_agent,
+    test_swarm_agent,
 }
 
 ALL_TESTS = [
@@ -352,6 +516,8 @@ ALL_TESTS = [
     test_async_invoke,
     test_record_outcome,
     test_cost_tracking,
+    test_supervisor_agent,
+    test_swarm_agent,
 ]
 
 
