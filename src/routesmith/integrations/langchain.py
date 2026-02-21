@@ -97,7 +97,7 @@ def _litellm_response_to_ai_message(
             if isinstance(args, str):
                 args = json.loads(args)
             tool_calls.append(
-                ToolCall(name=tc.function.name, args=args, id=tc.id)
+                ToolCall(name=tc.function.name, args=args or {}, id=tc.id)
             )
 
     # Build response metadata
