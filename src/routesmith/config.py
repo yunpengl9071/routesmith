@@ -39,6 +39,16 @@ class BudgetConfig:
 
 
 @dataclass
+class PredictorConfig:
+    """Configuration for adaptive quality predictor."""
+
+    min_samples_for_training: int = 100
+    retrain_interval: int = 50
+    n_estimators: int = 50
+    blend_alpha: float = 0.7
+
+
+@dataclass
 class RouteSmithConfig:
     """Main configuration for RouteSmith."""
 
@@ -47,8 +57,11 @@ class RouteSmithConfig:
     fallback_model: str | None = None  # Model to use if routing fails
 
     # Quality prediction
-    predictor_type: str = "embedding"  # embedding, classifier, random_forest
+    predictor_type: str = "adaptive"  # adaptive, embedding, classifier, random_forest
     predictor_model: str | None = None  # Custom predictor model path
+
+    # Predictor settings
+    predictor: PredictorConfig = field(default_factory=PredictorConfig)
 
     # Cache settings
     cache: CacheConfig = field(default_factory=CacheConfig)
@@ -59,6 +72,7 @@ class RouteSmithConfig:
     # Feedback loop
     feedback_enabled: bool = True
     feedback_sample_rate: float = 0.1  # Fraction of requests to evaluate
+    feedback_storage_path: str | None = None  # SQLite path; None = in-memory only
 
     # Performance
     routing_timeout_ms: int = 50  # Max time for routing decision
@@ -83,10 +97,12 @@ class RouteSmithConfig:
             fallback_model=self.fallback_model,
             predictor_type=self.predictor_type,
             predictor_model=self.predictor_model,
+            predictor=self.predictor,
             cache=new_cache,
             budget=self.budget,
             feedback_enabled=self.feedback_enabled,
             feedback_sample_rate=self.feedback_sample_rate,
+            feedback_storage_path=self.feedback_storage_path,
             routing_timeout_ms=self.routing_timeout_ms,
             enable_telemetry=self.enable_telemetry,
             litellm_params=self.litellm_params,
@@ -110,10 +126,12 @@ class RouteSmithConfig:
             fallback_model=self.fallback_model,
             predictor_type=self.predictor_type,
             predictor_model=self.predictor_model,
+            predictor=self.predictor,
             cache=self.cache,
             budget=new_budget,
             feedback_enabled=self.feedback_enabled,
             feedback_sample_rate=self.feedback_sample_rate,
+            feedback_storage_path=self.feedback_storage_path,
             routing_timeout_ms=self.routing_timeout_ms,
             enable_telemetry=self.enable_telemetry,
             litellm_params=self.litellm_params,

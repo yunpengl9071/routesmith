@@ -14,8 +14,8 @@ from unittest.mock import Mock, patch
 def test_basic_routing_mocked():
     """Test that routing selects the cheapest model meeting quality threshold."""
 
-    # Mock LiteLLM to avoid real API calls
-    with patch("litellm.completion") as mock_completion:
+    # Mock LiteLLM to avoid real API calls - patch where it's used
+    with patch("routesmith.client.litellm.completion") as mock_completion:
         # Set up mock response
         mock_response = Mock()
         mock_response.choices = [Mock(message=Mock(content="Hello! How can I help?"))]
@@ -72,7 +72,7 @@ def test_basic_routing_mocked():
 def test_high_quality_routing_mocked():
     """Test that high quality requirement routes to premium model."""
 
-    with patch("litellm.completion") as mock_completion:
+    with patch("routesmith.client.litellm.completion") as mock_completion:
         mock_response = Mock()
         mock_response.choices = [Mock(message=Mock(content="Complex answer here"))]
         mock_response.usage = Mock(prompt_tokens=10, completion_tokens=50)
