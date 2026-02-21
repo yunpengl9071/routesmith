@@ -42,6 +42,16 @@ def _make_llm(**kwargs):
     return ChatRouteSmith.with_openai_models(**kwargs)
 
 
+def _make_llm_for_tools(**kwargs):
+    """Create a ChatRouteSmith suited for tool calling.
+
+    Sets min_quality=0.85 so the router picks a model that reliably
+    follows the OpenAI tool-calling format (e.g. llama-3.3-70b on Groq).
+    """
+    kwargs.setdefault("min_quality", 0.85)
+    return _make_llm(**kwargs)
+
+
 def check_api_key():
     provider = _detect_provider()
     if not provider:
@@ -93,7 +103,7 @@ def test_tool_calling():
         """Multiply two numbers."""
         return a * b
 
-    llm = _make_llm()
+    llm = _make_llm_for_tools()
     bound = llm.bind_tools([multiply])
     result = bound.invoke("What is 137 times 42? Use the multiply tool.")
 
@@ -125,7 +135,7 @@ def test_react_agent_loop():
         """Add two numbers together."""
         return a + b
 
-    llm = _make_llm()
+    llm = _make_llm_for_tools()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
@@ -176,7 +186,7 @@ def test_react_agent_multi_tool():
         pop_data = {"NYC": "8.3 million", "SF": "870,000", "London": "9 million"}
         return pop_data.get(city, f"No data for {city}")
 
-    llm = _make_llm()
+    llm = _make_llm_for_tools()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
@@ -274,7 +284,7 @@ def test_cost_tracking():
         """Add two numbers."""
         return a + b
 
-    llm = _make_llm()
+    llm = _make_llm_for_tools()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
