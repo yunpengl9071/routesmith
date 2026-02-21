@@ -391,3 +391,100 @@ class TestAsyncCompletion:
         )
 
         assert hasattr(response, "routesmith_metadata")
+
+
+class TestCapabilityAutoDetection:
+    """Tests for automatic capability detection in the client."""
+
+    def test_detect_tool_calling_from_tools_kwarg(self):
+        """Client detects tool_calling requirement from tools kwarg."""
+        caps = RouteSmith._detect_required_capabilities(
+            messages=[{"role": "user", "content": "Hello"}],
+            kwargs={"tools": [{"type": "function", "function": {"name": "test"}}]},
+        )
+        assert "tool_calling" in caps
+
+    def test_detect_tool_calling_from_functions_kwarg(self):
+        """Client detects tool_calling requirement from functions kwarg."""
+        caps = RouteSmith._detect_required_capabilities(
+            messages=[{"role": "user", "content": "Hello"}],
+            kwargs={"functions": [{"name": "test"}]},
+        )
+        assert "tool_calling" in caps
+
+    def test_detect_vision_from_image_content(self):
+        """Client detects vision requirement from image_url in messages."""
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "What is in this image?"},
+                    {"type": "image_url", "image_url": {"url": "https://example.com/img.png"}},
+                ],
+            }
+        ]
+        caps = RouteSmith._detect_required_capabilities(messages, kwargs={})
+        assert "vision" in caps
+
+    def test_no_capabilities_for_simple_text(self):
+        """No capabilities detected for plain text messages."""
+        caps = RouteSmith._detect_required_capabilities(
+            messages=[{"role": "user", "content": "Hello"}],
+            kwargs={},
+        )
+        assert caps == set()
+
+    def test_has_image_content_true(self):
+        """_has_image_content returns True for image messages."""
+        msg = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "Look at this"},
+                {"type": "image_url", "image_url": {"url": "data:image/png;base64,abc"}},
+            ],
+        }
+        assert RouteSmith._has_image_content(msg) is True
+
+    def test_has_image_content_false_for_text(self):
+        """_has_image_content returns False for text-only messages."""
+        msg = {"role": "user", "content": "Hello"}
+        assert RouteSmith._has_image_content(msg) is False
+
+    @patch("routesmith.client.litellm")
+    def test_completion_routes_tool_calls_to_capable_model(self, mock_litellm):
+        """Client routes tool-calling requests only to capable models."""
+        rs = RouteSmith()
+        rs.register_model(
+            "capable", cost_per_1k_input=0.01, cost_per_1k_output=0.03,
+            quality_score=0.90, supports_function_calling=True,
+        )
+        rs.register_model(
+            "incapable", cost_per_1k_input=0.0001, cost_per_1k_output=0.0003,
+            quality_score=0.70, supports_function_calling=False,
+            supports_json_mode=False,
+        )
+
+        mock_response = MagicMock()
+        mock_response.usage.prompt_tokens = 100
+        mock_response.usage.completion_tokens = 50
+        mock_litellm.completion.return_value = mock_response
+
+        rs.completion(
+            messages=[{"role": "user", "content": "Use a tool"}],
+            tools=[{"type": "function", "function": {"name": "test", "parameters": {}}}],
+        )
+
+        # Should have called litellm with the capable model
+        call_kwargs = mock_litellm.completion.call_args
+        assert call_kwargs.kwargs["model"] == "capable"
+
+    @patch("routesmith.client.litellm")
+    def test_completion_error_records_feedback(self, mock_litellm):
+        """Client records failure feedback when litellm raises."""
+        rs = RouteSmith()
+        rs.register_model("model", cost_per_1k_input=0.001, cost_per_1k_output=0.002)
+
+        mock_litellm.completion.side_effect = Exception("API error")
+
+        with pytest.raises(Exception, match="API error"):
+            rs.completion(messages=[{"role": "user", "content": "Hello"}])

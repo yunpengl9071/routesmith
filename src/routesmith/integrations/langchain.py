@@ -329,16 +329,21 @@ class ChatRouteSmith(BaseChatModel):
     def with_openai_models(cls, **kwargs: Any) -> ChatRouteSmith:
         """Create a ChatRouteSmith pre-configured with common OpenAI models."""
         instance = cls(**kwargs)
-        models = [
-            ("gpt-4o", 0.0025, 0.01, 0.95),
-            ("gpt-4o-mini", 0.00015, 0.0006, 0.85),
-            ("gpt-4.1", 0.002, 0.008, 0.96),
-            ("gpt-4.1-mini", 0.0004, 0.0016, 0.87),
-            ("gpt-4.1-nano", 0.0001, 0.0004, 0.75),
+        _all_caps = {"tool_calling", "vision", "json_mode", "streaming"}
+        models: list[tuple[str, float, float, float, set[str]]] = [
+            ("gpt-4o", 0.0025, 0.01, 0.95, _all_caps),
+            ("gpt-4o-mini", 0.00015, 0.0006, 0.85, {"tool_calling", "json_mode", "streaming"}),
+            ("gpt-4.1", 0.002, 0.008, 0.96, _all_caps),
+            ("gpt-4.1-mini", 0.0004, 0.0016, 0.87, {"tool_calling", "json_mode", "streaming"}),
+            ("gpt-4.1-nano", 0.0001, 0.0004, 0.75, {"json_mode", "streaming"}),
         ]
-        for model_id, inp, out, quality in models:
+        for model_id, inp, out, quality, caps in models:
             instance.routesmith.register_model(
-                model_id, cost_per_1k_input=inp, cost_per_1k_output=out, quality_score=quality
+                model_id, cost_per_1k_input=inp, cost_per_1k_output=out,
+                quality_score=quality,
+                supports_function_calling="tool_calling" in caps,
+                supports_vision="vision" in caps,
+                supports_json_mode="json_mode" in caps,
             )
         return instance
 
@@ -346,13 +351,17 @@ class ChatRouteSmith(BaseChatModel):
     def with_groq_models(cls, **kwargs: Any) -> ChatRouteSmith:
         """Create a ChatRouteSmith pre-configured with common Groq models."""
         instance = cls(**kwargs)
-        models = [
-            ("groq/llama-3.3-70b-versatile", 0.00059, 0.00079, 0.90),
-            ("groq/llama-3.1-8b-instant", 0.00005, 0.00008, 0.75),
+        models: list[tuple[str, float, float, float, set[str]]] = [
+            ("groq/llama-3.3-70b-versatile", 0.00059, 0.00079, 0.90, {"tool_calling", "json_mode", "streaming"}),
+            ("groq/llama-3.1-8b-instant", 0.00005, 0.00008, 0.75, {"streaming"}),
         ]
-        for model_id, inp, out, quality in models:
+        for model_id, inp, out, quality, caps in models:
             instance.routesmith.register_model(
-                model_id, cost_per_1k_input=inp, cost_per_1k_output=out, quality_score=quality
+                model_id, cost_per_1k_input=inp, cost_per_1k_output=out,
+                quality_score=quality,
+                supports_function_calling="tool_calling" in caps,
+                supports_vision="vision" in caps,
+                supports_json_mode="json_mode" in caps,
             )
         return instance
 
@@ -360,13 +369,18 @@ class ChatRouteSmith(BaseChatModel):
     def with_anthropic_models(cls, **kwargs: Any) -> ChatRouteSmith:
         """Create a ChatRouteSmith pre-configured with common Anthropic models."""
         instance = cls(**kwargs)
-        models = [
-            ("anthropic/claude-opus-4-6", 0.015, 0.075, 0.97),
-            ("anthropic/claude-sonnet-4-5-20250929", 0.003, 0.015, 0.93),
-            ("anthropic/claude-haiku-4-5-20251001", 0.0008, 0.004, 0.85),
+        _all_caps = {"tool_calling", "vision", "json_mode", "streaming"}
+        models: list[tuple[str, float, float, float, set[str]]] = [
+            ("anthropic/claude-opus-4-6", 0.015, 0.075, 0.97, _all_caps),
+            ("anthropic/claude-sonnet-4-5-20250929", 0.003, 0.015, 0.93, _all_caps),
+            ("anthropic/claude-haiku-4-5-20251001", 0.0008, 0.004, 0.85, _all_caps),
         ]
-        for model_id, inp, out, quality in models:
+        for model_id, inp, out, quality, caps in models:
             instance.routesmith.register_model(
-                model_id, cost_per_1k_input=inp, cost_per_1k_output=out, quality_score=quality
+                model_id, cost_per_1k_input=inp, cost_per_1k_output=out,
+                quality_score=quality,
+                supports_function_calling="tool_calling" in caps,
+                supports_vision="vision" in caps,
+                supports_json_mode="json_mode" in caps,
             )
         return instance
