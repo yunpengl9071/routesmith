@@ -194,15 +194,25 @@ def test_react_agent_multi_tool():
 
     @tool
     def get_weather(city: str) -> str:
-        """Get current weather for a city."""
-        weather_data = {"NYC": "65°F, cloudy", "SF": "58°F, foggy", "London": "52°F, rainy"}
-        return weather_data.get(city, f"No data for {city}")
+        """Get current weather for a city. Accepts city names like 'SF', 'San Francisco', 'NYC'."""
+        city_lower = city.lower().replace(" ", "")
+        weather_data = {
+            "nyc": "65°F, cloudy", "newyork": "65°F, cloudy", "newyorkcity": "65°F, cloudy",
+            "sf": "58°F, foggy", "sanfrancisco": "58°F, foggy",
+            "london": "52°F, rainy",
+        }
+        return weather_data.get(city_lower, f"No data for {city}")
 
     @tool
     def get_population(city: str) -> str:
-        """Get population of a city."""
-        pop_data = {"NYC": "8.3 million", "SF": "870,000", "London": "9 million"}
-        return pop_data.get(city, f"No data for {city}")
+        """Get population of a city. Accepts city names like 'SF', 'San Francisco', 'NYC'."""
+        city_lower = city.lower().replace(" ", "")
+        pop_data = {
+            "nyc": "8.3 million", "newyork": "8.3 million", "newyorkcity": "8.3 million",
+            "sf": "870,000", "sanfrancisco": "870,000",
+            "london": "9 million",
+        }
+        return pop_data.get(city_lower, f"No data for {city}")
 
     llm = _make_llm_for_tools()
 
