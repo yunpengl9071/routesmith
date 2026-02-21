@@ -242,15 +242,15 @@ budget:
   quality_threshold: 0.7
 
 models:
-  - id: groq/llama-3.1-70b-versatile
+  - id: groq/llama-3.3-70b-versatile
+    cost_per_1k_input: 0.00059
+    cost_per_1k_output: 0.00079
+    quality_score: 0.90
+
+  - id: groq/llama-3.3-70b-specdec
     cost_per_1k_input: 0.00059
     cost_per_1k_output: 0.00079
     quality_score: 0.88
-
-  - id: groq/llama-3.1-8b-instant
-    cost_per_1k_input: 0.00005
-    cost_per_1k_output: 0.00008
-    quality_score: 0.75
 ```
 
 Run:
@@ -322,8 +322,8 @@ Once OpenClaw supports custom providers, configure:
 | gpt-4o-mini | $0.00015 | $0.0006 | 0.85 |
 | claude-3-5-sonnet | $0.003 | $0.015 | 0.93 |
 | claude-3-5-haiku | $0.001 | $0.005 | 0.80 |
-| groq/llama-3.1-70b | $0.00059 | $0.00079 | 0.88 |
-| groq/llama-3.1-8b | $0.00005 | $0.00008 | 0.75 |
+| groq/llama-3.3-70b-versatile | $0.00059 | $0.00079 | 0.90 |
+| groq/llama-3.3-70b-specdec | $0.00059 | $0.00079 | 0.88 |
 
 A simple "What is 2+2?" query with gpt-4o-mini costs ~$0.00001
 
