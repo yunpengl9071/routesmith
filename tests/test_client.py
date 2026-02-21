@@ -11,6 +11,7 @@ class TestRoutingMetadata:
     def test_metadata_creation(self):
         """Test creating routing metadata."""
         metadata = RoutingMetadata(
+            request_id="abc123",
             model_selected="gpt-4o-mini",
             routing_strategy="direct",
             routing_reason="cheapest model meeting quality threshold",
@@ -28,6 +29,7 @@ class TestRoutingMetadata:
     def test_metadata_to_dict(self):
         """Test converting metadata to dictionary."""
         metadata = RoutingMetadata(
+            request_id="def456",
             model_selected="gpt-4o-mini",
             routing_strategy="direct",
             routing_reason="test reason",
@@ -130,6 +132,7 @@ class TestCostTracking:
         client._total_cost = 1.5
         client._counterfactual_cost = 5.0
         client._last_routing_metadata = RoutingMetadata(
+            request_id="test123",
             model_selected="test",
             routing_strategy="direct",
             routing_reason="test",
