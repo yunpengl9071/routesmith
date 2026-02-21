@@ -166,10 +166,19 @@ def test_feedback_system():
 
     print("Testing feedback system...")
 
+    import tempfile
+    import os
+    from routesmith.feedback.storage import FeedbackStorage
+
+    db_path = os.path.join(tempfile.gettempdir(), "routesmith_test_feedback.db")
+    # Clean up from any previous run
+    if os.path.exists(db_path):
+        os.remove(db_path)
+
     config = RouteSmithConfig(
         feedback_enabled=True,
         feedback_sample_rate=1.0,
-        feedback_storage_path=":memory:",
+        feedback_storage_path=db_path,
     )
     rs = RouteSmith(config=config)
     rs.register_model(
@@ -223,6 +232,25 @@ def test_feedback_system():
     training = rs.feedback._storage.get_training_data()
     assert len(training) >= 1
     print(f"  Training data rows: {len(training)}")
+
+    # 7. Verify on-disk persistence: close and reopen from file
+    rs.feedback._storage.close()
+    assert os.path.exists(db_path), f"DB file not found at {db_path}"
+    db_size = os.path.getsize(db_path)
+    print(f"  DB file: {db_path} ({db_size} bytes)")
+
+    reopened = FeedbackStorage(db_path)
+    stored = reopened.get_record(rid)
+    assert stored is not None, "Record not found after reopening DB"
+    assert stored["quality_score"] == 0.95
+    assert stored["user_feedback"] == "correct answer"
+    training = reopened.get_training_data()
+    assert len(training) >= 1
+    reopened.close()
+    print(f"  Persistence verified: record and training data survived reopen")
+
+    # Cleanup
+    os.remove(db_path)
 
     print("  Feedback system test PASSED")
     return True
