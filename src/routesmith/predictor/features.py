@@ -22,8 +22,8 @@ class FeatureExtractor:
     """
     Extracts numeric features from messages and model metadata.
 
-    Produces an 18-dimensional feature vector:
-      10 message features + 8 model features.
+    Produces a 19-dimensional feature vector:
+      11 message features + 8 model features.
     All features are cheap to compute (<1ms, no external deps).
     """
 
@@ -38,6 +38,7 @@ class FeatureExtractor:
         "question_mark_count",
         "word_count",
         "avg_word_length",
+        "tools_present",
     ]
 
     MODEL_FEATURE_NAMES = [
@@ -69,7 +70,7 @@ class FeatureExtractor:
             model_id: Model to extract metadata features for.
 
         Returns:
-            FeatureVector with 18 features.
+            FeatureVector with 19 features.
         """
         msg_features = self._extract_message_features(messages)
         model_features = self._extract_model_features(model_id)
@@ -81,7 +82,7 @@ class FeatureExtractor:
     def _extract_message_features(
         self, messages: list[dict[str, str]]
     ) -> list[float]:
-        """Extract 10 message-level features."""
+        """Extract 11 message-level features."""
         if not messages:
             return [0.0] * len(self.MESSAGE_FEATURE_NAMES)
 
@@ -113,6 +114,13 @@ class FeatureExtractor:
             sum(len(w) for w in words) / word_count if words else 0.0
         )
 
+        # Detect tool usage in the conversation
+        tools_present = 1.0 if any(
+            m.get("role") == "tool"
+            or (m.get("role") == "assistant" and m.get("tool_calls"))
+            for m in messages
+        ) else 0.0
+
         return [
             msg_count,
             total_char_length,
@@ -124,6 +132,7 @@ class FeatureExtractor:
             question_mark_count,
             word_count,
             avg_word_length,
+            tools_present,
         ]
 
     def _extract_model_features(self, model_id: str) -> list[float]:

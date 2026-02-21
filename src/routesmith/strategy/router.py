@@ -77,6 +77,7 @@ class Router:
         strategy: RoutingStrategy = RoutingStrategy.DIRECT,
         max_cost: float | None = None,
         min_quality: float = 0.0,
+        required_capabilities: set[str] | None = None,
     ) -> str:
         """
         Select the optimal model for a query.
@@ -86,6 +87,7 @@ class Router:
             strategy: Routing strategy to use.
             max_cost: Maximum cost constraint (USD per 1k tokens).
             min_quality: Minimum quality threshold (0-1).
+            required_capabilities: Capabilities the selected model must support.
 
         Returns:
             Selected model ID.
@@ -97,21 +99,39 @@ class Router:
             raise ValueError("No models registered. Call register_model() first.")
 
         if strategy == RoutingStrategy.DIRECT:
-            return self._route_direct(messages, max_cost, min_quality)
+            return self._route_direct(messages, max_cost, min_quality, required_capabilities)
         elif strategy == RoutingStrategy.CASCADE:
-            return self._route_cascade(messages, max_cost, min_quality)
+            return self._route_cascade(messages, max_cost, min_quality, required_capabilities)
         elif strategy == RoutingStrategy.PARALLEL:
-            return self._route_parallel(messages, max_cost, min_quality)
+            return self._route_parallel(messages, max_cost, min_quality, required_capabilities)
         elif strategy == RoutingStrategy.SPECULATIVE:
-            return self._route_speculative(messages, max_cost, min_quality)
+            return self._route_speculative(messages, max_cost, min_quality, required_capabilities)
         else:
             raise ValueError(f"Unknown routing strategy: {strategy}")
+
+    def _filter_by_capabilities(
+        self,
+        candidates: list[Any],
+        required_capabilities: set[str] | None,
+    ) -> list[Any]:
+        """Filter candidates by required capabilities, raising if none match."""
+        if not required_capabilities:
+            return candidates
+        filtered = [c for c in candidates if required_capabilities.issubset(c.capabilities)]
+        if not filtered:
+            available = {cap for m in self.registry.list_models() for cap in m.capabilities}
+            missing = required_capabilities - available
+            raise ValueError(
+                f"No models support required capabilities: {missing or required_capabilities}"
+            )
+        return filtered
 
     def _route_direct(
         self,
         messages: list[dict[str, str]],
         max_cost: float | None,
         min_quality: float,
+        required_capabilities: set[str] | None = None,
     ) -> str:
         """
         Direct routing: select cheapest model meeting quality threshold.
@@ -124,6 +144,9 @@ class Router:
             candidates = self.registry.filter_by_cost(max_cost)
         else:
             candidates = self.registry.list_models()
+
+        # Filter by required capabilities
+        candidates = self._filter_by_capabilities(candidates, required_capabilities)
 
         if not candidates:
             # Fallback to cheapest model if no candidates meet cost constraints
@@ -168,6 +191,7 @@ class Router:
         messages: list[dict[str, str]],
         max_cost: float | None,
         min_quality: float,
+        required_capabilities: set[str] | None = None,
     ) -> str:
         """
         Cascade routing: start with cheap model, escalate if needed.
@@ -180,6 +204,9 @@ class Router:
         candidates = self.registry.list_models()
         if not candidates:
             raise ValueError("No models available for cascade")
+
+        # Filter by required capabilities
+        candidates = self._filter_by_capabilities(candidates, required_capabilities)
 
         candidate_ids = [m.model_id for m in candidates]
         predictions = self.predictor.predict(messages, candidate_ids)
@@ -209,6 +236,7 @@ class Router:
         messages: list[dict[str, str]],
         max_cost: float | None,
         min_quality: float,
+        required_capabilities: set[str] | None = None,
     ) -> str:
         """
         Parallel routing: run multiple models, select best.
@@ -216,9 +244,16 @@ class Router:
         Note: Full parallel execution happens in client.py.
         This returns the primary model to use.
         """
-        # For parallel strategy, return highest quality model
-        best = self.registry.get_best_quality(max_cost)
-        if best:
+        # For parallel strategy, get candidates and filter by capabilities
+        if max_cost is not None:
+            candidates = self.registry.filter_by_cost(max_cost)
+        else:
+            candidates = self.registry.list_models()
+
+        candidates = self._filter_by_capabilities(candidates, required_capabilities)
+
+        if candidates:
+            best = max(candidates, key=lambda m: m.quality_score)
             return best.model_id
 
         raise ValueError("No models available for parallel execution")
@@ -228,6 +263,7 @@ class Router:
         messages: list[dict[str, str]],
         max_cost: float | None,
         min_quality: float,
+        required_capabilities: set[str] | None = None,
     ) -> str:
         """
         Speculative routing: start cheap while evaluating escalation.
@@ -235,12 +271,13 @@ class Router:
         Similar to cascade but begins generation immediately.
         """
         # Start with cheapest model
-        return self._route_cascade(messages, max_cost, min_quality)
+        return self._route_cascade(messages, max_cost, min_quality, required_capabilities)
 
     def get_cascade_models(
         self,
         min_quality: float = 0.0,
         max_tiers: int = 3,
+        required_capabilities: set[str] | None = None,
     ) -> list[str]:
         """
         Get ordered list of models for cascade execution.
@@ -251,10 +288,13 @@ class Router:
         Args:
             min_quality: Minimum quality threshold.
             max_tiers: Maximum number of cascade tiers.
+            required_capabilities: Capabilities each model must support.
 
         Returns:
             List of model IDs ordered by cost (cheapest first).
         """
         candidates = self.registry.filter_by_quality(min_quality)
+        if required_capabilities:
+            candidates = [c for c in candidates if required_capabilities.issubset(c.capabilities)]
         sorted_models = sorted(candidates, key=lambda m: m.cost_per_1k_total)
         return [m.model_id for m in sorted_models[:max_tiers]]

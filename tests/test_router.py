@@ -287,6 +287,109 @@ class TestRouterWithDifferentConfigs:
         assert model == "cheap"
 
 
+class TestCapabilityRouting:
+    """Tests for capability-aware routing."""
+
+    @pytest.fixture
+    def registry(self):
+        reg = ModelRegistry()
+        reg.register(
+            "full-model", cost_per_1k_input=0.01, cost_per_1k_output=0.03,
+            quality_score=0.95,
+            supports_function_calling=True, supports_vision=True,
+        )
+        reg.register(
+            "tools-only", cost_per_1k_input=0.001, cost_per_1k_output=0.003,
+            quality_score=0.85,
+            supports_function_calling=True, supports_vision=False,
+        )
+        reg.register(
+            "basic-model", cost_per_1k_input=0.0001, cost_per_1k_output=0.0003,
+            quality_score=0.70,
+            supports_function_calling=False, supports_vision=False,
+            supports_json_mode=False,
+        )
+        return reg
+
+    @pytest.fixture
+    def router(self, registry):
+        return Router(RouteSmithConfig(), registry)
+
+    def test_direct_route_filters_by_capability(self, router):
+        """Models without tool_calling are excluded when tool_calling is required."""
+        model = router.route(
+            [{"role": "user", "content": "Use a tool"}],
+            strategy=RoutingStrategy.DIRECT,
+            required_capabilities={"tool_calling"},
+        )
+        assert model in ["full-model", "tools-only"]
+        assert model != "basic-model"
+
+    def test_route_requires_vision_excludes_non_vision(self, router):
+        """Only vision-capable models are returned when vision is required."""
+        model = router.route(
+            [{"role": "user", "content": "Describe this image"}],
+            strategy=RoutingStrategy.DIRECT,
+            required_capabilities={"vision"},
+        )
+        assert model == "full-model"
+
+    def test_route_multiple_capabilities(self, router):
+        """Requiring both tool_calling and vision leaves only full-model."""
+        model = router.route(
+            [{"role": "user", "content": "Analyze image with tools"}],
+            strategy=RoutingStrategy.DIRECT,
+            required_capabilities={"tool_calling", "vision"},
+        )
+        assert model == "full-model"
+
+    def test_no_capable_model_raises_error(self, router):
+        """Raises ValueError when no model supports all required capabilities."""
+        with pytest.raises(ValueError, match="No models support required capabilities"):
+            router.route(
+                [{"role": "user", "content": "Test"}],
+                required_capabilities={"nonexistent_capability"},
+            )
+
+    def test_cascade_respects_capabilities(self, router):
+        """Cascade routing filters by capabilities."""
+        model = router.route(
+            [{"role": "user", "content": "Use tools"}],
+            strategy=RoutingStrategy.CASCADE,
+            required_capabilities={"tool_calling"},
+        )
+        # Should pick cheapest with tool_calling = tools-only
+        assert model == "tools-only"
+
+    def test_get_cascade_models_respects_capabilities(self, router):
+        """get_cascade_models filters by capabilities."""
+        models = router.get_cascade_models(required_capabilities={"tool_calling"})
+        assert "basic-model" not in models
+        assert "tools-only" in models
+        assert "full-model" in models
+
+    def test_no_capabilities_returns_any_model(self, router):
+        """Without required_capabilities, all models are candidates."""
+        model = router.route(
+            [{"role": "user", "content": "Hello"}],
+            strategy=RoutingStrategy.DIRECT,
+        )
+        # Should pick cheapest (basic-model) since no quality threshold
+        assert model in ["full-model", "tools-only", "basic-model"]
+
+    def test_capabilities_applied_before_quality_prediction(self, router):
+        """Capabilities filter happens before quality prediction."""
+        # With high quality threshold + tool_calling requirement,
+        # basic-model is excluded by capability, not quality
+        model = router.route(
+            [{"role": "user", "content": "Complex tool task"}],
+            strategy=RoutingStrategy.DIRECT,
+            min_quality=0.90,
+            required_capabilities={"tool_calling"},
+        )
+        assert model == "full-model"
+
+
 class TestRouterEdgeCases:
     """Edge case tests for router."""
 
