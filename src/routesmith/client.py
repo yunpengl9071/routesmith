@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+import uuid
 from dataclasses import dataclass, asdict
 from typing import Any, AsyncIterator, Iterator
 
@@ -19,6 +20,7 @@ from routesmith.feedback.collector import FeedbackCollector
 class RoutingMetadata:
     """Metadata about a routing decision for transparency."""
 
+    request_id: str
     model_selected: str
     routing_strategy: str
     routing_reason: str
@@ -63,7 +65,7 @@ class RouteSmith:
         self.config = config or RouteSmithConfig()
         self.registry = registry or ModelRegistry()
         self.router = Router(self.config, self.registry)
-        self.feedback = FeedbackCollector(self.config)
+        self.feedback = FeedbackCollector(self.config, registry=self.registry)
         self._request_count = 0
         self._total_cost = 0.0
         self._counterfactual_cost = 0.0  # Cost if always used most expensive model
@@ -132,6 +134,7 @@ class RouteSmith:
         """
         routing_start = time.perf_counter()
         self._request_count += 1
+        request_id = uuid.uuid4().hex[:16]
 
         # Determine routing strategy
         effective_strategy = strategy or self.config.default_strategy
@@ -189,6 +192,7 @@ class RouteSmith:
 
         # Build routing metadata
         metadata = RoutingMetadata(
+            request_id=request_id,
             model_selected=selected_model,
             routing_strategy=effective_strategy.value,
             routing_reason=routing_reason,
@@ -204,9 +208,13 @@ class RouteSmith:
         if include_metadata:
             response.routesmith_metadata = metadata.to_dict()  # type: ignore[attr-defined]
 
+        # Attach request_id to response for outcome tracking
+        response._routesmith_request_id = request_id  # type: ignore[attr-defined]
+
         # Collect feedback sample
         total_latency_ms = (time.perf_counter() - routing_start) * 1000
         self.feedback.record(
+            request_id=request_id,
             messages=messages,
             model=selected_model,
             response=response,
@@ -270,6 +278,7 @@ class RouteSmith:
         """
         routing_start = time.perf_counter()
         self._request_count += 1
+        request_id = uuid.uuid4().hex[:16]
 
         # Determine routing strategy
         effective_strategy = strategy or self.config.default_strategy
@@ -327,6 +336,7 @@ class RouteSmith:
 
         # Build routing metadata
         metadata = RoutingMetadata(
+            request_id=request_id,
             model_selected=selected_model,
             routing_strategy=effective_strategy.value,
             routing_reason=routing_reason,
@@ -342,9 +352,13 @@ class RouteSmith:
         if include_metadata:
             response.routesmith_metadata = metadata.to_dict()  # type: ignore[attr-defined]
 
+        # Attach request_id to response for outcome tracking
+        response._routesmith_request_id = request_id  # type: ignore[attr-defined]
+
         # Collect feedback sample
         total_latency_ms = (time.perf_counter() - routing_start) * 1000
         self.feedback.record(
+            request_id=request_id,
             messages=messages,
             model=selected_model,
             response=response,
@@ -466,6 +480,51 @@ class RouteSmith:
     def last_routing_metadata(self) -> RoutingMetadata | None:
         """Get metadata from the last routing decision."""
         return self._last_routing_metadata
+
+    def record_outcome(
+        self,
+        request_id: str,
+        success: bool | None = None,
+        score: float | None = None,
+        feedback: str | None = None,
+    ) -> bool:
+        """
+        Record explicit feedback for a previous request.
+
+        Use this to provide quality signals that improve future routing.
+
+        Args:
+            request_id: Request ID from response._routesmith_request_id
+                or RoutingMetadata.request_id.
+            success: Whether the response was successful.
+            score: Explicit quality score (0-1).
+            feedback: Free-text user feedback.
+
+        Returns:
+            True if the request was found, False otherwise.
+        """
+        found = self.feedback.record_outcome(
+            request_id=request_id,
+            success=success,
+            score=score,
+            feedback=feedback,
+        )
+
+        # Feed quality score to predictor for online learning
+        quality = score
+        if quality is None and success is not None:
+            quality = 1.0 if success else 0.0
+
+        if quality is not None:
+            record = self.feedback.get_record_by_id(request_id)
+            if record is not None:
+                self.router.predictor.update(
+                    messages=record.messages,
+                    model_id=record.model_id,
+                    actual_quality=quality,
+                )
+
+        return found
 
     def reset_stats(self) -> None:
         """Reset session statistics."""
