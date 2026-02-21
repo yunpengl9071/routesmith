@@ -52,6 +52,24 @@ def _make_llm_for_tools(**kwargs):
     return _make_llm(**kwargs)
 
 
+def _retry_on_groq_tool_error(fn, max_retries=2):
+    """Retry a test function if Groq returns a tool_use_failed error.
+
+    Groq's Llama models sometimes generate malformed tool calls
+    (XML-style instead of structured JSON). Retrying usually works.
+    """
+    import litellm
+
+    for attempt in range(max_retries + 1):
+        try:
+            return fn()
+        except litellm.BadRequestError as e:
+            if "tool_use_failed" in str(e) and attempt < max_retries:
+                print(f"   (Groq tool_use_failed, retrying... attempt {attempt + 2})")
+                continue
+            raise
+
+
 def check_api_key():
     provider = _detect_provider()
     if not provider:
@@ -306,6 +324,15 @@ def test_cost_tracking():
 
 # ── Runner ────────────────────────────────────────────────────────────────
 
+# Tests that involve tool calling may hit flaky Groq tool_use_failed errors.
+# Mark them so the runner can retry.
+_TOOL_CALLING_TESTS = {
+    test_tool_calling,
+    test_react_agent_loop,
+    test_react_agent_multi_tool,
+    test_cost_tracking,
+}
+
 ALL_TESTS = [
     test_basic_invoke,
     test_tool_calling,
@@ -332,7 +359,10 @@ if __name__ == "__main__":
 
     for test_fn in ALL_TESTS:
         try:
-            test_fn()
+            if test_fn in _TOOL_CALLING_TESTS:
+                _retry_on_groq_tool_error(test_fn)
+            else:
+                test_fn()
             passed += 1
         except Exception as e:
             print(f"   FAILED: {e}")
