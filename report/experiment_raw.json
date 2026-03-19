@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-03-11T16:13:00.281201",
+  "queries_tested": 10,
+  "summary": [
+    {
+      "model": "nemotron",
+      "model_id": "nvidia/nemotron-3-nano-30b-a3b:free",
+      "total_cost": 0,
+      "avg_latency": 0.26,
+      "avg_quality": 6.8,
+      "queries": 10
+    },
+    {
+      "model": "phi4",
+      "model_id": "microsoft/phi-4",
+      "total_cost": 0.000194,
+      "avg_latency": 0.22,
+      "avg_quality": 7.6,
+      "queries": 10
+    },
+    {
+      "model": "gpt4o_mini",
+      "model_id": "openai/gpt-4o-mini",
+      "total_cost": 0.000704,
+      "avg_latency": 0.54,
+      "avg_quality": 7.4,
+      "queries": 10
+    },
+    {
+      "model": "deepseek",
+      "model_id": "deepseek/deepseek-v3.2",
+      "total_cost": 0.000946,
+      "avg_latency": 1.13,
+      "avg_quality": 7.1,
+      "queries": 10
+    },
+    {
+      "model": "gpt4o",
+      "model_id": "openai/gpt-4o",
+      "total_cost": 0.01197,
+      "avg_latency": 0.46,
+      "avg_quality": 7.4,
+      "queries": 10
+    }
+  ],
+  "simulated_routing": {
+    "cost": 0.002742,
+    "quality": 7.26
+  }
+}

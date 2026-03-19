@@ -1,0 +1,10 @@
+{
+  "premium_usage_first_20": 0.15,
+  "premium_usage_rest_80": 0.75,
+  "premium_usage_p_value": 7.239906746316723e-07,
+  "cost_first_20": 0.004864,
+  "cost_rest_80": 0.0168055,
+  "cost_p_value": 7.239906746316723e-07,
+  "bootstrap_ci_lower": 0.0059801312499999995,
+  "bootstrap_ci_upper": 0.01694811875
+}

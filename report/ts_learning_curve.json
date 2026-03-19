@@ -1,0 +1,82 @@
+[
+  {
+    "query_num": 1,
+    "query": "How do I reset my password?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 2,
+    "query": "What's your refund policy?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 3,
+    "query": "How do I cancel my subscriptio",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 4,
+    "query": "Where can I find my invoice?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 5,
+    "query": "Do you support 2FA?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 6,
+    "query": "How do I update my email?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 7,
+    "query": "What's your uptime guarantee?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 8,
+    "query": "How do I export my data?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 9,
+    "query": "Can I change my plan?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  },
+  {
+    "query_num": 10,
+    "query": "What's included in free trial?",
+    "selected": "nemotron",
+    "quality": 8.3,
+    "cost": 0,
+    "reward": 16.6
+  }
+]

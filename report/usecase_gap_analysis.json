@@ -1,0 +1,72 @@
+{
+  "Complex Coding": {
+    "mimo": {
+      "correct": 4,
+      "total": 5
+    },
+    "gemini-flash": {
+      "correct": 3,
+      "total": 5
+    },
+    "gpt4o-mini": {
+      "correct": 3,
+      "total": 5
+    }
+  },
+  "Multi-step Math": {
+    "mimo": {
+      "correct": 5,
+      "total": 5
+    },
+    "gemini-flash": {
+      "correct": 5,
+      "total": 5
+    },
+    "gpt4o-mini": {
+      "correct": 4,
+      "total": 5
+    }
+  },
+  "Nuanced Reasoning": {
+    "mimo": {
+      "correct": 3,
+      "total": 3
+    },
+    "gemini-flash": {
+      "correct": 3,
+      "total": 3
+    },
+    "gpt4o-mini": {
+      "correct": 3,
+      "total": 3
+    }
+  },
+  "Simple Factual": {
+    "mimo": {
+      "correct": 3,
+      "total": 4
+    },
+    "gemini-flash": {
+      "correct": 4,
+      "total": 4
+    },
+    "gpt4o-mini": {
+      "correct": 4,
+      "total": 4
+    }
+  },
+  "Tool Use": {
+    "mimo": {
+      "correct": 3,
+      "total": 3
+    },
+    "gemini-flash": {
+      "correct": 3,
+      "total": 3
+    },
+    "gpt4o-mini": {
+      "correct": 3,
+      "total": 3
+    }
+  }
+}

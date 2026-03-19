@@ -1,0 +1,102 @@
+{
+  "results": [
+    {
+      "category": "math_easy",
+      "question": "What is 15 + 27?",
+      "model": "phi4",
+      "correct": false,
+      "reward": -0.15
+    },
+    {
+      "category": "math_easy",
+      "question": "What is 8 \u00d7 7?",
+      "model": "nemotron",
+      "correct": false,
+      "reward": -0.025
+    },
+    {
+      "category": "math_easy",
+      "question": "What is 100 \u00f7 4?",
+      "model": "gpt4o-mini",
+      "correct": false,
+      "reward": -0.5
+    },
+    {
+      "category": "math_hard",
+      "question": "What is the derivative of x\u00b3?",
+      "model": "nemotron",
+      "correct": false,
+      "reward": -0.025
+    },
+    {
+      "category": "math_hard",
+      "question": "What is \u222b2x dx?",
+      "model": "nemotron",
+      "correct": false,
+      "reward": -0.025
+    },
+    {
+      "category": "math_hard",
+      "question": "What is sin(0)?",
+      "model": "nemotron",
+      "correct": false,
+      "reward": -0.025
+    },
+    {
+      "category": "science_easy",
+      "question": "What planet is closest to the ",
+      "model": "nemotron",
+      "correct": false,
+      "reward": -0.025
+    },
+    {
+      "category": "science_easy",
+      "question": "What is H2O?",
+      "model": "nemotron",
+      "correct": false,
+      "reward": -0.025
+    },
+    {
+      "category": "science_hard",
+      "question": "What is the half-life of Carbo",
+      "model": "nemotron",
+      "correct": false,
+      "reward": -0.025
+    },
+    {
+      "category": "science_hard",
+      "question": "What is Avogadro's number?",
+      "model": "nemotron",
+      "correct": false,
+      "reward": -0.025
+    },
+    {
+      "category": "logic",
+      "question": "If all cats are animals, and F",
+      "model": "phi4",
+      "correct": false,
+      "reward": -0.15
+    },
+    {
+      "category": "logic",
+      "question": "What comes next: 2, 4, 8, 16, ",
+      "model": "phi4",
+      "correct": false,
+      "reward": -0.15
+    }
+  ],
+  "final_models": {
+    "nemotron": {
+      "alpha": 1,
+      "beta": 2.0
+    },
+    "phi4": {
+      "alpha": 1,
+      "beta": 3.25
+    },
+    "gpt4o-mini": {
+      "alpha": 1,
+      "beta": 3.5
+    }
+  }
+}

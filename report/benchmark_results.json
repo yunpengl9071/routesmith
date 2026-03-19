@@ -1,0 +1,149 @@
+[
+  {
+    "task": "knowledge/easy",
+    "selected": "phi4",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 1
+  },
+  {
+    "task": "math/easy",
+    "selected": "gpt4o",
+    "accuracy": 1,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "general/easy",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "knowledge/medium",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "math/medium",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "knowledge/medium",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "science/hard",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "science/hard",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "math/hard",
+    "selected": "nemotron",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 2.5
+  },
+  {
+    "task": "coding/easy",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "coding/easy",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "coding/medium",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "coding/medium",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "coding/hard",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "coding/hard",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "reasoning/easy",
+    "selected": "nemotron",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 4.0
+  },
+  {
+    "task": "reasoning/easy",
+    "selected": "phi4",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 1
+  },
+  {
+    "task": "reasoning/medium",
+    "selected": "gpt4o-mini",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 1
+  },
+  {
+    "task": "reasoning/medium",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  },
+  {
+    "task": "reasoning/hard",
+    "selected": "nemotron",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 4.5
+  },
+  {
+    "task": "reasoning/hard",
+    "selected": "gpt4o",
+    "accuracy": 0,
+    "cost": 0,
+    "alpha": 20.9925
+  }
+]

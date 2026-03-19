@@ -1,0 +1,3052 @@
+{
+  "metadata": {
+    "date": "2026-03-11T17:06:04.725880",
+    "num_queries": 65,
+    "models": [
+      "nemotron",
+      "phi4",
+      "gpt4o_mini",
+      "deepseek",
+      "gpt4o"
+    ]
+  },
+  "responses": [
+    {
+      "query": "How do I reset my password?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "What is your refund policy?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I cancel my subscription?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Can I change my billing address?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Why was I charged twice?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I update my credit card?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "What's my current plan level?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I download my invoice?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Can I get a receipt for my purchase?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I upgrade to premium?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "What payment methods do you accept?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I request a refund?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "My payment failed, what should I do?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Can I switch from monthly to annual billing?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Where can I see my billing history?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "The app keeps crashing on startup",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "I can't log into my account",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I enable two-factor authentication?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "My API requests are returning 500 errors",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I set up OAuth refresh token rotation?",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Webhook signatures don't match",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I implement cursor-based pagination?",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "My async jobs are timing out",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "CORS preflight requests failing",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Database connection pool exhausted",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I integrate your API with Node.js?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Your SDK doesn't work with Python 3.12",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Memory leak in production server",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "SSL certificate error on my domain",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Rate limiting too aggressive",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I increase my API rate limit?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "WebSocket connection drops after 5 minutes",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Missing fields in API response",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I authenticate with API key vs OAuth?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "File upload failing above 10MB",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "What features are included in the free plan?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Does your product support dark mode?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I export my data to CSV?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Can I create custom dashboards?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "What's the difference between Basic and Pro?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Do you offer team collaboration features?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I invite team members?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Can I set up role-based permissions?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Does the mobile app have all features?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I set up webhooks for notifications?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Can I integrate with Slack?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Do you have an API for bulk operations?",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "How do I create automated workflows?",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "What's your uptime guarantee?",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Do you offer white-label options?",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Login page shows blank screen",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Reports not loading correctly",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Search results are inaccurate",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "My notifications aren't working",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Data not syncing between devices",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Charts display incorrectly on mobile",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Can't upload images to profile",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Email notifications delayed",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Export file is corrupted",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Filter options not working",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Page loads very slowly",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Buttons not clickable on Safari",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Drop-down menus not opening",
+      "complexity": "simple",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "Calendar shows wrong timezone",
+      "complexity": "moderate",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    },
+    {
+      "query": "PDF generation fails with special characters",
+      "complexity": "complex",
+      "model_responses": {
+        "nemotron": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "phi4": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o_mini": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "deepseek": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        },
+        "gpt4o": {
+          "success": false,
+          "error": {
+            "message": "No cookie auth credentials found",
+            "code": 401
+          },
+          "status": 401
+        }
+      }
+    }
+  ],
+  "judge_results": [],
+  "costs": {
+    "total": 0,
+    "by_model": {}
+  },
+  "summary": {
+    "nemotron": {
+      "name": "Nemotron 3 Nano",
+      "tier": "Free",
+      "avg_heuristic_quality": 0,
+      "avg_latency": 0,
+      "total_cost": 0,
+      "successful_queries": 0
+    },
+    "phi4": {
+      "name": "Microsoft Phi-4",
+      "tier": "Budget",
+      "avg_heuristic_quality": 0,
+      "avg_latency": 0,
+      "total_cost": 0,
+      "successful_queries": 0
+    },
+    "gpt4o_mini": {
+      "name": "GPT-4o Mini",
+      "tier": "Standard",
+      "avg_heuristic_quality": 0,
+      "avg_latency": 0,
+      "total_cost": 0,
+      "successful_queries": 0
+    },
+    "deepseek": {
+      "name": "DeepSeek V3.2",
+      "tier": "Standard",
+      "avg_heuristic_quality": 0,
+      "avg_latency": 0,
+      "total_cost": 0,
+      "successful_queries": 0
+    },
+    "gpt4o": {
+      "name": "GPT-4o",
+      "tier": "Premium",
+      "avg_heuristic_quality": 0,
+      "avg_latency": 0,
+      "total_cost": 0,
+      "successful_queries": 0
+    }
+  }
+}

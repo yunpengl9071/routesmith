@@ -1,0 +1,182 @@
+[
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 1.0,
+    "reward": 0.7
+  },
+  {
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.10000000000000003
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 1.0,
+    "reward": 0.7
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 1.0,
+    "reward": 0.7
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 0.2
+  },
+  {
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.10000000000000003
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 0.2
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 1.0,
+    "reward": 0.7
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.8,
+    "reward": 0.5
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.8,
+    "reward": 0.5
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.8,
+    "reward": 0.8
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.4
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.8,
+    "reward": 0.8
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.9,
+    "reward": 0.9
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.9,
+    "reward": 0.9
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 1.0,
+    "reward": 1.0
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 1.0,
+    "reward": 1.0
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 1.0,
+    "reward": 1.0
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.9,
+    "reward": 0.9
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.30000000000000004
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.9,
+    "reward": 1.9
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 1.5
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 1.5
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 1.5
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 1.5
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 1.5
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 1.5
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 1.5
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.5,
+    "reward": 1.5
+  },
+  {
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.8,
+    "reward": 1.8
+  }
+]

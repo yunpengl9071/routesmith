@@ -1,0 +1,422 @@
+[
+  {
+    "q": "What is 2+2?",
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 0.5,
+    "rew": -0.2
+  },
+  {
+    "q": "Color of sky?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.5,
+    "rew": 0.27499999999999997
+  },
+  {
+    "q": "Capital of France?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.0,
+    "rew": -0.225
+  },
+  {
+    "q": "Days in week?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "President of USA?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "2*3=?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.5,
+    "rew": 0.27499999999999997
+  },
+  {
+    "q": "Is fire hot?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.5,
+    "rew": 0.27499999999999997
+  },
+  {
+    "q": "Explain photosynthes",
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 0.5,
+    "rew": 0.0
+  },
+  {
+    "q": "What is AI?",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "Climate change cause",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "How do vaccines work",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.0,
+    "rew": -0.15
+  },
+  {
+    "q": "What is GDP?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.5,
+    "rew": 0.475
+  },
+  {
+    "q": "Explain black holes",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.5,
+    "rew": 0.475
+  },
+  {
+    "q": "What causes tides?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.5,
+    "rew": 0.475
+  },
+  {
+    "q": "Explain quantum enta",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Navier-Stokes soluti",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Black-Scholes deriva",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Halting Problem impl",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.0,
+    "rew": 0.35
+  },
+  {
+    "q": "Consciousness neuros",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "GPT-4 architecture",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "What is 5*5?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Is water wet?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Largest ocean?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Boiling point water?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "How many hearts octo",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.5,
+    "rew": 0.27499999999999997
+  },
+  {
+    "q": "Earth round?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Birds have feathers?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "How does internet wo",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "What is supply deman",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "Explain stock market",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "What is machine lear",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "How do computers thi",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "What causes inflatio",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "Explain DNS",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.5,
+    "rew": 0.475
+  },
+  {
+    "q": "Explain BERT transfo",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "What is P vs NP?",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Mandelbrot set formu",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Explain holographic ",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Quantum field theory",
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "qual": 0.5,
+    "rew": 0.5
+  },
+  {
+    "q": "G\u00f6del incompleteness",
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "qual": 0.5,
+    "rew": 0.5
+  },
+  {
+    "q": "What is 10+10?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Is sun a star?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Water freeze?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Speed light?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "How many legs dog?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Animals breathe?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Leaves green why?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.14999999999999997
+  },
+  {
+    "q": "Explain recursion",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "What is API?",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "Database normalizati",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "How does GPU work?",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "What is neural netwo",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "Explain encryption",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "What is\u4e91\u8ba1\u7b97?",
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.35
+  },
+  {
+    "q": "Prove Fermat's last ",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "String theory dimens",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Quantum error correc",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "BERT attention mecha",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Protein folding prob",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  },
+  {
+    "q": "Holographic duality",
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.5,
+    "rew": 0.85
+  }
+]

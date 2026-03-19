@@ -1,0 +1,72 @@
+[
+  {
+    "task": "What is 2+2?",
+    "diff": "easy",
+    "model": "phi4",
+    "quality": 0.5,
+    "reward": 0.35
+  },
+  {
+    "task": "What color is grass?",
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "quality": 0.5,
+    "reward": 0.0
+  },
+  {
+    "task": "Who is president?",
+    "diff": "easy",
+    "model": "phi4",
+    "quality": 0.5,
+    "reward": 0.35
+  },
+  {
+    "task": "Explain quantum phys",
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "quality": 0.5,
+    "reward": 0.0
+  },
+  {
+    "task": "Solve differential e",
+    "diff": "hard",
+    "model": "phi4",
+    "quality": 0.5,
+    "reward": 0.35
+  },
+  {
+    "task": "Write quicksort",
+    "diff": "hard",
+    "model": "phi4",
+    "quality": 0.5,
+    "reward": 0.35
+  },
+  {
+    "task": "What is 100/20?",
+    "diff": "medium",
+    "model": "phi4",
+    "quality": 0.5,
+    "reward": 0.35
+  },
+  {
+    "task": "Capital of Japan?",
+    "diff": "medium",
+    "model": "nemotron",
+    "quality": 0.5,
+    "reward": 0.475
+  },
+  {
+    "task": "How do plants grow?",
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "quality": 0.5,
+    "reward": 0.0
+  },
+  {
+    "task": "Explain AI",
+    "diff": "medium",
+    "model": "phi4",
+    "quality": 0.5,
+    "reward": 0.35
+  }
+]

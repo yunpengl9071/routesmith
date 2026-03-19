@@ -1,0 +1,47 @@
+[
+  {
+    "query": "How do I reset my password?",
+    "selected": "gpt4o-mini",
+    "quality": 7,
+    "cost": 0,
+    "reward": 13.9995,
+    "alpha": 14.9995,
+    "beta": 1
+  },
+  {
+    "query": "What's your refund policy?",
+    "selected": "gpt4o-mini",
+    "quality": 9,
+    "cost": 0,
+    "reward": 17.9995,
+    "alpha": 32.999,
+    "beta": 1
+  },
+  {
+    "query": "How do I cancel?",
+    "selected": "gpt4o-mini",
+    "quality": 8,
+    "cost": 0,
+    "reward": 15.9995,
+    "alpha": 48.9985,
+    "beta": 1
+  },
+  {
+    "query": "Where is my invoice?",
+    "selected": "gpt4o-mini",
+    "quality": 6,
+    "cost": 0,
+    "reward": 11.9995,
+    "alpha": 60.998,
+    "beta": 1
+  },
+  {
+    "query": "Do you support 2FA?",
+    "selected": "gpt4o-mini",
+    "quality": 5,
+    "cost": 0,
+    "reward": 9.9995,
+    "alpha": 70.9975,
+    "beta": 1
+  }
+]

@@ -1,0 +1,304 @@
+{
+  "routing": [
+    {
+      "task": "reasoning",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "knowledge",
+      "model": "nemotron",
+      "accuracy": 0.0
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "nemotron",
+      "accuracy": 0.0
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "reasoning",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "coding",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "phi4",
+      "accuracy": 0.625
+    }
+  ]
+}

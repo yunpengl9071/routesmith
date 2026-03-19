@@ -1,0 +1,272 @@
+[
+  {
+    "query": "\"How do I reset my password if I can't access my email?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Sure! If you can’t access the email address attached to the account, you can still reset the password by using the account‑recovery options that most services provide. Below is a step‑by‑step guide that works for the majority of platforms (e.g., Google, Microsoft, Facebook, banking sites, etc.). If your specific service has a\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I reset my password if I can't access my email?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"If you're unable to access your email account to reset your password, you can follow these steps to regain access to your account:\\n\\n1. **Visit the Service Provider's Website**: Go to the website of the service provider for whom you need to reset the password.\\n\\n2. **Contact Customer Support**: Look for options like \\\"Help,\\\" \\\"Support,\\\" \\\"Contact Us,\\\" or \\\"Forgot Password\\\" on their website. Most service providers have assistance options for password recovery.\\n\\n3. **Sign In Using an Alternative Method**: Some services allow you to log in using a secondary email address or phone number linked to your account. You could use this alternative contact information for password recovery.\\n\\n4. **Use a Recovery Phone Number**: If you have a phone number associated with your account (either personal or a secondary number), you might be able to use this to reset your password or establish contact with support.\\n\\n5. **Security Questions**: Depending on the service, some websites allow the use of security questions to verify your\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I reset my password if I can't access my email?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Hello,\\n\\nI understand that you're having trouble accessing your email for a password reset. No worries, we can help you with that! Here are a couple of options you can try:\\n\\n1. **Use an Alternative Recovery Method**: If you’ve set up alternative recovery options (like a phone number or security questions), you may be able to use those to verify your identity and reset your password.\\n\\n2. **Contact Customer Support**: If you don’t have access to any recovery options, please reach out to our customer support team directly. You can provide them with your account details, and they can assist you in resetting your password.\\n\\nTo get started with customer support, please visit our help center or provide your contact information, and someone will be in touch with you shortly.\\n\\nLet me know if you need further assistance!\\n\\nBest regards,  \\n[Your Name]  \\nCustomer Support Team\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I was charged twice for my subscription. Can I get a refund?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Hi [Customer Name],\\n\\nI’m sorry to hear that you’ve been charged twice for your subscription—that’s definitely not the experience we want you to have. I’d be happy to look into this right away and arrange a refund for the duplicate charge.\\n\\nTo get things moving as quickly as possible, could you please provide the following details?\\n\\n1. **Your account email or username** (the one you used when you signed up).  \\n2. **The subscription plan** you’re on (e.g., “Standard Monthly,” “Premium Annual,” etc.).  \\n3. **The date(s) of the charge(s)** that appear on your billing statement.  \\n4. **The last four digits of the payment method** you\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I was charged twice for my subscription. Can I get a refund?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"I'm sorry to hear that you were charged twice for your subscription. Let's get this resolved for you.\\n\\nTo help you with a refund, I will need some additional details:\\n\\n1. **Order/Invoice Number**: It would be great if you could provide the order or invoice number(s) for the charges. This will help us to quickly locate your account and review the transactions.\\n\\n2. **Dates of Charge**: Please provide the dates on which you noticed the charges to ensure we are looking at the correct transactions.\\n\\n3. **Transaction Details**: If possible, providing the amounts and the names of the merchant/portal used for the payments can be helpful.\\n\\n4. **Account Information**: To expedite the process, include any account number or user ID linked to your subscription service, but please ensure it does not include full password or CVV/card number details.\\n\\nOnce you provide this information, I can proceed to look into the issue further and guide you on the next steps. In many cases,\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I was charged twice for my subscription. Can I get a refund?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Hello,\\n\\nThank you for reaching out regarding the double charge for your subscription. I’m sorry to hear about this inconvenience. \\n\\nTo assist you further, could you please provide me with the following details?\\n1. The email address associated with your account.\\n2. The date of the charges.\\n3. Any transaction IDs, if available.\\n\\nOnce I have this information, I'll be able to look into the issue and process your refund as quickly as possible. \\n\\nThank you for your patience, and I look forward to resolving this for you!\\n\\nBest regards,  \\n[Your Name]  \\nCustomer Support Team\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I upgrade my plan from Basic to Pro?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Hello! I'd be happy to walk you through upgrading from the **Basic** plan to **Pro**.\\n\\n### Quick‑step guide\\n\\n1. **Log in to your account**  \\n   - Visit the login page and sign in with the email/password (or SSO) you use for the service.\\n\\n2. **Go to the Billing / Subscription page**  \\n   - Usually you’ll find this under **Account Settings → Billing** or directly via a **“Upgrade”** button on your\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I upgrade my plan from Basic to Pro?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"To upgrade your plan from Basic to Pro, please follow these steps:\\n\\n1. **Log into Your Account**: Visit our website and log into your account. If you're logging into the app, ensure you're signed in as the account holder or have appropriate permissions.\\n\\n2. **Navigate to Subscription or Account Settings**: Once logged in, locate the subscription or account settings section. This might be within your account details, settings, or preferences area.\\n\\n3. **Select Upgrade Option**: Look for an option to upgrade or change your subscription plan. You might see options such as \\\"Manage Subscription\\\" or \\\"Edit Plan.\\\"\\n\\n4. **Choose the Pro Plan**: Select the Pro plan from the list of available options. Review any differences in features or pricing to ensure this plan meets your needs.\\n\\n5. **Follow Payment Instructions**: You will likely need to input your payment method details or agree to the conversion terms. Ensure your payment information is current and accurate.\\n\\n6. **Confirm the Upgrade**: Review the final\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I upgrade my plan from Basic to Pro?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Hello!\\n\\nThank you for reaching out! To upgrade your plan from Basic to Pro, please follow these steps:\\n\\n1. Log in to your account on our website.\\n2. Navigate to the \\\"Account Settings\\\" or \\\"Billing\\\" section.\\n3. Look for the \\\"Upgrade Plan\\\" option.\\n4. Select the Pro plan and follow the prompts to complete the upgrade.\\n\\nIf you encounter any issues or have further questions, feel free to reach out, and I’ll be happy to assist you!\\n\\nBest regards,  \\n[Your Name]  \\nCustomer Support Team\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I can't log into my account - it says my credentials are invalid\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Hi [Customer Name],\\n\\nI’m sorry you’re having trouble signing in. Let’s get you back into your account as quickly as possible.\\n\\n---\\n\\n### 1. Quick Checks\\n1. **Double‑check the username/email and password** – make sure there are no extra spaces or a wrong keyboard layout (e.g., “Caps Lock” on).  \\n2. **Confirm the URL** – you’re signing in at the correct site (e.g., *yourcompany.com* login page).  \\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I can't log into my account - it says my credentials are invalid\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"I'm sorry to hear you're having trouble logging into your account. Let's try to troubleshoot your issue step by step:\\n\\n1. **Check Email/Username & Password:**\\n   - Ensure you're entering the correct username or email and password. It's easy to make a mistake, especially with caps lock being on or mistyping something.\\n\\n2. **Reset Your Password:**\\n   - If you're unsure about the password, try resetting it. Usually, there's an option to \\\"Forgot Password\\\" or similar on the login page. Make sure you follow any instructions sent to your registered email (often including a verification step).\\n\\n3. **Clear Browser Cache/Cookies:**\\n   - Sometimes, old data stored in browser cache/cookies can cause issues. Try clearing them or use a private/incognito window to log in.\\n\\n4. **Check for Account Suspensions:**\\n   - Sometimes accounts might be suspended or locked. Check your email for any notification messages from the service provider\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I can't log into my account - it says my credentials are invalid\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Thank you for reaching out! I'm sorry to hear that you're having trouble logging into your account. Here are a few steps you can try:\\n\\n1. **Check Your Credentials:** Make sure that you are entering the correct email address and password. Check for any typos or accidental spaces.\\n\\n2. **Reset Your Password:** If you’re still unable to log in, you might want to try resetting your password. You can usually find a \\\"Forgot Password?\\\" link on the login page. Follow the instructions to reset your password.\\n\\n3. **Clear Cache and Cookies:** Sometimes, clearing your browser’s cache and cookies can help resolve login issues. \\n\\n4. **Try a Different Browser or Device:** If possible, try logging in from a different web browser or device to see if the issue persists.\\n\\nIf none of these steps work, please let me know, and I can assist you further or escalate the issue for you. Thank you for your patience!\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Where can I find my billing history and invoices?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Hello! You can view and download your complete billing history and invoices directly from your account portal. Here’s how:\\n\\n1. **Log in** to your account on our website.  \\n2. Click **“Account”** (or “My Account”) in the top‑right corner.  \\n3. Select the **“Billing”\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Where can I find my billing history and invoices?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"Thank you for reaching out! You can access your billing history and invoices through several ways depending on the service provider:\\n\\n1. **Online Account Management**: Most companies offer online portals where you can log into your account using your credentials to view and download billing history and invoices. Check for a \\\"Billing History\\\" or \\\"Invoices\\\" section within your account dashboard.\\n\\n2. **Mail or Email Provider**: Some companies may send your billing statements and invoices digitally via email. Check your email inbox regularly and ensure your spam filter has our emails marked as safe.\\n\\n3. **Customer Support Portal**: If you have access to a customer support portal or app provided by the company, you can usually find these documents in a dedicated section or tool within the app that allows you to download recent invoices.\\n\\n4. **Contact Customer Service**: If you're unable to find your billing history and invoices online, you can reach out to customer support either via phone, email, or chat. They can guide you to the precise location\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Where can I find my billing history and invoices?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Hello! Thank you for reaching out. To find your billing history and invoices, please follow these steps:\\n\\n1. Log in to your account on our website.\\n2. Go to the \\\"Account\\\" or \\\"Billing\\\" section, which can usually be found in the menu.\\n3. Look for a \\\"Billing History\\\" or \\\"Invoices\\\" tab. Here, you should see a list of your past transactions and downloadable invoices.\\n\\nIf you encounter any issues or need further assistance, please let me know, and I’ll be happy to help!\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I cancel my subscription?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"**Sure thing! I can walk you through the steps to cancel your subscription. Below are the most common actions you’ll need to take. If anything looks different on your screen or you run into a snag, just let me know and I’ll help you troubleshoot.**\\n\\n---\\n\\n### 1. Log In to Your Account  \\n1. Open the website or app where you originally signed up.  \\n2. Click **“Sign In”** (or the profile icon) and enter your email / username and password.  \\n\\n### 2.\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I cancel my subscription?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"To cancel your subscription, you can follow these general steps, which might be applicable to many providers:\\n\\n1. **Access Your Account:**\\n   - Log in to your account via their website or app.\\n\\n2. **Navigate to Subscription Settings:**\\n   - Go to the account or subscription settings where you manage your subscription.\\n\\n3. **Look for Cancel or Unsubscribe Option:**\\n   - Find the option to cancel, deactivate, or unsubscribe from your subscription service within the account settings.\\n\\n4. **Follow the On-screen Instructions:**\\n   - Follow the steps provided on-screen to complete the cancellation process, which may require confirmation of your cancellation intention.\\n\\n5. **Contact Customer Support:**\\n   - If cancellation options are not readily available online, contact their customer support for assistance. This can typically be done through their support webpage, email, chat, or via a phone call.\\n\\n6. **Provide Necessary Information:**\\n   - Be ready to provide your account details and the reason for cancellation;\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I cancel my subscription?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Hello!\\n\\nThank you for reaching out. To cancel your subscription, please follow these steps:\\n\\n1. Log in to your account on our website or app.\\n2. Navigate to the \\\"Account Settings\\\" or \\\"Subscription\\\" section.\\n3. Look for the \\\"Manage Subscription\\\" option.\\n4. Click on \\\"Cancel Subscription\\\" and follow the prompts to complete the cancellation.\\n\\nIf you need any assistance or if you're unable to cancel through your account, please let me know, and I’ll be happy to help you further!\\n\\nBest regards,  \\n[Your Name]  \\nCustomer Support Team\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Your app keeps crashing when I try to upload a file\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Hi there! I’m sorry to hear that you’re running into trouble uploading a file. Let’s get this sorted out as quickly as possible.\\n\\n---\\n\\n## 1. Quick First‑Check\\n1. **Restart the app** (and, if needed, restart your device).  \\n2. **Make sure you’re using the latest version** – you can check the store or our website for any pending updates.  \\n3. Verify that you have a **stable internet connection** (Wi‑Fi or cellular) before you try uploading.\\n\\nIf the problem persists,\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Your app keeps crashing when I try to upload a file\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"I'm sorry to hear that you're experiencing issues with the app crashing during file uploads. Here are a few steps you can take to help resolve this problem:\\n\\n1. **Check App Updates:** Ensure that you have the latest version of the app installed. Developers often release updates to fix bugs. You can check for updates in the app store associated with your device.\\n\\n2. **Restart Your Device:** Sometimes, restarting your phone or tablet can resolve temporary glitches.\\n\\n3. **Check File Specifications:**\\n   - Confirm that the file you are trying to upload meets the app's requirements regarding file size and format. Sometimes, apps have restrictions that, if not adhered to, might cause crashes or failed uploads.\\n\\n4. **App Permissions:** Ensure that the app has all necessary permissions enabled, such as access to your file system. This allows it to correctly handle file uploads.\\n\\n5. **Free Up Space:** If your device is low on storage, the app might not function properly. Try freeing up\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Your app keeps crashing when I try to upload a file\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Thank you for reaching out, and I'm sorry to hear that you're experiencing issues with the app crashing during file uploads. Here are a few steps you can try to troubleshoot the problem:\\n\\n1. **Restart your device**: Sometimes, a simple restart can resolve unexpected issues.\\n\\n2. **Update the app**: Ensure you are using the latest version of the app. Check your device's app store for any available updates.\\n\\n3. **Check file size and format**: Make sure the file you’re trying to upload is within the size limits and in a supported format.\\n\\n4. **Clear app cache** (if applicable): If you're using an Android device, you can go to Settings > Apps > [Your App Name] > Storage > Clear Cache.\\n\\n5. **Reinstall the app**: If the issue persists, try uninstalling and then reinstalling the app.\\n\\nIf none of these steps resolve the issue, could you please provide me with more details? Specifically, the device you're using,\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I need to update my credit card information\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Hello! I’m happy to help you get your payment method updated.\\n\\n**Here’s how you can change the credit card associated with your account:**\\n\\n1. **Log in to your account**  \\n   - Visit the *[Your Service] *login page and sign in with your email/username and password.\\n\\n2. **Navigate to the payment settings**  \\n   - Once you’re signed in, go to **Account → Billing** (or **Payment Methods** – the exact label may vary).  \\n   - You should see the current card on file.\\n\\n3. **Add a new card**  \\n   - Click **Add New\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I need to update my credit card information\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"Certainly, I’d be happy to help you update your credit card information. You can follow these steps to update your details:\\n\\n1. **Log into Your Account:**\\n   - Go to our website and log into your account using your username and password.\\n\\n2. **Navigate to Payment Information:**\\n   - Once logged in, look for a section labeled ‘Account Settings’ or ‘Profile’, and find ‘Payment Methods’ or ‘Billing Information’.\\n\\n3. **Update Credit Card Details:**\\n   - Click on the option to edit or update your payment details. You’ll see your old credit card information there.\\n   - Enter your new credit card information. This typically includes the card number, expiration date, and CVV code.\\n\\n4. **Save Changes:**\\n   - After entering your new card details, make sure to save the changes. You might be asked to confirm the update via a phone or email.\\n\\n5. **Verification:**\\n   - Some accounts may require a verification process to\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I need to update my credit card information\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Dear Customer,\\n\\nThank you for reaching out to us! To update your credit card information, please follow these steps:\\n\\n1. Log in to your account on our website.\\n2. Navigate to the \\\"Account Settings\\\" or \\\"Payment Methods\\\" section.\\n3. Find the option to edit or update your credit card information.\\n4. Enter your new credit card details and save the changes.\\n\\nIf you encounter any issues or need further assistance, please let us know, and we’ll be happy to help!\\n\\nBest regards,  \\n[Your Name]  \\nCustomer Support Team\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I enable two-factor authentication?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Sure! Enabling two‑factor authentication (2FA) adds an extra layer of security to your account by requiring a second piece of information (like a code from an app or a text message) in addition to your password. Here’s a step‑by‑step guide that works for most platforms—if you’re using a specific service (e.g., Google, Facebook, a banking app, etc.), the general flow will be similar, and you can adapt the steps to that service’s layout.\\n\\n---\\n\\n## 1️⃣ Log In to Your Account\\n1. Open\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I enable two-factor authentication?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"To enable two-factor authentication (2FA) for your account, follow these general steps. Please note that specific instructions might vary slightly depending on the platform or service you're using, so it's a good idea to refer to their help or support section for precise guidance:\\n\\n1. **Log into Your Account:**\\n   - Access your account with your username and password.\\n\\n2. **Access Security Settings:**\\n   - Navigate to the settings or security section of your account dashboard. This is often found under \\\"Account Settings,\\\" \\\"Security,\\\" \\\"Privacy,\\\" or similar headings.\\n\\n3. **Find Two-Factor Authentication:**\\n   - Look for an option labeled \\\"Two-Factor Authentication,\\\" \\\"2FA,\\\" \\\"Extra Security,\\\" or similar.\\n\\n4. **Enable 2FA:**\\n   - Choose to enable two-factor authentication. You may see options for different types of 2FA methods such as SMS, authenticator apps (e.g., Google Authenticator, Authy), or security keys\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I enable two-factor authentication?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Hi there!\\n\\nThank you for reaching out! Enabling two-factor authentication (2FA) is a great way to enhance the security of your account. Here’s how you can enable it:\\n\\n1. **Log into your account:** Start by signing into your account on our website or app.\\n\\n2. **Go to Security Settings:** Navigate to the settings or account settings section. Look for an option labeled \\\"Security\\\" or \\\"Account Security.\\\"\\n\\n3. **Enable Two-Factor Authentication:** Once in the security settings, you should see an option for two-factor (or two-step) authentication. Click on it to begin the setup process.\\n\\n4. **Choose your method:** You will typically be given options for receiving your authentication code, such as via a text message (SMS) or an authenticator app (like Google Authenticator or Authy). Select your preferred method.\\n\\n5. **Follow the prompts:** If you choose SMS, you may need to enter your phone number. If you choose an authent\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I didn't receive the confirmation email for my order\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Hello [Customer Name],\\n\\nI’m sorry to hear that you haven’t received the order‑confirmation email. I’m happy to help get this sorted for you right away.\\n\\n**What we can do next:**\\n\\n1. **Verify the email address on file** – Could you please confirm the email address you used when placing the order? If it’s slightly different from the address you usually check, let me know; I can resend the confirmation to the correct\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I didn't receive the confirmation email for my order\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"Hello! I'm sorry to hear that you didn't receive the confirmation email for your order. Here are a few steps we can take to resolve this issue:\\n\\n1. **Check Your Spam/Junk Folder:** Sometimes, confirmation emails can get filtered into these folders. If you find the email there, you might be able to have it delivered to your main inbox.\\n\\n2. **Check Your Email Address:** Please verify that the email address you provided during the order process is correct. If you used an address different from your usual one, check any other email addresses you may have used to ensure you received it.\\n\\n3. **Order Details:** If you checked your order payment, please see whether the confirmation email or message is present in the payment details. Sometimes, emails may be sent separately from emails within the order summary.\\n\\n4. **Shopping Platform's Order Confirmation Feature:** If you placed the order through a shopping platform or app, log into your account to view the order confirmation there. Many platforms keep\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I didn't receive the confirmation email for my order\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Subject: Order Confirmation Email\\n\\nDear [Customer's Name],\\n\\nThank you for reaching out to us regarding your order confirmation email. I apologize for any inconvenience this may have caused.\\n\\nSometimes confirmation emails can land in the spam or promotions folder, so I recommend checking those folders in your email account. If you still can’t find it, please provide me with your order number or the email address you used to place the order, and I’ll be happy to assist you further.\\n\\nThank you for your patience, and I look forward to resolving this for you!\\n\\nBest regards,  \\n[Your Name]  \\nCustomer Support Team\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Can I get a refund within 30 days of purchase?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Absolutely! We offer a hassle‑free refund for any purchase made directly through us, provided the request is made within 30 days of the delivery date.\\n\\n**Here’s how it works:**\\n\\n1. **Eligibility** – The item must be returned in its original, unused condition (including any accessories, manuals, and packaging).  \\n2. **Timeframe** – Refund requests must be received **within 30 days** of when you received the product.  \\n3. **Process** –  \\n   * Let us know you’d like to return the item (you can reply to this message or use the “Return/Refund” link in your account).  \\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Can I get a refund within 30 days of purchase?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"Absolutely, I'd be happy to assist with your refund inquiry. \\n\\nOur refund policy allows you to request a refund within 30 days of your purchase, provided the item is unused and in its original packaging. Here are the steps you need to follow:\\n\\n1. **Check Eligibility**: Ensure your purchase falls within the 30-day refund period. You can typically find the date of purchase in your order confirmation email or on your account order history.\\n\\n2. **Item Condition**: Ensure that the item is unused, in the same condition that you received it, and in its original packaging.\\n\\n3. **Request a Refund**: You can initiate a refund request through your account on our website, or by contacting our customer support team directly.\\n\\n4. **Return Shipping**: Once your refund request is approved, please ship the item back to us. You can use the prepaid return label that we'll provide.\\n\\n5. **Processing Time**: Refunds are typically processed within 5-10 business days after\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Can I get a refund within 30 days of purchase?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Thank you for reaching out! Yes, you can request a refund within 30 days of your purchase. Please make sure that the item is in its original condition and packaging. If you need assistance with the refund process, feel free to provide your order details, and I'll be happy to help you further!\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I change my account username?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Sure! Here’s a quick guide on how to change the username for your account:\\n\\n1. **Log In**  \\n   - Sign in to your account on the website or app with your current credentials.\\n\\n2. **Navigate to Account Settings**  \\n   - Click on your profile picture or avatar (usually in the top‑right corner).  \\n   - Choose **“Account Settings,” “Profile,”** or **“Edit Profile.”\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I change my account username?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"To change your account username, follow these general steps, which may vary slightly depending on the specific platform or service you are using:\\n\\n1. **Log In**: Go to the service’s website or app where your account is registered and log in with your current credentials.\\n\\n2. **Go to Account Settings/Profile**: Once logged in, navigate to your account settings or profile page. This is usually accessible through a menu (often in the top corner of the screen) or a dedicated “Settings” or “Profile” option on your dashboard or main page.\\n\\n3. **Locate Username Details**: Within the account settings, find the section related to your username or profile information. This might be under “Account Details” or \\\"Profile Information\\\".\\n\\n4. **Edit Username**: Look for a “Change Username” option or any similar feature. Click or tap on this option to begin the process.\\n\\n5. **Follow Instructions**: You may be prompted to verify your current password or apply other security checks. Follow\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I change my account username?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Hello! Thank you for reaching out. To change your account username, please follow these steps:\\n\\n1. **Log in** to your account.\\n2. Go to your **Account Settings** or **Profile** section.\\n3. Look for the option labeled **Username** or **Change Username**.\\n4. Enter your desired new username and save the changes.\\n\\nIf you encounter any issues or if the option is not available, please let me know, and I'll be happy to assist you further!\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Your service is down - I can't access anything\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"I’m very sorry you’re experiencing this issue — that’s definitely not the experience we want you to have. 🙏  \\n\\n**To get this resolved as quickly as possible, could you please let me know the following?**\\n\\n1. **What service(s) are affected?** (e.g., website, mobile app, API, specific feature)  \\n2. **When did the problem start?** (a few minutes ago, earlier today, after a recent change?)  \\n3. **Any error messages or symptoms** (e.g., “connection timed out,” “blank page,” “404 error,” “cannot load account”)  \\n4. **The device and browser you’re using** (desktop/laptop, mobile, app version, Chrome/Firefox/Safari\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Your service is down - I can't access anything\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"I'm sorry to hear that you're experiencing issues accessing our service. Let's try to resolve this together:\\n\\n1. **Check Your Connection:** Ensure your internet connection is stable and active. Sometimes connectivity issues can lead to service interruptions.\\n\\n2. **Verify System Status:** Visit our website and check our system status page to see if there are any general service outages affecting the entire user base.\\n\\n3. **Service Access Points:** Try accessing the service from a different device or network to see if the problem persists across all platforms.\\n\\n4. **Restart Your Device:** Occasionally, simply restarting your device can refresh your connections and resolve access issues.\\n\\n5. **Clear Browser Cache:** If you're accessing our service via a web browser, try clearing the cache and cookies or try a different browser entirely.\\n\\n6. **Contact Support:** If none of the above steps resolve the issue, please provide more details about the problem you're facing so we can assist you further. You can reach out to our customer support\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"Your service is down - I can't access anything\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Subject: Service Disruption\\n\\nDear [Customer's Name],\\n\\nThank you for reaching out to us. I’m sorry to hear that you’re experiencing issues accessing our service. We understand how important it is for you to have uninterrupted access.\\n\\nOur technical team is currently investigating the situation, and we are working to resolve it as quickly as possible. In the meantime, please try the following steps:\\n\\n1. Refresh your browser or app.\\n2. Clear your browser cache and cookies.\\n3. Try accessing the service from a different device or network.\\n\\nIf the issue persists, please let us know, and we’ll continue to assist you. We appreciate your patience and understanding during this time.\\n\\nBest regards,\\n\\n[Your Name]  \\nCustomer Support Team  \\n[Your Company]  \\n[Your Contact Information]  \\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I export my data from your platform?\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"Absolutely! Exporting your data from our platform is quick and straightforward. Below are the most common ways you can pull your information out, depending on what type of data you need and how you plan to use it.\\n\\n---\\n\\n## 1️⃣ Export Directly From the UI (No Coding Required)\\n\\n| Feature | Where to Find It | What You’ll Get |\\n|---------|------------------|-----------------|\\n|\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I export my data from your platform?\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"Thank you for reaching out! I'd be happy to help you with exporting your data from our platform. Here are the general steps you can follow, although the exact options might vary based on the specific service or platform you are using:\\n\\n1. **Log In to Your Account:**\\n   - Visit our platform's website or open the application and log in with your credentials.\\n\\n2. **Access Your Dashboard:**\\n   - Once logged in, navigate to your main dashboard or account settings.\\n\\n3. **Locate Export Options:**\\n   - Look for a section labeled \\\"Settings,\\\" \\\"Account,\\\" or \\\"Manage Data.\\\"\\n   - Within these sections, you should find an option for exporting data. It might be listed as \\\"Export,\\\" \\\"Download Data,\\\" \\\"Data Export,\\\" or something similar.\\n\\n4. **Choose the Data to Export:**\\n   - You may have options to select specific types of data to export, such as user data, transactional information, or activity logs.\\n   -\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"How do I export my data from your platform?\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Dear [Customer's Name],\\n\\nThank you for reaching out to us!\\n\\nTo export your data from our platform, please follow these steps:\\n\\n1. **Log in** to your account on our platform.\\n2. Navigate to the **Settings** or **Account** section, usually found in the top-right corner of the screen.\\n3. Look for the **Data Export** option in the menu. This may also be located under **Privacy** or **Data Management**.\\n4. Follow the prompts to select the type of data you wish to export. You might have options for different formats such as CSV or JSON, depending on the data type.\\n5. Once you’ve selected the data and format, click on the **Export** button. You’ll receive a confirmation, and the file will be generated.\\n6. You will be notified once your data is ready for download, either via an on-screen message or email.\\n\\nIf you encounter any issues or have specific requirements regarding your data export, please let\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I want to delete my account permanently\\n\"",
+    "model": "\"nvidia/nemotron-3-nano-30b-a3b:free\\n\"",
+    "response": "\"I’m sorry to hear you’d like to leave us. I can definitely help you close your account permanently.\\n\\nTo proceed, I’ll need to verify that you’re the account holder for security reasons. Could you please provide one of the following:\\n\\n1. **The email address** associated with the account, **or**  \\n2. **The phone number** you used when you created the account.\\n\\nOnce I’ve confirmed your identity, I’ll initiate the permanent deletion process\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I want to delete my account permanently\\n\"",
+    "model": "\"microsoft/phi-4\\n\"",
+    "response": "\"I'm sorry to hear that you want to delete your account. I can help guide you through the process. Before proceeding, it's important to note that deleting your account is permanent, and you won’t be able to recover any of your data or information associated with the account afterward. If there's anything specific you'd like to address or questions you have, feel free to let me know. \\n\\nHere are the general steps to delete your account:\\n\\n1. **Backup Your Data**: Ensure that you have saved any information you might need from your account.\\n\\n2. **Log In to Your Account**: Access your account to begin the deletion process.\\n\\n3. **Find Account Settings**: Navigate to your account settings or profile.\\n\\n4. **Look for Deactivation/Deletion Option**: Typically, there's an option to deactivate or delete your account in the settings menu.\\n\\n5. **Follow Instructions**: Follow the prompts to verify your identity and confirm the deletion of your account.\\n\\n6. **Confirmation**: You\\n\"",
+    "cost": 0
+  },
+  {
+    "query": "\"I want to delete my account permanently\\n\"",
+    "model": "\"openai/gpt-4o-mini\\n\"",
+    "response": "\"Hello,\\n\\nThank you for reaching out. I’m sorry to hear that you want to delete your account. I can assist you with that. \\n\\nTo proceed with the deletion, please confirm that you would like to permanently delete your account. Once it’s deleted, you will lose access to all your data and won’t be able to recover it later.\\n\\nIf you still wish to continue, please let me know, and I’ll guide you through the process.\\n\\nBest regards,  \\n[Your Name]  \\nCustomer Support Team\\n\"",
+    "cost": 0
+  }
+]

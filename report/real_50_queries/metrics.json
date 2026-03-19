@@ -1,0 +1,56 @@
+{
+  "experiment": "50_real_queries_non_reasoning",
+  "timestamp": "2026-03-10T11:31:17.694323",
+  "total_queries": 50,
+  "successful_queries": 33,
+  "failed_queries": 17,
+  "success_rate": 66.0,
+  "cumulative_cost_routed": 0.59698,
+  "cumulative_cost_baseline": 0.16834,
+  "cost_reduction_percent": -254.6,
+  "avg_quality": 0.582,
+  "routing_distribution": {
+    "premium": 26,
+    "standard": 17,
+    "economy": 7
+  },
+  "learning_curve": [
+    {
+      "after_queries": 10,
+      "accuracy": 0.3
+    },
+    {
+      "after_queries": 20,
+      "accuracy": 0.4
+    },
+    {
+      "after_queries": 30,
+      "accuracy": 0.43
+    },
+    {
+      "after_queries": 40,
+      "accuracy": 0.35
+    },
+    {
+      "after_queries": 50,
+      "accuracy": 0.32
+    }
+  ],
+  "models_used": {
+    "premium": {
+      "model": "qwen/qwen3-next-80b-a3b-instruct",
+      "cost_per_1k": 0.38,
+      "description": "Fast, no thinking traces"
+    },
+    "standard": {
+      "model": "google/gemma-3-27b",
+      "cost_per_1k": 0.0,
+      "description": "Free, capable for general queries"
+    },
+    "economy": {
+      "model": "nvidia/nemotron-3-nano-30b-a3b",
+      "cost_per_1k": 0.0,
+      "description": "Free, fast, simple queries"
+    }
+  }
+}

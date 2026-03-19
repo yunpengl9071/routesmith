@@ -1,0 +1,52 @@
+{
+  "experiment_type": "quality_fixed",
+  "timestamp": "2026-03-10T23:40:39.310668",
+  "config": {
+    "min_acceptable_quality": 0.5,
+    "force_premium_on_low_quality": true,
+    "economy_confidence_threshold": 0.75,
+    "alpha": 2.0,
+    "beta": 0.5,
+    "track_metrics": [
+      "acceptable_quality_rate",
+      "premium_retry_rate",
+      "cost_per_valid_response",
+      "failures_prevented"
+    ]
+  },
+  "total_queries": 100,
+  "successful_queries": 73,
+  "failed_queries": 27,
+  "success_rate": 73.0,
+  "acceptable_quality_rate": 73.0,
+  "premium_retry_rate": 35.714285714285715,
+  "cumulative_cost_routed": 78.61864000000004,
+  "cost_per_valid_response": 1.0769676712328773,
+  "failures_prevented": 20,
+  "avg_cost_per_query": 1.0769676712328773,
+  "routing_distribution": {
+    "premium": 20,
+    "standard": 24,
+    "economy": 56
+  },
+  "models_used": {
+    "premium": {
+      "model": "openai/gpt-4o",
+      "cost_per_1k_input": 2.5,
+      "cost_per_1k_output": 10.0,
+      "description": "Highest quality - for complex queries"
+    },
+    "standard": {
+      "model": "openai/gpt-4o-mini",
+      "cost_per_1k_input": 0.15,
+      "cost_per_1k_output": 0.6,
+      "description": "Balanced cost/quality - for moderate queries"
+    },
+    "economy": {
+      "model": "qwen/qwen3.5-35b-a3b",
+      "cost_per_1k_input": 0.16,
+      "cost_per_1k_output": 1.0,
+      "description": "Lowest cost - for simple queries"
+    }
+  }
+}
