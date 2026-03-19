@@ -1,0 +1,77 @@
+{
+  "timestamp": "2026-03-19T07:33:31.187058",
+  "description": "RouteLLM baseline experiments for RouteSmith comparison",
+  "note": "Experiments run on 10 queries from real_50_queries benchmark",
+  "experiments": [
+    {
+      "router": "cheapest-first",
+      "description": "Always route to cheapest model (gpt-4o-mini)",
+      "total_cost": 0.0006,
+      "model_breakdown": {
+        "gpt-4o-mini": 10,
+        "gpt-4o": 0
+      },
+      "routing_distribution": {
+        "weak": "100%",
+        "strong": "0%"
+      }
+    },
+    {
+      "router": "all-strong",
+      "description": "Always route to strongest model (gpt-4o)",
+      "total_cost": 0.0104,
+      "model_breakdown": {
+        "gpt-4o-mini": 0,
+        "gpt-4o": 10
+      },
+      "routing_distribution": {
+        "weak": "0%",
+        "strong": "100%"
+      }
+    },
+    {
+      "router": "routellm-random",
+      "description": "RouteLLM with random router (threshold=0.5)",
+      "total_cost": 0.0055,
+      "model_breakdown": {
+        "gpt-4o-mini": 5,
+        "gpt-4o": 5
+      },
+      "routing_distribution": {
+        "weak": "50%",
+        "strong": "50%"
+      },
+      "note": "Random router serves as baseline - 50% chance to route to either model"
+    },
+    {
+      "router": "routellm-sw_ranking",
+      "description": "RouteLLM smart router - FAILED",
+      "error": "Dataset feature alignment error - requires investigation",
+      "total_cost": null,
+      "model_breakdown": null
+    }
+  ],
+  "summary": {
+    "cheapest_first_cost": 0.0006,
+    "all_strong_cost": 0.0104,
+    "routellm_random_cost": 0.0055,
+    "savings_vs_strong": {
+      "cheapest_first": "94.2%",
+      "routellm_random": "46.8%"
+    },
+    "routeSmith_reference": {
+      "cost_savings": "67.2%",
+      "quality_retention": "100%",
+      "description": "RouteSmith achieves 67.2% cost savings while maintaining 100% quality"
+    },
+    "comparison_notes": "RouteLLM's random router provides ~47% savings vs 67% for RouteSmith. The sw_ranking smart router failed to load due to dataset compatibility issues. Cheapest-first achieves highest savings (94%) but likely at cost of quality."
+  },
+  "models_used": {
+    "strong": "openai/gpt-4o",
+    "weak": "openai/gpt-4o-mini"
+  },
+  "pricing": {
+    "gpt-4o": {"input_per_1m": 2.50, "output_per_1m": 10.00},
+    "gpt-4o-mini": {"input_per_1m": 0.15, "output_per_1m": 0.60}
+  }
+}
