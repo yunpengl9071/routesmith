@@ -1,0 +1,182 @@
+[
+  {
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 1.0,
+    "reward": 0.7
+  },
+  {
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.30000000000000004
+  },
+  {
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.4
+  },
+  {
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 1.0,
+    "reward": 0.7
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.9,
+    "reward": 0.9
+  },
+  {
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.4
+  },
+  {
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.4
+  },
+  {
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.4
+  },
+  {
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 0.7,
+    "reward": 0.09999999999999998
+  },
+  {
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.9,
+    "reward": 0.9
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.7
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.6000000000000001
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.6000000000000001
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 0.8,
+    "reward": 0.5
+  },
+  {
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.8,
+    "reward": 1.1
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.6000000000000001
+  },
+  {
+    "diff": "medium",
+    "model": "phi4",
+    "qual": 0.9,
+    "reward": 0.9000000000000001
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 1.0,
+    "reward": 0.7
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 0.8,
+    "reward": 0.5
+  },
+  {
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.6000000000000001
+  },
+  {
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 1.0,
+    "reward": 1.2999999999999998
+  },
+  {
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.9,
+    "reward": 1.2000000000000002
+  },
+  {
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.9
+  },
+  {
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.9
+  },
+  {
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 0.9,
+    "reward": 1.2000000000000002
+  },
+  {
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 1.0,
+    "reward": 1.2999999999999998
+  },
+  {
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "qual": 0.9,
+    "reward": 0.9
+  },
+  {
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "qual": 0.8,
+    "reward": 0.8
+  },
+  {
+    "diff": "hard",
+    "model": "phi4",
+    "qual": 1.0,
+    "reward": 1.2999999999999998
+  },
+  {
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "qual": 0.8,
+    "reward": 0.8
+  }
+]

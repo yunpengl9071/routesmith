@@ -1,0 +1,48 @@
+{
+  "experiment": "100_real_queries",
+  "timestamp": "2026-03-10T11:49:51.527109",
+  "total_queries": 100,
+  "successful_queries": 100,
+  "failed_queries": 0,
+  "success_rate": 100.0,
+  "total_cost": 1.44172,
+  "avg_cost_per_query": 0.014417,
+  "routing_distribution": {
+    "premium": 63,
+    "economy": 37
+  },
+  "learning_curve": [
+    {
+      "after_queries": 20,
+      "success_rate": 1.0
+    },
+    {
+      "after_queries": 40,
+      "success_rate": 1.0
+    },
+    {
+      "after_queries": 60,
+      "success_rate": 1.0
+    },
+    {
+      "after_queries": 80,
+      "success_rate": 1.0
+    },
+    {
+      "after_queries": 100,
+      "success_rate": 1.0
+    }
+  ],
+  "models_used": {
+    "premium": {
+      "model": "qwen/qwen3-next-80b-a3b-instruct",
+      "cost_per_1k": 0.38,
+      "description": "Reliable, fast, no reasoning overhead"
+    },
+    "economy": {
+      "model": "nvidia/nemotron-3-nano-30b-a3b",
+      "cost_per_1k": 0.0,
+      "description": "Free, reliable for simple queries"
+    }
+  }
+}

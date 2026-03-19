@@ -1,0 +1,282 @@
+[
+  {
+    "q": "What is 2+2?",
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "qual": 0.39925612194811205,
+    "reward": -0.6007438780518879
+  },
+  {
+    "q": "Capital of France?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.14848265594951804,
+    "reward": -0.35151734405048196
+  },
+  {
+    "q": "Color of sky?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.318197640030441,
+    "reward": -0.181802359969559
+  },
+  {
+    "q": "Days in week?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.38421206118405377,
+    "reward": -0.11578793881594623
+  },
+  {
+    "q": "Is fire hot?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.486574990824968,
+    "reward": 0.486574990824968
+  },
+  {
+    "q": "Pres of USA?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.1683115150127812,
+    "reward": 0.1683115150127812
+  },
+  {
+    "q": "Largest ocean?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.21337383483686334,
+    "reward": 0.21337383483686334
+  },
+  {
+    "q": "Boiling water?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.23776851674962432,
+    "reward": 0.23776851674962432
+  },
+  {
+    "q": "Spiders legs?",
+    "diff": "easy",
+    "model": "phi4",
+    "qual": 0.33363075191020186,
+    "reward": -0.16636924808979814
+  },
+  {
+    "q": "Birds fly?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.48657498279041345,
+    "reward": 0.48657498279041345
+  },
+  {
+    "q": "Water formula?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.19028416116371533,
+    "reward": 0.19028416116371533
+  },
+  {
+    "q": "Light speed?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.1507446837259418,
+    "reward": 0.1507446837259418
+  },
+  {
+    "q": "Earth round?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.4865748421736728,
+    "reward": 0.4865748421736728
+  },
+  {
+    "q": "Plants green?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.04013118518236034,
+    "reward": 0.04013118518236034
+  },
+  {
+    "q": "Metal conducts?",
+    "diff": "easy",
+    "model": "nemotron",
+    "qual": 0.48657487718281583,
+    "reward": 0.48657487718281583
+  },
+  {
+    "q": "Explain AI",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.06147697449302802,
+    "reward": 0.21147697449302802
+  },
+  {
+    "q": "What is photosynthesis?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.011763952544489835,
+    "reward": 0.16176395254448983
+  },
+  {
+    "q": "Climate change cause?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.021731229117025904,
+    "reward": 0.1717312291170259
+  },
+  {
+    "q": "How do vaccines work?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.11431795833117302,
+    "reward": 0.264317958331173
+  },
+  {
+    "q": "What is GDP?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.0016834733113705348,
+    "reward": 0.15168347331137053
+  },
+  {
+    "q": "Explain stock market",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.06710590545429386,
+    "reward": 0.21710590545429387
+  },
+  {
+    "q": "How does internet work?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.059789963131754525,
+    "reward": 0.20978996313175452
+  },
+  {
+    "q": "What is supply demand?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.11291710054942591,
+    "reward": 0.2629171005494259
+  },
+  {
+    "q": "Explain recursion",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.07143805820472265,
+    "reward": 0.22143805820472265
+  },
+  {
+    "q": "What is API?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.1351137873246114,
+    "reward": 0.2851137873246114
+  },
+  {
+    "q": "Database normalization",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.018348424326232356,
+    "reward": 0.16834842432623234
+  },
+  {
+    "q": "How does CPU work?",
+    "diff": "medium",
+    "model": "nemotron",
+    "qual": 0.029732059973318088,
+    "reward": 0.1797320599733181
+  },
+  {
+    "q": "Explain quantum entanglem",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": -0.03141796729887416,
+    "reward": 0.26858203270112585
+  },
+  {
+    "q": "Solve Navier-Stokes",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.01955498452577709,
+    "reward": 0.3195549845257771
+  },
+  {
+    "q": "Derive Black-Scholes",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.10010581600146591,
+    "reward": 0.4001058160014659
+  },
+  {
+    "q": "What is P vs NP?",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": -0.039758719597053425,
+    "reward": 0.2602412804029466
+  },
+  {
+    "q": "Explain consciousness",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.06287425248079627,
+    "reward": 0.36287425248079624
+  },
+  {
+    "q": "BERT attention mechanism",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.10172104984973616,
+    "reward": 0.40172104984973617
+  },
+  {
+    "q": "Protein folding problem",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": -0.004765941481994814,
+    "reward": 0.29523405851800516
+  },
+  {
+    "q": "Holographic principle",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.10863281101784807,
+    "reward": 0.40863281101784804
+  },
+  {
+    "q": "Quantum error correction",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.009275371151544302,
+    "reward": 0.3092753711515443
+  },
+  {
+    "q": "G\u00f6del incompleteness",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.08411055104671895,
+    "reward": 0.38411055104671893
+  },
+  {
+    "q": "String theory dimensions",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.020503619646245672,
+    "reward": 0.3205036196462457
+  },
+  {
+    "q": "Mandelbrot set",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.00605540099799163,
+    "reward": 0.3060554009979916
+  },
+  {
+    "q": "Explain holographic duali",
+    "diff": "hard",
+    "model": "nemotron",
+    "qual": 0.11410453901888955,
+    "reward": 0.41410453901888955
+  }
+]

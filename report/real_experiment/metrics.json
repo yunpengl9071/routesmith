@@ -1,0 +1,79 @@
+{
+  "experiment_type": "real_api_calls",
+  "timestamp": "2026-03-10T12:13:23.658999",
+  "total_queries": 100,
+  "successful_queries": 100,
+  "failed_queries": 0,
+  "cumulative_cost_routed": 224.14361,
+  "cumulative_cost_baseline": 331.54082,
+  "cost_reduction_percent": 32.4,
+  "avg_quality": 0.563,
+  "quality_retention_percent": 59.3,
+  "routing_distribution": {
+    "premium": 40,
+    "standard": 40,
+    "economy": 20
+  },
+  "learning_curve": [
+    {
+      "after_queries": 10,
+      "accuracy": 0.5
+    },
+    {
+      "after_queries": 20,
+      "accuracy": 0.3
+    },
+    {
+      "after_queries": 30,
+      "accuracy": 0.4
+    },
+    {
+      "after_queries": 40,
+      "accuracy": 0.525
+    },
+    {
+      "after_queries": 50,
+      "accuracy": 0.48
+    },
+    {
+      "after_queries": 60,
+      "accuracy": 0.5166666666666667
+    },
+    {
+      "after_queries": 70,
+      "accuracy": 0.4714285714285714
+    },
+    {
+      "after_queries": 80,
+      "accuracy": 0.425
+    },
+    {
+      "after_queries": 90,
+      "accuracy": 0.37777777777777777
+    },
+    {
+      "after_queries": 100,
+      "accuracy": 0.34
+    }
+  ],
+  "models_used": {
+    "premium": {
+      "model": "qwen/qwen3.5-plus-02-15",
+      "cost_per_1k_input": 0.26,
+      "cost_per_1k_output": 1.56,
+      "description": "Best value premium model"
+    },
+    "standard": {
+      "model": "minimax/minimax-m2.5",
+      "cost_per_1k_input": 0.27,
+      "cost_per_1k_output": 0.95,
+      "description": "Best cost/quality balance"
+    },
+    "economy": {
+      "model": "qwen/qwen3.5-35b-a3b",
+      "cost_per_1k_input": 0.16,
+      "cost_per_1k_output": 1.0,
+      "description": "Budget-friendly, capable for simple queries"
+    }
+  }
+}

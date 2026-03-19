@@ -1,0 +1,335 @@
+{
+  "accuracy": {
+    "math": {
+      "nemotron": 0.0,
+      "phi4": 0.625,
+      "gpt4o-mini": 0.75
+    },
+    "coding": {
+      "nemotron": 0.0,
+      "phi4": 0.625,
+      "gpt4o-mini": 0.875
+    },
+    "reasoning": {
+      "nemotron": 0.0,
+      "phi4": 0.625,
+      "gpt4o-mini": 0.75
+    },
+    "knowledge": {
+      "nemotron": 0.0,
+      "phi4": 0.875,
+      "gpt4o-mini": 0.875
+    }
+  },
+  "routing": [
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "phi4",
+      "accuracy": 0.625
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "phi4",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "knowledge",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "coding",
+      "model": "gpt4o-mini",
+      "accuracy": 0.875
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "reasoning",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    },
+    {
+      "task": "math",
+      "model": "gpt4o-mini",
+      "accuracy": 0.75
+    }
+  ],
+  "summary": {
+    "selection": {
+      "nemotron": 0.0,
+      "phi4": 5.0,
+      "gpt4o-mini": 95.0
+    },
+    "cost_savings": -1.6666666666667072,
+    "avg_quality": 0.80625
+  }
+}

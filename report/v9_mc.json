@@ -1,0 +1,62 @@
+[
+  {
+    "task": "math_easy",
+    "model": "nemotron",
+    "correct": false
+  },
+  {
+    "task": "math_easy",
+    "model": "phi4",
+    "correct": true
+  },
+  {
+    "task": "math_hard",
+    "model": "gpt4o-mini",
+    "correct": false
+  },
+  {
+    "task": "math_hard",
+    "model": "phi4",
+    "correct": false
+  },
+  {
+    "task": "coding_hard",
+    "model": "phi4",
+    "correct": true
+  },
+  {
+    "task": "coding_hard",
+    "model": "phi4",
+    "correct": false
+  },
+  {
+    "task": "knowledge",
+    "model": "phi4",
+    "correct": true
+  },
+  {
+    "task": "knowledge",
+    "model": "nemotron",
+    "correct": false
+  },
+  {
+    "task": "reasoning_hard",
+    "model": "phi4",
+    "correct": true
+  },
+  {
+    "task": "reasoning_hard",
+    "model": "phi4",
+    "correct": false
+  },
+  {
+    "task": "science",
+    "model": "phi4",
+    "correct": true
+  },
+  {
+    "task": "science",
+    "model": "nemotron",
+    "correct": false
+  }
+]

@@ -1,0 +1,86 @@
+[
+  {
+    "task": "What is 2+2?",
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "quality": 1.0,
+    "reward": 0.3
+  },
+  {
+    "task": "What color is grass?",
+    "diff": "easy",
+    "model": "phi4",
+    "quality": 0.9,
+    "reward": 0.55
+  },
+  {
+    "task": "Who is president of USA?",
+    "diff": "easy",
+    "model": "phi4",
+    "quality": 0.9,
+    "reward": 0.55
+  },
+  {
+    "task": "How many days in a week?",
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "quality": 1.0,
+    "reward": 0.3
+  },
+  {
+    "task": "Explain photosynthesis",
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "quality": 0.7,
+    "reward": 0.19999999999999996
+  },
+  {
+    "task": "What causes climate chang",
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "quality": 0.9,
+    "reward": 0.4
+  },
+  {
+    "task": "How does a vaccine work?",
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "quality": 0.8,
+    "reward": 0.30000000000000004
+  },
+  {
+    "task": "Explain quantum entanglem",
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "quality": 0.7,
+    "reward": 0.7
+  },
+  {
+    "task": "What is the solution to t",
+    "diff": "hard",
+    "model": "phi4",
+    "quality": 0.2,
+    "reward": 0.55
+  },
+  {
+    "task": "Derive the Black-Scholes ",
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "quality": 0.0,
+    "reward": 0.0
+  },
+  {
+    "task": "What are the implications",
+    "diff": "hard",
+    "model": "gpt4o-mini",
+    "quality": 0.7,
+    "reward": 0.7
+  },
+  {
+    "task": "Explain consciousness fro",
+    "diff": "hard",
+    "model": "nemotron",
+    "quality": 0.7,
+    "reward": 1.1749999999999998
+  }
+]

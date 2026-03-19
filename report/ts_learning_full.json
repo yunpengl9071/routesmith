@@ -1,0 +1,104 @@
+{
+  "exploration": [
+    {
+      "model": "nemotron",
+      "alpha": 39.0
+    },
+    {
+      "model": "phi4",
+      "alpha": 29.0
+    },
+    {
+      "model": "gpt4o-mini",
+      "alpha": 25.0
+    }
+  ],
+  "thompson_sampling": [
+    {
+      "query": "Where can I find my invoice?",
+      "model": "gpt4o-mini",
+      "quality": 2,
+      "reward": 4.0
+    },
+    {
+      "query": "Do you support 2FA?",
+      "model": "nemotron",
+      "quality": 5,
+      "reward": 10.0
+    },
+    {
+      "query": "How do I update email?",
+      "model": "gpt4o-mini",
+      "quality": 5,
+      "reward": 10.0
+    },
+    {
+      "query": "What's uptime guarantee?",
+      "model": "phi4",
+      "quality": 1,
+      "reward": 2.0
+    },
+    {
+      "query": "How do I export data?",
+      "model": "phi4",
+      "quality": 1,
+      "reward": 2.0
+    },
+    {
+      "query": "Can I change plan?",
+      "model": "gpt4o-mini",
+      "quality": 1,
+      "reward": 2.0
+    },
+    {
+      "query": "Free trial details?",
+      "model": "phi4",
+      "quality": 5,
+      "reward": 10.0
+    },
+    {
+      "query": "Billing cycle info?",
+      "model": "gpt4o-mini",
+      "quality": 3,
+      "reward": 6.0
+    },
+    {
+      "query": "Account security?",
+      "model": "nemotron",
+      "quality": 1,
+      "reward": 2.0
+    },
+    {
+      "query": "API access?",
+      "model": "nemotron",
+      "quality": 5,
+      "reward": 10.0
+    },
+    {
+      "query": "Mobile app?",
+      "model": "nemotron",
+      "quality": 7,
+      "reward": 14.0
+    },
+    {
+      "query": "Integration options?",
+      "model": "phi4",
+      "quality": 6,
+      "reward": 12.0
+    }
+  ],
+  "final_alpha": {
+    "nemotron": {
+      "alpha": 39.0,
+      "beta": 1
+    },
+    "phi4": {
+      "alpha": 29.0,
+      "beta": 1
+    },
+    "gpt4o-mini": {
+      "alpha": 25.0,
+      "beta": 1
+    }
+  }
+}

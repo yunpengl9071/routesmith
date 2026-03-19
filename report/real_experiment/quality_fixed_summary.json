@@ -1,0 +1,27 @@
+{
+  "baseline": {
+    "total_cost": 224.14361,
+    "quality_rate": 56.3,
+    "routing": {
+      "Premium": 40,
+      "Standard": 40,
+      "Economy": 20
+    }
+  },
+  "quality_fixed": {
+    "total_cost": 78.61864000000004,
+    "quality_rate": 73.0,
+    "routing": {
+      "premium": 20,
+      "standard": 24,
+      "economy": 56
+    },
+    "premium_retry_rate": 35.714285714285715,
+    "cost_per_valid_response": 1.0769676712328773,
+    "failures_prevented": 20
+  },
+  "improvements": {
+    "cost_reduction_percent": 64.92488008023068,
+    "quality_improvement_percent": 29.662522202486684
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "total_queries": 100,
+  "total_cost_routed": 0.48873270000000035,
+  "total_cost_unrouted": 1.9731199999999998,
+  "cost_reduction_percent": 75.23046241485564,
+  "average_quality": 0.8452173534560528,
+  "quality_retention_percent": 88.97024773221608,
+  "initial_accuracy": 0.33,
+  "final_accuracy": 1.0,
+  "learning_improvement_percent": 203.03030303030297,
+  "routing_distribution": {
+    "gpt-4o": 24,
+    "gpt-4o-mini": 48,
+    "groq/llama-70b": 28
+  },
+  "learning_curve": [
+    {
+      "after_queries": 10,
+      "accuracy": 0.5
+    },
+    {
+      "after_queries": 20,
+      "accuracy": 0.9
+    },
+    {
+      "after_queries": 30,
+      "accuracy": 0.9
+    },
+    {
+      "after_queries": 40,
+      "accuracy": 1.0
+    },
+    {
+      "after_queries": 50,
+      "accuracy": 1.0
+    },
+    {
+      "after_queries": 60,
+      "accuracy": 1.0
+    },
+    {
+      "after_queries": 70,
+      "accuracy": 1.0
+    },
+    {
+      "after_queries": 80,
+      "accuracy": 1.0
+    },
+    {
+      "after_queries": 90,
+      "accuracy": 1.0
+    },
+    {
+      "after_queries": 100,
+      "accuracy": 1.0
+    }
+  ]
+}

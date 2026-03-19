@@ -1,0 +1,146 @@
+{
+  "('25+17=?', 'C')": {
+    "mimo": {
+      "answer": "B",
+      "correct": false
+    },
+    "gemini-flash": {
+      "answer": "A",
+      "correct": false
+    },
+    "phi4": {
+      "answer": "A",
+      "correct": false
+    },
+    "gpt4o-mini": {
+      "answer": "A",
+      "correct": false
+    }
+  },
+  "('8\u00d77=?', 'B')": {
+    "mimo": {
+      "answer": "B",
+      "correct": true
+    },
+    "gemini-flash": {
+      "answer": "B",
+      "correct": true
+    },
+    "phi4": {
+      "answer": "B",
+      "correct": true
+    },
+    "gpt4o-mini": {
+      "answer": "B",
+      "correct": true
+    }
+  },
+  "('\u221a144?', 'C')": {
+    "mimo": {
+      "answer": "C",
+      "correct": true
+    },
+    "gemini-flash": {
+      "answer": "C",
+      "correct": true
+    },
+    "phi4": {
+      "answer": "C",
+      "correct": true
+    },
+    "gpt4o-mini": {
+      "answer": "C",
+      "correct": true
+    }
+  },
+  "('15% of 200?', 'B')": {
+    "mimo": {
+      "answer": "B",
+      "correct": true
+    },
+    "gemini-flash": {
+      "answer": "B",
+      "correct": true
+    },
+    "phi4": {
+      "answer": "C",
+      "correct": false
+    },
+    "gpt4o-mini": {
+      "answer": "B",
+      "correct": true
+    }
+  },
+  "('len([1,2,3])?', 'B')": {
+    "mimo": {
+      "answer": "B",
+      "correct": true
+    },
+    "gemini-flash": {
+      "answer": "B",
+      "correct": true
+    },
+    "phi4": {
+      "answer": "B",
+      "correct": true
+    },
+    "gpt4o-mini": {
+      "answer": "B",
+      "correct": true
+    }
+  },
+  "(\"'hello'[0]?\", 'A')": {
+    "mimo": {
+      "answer": "A",
+      "correct": true
+    },
+    "gemini-flash": {
+      "answer": "A",
+      "correct": true
+    },
+    "phi4": {
+      "answer": "A",
+      "correct": true
+    },
+    "gpt4o-mini": {
+      "answer": "A",
+      "correct": true
+    }
+  },
+  "('True and False?', 'B')": {
+    "mimo": {
+      "answer": "A",
+      "correct": false
+    },
+    "gemini-flash": {
+      "answer": "O",
+      "correct": false
+    },
+    "phi4": {
+      "answer": "T",
+      "correct": false
+    },
+    "gpt4o-mini": {
+      "answer": "A",
+      "correct": false
+    }
+  },
+  "('range(3)?', 'A')": {
+    "mimo": {
+      "answer": "A",
+      "correct": true
+    },
+    "gemini-flash": {
+      "answer": "A",
+      "correct": true
+    },
+    "phi4": {
+      "answer": "A",
+      "correct": true
+    },
+    "gpt4o-mini": {
+      "answer": "A",
+      "correct": true
+    }
+  }
+}

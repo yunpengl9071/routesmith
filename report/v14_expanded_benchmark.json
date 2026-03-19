@@ -1,0 +1,27 @@
+{
+  "results": {
+    "mimo": {
+      "correct": 50,
+      "total": 60
+    },
+    "gemini-flash": {
+      "correct": 57,
+      "total": 60
+    },
+    "phi4": {
+      "correct": 45,
+      "total": 60
+    },
+    "gpt4o-mini": {
+      "correct": 53,
+      "total": 60
+    }
+  },
+  "accuracy": {
+    "mimo": 0.8333333333333334,
+    "gemini-flash": 0.95,
+    "phi4": 0.75,
+    "gpt4o-mini": 0.8833333333333333
+  },
+  "n": 60
+}

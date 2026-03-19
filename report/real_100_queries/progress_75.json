@@ -1,0 +1,756 @@
+{
+  "count": 75,
+  "cost": 0.9633,
+  "results": [
+    {
+      "query_id": 1,
+      "category": "technical",
+      "selected_tier": "premium",
+      "total_tokens": 91,
+      "cost_usd": 0.03458,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Your API is returning 500 errors during batching likely due to an unhandled serv..."
+    },
+    {
+      "query_id": 2,
+      "category": "technical",
+      "selected_tier": "premium",
+      "total_tokens": 75,
+      "cost_usd": 0.028499999999999998,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Implement OAuth2 refresh token rotation by issuing a new refresh token with each..."
+    },
+    {
+      "query_id": 3,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 88,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Sandbox environments typically have"
+    },
+    {
+      "query_id": 4,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 89,
+      "cost_usd": 0.0,
+      "quality_score": 0.9,
+      "success": true,
+      "answer": "Your webhook signatures don\u2019t match because the secret you\u2019re using"
+    },
+    {
+      "query_id": 5,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 90,
+      "cost_usd": 0.0,
+      "quality_score": 0.9,
+      "success": true,
+      "answer": "Use cursor\u2011based (key\u2011set) pagination"
+    },
+    {
+      "query_id": 6,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 90,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Your async jobs are likely hitting the platform\u2019s default "
+    },
+    {
+      "query_id": 7,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 88,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 8,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 89,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 9,
+      "category": "technical",
+      "selected_tier": "premium",
+      "total_tokens": 90,
+      "cost_usd": 0.0342,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Ensure your server responds to OPTIONS preflight requests with proper CORS heade..."
+    },
+    {
+      "query_id": 10,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 87,
+      "cost_usd": 0.0,
+      "quality_score": 0.45,
+      "success": true,
+      "answer": "Use a per"
+    },
+    {
+      "query_id": 11,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 87,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 12,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 88,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 13,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 87,
+      "cost_usd": 0.0,
+      "quality_score": 0.3,
+      "success": true,
+      "answer": "Your mutation"
+    },
+    {
+      "query_id": 14,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 86,
+      "cost_usd": 0.0,
+      "quality_score": 0.45,
+      "success": true,
+      "answer": "Use a loop"
+    },
+    {
+      "query_id": 15,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 88,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 16,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 87,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 17,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 88,
+      "cost_usd": 0.0,
+      "quality_score": 0.9,
+      "success": true,
+      "answer": "Your SSE connection is likely dropping because the server\u2019s idle timeout (often ..."
+    },
+    {
+      "query_id": 18,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 85,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 19,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 88,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 20,
+      "category": "technical",
+      "selected_tier": "economy",
+      "total_tokens": 87,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "To debug memory leaks in your integration, monitor memory usage over"
+    },
+    {
+      "query_id": 21,
+      "category": "billing",
+      "selected_tier": "economy",
+      "total_tokens": 85,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "You were likely billed twice"
+    },
+    {
+      "query_id": 22,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 62,
+      "cost_usd": 0.02356,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Log in to your account on the service\u2019s website or app, navigate to the payment ..."
+    },
+    {
+      "query_id": 23,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 60,
+      "cost_usd": 0.0228,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Yes, I can help with that\u2014please provide your payment details or account informa..."
+    },
+    {
+      "query_id": 24,
+      "category": "billing",
+      "selected_tier": "economy",
+      "total_tokens": 86,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 25,
+      "category": "billing",
+      "selected_tier": "economy",
+      "total_tokens": 84,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 26,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 49,
+      "cost_usd": 0.01862,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Yes, we offer discounts for nonprofits\u2014contact our sales team to learn more and ..."
+    },
+    {
+      "query_id": 27,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 62,
+      "cost_usd": 0.02356,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Your billing cycle resets on the same date each month that your service or subsc..."
+    },
+    {
+      "query_id": 28,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 72,
+      "cost_usd": 0.02736,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Your usage spiked last week likely due to increased activity\u2014such as more users,..."
+    },
+    {
+      "query_id": 29,
+      "category": "billing",
+      "selected_tier": "economy",
+      "total_tokens": 84,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 30,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 64,
+      "cost_usd": 0.02432,
+      "quality_score": 0.9,
+      "success": true,
+      "answer": "Go to your account settings, select \"Team\" or \"Members,\" and click \"Add Member,\"..."
+    },
+    {
+      "query_id": 31,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 68,
+      "cost_usd": 0.025840000000000002,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "I don't process payments or handle transactions. I'm here to provide information..."
+    },
+    {
+      "query_id": 32,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 49,
+      "cost_usd": 0.01862,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "No, we don\u2019t charge for API failures\u2014charges apply only to successful requests."
+    },
+    {
+      "query_id": 33,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 76,
+      "cost_usd": 0.02888,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "To view your usage history, check your account settings or dashboard on the plat..."
+    },
+    {
+      "query_id": 34,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 60,
+      "cost_usd": 0.0228,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "It depends on the provider\u2019s policy\u2014contact them directly to request a refund fo..."
+    },
+    {
+      "query_id": 35,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 71,
+      "cost_usd": 0.026979999999999997,
+      "quality_score": 0.5,
+      "success": true,
+      "answer": "If you exceed your plan limits, you may be charged overage fees, slowed service ..."
+    },
+    {
+      "query_id": 36,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 61,
+      "cost_usd": 0.02318,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Yes, we offer discounts for annual billing\u2014typically around 10\u201320% off compared ..."
+    },
+    {
+      "query_id": 37,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 73,
+      "cost_usd": 0.027739999999999997,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Go to your account dashboard on the platform where you made the purchase, naviga..."
+    },
+    {
+      "query_id": 38,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 72,
+      "cost_usd": 0.02736,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Your trial may be ending early due to exceeding usage limits, violating terms of..."
+    },
+    {
+      "query_id": 39,
+      "category": "billing",
+      "selected_tier": "economy",
+      "total_tokens": 83,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 40,
+      "category": "billing",
+      "selected_tier": "premium",
+      "total_tokens": 70,
+      "cost_usd": 0.026600000000000002,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "You can't upgrade mid-cycle in most subscription services\u2014they typically require..."
+    },
+    {
+      "query_id": 41,
+      "category": "account",
+      "selected_tier": "economy",
+      "total_tokens": 84,
+      "cost_usd": 0.0,
+      "quality_score": 0.3,
+      "success": true,
+      "answer": "Go"
+    },
+    {
+      "query_id": 42,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 57,
+      "cost_usd": 0.021660000000000002,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Contact the platform\u2019s support team immediately and follow their account recover..."
+    },
+    {
+      "query_id": 43,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 72,
+      "cost_usd": 0.02736,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Go to your account\u2019s security settings, find the Two-Factor Authentication (2FA)..."
+    },
+    {
+      "query_id": 44,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 67,
+      "cost_usd": 0.025460000000000003,
+      "quality_score": 0.5,
+      "success": true,
+      "answer": "Yes, you can usually change your email address by going to your account settings..."
+    },
+    {
+      "query_id": 45,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 62,
+      "cost_usd": 0.02356,
+      "quality_score": 0.9,
+      "success": true,
+      "answer": "To delete your account, go to your account settings, find the \u201cDelete Account\u201d o..."
+    },
+    {
+      "query_id": 46,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 71,
+      "cost_usd": 0.026979999999999997,
+      "quality_score": 0.5,
+      "success": true,
+      "answer": "To export your data, look for an \u201cExport\u201d or \u201cDownload\u201d option in the settings o..."
+    },
+    {
+      "query_id": 47,
+      "category": "account",
+      "selected_tier": "economy",
+      "total_tokens": 86,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "I\u2019m sorry you\u2019re seeing incorrect usage stats"
+    },
+    {
+      "query_id": 48,
+      "category": "account",
+      "selected_tier": "economy",
+      "total_tokens": 87,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 49,
+      "category": "account",
+      "selected_tier": "economy",
+      "total_tokens": 83,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 50,
+      "category": "account",
+      "selected_tier": "economy",
+      "total_tokens": 86,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 51,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 68,
+      "cost_usd": 0.025840000000000002,
+      "quality_score": 0.9,
+      "success": true,
+      "answer": "Go to your API provider\u2019s dashboard, locate the API keys section, find the key y..."
+    },
+    {
+      "query_id": 52,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 69,
+      "cost_usd": 0.026220000000000004,
+      "quality_score": 0.5,
+      "success": true,
+      "answer": "Yes, you can share your dashboard with your team by using the share feature, whi..."
+    },
+    {
+      "query_id": 53,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 71,
+      "cost_usd": 0.026979999999999997,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "On Windows, go to Settings > Time & Language > Date & Time and select your timez..."
+    },
+    {
+      "query_id": 54,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 77,
+      "cost_usd": 0.02926,
+      "quality_score": 0.5,
+      "success": true,
+      "answer": "Your profile picture might not upload due to file format, size, or network issue..."
+    },
+    {
+      "query_id": 55,
+      "category": "account",
+      "selected_tier": "economy",
+      "total_tokens": 85,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 56,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 68,
+      "cost_usd": 0.025840000000000002,
+      "quality_score": 0.5,
+      "success": true,
+      "answer": "Yes, you can restrict API access by IP using firewall rules, API gateway policie..."
+    },
+    {
+      "query_id": 57,
+      "category": "account",
+      "selected_tier": "economy",
+      "total_tokens": 88,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 58,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 70,
+      "cost_usd": 0.026600000000000002,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "Click your profile picture in Slack, select \u201cNotifications,\u201d then customize your..."
+    },
+    {
+      "query_id": 59,
+      "category": "account",
+      "selected_tier": "economy",
+      "total_tokens": 84,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Yes\u2014you can rearrange, add, remove"
+    },
+    {
+      "query_id": 60,
+      "category": "account",
+      "selected_tier": "premium",
+      "total_tokens": 77,
+      "cost_usd": 0.02926,
+      "quality_score": 0.65,
+      "success": true,
+      "answer": "To export your team's activity log, go to your admin dashboard, navigate to the ..."
+    },
+    {
+      "query_id": 61,
+      "category": "product",
+      "selected_tier": "economy",
+      "total_tokens": 86,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "The free plan includes unlimited public projects, up to 5 private projects, 500\u202f..."
+    },
+    {
+      "query_id": 62,
+      "category": "product",
+      "selected_tier": "economy",
+      "total_tokens": 84,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "No, we don\u2019t have a dedicated mobile app\u2014access to the service"
+    },
+    {
+      "query_id": 63,
+      "category": "product",
+      "selected_tier": "economy",
+      "total_tokens": 84,
+      "cost_usd": 0.0,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "We support native integrations with major CRMs ("
+    },
+    {
+      "query_id": 64,
+      "category": "product",
+      "selected_tier": "economy",
+      "total_tokens": 84,
+      "cost_usd": 0.0,
+      "quality_score": 0.5,
+      "success": true,
+      "answer": "Yes, there is a"
+    },
+    {
+      "query_id": 65,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 55,
+      "cost_usd": 0.020900000000000002,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Yes, I support webhooks through integration with platforms like OpenAI's API and..."
+    },
+    {
+      "query_id": 66,
+      "category": "product",
+      "selected_tier": "economy",
+      "total_tokens": 85,
+      "cost_usd": 0.0,
+      "quality_score": 0.3,
+      "success": true,
+      "answer": "Our service"
+    },
+    {
+      "query_id": 67,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 54,
+      "cost_usd": 0.02052,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Yes, we have a status page at https://status.openai.com/ for real-time updates o..."
+    },
+    {
+      "query_id": 68,
+      "category": "product",
+      "selected_tier": "economy",
+      "total_tokens": 83,
+      "cost_usd": 0.0,
+      "quality_score": 0.0,
+      "success": true,
+      "answer": ""
+    },
+    {
+      "query_id": 69,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 57,
+      "cost_usd": 0.021660000000000002,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "No, I am not SOC 2 compliant \u2014 I am an AI model, not a service or organization t..."
+    },
+    {
+      "query_id": 70,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 51,
+      "cost_usd": 0.019379999999999998,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "No, I am a cloud-based AI model and do not support on-premise deployment."
+    },
+    {
+      "query_id": 71,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 46,
+      "cost_usd": 0.01748,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Our SDK is available in Python, JavaScript, Java, and C#."
+    },
+    {
+      "query_id": 72,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 55,
+      "cost_usd": 0.020900000000000002,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "No, I don't have a GraphQL API\u2014I'm a language model accessed via API endpoints l..."
+    },
+    {
+      "query_id": 73,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 44,
+      "cost_usd": 0.01672,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "Yes, there is a sandbox environment available for testing and development purpos..."
+    },
+    {
+      "query_id": 74,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 60,
+      "cost_usd": 0.0228,
+      "quality_score": 0.5,
+      "success": true,
+      "answer": "Yes, I support batch operations for tasks like text processing, translation, and..."
+    },
+    {
+      "query_id": 75,
+      "category": "product",
+      "selected_tier": "premium",
+      "total_tokens": 59,
+      "cost_usd": 0.02242,
+      "quality_score": 0.75,
+      "success": true,
+      "answer": "I don\u2019t offer a product for white-labeling\u2014I\u2019m an AI assistant developed by Alib..."
+    }
+  ]
+}

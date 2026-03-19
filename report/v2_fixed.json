@@ -1,0 +1,72 @@
+[
+  {
+    "task": "What is the capital of Fr",
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "quality": 0.9,
+    "reward": 0.4
+  },
+  {
+    "task": "What is 2 + 2?",
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "quality": 0.9,
+    "reward": 0.4
+  },
+  {
+    "task": "What color is the sky?",
+    "diff": "easy",
+    "model": "nemotron",
+    "quality": 0.9,
+    "reward": 0.875
+  },
+  {
+    "task": "How many legs does a spid",
+    "diff": "easy",
+    "model": "gpt4o-mini",
+    "quality": 0.9,
+    "reward": 0.4
+  },
+  {
+    "task": "What year did WW2 end?",
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "quality": 0.9,
+    "reward": 0.4
+  },
+  {
+    "task": "Who wrote Romeo and Julie",
+    "diff": "medium",
+    "model": "nemotron",
+    "quality": 0.8,
+    "reward": 0.775
+  },
+  {
+    "task": "What is the largest plane",
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "quality": 0.8,
+    "reward": 0.30000000000000004
+  },
+  {
+    "task": "Explain quantum computing",
+    "diff": "hard",
+    "model": "nemotron",
+    "quality": 0.5,
+    "reward": 0.475
+  },
+  {
+    "task": "What is the Riemann hypot",
+    "diff": "hard",
+    "model": "nemotron",
+    "quality": 0.5,
+    "reward": 0.475
+  },
+  {
+    "task": "Solve for x: 2x + 5 = 15",
+    "diff": "medium",
+    "model": "gpt4o-mini",
+    "quality": 0.9,
+    "reward": 0.4
+  }
+]

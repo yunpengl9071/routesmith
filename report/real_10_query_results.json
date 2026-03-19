@@ -1,0 +1,64 @@
+{
+  "timestamp": "2026-03-10T10:59:06.899460",
+  "total_cost": 7.18395,
+  "avg_cost_per_query": 0.718395,
+  "estimated_100_queries": 71.8395,
+  "results": [
+    {
+      "query": "Why is my API returning 500 errors?",
+      "category": "technical",
+      "tier": "premium",
+      "tokens": 2572,
+      "cost": 5.144,
+      "answer": "A 500 error indicates a generic server-side failure, so you need to check your l..."
+    },
+    {
+      "query": "How do I reset my password?",
+      "category": "faq",
+      "tier": "economy",
+      "tokens": 1296,
+      "cost": 0.20736000000000002,
+      "answer": "Click the \"Forgot Password\" link on the login page of the specific service you a..."
+    },
+    {
+      "query": "Why was I charged twice?",
+      "error": "object of type 'NoneType' has no len()"
+    },
+    {
+      "query": "Do you have a mobile app?",
+      "error": "object of type 'NoneType' has no len()"
+    },
+    {
+      "query": "How do I enable 2FA?",
+      "error": "object of type 'NoneType' has no len()"
+    },
+    {
+      "query": "What's your uptime SLA?",
+      "error": "object of type 'NoneType' has no len()"
+    },
+    {
+      "query": "How do I cancel?",
+      "error": "object of type 'NoneType' has no len()"
+    },
+    {
+      "query": "Is there an SDK?",
+      "category": "product",
+      "tier": "economy",
+      "tokens": 2475,
+      "cost": 0.396,
+      "answer": "SDK availability depends on the specific product or platform you are inquiring a..."
+    },
+    {
+      "query": "Webhook signature invalid",
+      "category": "technical",
+      "tier": "premium",
+      "tokens": 676,
+      "cost": 1.352,
+      "answer": "Verify that your secret key and hashing algorithm exactly match the webhook send..."
+    },
+    {
+      "query": "Forgot username",
+      "error": "object of type 'NoneType' has no len()"
+    }
+  ]
+}

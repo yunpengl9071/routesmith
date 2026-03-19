@@ -1,0 +1,82 @@
+[
+  {
+    "query_id": 1,
+    "category": "technical",
+    "selected_tier": "premium",
+    "automated_score": 0.65,
+    "judge_score": 4.0,
+    "raw_response": "Overall: 4/10 | Relevance: 3/3 | Completeness: 1/3 | Clarity: 1/2 | Helpfulness: 1/2 | Justification: The response correctly identifies the likely cau"
+  },
+  {
+    "query_id": 18,
+    "category": "technical",
+    "selected_tier": "economy",
+    "automated_score": 0.0,
+    "judge_score": 1.0,
+    "raw_response": "Overall: 1/10 | Relevance: 0/3 | Completeness: 0/3 | Clarity: 0/2 | Helpfulness: 1/2 | Justification: The provided answer is completely empty \u2014 it con"
+  },
+  {
+    "query_id": 16,
+    "category": "technical",
+    "selected_tier": "economy",
+    "automated_score": 0.0,
+    "judge_score": 1.0,
+    "raw_response": "Overall: 1/10 | Relevance: 0/3 | Completeness: 0/3 | Clarity: 0/2 | Helpfulness: 0/2 | Justification: The answer provided is completely empty\u2014there is"
+  },
+  {
+    "query_id": 2,
+    "category": "technical",
+    "selected_tier": "premium",
+    "automated_score": 0.65,
+    "judge_score": 3.0,
+    "raw_response": "Overall: 3/10 | Relevance: 2/3 | Completeness: 1/3 | Clarity: 1/2 | Helpfulness: 0/2 | Justification: The response is partially relevant as it mention"
+  },
+  {
+    "query_id": 21,
+    "category": "billing",
+    "selected_tier": "economy",
+    "automated_score": 0.75,
+    "judge_score": 3.0,
+    "raw_response": "Overall: 3/10 | Relevance: 2/3 | Completeness: 1/3 | Clarity: 1/2 | Helpfulness: 1/2 | Justification: The response is minimally relevant by acknowledg"
+  },
+  {
+    "query_id": 38,
+    "category": "billing",
+    "selected_tier": "premium",
+    "automated_score": 0.65,
+    "judge_score": 3.0,
+    "raw_response": "Overall: 3/10 | Relevance: 2/3 | Completeness: 1/3 | Clarity: 1/2 | Helpfulness: 0/2 | Justification: The response is partially relevant as it hints a"
+  },
+  {
+    "query_id": 36,
+    "category": "billing",
+    "selected_tier": "premium",
+    "automated_score": 0.75,
+    "judge_score": 4.0,
+    "raw_response": "Overall: 4/10 | Relevance: 3/3 | Completeness: 1/3 | Clarity: 2/2 | Helpfulness: 0/2 | Justification: The response is relevant and clearly states that"
+  },
+  {
+    "query_id": 22,
+    "category": "billing",
+    "selected_tier": "premium",
+    "automated_score": 0.75,
+    "judge_score": 4.0,
+    "raw_response": "Overall: 4/10 | Relevance: 3/3 | Completeness: 1/3 | Clarity: 2/2 | Helpfulness: 0/2 | Justification: The response is relevant and clearly worded, gui"
+  },
+  {
+    "query_id": 41,
+    "category": "account",
+    "selected_tier": "economy",
+    "automated_score": 0.3,
+    "judge_score": 1.0,
+    "raw_response": "Overall: 1/10 | Relevance: 0/3 | Completeness: 0/3 | Clarity: 0/2 | Helpfulness: 1/2 | Justification: The response \u201cGo\u201d is completely inadequate\u2014it do"
+  },
+  {
+    "query_id": 58,
+    "category": "account",
+    "selected_tier": "premium",
+    "automated_score": 0.65,
+    "judge_score": 4.0,
+    "raw_response": "Overall: 4/10 | Relevance: 2/3 | Completeness: 1/3 | Clarity: 2/2 | Helpfulness: 1/2 | Justification: The response is relevant to a Slack account noti"
+  }
+]
