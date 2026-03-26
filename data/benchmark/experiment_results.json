@@ -1,0 +1,328 @@
+{
+  "methods": {
+    "always_free": {
+      "mean_quality": 56.4,
+      "std_quality": 1.3564659966250538,
+      "mean_cost": 0.0,
+      "std_cost": 0.0,
+      "mean_qc_ratio": Infinity,
+      "std_qc_ratio": 0,
+      "all_qualities": [
+        56,
+        57,
+        54,
+        57,
+        58
+      ],
+      "all_costs": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "selections": [
+        {
+          "free": 80,
+          "budget": 0,
+          "premium": 0
+        },
+        {
+          "free": 80,
+          "budget": 0,
+          "premium": 0
+        },
+        {
+          "free": 80,
+          "budget": 0,
+          "premium": 0
+        },
+        {
+          "free": 80,
+          "budget": 0,
+          "premium": 0
+        },
+        {
+          "free": 80,
+          "budget": 0,
+          "premium": 0
+        }
+      ]
+    },
+    "always_budget": {
+      "mean_quality": 62.2,
+      "std_quality": 0.7483314773547882,
+      "mean_cost": 0.16000000000000011,
+      "std_cost": 0.0,
+      "mean_qc_ratio": 388.7499999999997,
+      "std_qc_ratio": 4.677071733467427,
+      "all_qualities": [
+        62,
+        63,
+        62,
+        61,
+        63
+      ],
+      "all_costs": [
+        0.16000000000000011,
+        0.16000000000000011,
+        0.16000000000000011,
+        0.16000000000000011,
+        0.16000000000000011
+      ],
+      "selections": [
+        {
+          "free": 0,
+          "budget": 80,
+          "premium": 0
+        },
+        {
+          "free": 0,
+          "budget": 80,
+          "premium": 0
+        },
+        {
+          "free": 0,
+          "budget": 80,
+          "premium": 0
+        },
+        {
+          "free": 0,
+          "budget": 80,
+          "premium": 0
+        },
+        {
+          "free": 0,
+          "budget": 80,
+          "premium": 0
+        }
+      ]
+    },
+    "always_premium": {
+      "mean_quality": 59.8,
+      "std_quality": 0.7483314773547882,
+      "mean_cost": 0.40000000000000024,
+      "std_cost": 0.0,
+      "mean_qc_ratio": 149.49999999999991,
+      "std_qc_ratio": 1.8708286933869707,
+      "all_qualities": [
+        60,
+        61,
+        59,
+        60,
+        59
+      ],
+      "all_costs": [
+        0.40000000000000024,
+        0.40000000000000024,
+        0.40000000000000024,
+        0.40000000000000024,
+        0.40000000000000024
+      ],
+      "selections": [
+        {
+          "free": 0,
+          "budget": 0,
+          "premium": 80
+        },
+        {
+          "free": 0,
+          "budget": 0,
+          "premium": 80
+        },
+        {
+          "free": 0,
+          "budget": 0,
+          "premium": 80
+        },
+        {
+          "free": 0,
+          "budget": 0,
+          "premium": 80
+        },
+        {
+          "free": 0,
+          "budget": 0,
+          "premium": 80
+        }
+      ]
+    },
+    "random": {
+      "mean_quality": 63.0,
+      "std_quality": 2.280350850198276,
+      "mean_cost": 0.1878000000000001,
+      "std_cost": 0.01800444389588306,
+      "mean_qc_ratio": 338.73189119637766,
+      "std_qc_ratio": 36.517767005025426,
+      "all_qualities": [
+        66,
+        61,
+        65,
+        60,
+        63
+      ],
+      "all_costs": [
+        0.17400000000000007,
+        0.1860000000000001,
+        0.21400000000000013,
+        0.20100000000000012,
+        0.1640000000000001
+      ],
+      "selections": [
+        {
+          "free": 32,
+          "budget": 22,
+          "premium": 26
+        },
+        {
+          "free": 26,
+          "budget": 28,
+          "premium": 26
+        },
+        {
+          "free": 21,
+          "budget": 27,
+          "premium": 32
+        },
+        {
+          "free": 23,
+          "budget": 28,
+          "premium": 29
+        },
+        {
+          "free": 31,
+          "budget": 27,
+          "premium": 22
+        }
+      ]
+    },
+    "SW": {
+      "mean_quality": 61.6,
+      "std_quality": 1.624807680927192,
+      "mean_cost": 0.14420000000000005,
+      "std_cost": 0.00487442304278158,
+      "mean_qc_ratio": 427.7264066011505,
+      "std_qc_ratio": 19.335461395193477,
+      "all_qualities": [
+        61,
+        64,
+        60,
+        60,
+        63
+      ],
+      "all_costs": [
+        0.13700000000000007,
+        0.14300000000000007,
+        0.15200000000000008,
+        0.1430000000000001,
+        0.14600000000000007
+      ],
+      "selections": [
+        {
+          "free": 31,
+          "budget": 36,
+          "premium": 13
+        },
+        {
+          "free": 34,
+          "budget": 29,
+          "premium": 17
+        },
+        {
+          "free": 31,
+          "budget": 31,
+          "premium": 18
+        },
+        {
+          "free": 31,
+          "budget": 34,
+          "premium": 15
+        },
+        {
+          "free": 34,
+          "budget": 28,
+          "premium": 18
+        }
+      ]
+    },
+    "ContextualTS": {
+      "mean_quality": 55.4,
+      "std_quality": 2.244994432064365,
+      "mean_cost": 0.05680000000000003,
+      "std_cost": 0.008840814442120147,
+      "mean_qc_ratio": 996.8852592420365,
+      "std_qc_ratio": 144.75427582291894,
+      "all_qualities": [
+        57,
+        53,
+        54,
+        54,
+        59
+      ],
+      "all_costs": [
+        0.048000000000000015,
+        0.06600000000000003,
+        0.05000000000000001,
+        0.05100000000000002,
+        0.06900000000000003
+      ],
+      "selections": [
+        {
+          "free": 62,
+          "budget": 14,
+          "premium": 4
+        },
+        {
+          "free": 53,
+          "budget": 23,
+          "premium": 4
+        },
+        {
+          "free": 61,
+          "budget": 15,
+          "premium": 4
+        },
+        {
+          "free": 59,
+          "budget": 18,
+          "premium": 3
+        },
+        {
+          "free": 50,
+          "budget": 27,
+          "premium": 3
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "n_queries": 80,
+    "n_seeds": 5,
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1024
+    ],
+    "cost_model": {
+      "free": 0.0,
+      "budget": 0.002,
+      "premium": 0.005
+    },
+    "data_source": "MMLU (mmlu_data/mmlu.csv)",
+    "sampling_seed": 42
+  },
+  "statistical_tests": {
+    "contextualts_vs_sw": {
+      "quality": {
+        "t_statistic": -4.841386618546788,
+        "p_value": 0.008391638351293262
+      },
+      "cost": {
+        "t_statistic": -18.3603721548985,
+        "p_value": 5.1770819021551846e-05
+      }
+    }
+  }
+}
