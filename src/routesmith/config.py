@@ -14,6 +14,8 @@ class RoutingStrategy(Enum):
     CASCADE = "cascade"  # Try cheap model first, escalate if needed
     PARALLEL = "parallel"  # Run multiple models, select best response
     SPECULATIVE = "speculative"  # Start with cheap model while evaluating
+    THOMPSON = "thompson"  # Thompson Sampling: Bayesian bandits
+    UCB = "ucb"  # Upper Confidence Bound: optimistic exploration
 
 
 @dataclass
