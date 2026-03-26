@@ -65,6 +65,11 @@ class Router:
                 blend_alpha=config.predictor.blend_alpha,
             )
 
+        if config.predictor_type == "ucb":
+            from routesmith.predictor.learner import UCBLearner
+            
+            return UCBLearner(c=config.predictor.ucb_exploration_c)
+
         # Fallback to embedding predictor
         model_priors = {
             m.model_id: m.quality_score for m in registry.list_models()

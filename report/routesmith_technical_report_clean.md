@@ -319,18 +319,7 @@ We conducted extensive real-world experiments to validate RouteSmith's cost-qual
 
 **Key finding:** RouteSmith achieves 37% cost reduction vs. always-premium while maintaining quality through intelligent tier selection.
 
-**Figure 1: Cumulative Cost Over 100 Queries**
-```
-Cost ($)
-2.50                             Static Premium ($2.28)
-                     
-2.00               
-                 
-1.50                            RouteSmith ($1.44)
-                        
-1.00                  
-                    
-0.50              
+![Figure 1: Cumulative Cost](figures/fig1_cost_comparison.png)
                                Static Economy ($0.00)
 0.00                                           
      0        50        100    Queries
@@ -376,16 +365,7 @@ Success Rate
 
 **Observation:** Thompson Sampling was conservative, preferring premium tier even for simple queries. This is suboptimal   future work should increase exploration for FAQ/product categories where economy models perform adequately.
 
-**Figure 3: Routing Distribution by Category**
-```
-Category          Premium   Economy
-                                   
-Technical (20)       10%                         90%
-Billing (20)                     70%          30%
-Account (20)                  55%             45%
-Product (20)                     70%          30%
-FAQ (20)                              95%     5%
-                                   
+![Figure 3: Routing Distribution](figures/fig4_routing_heatmap.png)
 ```
 
 #### 4.2.4 Token Efficiency

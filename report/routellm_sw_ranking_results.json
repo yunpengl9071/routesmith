@@ -1,0 +1,320 @@
+[
+  {
+    "query": "What is the capital of France?",
+    "routed_to": "weak",
+    "win_probability": 0.4142879407285857,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "Who invented the telephone?",
+    "routed_to": "weak",
+    "win_probability": 0.4955212598467423,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What year did WW2 end?",
+    "routed_to": "weak",
+    "win_probability": 0.4195343312118733,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is the tallest mountain?",
+    "routed_to": "weak",
+    "win_probability": 0.46612614033971617,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is H2O?",
+    "routed_to": "weak",
+    "win_probability": 0.4208376030184006,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "How many planets are in our solar system?",
+    "routed_to": "weak",
+    "win_probability": 0.4633592058978203,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is the speed of light?",
+    "routed_to": "weak",
+    "win_probability": 0.4923108542806988,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "Who wrote Hamlet?",
+    "routed_to": "weak",
+    "win_probability": 0.4950438275251682,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is the largest ocean?",
+    "routed_to": "weak",
+    "win_probability": 0.41743942787975485,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is DNA?",
+    "routed_to": "weak",
+    "win_probability": 0.4950288693595406,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is the currency of Japan?",
+    "routed_to": "weak",
+    "win_probability": 0.478583854393576,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is the main ingredient in guacamole?",
+    "routed_to": "weak",
+    "win_probability": 0.4999582169590263,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "Who painted the Mona Lisa?",
+    "routed_to": "weak",
+    "win_probability": 0.4893368052626158,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is the capital of Australia?",
+    "routed_to": "weak",
+    "win_probability": 0.4560569578349723,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is the square root of 144?",
+    "routed_to": "weak",
+    "win_probability": 0.4848085349238821,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is 25 * 18?",
+    "routed_to": "weak",
+    "win_probability": 0.4617301346011672,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is 144 / 12?",
+    "routed_to": "weak",
+    "win_probability": 0.4814287941393657,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is 15 + 27?",
+    "routed_to": "weak",
+    "win_probability": 0.4520787958977061,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is 100 - 37?",
+    "routed_to": "weak",
+    "win_probability": 0.4793374097358465,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is 12 squared?",
+    "routed_to": "weak",
+    "win_probability": 0.462948914441846,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is 1000 / 8?",
+    "routed_to": "weak",
+    "win_probability": 0.49278563245504514,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is 7 * 11?",
+    "routed_to": "weak",
+    "win_probability": 0.4710870767735099,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is 50 + 50?",
+    "routed_to": "weak",
+    "win_probability": 0.46656369014575755,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "Write a Python function to reverse a string",
+    "routed_to": "strong",
+    "win_probability": 0.5180234159650992,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Create a sorted list function",
+    "routed_to": "strong",
+    "win_probability": 0.5303282758563208,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Write a binary search function",
+    "routed_to": "strong",
+    "win_probability": 0.5308091317618011,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Implement a hash table",
+    "routed_to": "strong",
+    "win_probability": 0.5347536816984783,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Write quicksort in Python",
+    "routed_to": "strong",
+    "win_probability": 0.5410009114388524,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Create a REST API endpoint",
+    "routed_to": "strong",
+    "win_probability": 0.5483255971890608,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Write a decorator function",
+    "routed_to": "strong",
+    "win_probability": 0.5338178466718242,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Implement a linked list",
+    "routed_to": "strong",
+    "win_probability": 0.5358390870912431,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Write a Python class for a stack",
+    "routed_to": "strong",
+    "win_probability": 0.5215339662221282,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Create a Fibonacci function",
+    "routed_to": "strong",
+    "win_probability": 0.5250523946818362,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Write a palindrome checker",
+    "routed_to": "strong",
+    "win_probability": 0.5162344856377598,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Implement bubble sort",
+    "routed_to": "strong",
+    "win_probability": 0.5319971296182393,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Write a Python script to parse JSON",
+    "routed_to": "strong",
+    "win_probability": 0.5231108709217864,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Create a binary tree traversal",
+    "routed_to": "strong",
+    "win_probability": 0.5324507329434366,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Write a function to find primes",
+    "routed_to": "strong",
+    "win_probability": 0.5209827777585986,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Explain quantum entanglement simply",
+    "routed_to": "strong",
+    "win_probability": 0.5581479521292814,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "What is photosynthesis?",
+    "routed_to": "weak",
+    "win_probability": 0.4865263441686247,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "Explain black holes",
+    "routed_to": "strong",
+    "win_probability": 0.5283289340203032,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "What is Avogadro's number?",
+    "routed_to": "weak",
+    "win_probability": 0.4829178968840482,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "Explain the theory of relativity",
+    "routed_to": "strong",
+    "win_probability": 0.581075006120256,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "What is the half-life of Carbon-14?",
+    "routed_to": "weak",
+    "win_probability": 0.4922289074188433,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "What is nuclear fusion?",
+    "routed_to": "weak",
+    "win_probability": 0.4989807081434562,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "Explain DNA replication",
+    "routed_to": "strong",
+    "win_probability": 0.5241787519645619,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "What is entropy in thermodynamics?",
+    "routed_to": "strong",
+    "win_probability": 0.5126641324016696,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "Explain how vaccines work",
+    "routed_to": "strong",
+    "win_probability": 0.5265091227348961,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "If all cats are animals and some animals are black, are all cats black?",
+    "routed_to": "strong",
+    "win_probability": 0.500503349284051,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "What comes next: 2, 4, 8, 16, ?",
+    "routed_to": "weak",
+    "win_probability": 0.48302400062525075,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  },
+  {
+    "query": "Solve this logic puzzle: A is taller than B, B is taller than C. Who is shortest?",
+    "routed_to": "strong",
+    "win_probability": 0.5001125637705198,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "If it takes 5 machines 5 minutes to make 5 widgets, how long would 100 machines take?",
+    "routed_to": "strong",
+    "win_probability": 0.5041857062041392,
+    "model_used": "openai/gpt-4o-mini"
+  },
+  {
+    "query": "What is the missing number: 1, 1, 2, 3, 5, 8, ?",
+    "routed_to": "weak",
+    "win_probability": 0.4892407283019388,
+    "model_used": "meta-llama/llama-3.1-8b-instruct"
+  }
+]

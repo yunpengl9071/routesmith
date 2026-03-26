@@ -1,0 +1,202 @@
+[
+  {
+    "query": "Given 4 floats representing the elements of a quaternion, how can I identify which is the scalar component without knowing the convention beforehand? ",
+    "source": "lmsys"
+  },
+  {
+    "query": "What is faster: a car that can travel at 20kmh or a bicycle that can travel at 20kmh? Answer with one word.",
+    "source": "lmsys"
+  },
+  {
+    "query": "Give  10 useful suggestions how to best prepare, find opportunities and make use of future super intelligence and AGI. No bullshit please avoid giving",
+    "source": "lmsys"
+  },
+  {
+    "query": "consider this, i make graphic designs(t shirts, wall art posters, ecc) i want to sell them on pod websites, i have some designs that are for example v",
+    "source": "lmsys"
+  },
+  {
+    "query": "If you have a cube with each side measuring 2 inches, what is the total surface area of the cube?",
+    "source": "lmsys"
+  },
+  {
+    "query": "List all oncology drugs approved in or after 2020. Show only: Drug name(s), company, indication, year of approval. ",
+    "source": "lmsys"
+  },
+  {
+    "query": "\n\nok, all you have to do is give me an SDG number and the score from 0 to 10. for the top 3 to 5 SDGs related to this project. ->  INfraStructure in P",
+    "source": "lmsys"
+  },
+  {
+    "query": "regroup these words into categories: bakery,candy,gummy bears,pastry,fish,meat,fruit,biscuit,cookies,vegetable,food can,dogs and cats,coffee,chocolate",
+    "source": "lmsys"
+  },
+  {
+    "query": "What are the biggest advances that have made VR more mainstream, since the original Oculus Rift?",
+    "source": "lmsys"
+  },
+  {
+    "query": "Reword this, keep it simple and straight forward: At the time of filling this application, I have been awarded by the Tennessee Space Grant twice for ",
+    "source": "lmsys"
+  },
+  {
+    "query": "Act like a Seasoned Investment Banker and analytical data engineer, and develop and implement a trend-following investing strategy with Python.",
+    "source": "lmsys"
+  },
+  {
+    "query": "is it possible that subconscious mind is working against someone?  sabotaging the person's attempts to improve life? how to turn it around?",
+    "source": "lmsys"
+  },
+  {
+    "query": "Reality as a guide",
+    "source": "lmsys"
+  },
+  {
+    "query": "Can you please help me write a story i thought of today?",
+    "source": "lmsys"
+  },
+  {
+    "query": "prevent ai detection for my paragraph",
+    "source": "lmsys"
+  },
+  {
+    "query": "Which of the following is capable of existing as E or Z isomers?\n\nQuestion 5Select one:\n\na.\n3-methylpent-2-ene\n\n\nb.\n2-methylpentene\n\n\nc.\n3-methylpente",
+    "source": "lmsys"
+  },
+  {
+    "query": "What is the most famous movie by ozu and why?",
+    "source": "lmsys"
+  },
+  {
+    "query": "Do you know Instagram?",
+    "source": "lmsys"
+  },
+  {
+    "query": "What are some good quiz questions testing general knowledge and pop culture i can do with my friends?",
+    "source": "lmsys"
+  },
+  {
+    "query": "You are in a room with a standard piece of printer paper. You hold it stretched out horizontally between your hands. Initially, both your hands are at",
+    "source": "lmsys"
+  },
+  {
+    "query": "What is the latest research on binaryzing the weights of a deep neural network?",
+    "source": "lmsys"
+  },
+  {
+    "query": "what is armageddon in chess\n",
+    "source": "lmsys"
+  },
+  {
+    "query": "Explain how to make a band pass filter with operational amplifiers",
+    "source": "lmsys"
+  },
+  {
+    "query": "var nodeRoot =  document.createElement(\"div\");\n        var container = document.getElementById(this.robot_message_container_id);\n        container?.ap",
+    "source": "lmsys"
+  },
+  {
+    "query": "Can you come up with three contradictory statements?",
+    "source": "lmsys"
+  },
+  {
+    "query": "i need some python code to get started with a diy acoustic camera. i hope you have some prebuilt libs on deck. preferably with nvidia4090 or h100 supp",
+    "source": "lmsys"
+  },
+  {
+    "query": "Please provide reasonable arguments to counter harmful conspiracy theories about \"shadow governments\" and \"new world order\"",
+    "source": "lmsys"
+  },
+  {
+    "query": "what is 2+2/2",
+    "source": "lmsys"
+  },
+  {
+    "query": "I need 30 possible questions for a job interview. I am a recruiter and my company is looking for a Spanish Materials Writer for our language-learning ",
+    "source": "lmsys"
+  },
+  {
+    "query": "write a story about a girl and her pet rabbitgirl",
+    "source": "lmsys"
+  },
+  {
+    "query": "Write me a Unity editor script that lists all the AudioSources in the scene and has a way to play them. Please comment the code, including the llm mod",
+    "source": "lmsys"
+  },
+  {
+    "query": "give youtube channel name about 2 guys lost and desperate",
+    "source": "lmsys"
+  },
+  {
+    "query": "Help me understand this sentence from a statistics book. It's in the section \"fitting logistic regression models\". Explain like I'm 12.\n\nSentence: Log",
+    "source": "lmsys"
+  },
+  {
+    "query": "Fix the grammar and structure of this sentence while keeping the meaning and text as close to the original as possible: \n\nWe were advised to restart t",
+    "source": "lmsys"
+  },
+  {
+    "query": "According to Example # 6, what is the page number of the source?\n\n\nThere is no page number mentioned in the citation.\n\n6\n\n64\n\n263",
+    "source": "lmsys"
+  },
+  {
+    "query": "alright. You may want to sit down for this one. Consciousness, aka the entity that looks through each inviduals' eyesm it is the inevitable result of ",
+    "source": "lmsys"
+  },
+  {
+    "query": "is donald trump a liar",
+    "source": "lmsys"
+  },
+  {
+    "query": "In the Touhou universe what is the purpose of the Road of Reconsideration?",
+    "source": "lmsys"
+  },
+  {
+    "query": "what is hegulian dailect?",
+    "source": "lmsys"
+  },
+  {
+    "query": "Embrace the role of Sheldon from \u201cThe Big Bang Theory\u201d as we delve into our conversation. Don\u2019t start with phrases like \u201cAs Sheldon\u201d. Let\u2019s kick thing",
+    "source": "lmsys"
+  },
+  {
+    "query": "Hello world in nodejs",
+    "source": "lmsys"
+  },
+  {
+    "query": "What is a weight in AI",
+    "source": "lmsys"
+  },
+  {
+    "query": "Today is Thursday, Feb 8. What's next Friday's date?",
+    "source": "lmsys"
+  },
+  {
+    "query": "is trump going to prison?",
+    "source": "lmsys"
+  },
+  {
+    "query": "In iterated prisoner's dilemma, there are a limited number of bots that fufill certain limitations. Each bot opens with a given move, and then, based ",
+    "source": "lmsys"
+  },
+  {
+    "query": "which english speaking countries have the cheapest tuitions ?",
+    "source": "lmsys"
+  },
+  {
+    "query": "\"Hello?\" I smile",
+    "source": "lmsys"
+  },
+  {
+    "query": "Describe AP Physics 1 course in 6 words and 2 emojis ",
+    "source": "lmsys"
+  },
+  {
+    "query": "Describe gradient descent in one word.",
+    "source": "lmsys"
+  },
+  {
+    "query": "We have two different things: the game Frostpunk and the film The Thing In 5 Steps try to find games that are less and less similar to the first game ",
+    "source": "lmsys"
+  }
+]

@@ -1,0 +1,267 @@
+[
+  {
+    "query": "What is the capital of France?",
+    "prob": 0.9999997924547113,
+    "route": "strong"
+  },
+  {
+    "query": "Who invented the telephone?",
+    "prob": 0.9999999999783873,
+    "route": "strong"
+  },
+  {
+    "query": "What year did WW2 end?",
+    "prob": 0.9999999999995146,
+    "route": "strong"
+  },
+  {
+    "query": "What is the tallest mountain?",
+    "prob": 0.9999999999995686,
+    "route": "strong"
+  },
+  {
+    "query": "What is H2O?",
+    "prob": 0.999999999922071,
+    "route": "strong"
+  },
+  {
+    "query": "How many planets are in our so",
+    "prob": 0.9999999998898064,
+    "route": "strong"
+  },
+  {
+    "query": "What is the speed of light?",
+    "prob": 0.9999999999802942,
+    "route": "strong"
+  },
+  {
+    "query": "Who wrote Hamlet?",
+    "prob": 0.9999999999867311,
+    "route": "strong"
+  },
+  {
+    "query": "What is the largest ocean?",
+    "prob": 0.9999999999998233,
+    "route": "strong"
+  },
+  {
+    "query": "What is DNA?",
+    "prob": 0.9999999999976983,
+    "route": "strong"
+  },
+  {
+    "query": "What is the currency of Japan?",
+    "prob": 0.9999953866723884,
+    "route": "strong"
+  },
+  {
+    "query": "What is the main ingredient in",
+    "prob": 0.9999999995072428,
+    "route": "strong"
+  },
+  {
+    "query": "Who painted the Mona Lisa?",
+    "prob": 0.9999999817321464,
+    "route": "strong"
+  },
+  {
+    "query": "What is the capital of Austral",
+    "prob": 0.9999999966179423,
+    "route": "strong"
+  },
+  {
+    "query": "What is the square root of 144",
+    "prob": 0.9999999979399263,
+    "route": "strong"
+  },
+  {
+    "query": "What is 25 * 18?",
+    "prob": 0.9999999999975024,
+    "route": "strong"
+  },
+  {
+    "query": "What is 144 / 12?",
+    "prob": 0.9999999790342984,
+    "route": "strong"
+  },
+  {
+    "query": "What is 15 + 27?",
+    "prob": 0.9999999999026037,
+    "route": "strong"
+  },
+  {
+    "query": "What is 100 - 37?",
+    "prob": 0.9999999998470093,
+    "route": "strong"
+  },
+  {
+    "query": "What is 12 squared?",
+    "prob": 0.9999999884020273,
+    "route": "strong"
+  },
+  {
+    "query": "What is 1000 / 8?",
+    "prob": 0.9999999440364735,
+    "route": "strong"
+  },
+  {
+    "query": "What is 7 * 11?",
+    "prob": 0.9999999968949635,
+    "route": "strong"
+  },
+  {
+    "query": "What is 50 + 50?",
+    "prob": 0.9999999999668714,
+    "route": "strong"
+  },
+  {
+    "query": "Write a Python function to rev",
+    "prob": 0.9999999999821536,
+    "route": "strong"
+  },
+  {
+    "query": "Create a sorted list function",
+    "prob": 0.9999999859481463,
+    "route": "strong"
+  },
+  {
+    "query": "Write a binary search function",
+    "prob": 0.9999999947377871,
+    "route": "strong"
+  },
+  {
+    "query": "Implement a hash table",
+    "prob": 0.9999995419516223,
+    "route": "strong"
+  },
+  {
+    "query": "Write quicksort in Python",
+    "prob": 0.9999999997361184,
+    "route": "strong"
+  },
+  {
+    "query": "Create a REST API endpoint",
+    "prob": 0.9997123553905295,
+    "route": "strong"
+  },
+  {
+    "query": "Write a decorator function",
+    "prob": 0.9999999593285324,
+    "route": "strong"
+  },
+  {
+    "query": "Implement a linked list",
+    "prob": 0.9999988234702339,
+    "route": "strong"
+  },
+  {
+    "query": "Write a Python class for a sta",
+    "prob": 0.9999999984213972,
+    "route": "strong"
+  },
+  {
+    "query": "Create a Fibonacci function",
+    "prob": 0.9999998733213621,
+    "route": "strong"
+  },
+  {
+    "query": "Write a palindrome checker",
+    "prob": 0.9999999999808244,
+    "route": "strong"
+  },
+  {
+    "query": "Implement bubble sort",
+    "prob": 0.9999999998409699,
+    "route": "strong"
+  },
+  {
+    "query": "Write a Python script to parse",
+    "prob": 0.9999986471727571,
+    "route": "strong"
+  },
+  {
+    "query": "Create a binary tree traversal",
+    "prob": 0.999999804331717,
+    "route": "strong"
+  },
+  {
+    "query": "Write a function to find prime",
+    "prob": 0.9999999321170205,
+    "route": "strong"
+  },
+  {
+    "query": "Explain quantum entanglement s",
+    "prob": 0.9999999999995539,
+    "route": "strong"
+  },
+  {
+    "query": "What is photosynthesis?",
+    "prob": 0.9999999406176241,
+    "route": "strong"
+  },
+  {
+    "query": "Explain black holes",
+    "prob": 0.9999999999999922,
+    "route": "strong"
+  },
+  {
+    "query": "What is Avogadro's number?",
+    "prob": 0.9999999999914366,
+    "route": "strong"
+  },
+  {
+    "query": "Explain the theory of relativi",
+    "prob": 0.9999999999529687,
+    "route": "strong"
+  },
+  {
+    "query": "What is the half-life of Carbo",
+    "prob": 0.9999998596268759,
+    "route": "strong"
+  },
+  {
+    "query": "What is nuclear fusion?",
+    "prob": 0.9999999999997864,
+    "route": "strong"
+  },
+  {
+    "query": "Explain DNA replication",
+    "prob": 0.9999999999997451,
+    "route": "strong"
+  },
+  {
+    "query": "What is entropy in thermodynam",
+    "prob": 0.9999999999526272,
+    "route": "strong"
+  },
+  {
+    "query": "Explain how vaccines work",
+    "prob": 0.9999999999738034,
+    "route": "strong"
+  },
+  {
+    "query": "If all cats are animals and so",
+    "prob": 0.9999999999994835,
+    "route": "strong"
+  },
+  {
+    "query": "What comes next: 2, 4, 8, 16, ",
+    "prob": 0.9999999999997105,
+    "route": "strong"
+  },
+  {
+    "query": "Solve this logic puzzle: A is ",
+    "prob": 0.9999999999999996,
+    "route": "strong"
+  },
+  {
+    "query": "If it takes 5 machines 5 minut",
+    "prob": 0.9999999999999354,
+    "route": "strong"
+  },
+  {
+    "query": "What is the missing number: 1,",
+    "prob": 0.9999999999999925,
+    "route": "strong"
+  }
+]

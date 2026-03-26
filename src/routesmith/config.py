@@ -46,6 +46,7 @@ class PredictorConfig:
     retrain_interval: int = 50
     n_estimators: int = 50
     blend_alpha: float = 0.7
+    ucb_exploration_c: float = 2.0  # UCB exploration parameter
 
 
 @dataclass
@@ -57,7 +58,7 @@ class RouteSmithConfig:
     fallback_model: str | None = None  # Model to use if routing fails
 
     # Quality prediction
-    predictor_type: str = "adaptive"  # adaptive, embedding, classifier, random_forest
+    predictor_type: str = "adaptive"  # adaptive, embedding, classifier, random_forest, ucb
     predictor_model: str | None = None  # Custom predictor model path
 
     # Predictor settings
