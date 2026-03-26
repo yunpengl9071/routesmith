@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
 from routesmith.predictor.base import BasePredictor, PredictionResult
 from routesmith.predictor.features import FeatureExtractor
 
@@ -224,3 +225,82 @@ class AdaptivePredictor(BasePredictor):
         if self._model is not None and self._model.is_trained():
             diag["feature_importances"] = self._model.feature_importances
         return diag
+
+
+class UCBLearner:
+    """Upper Confidence Bound learner for model routing.
+    
+    UCB balances exploration and exploitation by adding a confidence bonus
+    to each model's estimated quality based on how many times it's been tried.
+    """
+    
+    def __init__(self, c: float = 2.0):
+        """Initialize UCB learner.
+        
+        Args:
+            c: Exploration parameter. Higher = more exploration.
+               Standard values: 1.4 (PAC), 2.0 (common).
+        """
+        self.c = c
+        self._counts: dict[str, int] = {}  # model_id -> number of times tried
+        self._values: dict[str, float] = {}  # model_id -> estimated quality (mean)
+        self._total_counts = 0
+        
+    def select_model(self, model_ids: list[str]) -> str:
+        """Select model using UCB.
+        
+        UCB formula: value + c * sqrt(log(total_tries) / model_tries)
+        """
+        # Initialize any new models
+        for m in model_ids:
+            if m not in self._counts:
+                self._counts[m] = 0
+                self._values[m] = 0.5  # Prior
+            
+        # Calculate UCB for each model
+        ucb_values = {}
+        for m in model_ids:
+            if self._counts[m] == 0:
+                # Unexplored models get infinite UCB (explore first)
+                ucb_values[m] = float('inf')
+            else:
+                # UCB = empirical mean + exploration bonus
+                bonus = self.c * np.sqrt(np.log(self._total_counts + 1) / self._counts[m])
+                ucb_values[m] = self._values[m] + bonus
+        
+        # Return model with highest UCB
+        return max(ucb_values, key=ucb_values.get)
+    
+    def update(self, model_id: str, quality: float) -> None:
+        """Update estimates with observed quality.
+        
+        Args:
+            model_id: The model that was used
+            quality: Observed quality (0-1)
+        """
+        # Initialize if first time
+        if model_id not in self._counts:
+            self._counts[model_id] = 0
+            self._values[model_id] = 0.5
+        
+        # Incremental mean update
+        n = self._counts[model_id]
+        self._values[model_id] = (n * self._values[model_id] + quality) / (n + 1)
+        self._counts[model_id] += 1
+        self._total_counts += 1
+    
+    def diagnostics(self) -> dict:
+        """Return diagnostic info about the learner state."""
+        return {
+            "type": "ucb",
+            "c": self.c,
+            "total_selections": self._total_counts,
+            "model_counts": dict(self._counts),
+            "model_values": {k: round(v, 3) for k, v in self._values.items()},
+        }
+    
+    def reset(self) -> None:
+        """Reset learner state."""
+        self._counts.clear()
+        self._values.clear()
+        self._total_counts = 0
