@@ -70,3 +70,10 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# API Keys - never commit!
+*.env
+*api_key*
+*secret*
+report/*.py
+
