@@ -1,0 +1,41 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "arena_battles_embeddings",
+  "dataset_size": 350988740,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/routellm/arena_battles_embeddings@6cc7277cab42bb81c094c58cbe45b2e3646a9201/data/train-00000-of-00001.parquet": {
+      "num_bytes": 373070400,
+      "checksum": null
+    }
+  },
+  "download_size": 373070400,
+  "features": {
+    "embeddings": {
+      "feature": {
+        "dtype": "float32",
+        "_type": "Value"
+      },
+      "_type": "List"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 724059140,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 350988740,
+      "num_examples": 55361,
+      "dataset_name": "arena_battles_embeddings"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}

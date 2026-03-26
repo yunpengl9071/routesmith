@@ -1,0 +1,42 @@
+[
+  {
+    "query": "What is the capital of France?",
+    "category": "factual"
+  },
+  {
+    "query": "Write a Python function to reverse a string",
+    "category": "coding"
+  },
+  {
+    "query": "Explain quantum entanglement in simple terms",
+    "category": "science"
+  },
+  {
+    "query": "Calculate 123 * 456",
+    "category": "math"
+  },
+  {
+    "query": "What year did WW2 end?",
+    "category": "factual"
+  },
+  {
+    "query": "Debug this code: for i in range(10): print(i",
+    "category": "coding"
+  },
+  {
+    "query": "What is the derivative of x^2?",
+    "category": "math"
+  },
+  {
+    "query": "Explain the theory of relativity",
+    "category": "science"
+  },
+  {
+    "query": "Who was the first US president?",
+    "category": "factual"
+  },
+  {
+    "query": "Write a function to sort a list",
+    "category": "coding"
+  }
+]

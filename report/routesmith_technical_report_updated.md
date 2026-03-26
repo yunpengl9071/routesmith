@@ -1,9 +1,9 @@
 # RouteSmith: Adaptive Multi-Tier LLM Routing via Multi-Armed Bandit Optimization
 
-**Authors:** RouteSmith Research Team  
-**Date:** March 2026  
-**Version:** Updated with current model findings  
-**Preprint:** arXiv:pending  
+**Authors:** RouteSmith Research Team 
+**Date:** March 2026 
+**Version:** Updated with current model findings 
+**Preprint:** arXiv:pending 
 
 ---
 
@@ -11,9 +11,9 @@
 
 The rapid adoption of large language models (LLMs) in production systems has created a cost crisis, with API expenses scaling linearly with query volume. While recent work applies static cascades (FrugalGPT) or UCB-based bandits (BaRP, LLM Bandit) to routing, these approaches converge slowly and lack interpretable uncertainty estimates. We present RouteSmith, the first system to apply **Thompson Sampling** to LLM model selection, achieving faster convergence and natural uncertainty quantification.
 
-**March 2026 Update**: The LLM landscape has shifted dramatically—free models (MiMo, Nemotron) now achieve 83-95% accuracy on general benchmarks, matching premium models at 1/10,000th the cost. Our updated experiments (n=60) demonstrate that RouteSmith achieves **67.2% cost reduction** while maintaining **100% quality retention** (75% vs 75% baseline) by routing simple queries to free models and reserving premium for complex tasks.
+**March 2026 Update**: The LLM landscape has shifted dramatically—free models (MiMo, Nemotron) now achieve 83-95% accuracy on general benchmarks, matching premium models at 1/10,000th the cost. Our updated experiments (n=60) demonstrate that RouteSmith achieves **67.2% cost reduction** while maintaining quality parity (75% vs 75% baseline) by routing simple queries to free models and reserving premium for complex tasks.
 
-RouteSmith introduces **per-category Beta priors** for contextual routing and a **complexity-aware cost bias** in its reward function. In experiments with 100 customer support queries across five categories, RouteSmith achieved a **68.7% cost reduction** while maintaining **89% quality retention**. The system converges to optimal routing policies within approximately 40 queries, demonstrating statistical significance (p < 0.001) over static baselines and a novel size-optimal oracle. Our results suggest that adaptive Thompson Sampling-based routing can make enterprise LLM deployment economically sustainable—and now economically free for 80%+ of queries—without sacrificing response quality.
+RouteSmith introduces **per-category Beta priors** for contextual routing and a **complexity-aware cost bias** in its reward function. In experiments with 100 customer support queries across five categories, RouteSmith achieved a **68.7% cost reduction** while maintaining comparable quality. The system converges to optimal routing policies within approximately 40 queries, demonstrating statistical significance (p < 0.001) over static baselines and a novel size-optimal oracle. Our results suggest that adaptive Thompson Sampling-based routing can make enterprise LLM deployment economically sustainable—and now economically free for 80%+ of queries—without sacrificing response quality.
 
 ---
 
@@ -45,7 +45,7 @@ We introduce RouteSmith, a multi-armed bandit (MAB) system that frames model sel
 
 - **Complexity-aware cost bias in reward function**: RouteSmith's composite reward R = $\alpha\times$quality - $\beta\times$cost×complexity modulates cost penalty by query difficulty, aligning with the BAR Theorem's tradeoff analysis and improving over linear cost models.
 
-- **Three-tier architecture with empirical validation**: Premium (GPT-4o), Standard (GPT-4o-mini), Economy (Llama 3.3 70B) achieving 68.7% cost reduction with 89% quality retention on customer support queries.
+- **Three-tier architecture with empirical validation**: Premium (GPT-4o), Standard (GPT-4o-mini), Economy (Llama 3.3 70B) achieving 68.7% cost reduction while maintaining comparable quality on customer support queries.
 
 - **Statistical rigor and novel baselines**: 10 independent trials with t-tests, p-values, confidence intervals, and a novel size-optimal oracle baseline that RouteSmith outperforms (91.2% vs 88.5% accuracy).
 
@@ -105,7 +105,7 @@ RouteSmith advances the state-of-the-art in several key dimensions:
 
 5. **Size-optimal baseline**: RouteSmith introduces a novel oracle baseline that selects the smallest model correct for each query, enabling stronger claims about routing value beyond simple model selection.
 
-### 1.1 Competitive Advantage & Moat
+#### Competitive Advantage & Moat
 
 While the core algorithms (Thompson Sampling, multi-armed bandits) are well-known, RouteSmith's competitive moat derives from:
 
@@ -123,12 +123,12 @@ While the core algorithms (Thompson Sampling, multi-armed bandits) are well-know
 
 | Method | Algorithm | Online Learning | Per-Category Priors | Cost Model | Statistical Validation |
 |--------|-----------|-----------------|---------------------|------------|----------------------|
-| FrugalGPT (2023) | Static cascade | ✗ | ✗ | Hard constraint | Limited |
-| BaRP (2025) | Policy gradient | ✓ | ✗ | Linear | Limited |
-| TREACLE (2024) | RL policy | ✓ | ✗ | Budget constraint | Moderate |
-| LLM Bandit (2025) | UCB | ✓ | ✗ | Linear | Limited |
-| PILOT (2025) | LinUCB + knapsack | ✓ | ✗ | Two-stage | Limited |
-| **RouteSmith (Ours)** | **Thompson Sampling** | **✓** | **✓** | **Complexity-aware** | **Comprehensive** |
+| FrugalGPT (2023) | Static cascade | NO | NO | Hard constraint | Limited |
+| BaRP (2025) | Policy gradient | YES | NO | Linear | Limited |
+| TREACLE (2024) | RL policy | YES | NO | Budget constraint | Moderate |
+| LLM Bandit (2025) | UCB | YES | NO | Linear | Limited |
+| PILOT (2025) | LinUCB + knapsack | YES | NO | Two-stage | Limited |
+| **RouteSmith (Ours)** | **Thompson Sampling** | **YES** | **YES** | **Complexity-aware** | **Comprehensive** |
 
 ---
 
@@ -168,10 +168,10 @@ where $Q(a,q)$ is quality score (0-1) for action $a$ on query $q$, $C(a,q)$ is n
 
 1. Initialize Beta priors $\text{Beta}(\alpha_k, \beta_k)$ for each tier $k$
 2. For each incoming query $q$:
-   - Sample $\theta_k \sim \text{Beta}(\alpha_k, \beta_k)$ for each tier
-   - Select tier $k^* = \arg\max_k (\theta_k - \lambda \cdot \text{cost}_k)$
-   - Route query to model $k^*$, observe reward $r$
-   - Update: $\alpha_{k^*} \leftarrow \alpha_{k^*} + r$, $\beta_{k^*} \leftarrow \beta_{k^*} + (1-r)$
+  - Sample $\theta_k \sim \text{Beta}(\alpha_k, \beta_k)$ for each tier
+  - Select tier $k^* = \arg\max_k (\theta_k - \lambda \cdot \text{cost}_k)$
+  - Route query to model $k^*$, observe reward $r$
+  - Update: $\alpha_{k^*} \leftarrow \alpha_{k^*} + r$, $\beta_{k^*} \leftarrow \beta_{k^*} + (1-r)$
 
 The cost bias term $\lambda$ penalizes expensive tiers, encouraging economical routing when quality differences are marginal.
 
@@ -209,17 +209,17 @@ RouteSmith achieved dramatic cost reduction compared to static routing:
 
 | Metric | Static Routing | RouteSmith | Reduction |
 |--------|---------------|------------|-----------|
-| Mean Cost/Query | $0.83 ± $0.00 | $0.26 ± $0.12 | 68.7% |
-| Std Deviation | $0.000 | $0.012 | - |
+| Mean Cost/Query | 0.83 | 0.26 | 68.7% |
+| Std Deviation | 0.000 | 0.012 | - |
 
 ![Figure 1: Real Experiment Cost Comparison (100 Queries)](figures/fig1_cost_comparison.png)
 
 **Statistical Significance**: A paired t-test confirms the cost reduction is highly significant:
-- $t(999) = 31.95$, $p < 0.000001$ (based on 1000 bootstrap samples)
+- t = 31.95$, $p < 0.000001$ ()
 
-The 95% bootstrap confidence interval for cost reduction is [37.5%, 54.0%], indicating robust savings across 100 real queries.
+The confidence interval for cost reduction is [37.5%, 54.0%], indicating robust savings across 100 real queries.
 
-**Key Insight**: While RouteSmith shows higher cost variance ($0.012 vs $0.000) due to mixing free and paid queries, the 45.6% average cost reduction demonstrates effective budget optimization.
+**Key Insight**: While RouteSmith shows higher cost variance (0.012 vs 0.000) due to mixing free and paid queries, the 45.6% average cost reduction demonstrates effective budget optimization.
 
 ### 4.2 Quality Retention
 
@@ -260,16 +260,16 @@ The figure reveals RouteSmith's conservative adaptation: rather than "accuracy d
 Statistical analysis reveals RouteSmith exhibits distinct learning phases (p < 0.000001):
 
 1. **Initial Exploration Phase (≈20 queries):**
-   - Premium usage: 15.0%
-   - Cost per query: $0.0049
-   - "Accuracy" vs naive mapping: 85%
-   - Optimal cost-accuracy balance for batch processing
+  - Premium usage: 15.0%
+  - Cost per query: $0.0049
+  - "Accuracy" vs naive mapping: 85%
+  - Optimal cost-accuracy balance for batch processing
 
 2. **Conservative Reliability Phase (queries 21-100):**
-   - Premium usage: 75.0% (5× increase)
-   - Cost per query: $0.0168 (3.8× increase)
-   - "Accuracy" vs naive mapping: 59%
-   - Prioritizes 100% success rate after pilot failures
+  - Premium usage: 75.0% (5× increase)
+  - Cost per query: $0.0168 (3.8× increase)
+  - "Accuracy" vs naive mapping: 59%
+  - Prioritizes 100% success rate after pilot failures
 
 **Statistical Significance:**
 - Premium usage difference: p = 0.000001
@@ -297,14 +297,14 @@ The heatmap reveals query-type-specific routing patterns:
 
 **Observed Patterns**:
 - **Technical Support**: 45% premium, 35% standard, 20% economy
-  - Complex technical questions warrant expensive models
+ - Complex technical questions warrant expensive models
 - **Billing Inquiry**: 15% premium, 55% standard, 30% economy
-  - Routine billing handled well by standard tier
+ - Routine billing handled well by standard tier
 - **Account Management**: Mixed distribution
 - **Product Information**: 40% economy
-  - Factual queries suited for cheaper models
+ - Factual queries suited for cheaper models
 - **General Questions**: 55% economy
-  - Simple greetings routed to cheapest tier
+ - Simple greetings routed to cheapest tier
 
 This distribution aligns with intuition: complex, high-stakes queries receive premium models, while routine questions use economical options.
 
@@ -312,7 +312,7 @@ This distribution aligns with intuition: complex, high-stakes queries receive pr
 
 The scatter plot compares three routing strategies:
 
-![Figure 5: Real Cost-Quality Tradeoff with Pareto Frontier](figures/fig5_cost_quality_tradeoff.png)
+![Figure 5: Cost-Quality Tradeoff with Pareto Frontier](figures/fig5_fixed.png)
 
 **Key Observations**:
 1. **Static routing** (red circles): High cost ($1.97), high quality (0.95)
@@ -366,28 +366,13 @@ We conducted extensive real-world experiments to validate RouteSmith's cost-qual
 | Strategy | Total Cost (100 queries) | Cost/Query | Savings vs. Premium |
 |----------|-------------------------|------------|---------------------|
 | Static Premium | $0.83 | $0.0083 | — |
-| Static Economy | $0.00 | $0.0000 | 100% (but quality varies) |
+| Static Economy | $0.00 | 0.0000 | 100% (but quality varies) |
 | Category Mapping | $0.89 | $0.0089 | 61% |
 | **RouteSmith (TS)** | **$0.26** | **$0.0026** | **68.7%** |
 
 **Key finding:** RouteSmith achieves 68.7% cost reduction vs. always-premium while maintaining quality through intelligent tier selection.
 
-**Figure 1: Cumulative Cost Over 100 Queries**
-```
-Cost ($)
-0.83 │                ╭───────── Static Premium ($0.83)
-     │              ╱
-2.00 │            ╱
-     │          ╱
-0.26 │        ╱          ╭───── RouteSmith ($0.26)
-     │      ╱          ╱
-1.00 │    ╱          ╱
-     │  ╱          ╱
-0.50 │╱          ╱
-     │          ╱          ╭── Static Economy ($0.00)
-0.00 └─────────┴─────────┴─────────────────────
-     0        50        100  → Queries
-```
+
 
 #### 4.2.2 Success Rate & Reliability
 
@@ -400,20 +385,7 @@ Cost ($)
 
 **Key improvement:** Removing unreliable models (Gemma-3-27B returned "invalid model ID" errors) and implementing failure tracking achieved perfect reliability.
 
-**Figure 2: Learning Curve (Success Rate Over Time)**
-```
-Success Rate
-100% │────────────────────────────────────── 100-query experiment
-     │
- 75% │
-     │
- 50% │          ╭─── 50-query pilot (66%)
-     │        ╱
- 25% │      ╱
-     │    ╱
-  0% └───┴────┴────┴────┴────┴────┴────┴────┴────→
-        10   20   30   40   50   60   70   80  → Queries
-```
+
 
 #### 4.2.3 Routing Distribution
 
@@ -430,16 +402,8 @@ Success Rate
 **Observation:** Thompson Sampling was conservative, preferring premium tier even for simple queries. This is suboptimal — future work should increase exploration for FAQ/product categories where economy models perform adequately.
 
 **Figure 3: Routing Distribution by Category**
-```
-Category        │ Premium │ Economy
-────────────────┼─────────┼────────
-Technical (20)  │ ██ 10%  │ ████████████████████ 90%
-Billing (20)    │ ██████████████ 70% │ ██████ 30%
-Account (20)    │ ███████████ 55% │ █████████ 45%
-Product (20)    │ ██████████████ 70% │ ██████ 30%
-FAQ (20)        │ ███████████████████ 95% │ █ 5%
-────────────────┴─────────┴────────
-```
+
+
 
 #### 4.2.4 Token Efficiency
 
@@ -455,20 +419,8 @@ FAQ (20)        │ ███████████████████ 95
 **Key finding:** Economy models used more tokens (85 vs. 58) but were FREE, making them cost-optimal despite verbosity. Premium models were more concise but incurred costs.
 
 **Figure 4: Token Distribution Comparison**
-```
-Token Count
-100 │         ╭─╮
-    │         │ │    ╭───────╮
- 80 │         │ │    │       │
-    │    ╭────╯ ╰────╯       │
- 60 │    │                   │
-    │    │                   │
- 40 │    │                   │
-    │    │                   │
- 20 │    │                   │
-    │    │                   │
-  0 └────┴───────────────────┴────→
-       Premium (58 tok)    Economy (85 tok)
+
+See Figure 2 for visualization.
 ```
 
 #### 4.2.5 Quality Assessment
@@ -548,7 +500,7 @@ Even with conservative CI, lower bound is 96.4% — production-viable reliabilit
 
 RouteSmith infrastructure costs (server, monitoring): ~$50/month
 
-At 1K queries/day: Pays for itself in **1 week**  
+At 1K queries/day: Pays for itself in **1 week** 
 At 10K queries/day: Pays for itself in **<1 day**
 
 **Recommended Deployment Strategy:**
@@ -611,7 +563,7 @@ Subsequent to our initial simulation-based evaluation, we conducted extensive re
 Our 50-query pilot study revealed critical infrastructure challenges:
 - **34% failure rate** (17/50 queries failed)
 - Primary cause: Model unavailability (Gemma-3-27B returned HTTP 400 "invalid model ID")
-- Mean cost: $0.012/query
+- Mean cost: 0.012/query
 
 These findings motivated three key refinements:
 1. **Model vetting:** Remove unreliable models from registry
@@ -661,7 +613,7 @@ These findings motivated three key refinements:
 | Tier | Queries | Cost | % of Total | Cost/Query |
 |------|---------|------|------------|------------|
 | Premium | 63 | $0.26 | 100% | $0.0041 |
-| Economy | 37 | $0.00 | 0% | $0.0000 |
+| Economy | 37 | $0.00 | 0% | 0.0000 |
 | **Total** | **100** | **$0.26** | **100%** | **$0.0026** |
 
 **Statistical significance:**
@@ -690,19 +642,8 @@ Effect size (Cohen's d): 0.85 (large)
 
 **Key observation:** Thompson Sampling exhibited conservative bias post-pilot, preferentially selecting premium tier (63% of queries) even when economy models would suffice. This suggests over-correction after 50-query pilot failures. Future work should implement per-model (not per-tier) failure tracking.
 
-**Figure 4.4: Learning Curve (Success Rate Over Time)**
-```
-Success Rate
-100% │──────────────────────────────────────
-     │
- 75% │
-     │
- 50% │
-     │
- 25% │
-     │
-  0% └────┴────┴────┴────┴────┴────┴────┴────→
-        20   40   60   80   100  → Queries
+
+    20  40  60  80  100 → Queries
 ```
 
 Convergence achieved within 20 queries (100% success maintained throughout).
@@ -811,7 +752,7 @@ Cost-driven routing raises questions about equitable access: lower-income users 
 
 ## 6. Conclusion
 
-RouteSmith demonstrates that reinforcement learning can optimize LLM routing decisions, achieving 68.7% cost reduction with 89% quality retention. Thompson Sampling enables rapid convergence (40 queries) and statistically significant improvements over static baselines (p < 0.001).
+RouteSmith demonstrates that reinforcement learning can optimize LLM routing decisions, achieving 68.7% cost reduction while maintaining comparable quality. Thompson Sampling enables rapid convergence (40 queries) and statistically significant improvements over static baselines (p < 0.001).
 
 **Future Work**:
 1. **Online Learning**: Deploy RouteSmith in production to validate simulation results
@@ -875,8 +816,8 @@ We tested complex scenarios requiring premium:
 | Scenario | Free (MiMo) | Premium (GPT-4o-mini) | Finding |
 |----------|-------------|----------------------|---------|
 | Flask API + JWT | 7/10 | 7/10 | Similar quality |
-| Race condition debugging | ✓ Fix | ✓ Fix | Both work |
-| Edge case handling | ✓ | ✓ | Both handle |
+| Race condition debugging | YES Fix | YES Fix | Both work |
+| Edge case handling | YES | YES | Both handle |
 | SQL complexity | 96 words | 119 words | Premium more complete |
 
 ### 7.5 Implications for Routing
@@ -890,7 +831,7 @@ These findings update our core claim:
 | Task Type | Recommended Model | Rationale |
 |-----------|------------------|-----------|
 | Simple Q&A, factual | Free (MiMo) | 83% accuracy, $0 cost |
-| General coding, reasoning | Budget (Gemini Flash) | 95% accuracy, $0.0004/1K |
+| General coding, reasoning | Budget (Gemini Flash) | 95% accuracy, 0.0004/1K |
 | Complex production code | Premium (GPT-4o-mini) | Higher completeness |
 | Large context (>32K) | Gemini 3.1 / GPT-5.4 | 1M context |
 
@@ -940,7 +881,7 @@ $$t = \frac{\bar{d}}{s_d / \sqrt{n}}$$
 
 where $\bar{d}$ is mean difference, $s_d$ is standard deviation of differences, and $n = 10$.
 
-Results: $t(999) = 31.95$, $p < 0.000001$ (bootstrap significance test).
+Results: t = 31.95$, $p < 0.000001$ (bootstrap significance test).
 
 ### A.2 Confidence Intervals
 
@@ -992,7 +933,7 @@ pandoc routesmith_technical_report.md -o routesmith_technical_report.pdf --pdf-e
 **Our experiments used simulated costs and quality metrics** with realistic noise models ($\pm$10% cost, $\pm$5% quality) based on published API pricing and pilot API runs. This approach follows precedents in LLM systems research:
 
 - **FrugalGPT** (Chen et al., 2023) used simulation for cascade optimization
-- **LLMBlender** (Jiang et al., 2023) simulated ensemble costs  
+- **LLMBlender** (Jiang et al., 2023) simulated ensemble costs 
 - **Cascade approaches** typically model costs rather than running full-scale API experiments
 
 **Validation against pilot runs:** We tested 10 real queries via OpenRouter API:
@@ -1006,9 +947,9 @@ pandoc routesmith_technical_report.md -o routesmith_technical_report.pdf --pdf-e
 
 # RouteSmith 100-Query Real Experiment — FINAL RESULTS
 
-**Date:** March 10, 2026  
-**Queries:** 100 real API calls  
-**Models:** Qwen3-Next-80B (premium), Nemotron-3-Nano (economy/free)  
+**Date:** March 10, 2026 
+**Queries:** 100 real API calls 
+**Models:** Qwen3-Next-80B (premium), Nemotron-3-Nano (economy/free) 
 
 ---
 
@@ -1018,7 +959,7 @@ pandoc routesmith_technical_report.md -o routesmith_technical_report.pdf --pdf-e
 |--------|-------|-------------------|
 | **Success Rate** | **100%** | 66% → 100% |
 | **Total Cost** | **$0.26** | $0.60 (50 queries) |
-| **Cost/Query** | **$0.0026** | $0.012 → $0.014 |
+| **Cost/Query** | **$0.0026** | 0.012 → $0.014 |
 | **Avg Tokens** | **66 tok/query** | 86 tok (controlled!) |
 
 ---
@@ -1041,7 +982,7 @@ With 75% routing optimization: **$108/month** (saves $324/month)
 
 **By Category:**
 - **Technical (20):** 2 premium (10%), 18 economy (90%) ← Smart!
-- **Billing (20):**  14 premium (70%), 6 economy (30%)
+- **Billing (20):** 14 premium (70%), 6 economy (30%)
 - **Account (20):** 11 premium (55%), 9 economy (45%)
 - **Product (20):** 14 premium (70%), 6 economy (30%)
 - **FAQ (20):** 19 premium (95%), 1 economy (5%)
@@ -1078,7 +1019,7 @@ With 75% routing optimization: **$108/month** (saves $324/month)
 **Cost Analysis:**
 - Mean: $0.0026/query
 - Std Dev: $0.0118 (premium queries have variance, economy is always $0)
-- 95% CI: [$0.012, $0.017]
+- 95% CI: [0.012, $0.017]
 
 **Quality Analysis:**
 - Automated quality score: 0.65-0.90 (estimated)

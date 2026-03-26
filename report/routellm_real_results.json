@@ -1,0 +1,267 @@
+[
+  {
+    "query": "What is the capital of France?",
+    "routed_to": "strong",
+    "win_probability": 0.5026107519221377
+  },
+  {
+    "query": "Who invented the telephone?",
+    "routed_to": "strong",
+    "win_probability": 0.5033142655059439
+  },
+  {
+    "query": "What year did WW2 end?",
+    "routed_to": "strong",
+    "win_probability": 0.5030394768399444
+  },
+  {
+    "query": "What is the tallest mountain?",
+    "routed_to": "strong",
+    "win_probability": 0.5033315995264316
+  },
+  {
+    "query": "What is H2O?",
+    "routed_to": "strong",
+    "win_probability": 0.5032674190707884
+  },
+  {
+    "query": "How many planets are in our solar system?",
+    "routed_to": "strong",
+    "win_probability": 0.5034364216495678
+  },
+  {
+    "query": "What is the speed of light?",
+    "routed_to": "strong",
+    "win_probability": 0.5030867033026787
+  },
+  {
+    "query": "Who wrote Hamlet?",
+    "routed_to": "strong",
+    "win_probability": 0.5038603291831724
+  },
+  {
+    "query": "What is the largest ocean?",
+    "routed_to": "strong",
+    "win_probability": 0.5037460308070917
+  },
+  {
+    "query": "What is DNA?",
+    "routed_to": "strong",
+    "win_probability": 0.5033433695560195
+  },
+  {
+    "query": "What is the currency of Japan?",
+    "routed_to": "strong",
+    "win_probability": 0.5028952860863511
+  },
+  {
+    "query": "What is the main ingredient in guacamole?",
+    "routed_to": "strong",
+    "win_probability": 0.5034801775041436
+  },
+  {
+    "query": "Who painted the Mona Lisa?",
+    "routed_to": "strong",
+    "win_probability": 0.5029221936403877
+  },
+  {
+    "query": "What is the capital of Australia?",
+    "routed_to": "strong",
+    "win_probability": 0.5033073206718441
+  },
+  {
+    "query": "What is the square root of 144?",
+    "routed_to": "strong",
+    "win_probability": 0.5027209568215982
+  },
+  {
+    "query": "What is 25 * 18?",
+    "routed_to": "strong",
+    "win_probability": 0.5029970949681415
+  },
+  {
+    "query": "What is 144 / 12?",
+    "routed_to": "strong",
+    "win_probability": 0.5030500640512396
+  },
+  {
+    "query": "What is 15 + 27?",
+    "routed_to": "strong",
+    "win_probability": 0.5032416804857696
+  },
+  {
+    "query": "What is 100 - 37?",
+    "routed_to": "strong",
+    "win_probability": 0.5028277432817445
+  },
+  {
+    "query": "What is 12 squared?",
+    "routed_to": "strong",
+    "win_probability": 0.5031019983902638
+  },
+  {
+    "query": "What is 1000 / 8?",
+    "routed_to": "strong",
+    "win_probability": 0.5033611952057937
+  },
+  {
+    "query": "What is 7 * 11?",
+    "routed_to": "strong",
+    "win_probability": 0.5030156301817282
+  },
+  {
+    "query": "What is 50 + 50?",
+    "routed_to": "strong",
+    "win_probability": 0.5030455422710256
+  },
+  {
+    "query": "Write a Python function to reverse a string",
+    "routed_to": "strong",
+    "win_probability": 0.503279638729043
+  },
+  {
+    "query": "Create a sorted list function",
+    "routed_to": "strong",
+    "win_probability": 0.5028136173888231
+  },
+  {
+    "query": "Write a binary search function",
+    "routed_to": "strong",
+    "win_probability": 0.5028059652368508
+  },
+  {
+    "query": "Implement a hash table",
+    "routed_to": "strong",
+    "win_probability": 0.5018377726799876
+  },
+  {
+    "query": "Write quicksort in Python",
+    "routed_to": "strong",
+    "win_probability": 0.5025719013020927
+  },
+  {
+    "query": "Create a REST API endpoint",
+    "routed_to": "strong",
+    "win_probability": 0.5025527935818103
+  },
+  {
+    "query": "Write a decorator function",
+    "routed_to": "strong",
+    "win_probability": 0.5031756752221999
+  },
+  {
+    "query": "Implement a linked list",
+    "routed_to": "strong",
+    "win_probability": 0.5024600202167282
+  },
+  {
+    "query": "Write a Python class for a stack",
+    "routed_to": "strong",
+    "win_probability": 0.5026675362029689
+  },
+  {
+    "query": "Create a Fibonacci function",
+    "routed_to": "strong",
+    "win_probability": 0.5029836666971625
+  },
+  {
+    "query": "Write a palindrome checker",
+    "routed_to": "strong",
+    "win_probability": 0.5035571684430368
+  },
+  {
+    "query": "Implement bubble sort",
+    "routed_to": "strong",
+    "win_probability": 0.5030879768296427
+  },
+  {
+    "query": "Write a Python script to parse JSON",
+    "routed_to": "strong",
+    "win_probability": 0.5018525369608672
+  },
+  {
+    "query": "Create a binary tree traversal",
+    "routed_to": "strong",
+    "win_probability": 0.5025145023208719
+  },
+  {
+    "query": "Write a function to find primes",
+    "routed_to": "strong",
+    "win_probability": 0.5030934288113815
+  },
+  {
+    "query": "Explain quantum entanglement simply",
+    "routed_to": "strong",
+    "win_probability": 0.5034877371542898
+  },
+  {
+    "query": "What is photosynthesis?",
+    "routed_to": "strong",
+    "win_probability": 0.5030087052425202
+  },
+  {
+    "query": "Explain black holes",
+    "routed_to": "strong",
+    "win_probability": 0.5037166879331145
+  },
+  {
+    "query": "What is Avogadro's number?",
+    "routed_to": "strong",
+    "win_probability": 0.5034016162107922
+  },
+  {
+    "query": "Explain the theory of relativity",
+    "routed_to": "strong",
+    "win_probability": 0.5031098209952218
+  },
+  {
+    "query": "What is the half-life of Carbon-14?",
+    "routed_to": "strong",
+    "win_probability": 0.5029137192302472
+  },
+  {
+    "query": "What is nuclear fusion?",
+    "routed_to": "strong",
+    "win_probability": 0.5034038762814456
+  },
+  {
+    "query": "Explain DNA replication",
+    "routed_to": "strong",
+    "win_probability": 0.5031501359991549
+  },
+  {
+    "query": "What is entropy in thermodynamics?",
+    "routed_to": "strong",
+    "win_probability": 0.5034187695046252
+  },
+  {
+    "query": "Explain how vaccines work",
+    "routed_to": "strong",
+    "win_probability": 0.502947480082749
+  },
+  {
+    "query": "If all cats are animals and some animals are black, are all cats black?",
+    "routed_to": "strong",
+    "win_probability": 0.502730280060945
+  },
+  {
+    "query": "What comes next: 2, 4, 8, 16, ?",
+    "routed_to": "strong",
+    "win_probability": 0.5035397264800088
+  },
+  {
+    "query": "Solve this logic puzzle: A is taller than B, B is taller than C. Who is shortest?",
+    "routed_to": "strong",
+    "win_probability": 0.5035679824771887
+  },
+  {
+    "query": "If it takes 5 machines 5 minutes to make 5 widgets, how long would 100 machines take?",
+    "routed_to": "strong",
+    "win_probability": 0.5031771145898947
+  },
+  {
+    "query": "What is the missing number: 1, 1, 2, 3, 5, 8, ?",
+    "routed_to": "strong",
+    "win_probability": 0.5035354907499455
+  }
+]

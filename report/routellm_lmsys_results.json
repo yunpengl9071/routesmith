@@ -1,0 +1,252 @@
+[
+  {
+    "query": "Given 4 floats representing the elements of a quat",
+    "prob": 1.0,
+    "route": "strong"
+  },
+  {
+    "query": "What is faster: a car that can travel at 20kmh or ",
+    "prob": 0.9999999997842988,
+    "route": "strong"
+  },
+  {
+    "query": "Give  10 useful suggestions how to best prepare, f",
+    "prob": 0.9999999999996998,
+    "route": "strong"
+  },
+  {
+    "query": "consider this, i make graphic designs(t shirts, wa",
+    "prob": 0.9999999536795411,
+    "route": "strong"
+  },
+  {
+    "query": "If you have a cube with each side measuring 2 inch",
+    "prob": 0.904744135189802,
+    "route": "strong"
+  },
+  {
+    "query": "List all oncology drugs approved in or after 2020.",
+    "prob": 0.9999960662232977,
+    "route": "strong"
+  },
+  {
+    "query": "\n\nok, all you have to do is give me an SDG number ",
+    "prob": 0.9999999904005347,
+    "route": "strong"
+  },
+  {
+    "query": "regroup these words into categories: bakery,candy,",
+    "prob": 0.9999943157952449,
+    "route": "strong"
+  },
+  {
+    "query": "What are the biggest advances that have made VR mo",
+    "prob": 0.999999999948791,
+    "route": "strong"
+  },
+  {
+    "query": "Reword this, keep it simple and straight forward: ",
+    "prob": 0.9999999999307774,
+    "route": "strong"
+  },
+  {
+    "query": "Act like a Seasoned Investment Banker and analytic",
+    "prob": 0.9999997431759469,
+    "route": "strong"
+  },
+  {
+    "query": "is it possible that subconscious mind is working a",
+    "prob": 0.9999999999144058,
+    "route": "strong"
+  },
+  {
+    "query": "Reality as a guide",
+    "prob": 0.9999997825732667,
+    "route": "strong"
+  },
+  {
+    "query": "Can you please help me write a story i thought of ",
+    "prob": 0.9999991507127274,
+    "route": "strong"
+  },
+  {
+    "query": "prevent ai detection for my paragraph",
+    "prob": 0.9999999330469604,
+    "route": "strong"
+  },
+  {
+    "query": "Which of the following is capable of existing as E",
+    "prob": 0.9999999999999998,
+    "route": "strong"
+  },
+  {
+    "query": "What is the most famous movie by ozu and why?",
+    "prob": 0.9999998119092636,
+    "route": "strong"
+  },
+  {
+    "query": "Do you know Instagram?",
+    "prob": 0.9999769023891394,
+    "route": "strong"
+  },
+  {
+    "query": "What are some good quiz questions testing general ",
+    "prob": 0.9999999968958446,
+    "route": "strong"
+  },
+  {
+    "query": "You are in a room with a standard piece of printer",
+    "prob": 0.9999999667271158,
+    "route": "strong"
+  },
+  {
+    "query": "What is the latest research on binaryzing the weig",
+    "prob": 0.999999847125732,
+    "route": "strong"
+  },
+  {
+    "query": "what is armageddon in chess\n",
+    "prob": 1.0,
+    "route": "strong"
+  },
+  {
+    "query": "Explain how to make a band pass filter with operat",
+    "prob": 0.9999999999777609,
+    "route": "strong"
+  },
+  {
+    "query": "var nodeRoot =  document.createElement(\"div\");\n   ",
+    "prob": 0.9999723514649451,
+    "route": "strong"
+  },
+  {
+    "query": "Can you come up with three contradictory statement",
+    "prob": 1.0,
+    "route": "strong"
+  },
+  {
+    "query": "i need some python code to get started with a diy ",
+    "prob": 0.9999998993910334,
+    "route": "strong"
+  },
+  {
+    "query": "Please provide reasonable arguments to counter har",
+    "prob": 1.0,
+    "route": "strong"
+  },
+  {
+    "query": "what is 2+2/2",
+    "prob": 0.9999999650503465,
+    "route": "strong"
+  },
+  {
+    "query": "I need 30 possible questions for a job interview. ",
+    "prob": 0.9999999999997624,
+    "route": "strong"
+  },
+  {
+    "query": "write a story about a girl and her pet rabbitgirl",
+    "prob": 0.9999999993944675,
+    "route": "strong"
+  },
+  {
+    "query": "Write me a Unity editor script that lists all the ",
+    "prob": 0.999999996645826,
+    "route": "strong"
+  },
+  {
+    "query": "give youtube channel name about 2 guys lost and de",
+    "prob": 1.0,
+    "route": "strong"
+  },
+  {
+    "query": "Help me understand this sentence from a statistics",
+    "prob": 0.9999999996847773,
+    "route": "strong"
+  },
+  {
+    "query": "Fix the grammar and structure of this sentence whi",
+    "prob": 0.9999999992220501,
+    "route": "strong"
+  },
+  {
+    "query": "According to Example # 6, what is the page number ",
+    "prob": 0.9998626375994552,
+    "route": "strong"
+  },
+  {
+    "query": "alright. You may want to sit down for this one. Co",
+    "prob": 0.9999996766742663,
+    "route": "strong"
+  },
+  {
+    "query": "is donald trump a liar",
+    "prob": 1.0,
+    "route": "strong"
+  },
+  {
+    "query": "In the Touhou universe what is the purpose of the ",
+    "prob": 0.9999999999964766,
+    "route": "strong"
+  },
+  {
+    "query": "what is hegulian dailect?",
+    "prob": 0.9999999999999991,
+    "route": "strong"
+  },
+  {
+    "query": "Embrace the role of Sheldon from \u201cThe Big Bang The",
+    "prob": 0.9999999999999938,
+    "route": "strong"
+  },
+  {
+    "query": "Hello world in nodejs",
+    "prob": 0.1327383903545108,
+    "route": "weak"
+  },
+  {
+    "query": "What is a weight in AI",
+    "prob": 0.9999968588854299,
+    "route": "strong"
+  },
+  {
+    "query": "Today is Thursday, Feb 8. What's next Friday's dat",
+    "prob": 0.9962324022811889,
+    "route": "strong"
+  },
+  {
+    "query": "is trump going to prison?",
+    "prob": 0.9999999999979694,
+    "route": "strong"
+  },
+  {
+    "query": "In iterated prisoner's dilemma, there are a limite",
+    "prob": 1.0,
+    "route": "strong"
+  },
+  {
+    "query": "which english speaking countries have the cheapest",
+    "prob": 0.9999172070287565,
+    "route": "strong"
+  },
+  {
+    "query": "\"Hello?\" I smile",
+    "prob": 0.3709620839569028,
+    "route": "weak"
+  },
+  {
+    "query": "Describe AP Physics 1 course in 6 words and 2 emoj",
+    "prob": 0.9999999999950966,
+    "route": "strong"
+  },
+  {
+    "query": "Describe gradient descent in one word.",
+    "prob": 1.0,
+    "route": "strong"
+  },
+  {
+    "query": "We have two different things: the game Frostpunk a",
+    "prob": 1.0,
+    "route": "strong"
+  }
+]

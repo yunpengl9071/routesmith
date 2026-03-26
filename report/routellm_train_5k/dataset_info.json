@@ -1,0 +1,70 @@
+{
+  "builder_name": "csv",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "lmsys-arena-human-preference-55k",
+  "dataset_size": 185877048,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/lmsys/lmsys-arena-human-preference-55k@18c298340948c0e7f7727399fd459cca6ce0ca6f/train.csv": {
+      "num_bytes": 184175071,
+      "checksum": null
+    }
+  },
+  "download_size": 184175071,
+  "features": {
+    "id": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "model_a": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "model_b": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "prompt": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "response_a": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "response_b": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "winner_model_a": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "winner_model_b": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "winner_tie": {
+      "dtype": "int64",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 370052119,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 185877048,
+      "num_examples": 57477,
+      "dataset_name": "lmsys-arena-human-preference-55k"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}

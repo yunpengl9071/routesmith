@@ -28,7 +28,7 @@ Existing routing solutions fall into three categories:
 2. **Manual tiering**: Heuristic rules route queries based on keywords or metadata (e.g., "billing" → cheaper model). This works for predictable patterns but fails on ambiguous queries.
 3. **Cascaded routing**: Start with a small model, escalate if confidence is low. This adds latency and can compound errors.
 
-None of these approaches adapt online to learn which queries genuinely require expensive models versus those that can be handled economically.
+None of these approaches adapt online to learn which queries genuinely require expensive models versus those that can be handled economically. Recent large-scale evaluation (LLMRouterBench, 2026) confirms that routing methods show similar performance under unified evaluation, with the key insight being that smarter routing logic (like category-aware priors) matters more than simply adding more models to the ensemble.
 
 ### 1.3 Our Contribution
 
@@ -64,7 +64,13 @@ Empirical studies demonstrate Thompson Sampling converges 2-3× faster than Uppe
 
 **FrugalGPT** (Chen et al., 2023) pioneered LLM cascades, using a three-tier static cascade with learned confidence thresholds. FrugalGPT achieves up to 98% cost reduction while matching GPT-4 performance by routing queries through increasingly expensive models until a confidence threshold is met. However, FrugalGPT uses fixed rules learned offline, requiring full supervision (labels from all candidate models on every query) and lacking online adaptation.
 
+**RouteLLM** (Ong et al., 2024) is an open-source router framework that learns to route between strong and weak models using human preference data from ChatBot Arena. RouteLLM employs several router architectures including matrix factorization, BERT classifiers, and similarity-weighted ranking. The key insight is using preference data to train routers that predict which model will "win" for a given query. However, RouteLLM requires substantial training data (hundreds of thousands of preference pairs) and does not support online learning—routers are trained offline and fixed during inference. Additionally, RouteLLM lacks per-category adaptation and uses a static threshold-based approach rather than principled exploration-exploitation balancing.
+
 **BaRP** (Wang et al., 2025) addresses FrugalGPT's limitations by framing routing as a contextual bandit with preference conditioning. BaRP uses policy gradient (REINFORCE) with bandit feedback (partial supervision), achieving 12.46% improvement over offline routers. While BaRP supports online learning, it uses policy gradient methods that converge slower than Thompson Sampling and lack interpretable uncertainty estimates.
+
+**Router-R1** (Zhang et al., 2025) extends routing to multi-round coordination, where the router can invoke multiple models sequentially and aggregate their responses. Accepted at NeurIPS 2025, Router-R1 treats routing as a sequential decision process with RL training. However, this multi-round approach introduces significant latency overhead and higher costs, making it less suitable for cost-sensitive production deployments.
+
+**LLMRouterBench** (Li et al., 2026) provides a comprehensive benchmark for LLM routing with over 400K instances from 21 datasets and 33 models. LLMRouterBench evaluates both performance-oriented and performance-cost tradeoff routing, integrating 10 representative baselines including RouteLLM, FrugalGPT, and HybridLLM. Their key finding is that many routing methods achieve similar performance under unified evaluation, with a persistent gap to the Oracle driven by model-recall failures. This benchmark validates the importance of our per-category approach—LLMRouterBench notes that embeddings have limited impact and larger ensembles show diminishing returns, suggesting that smarter routing logic (like our per-category priors) is more valuable than simply adding more models.
 
 **TREACLE** (Zhang et al., 2024) proposes RL-based model and prompt selection under budget constraints, achieving 85% cost savings. TREACLE uses a general RL policy with context embeddings but does not leverage the theoretical advantages of Thompson Sampling's probability matching.
 
@@ -92,7 +98,7 @@ RouteSmith advances the state-of-the-art in several key dimensions:
 
 1. **First application of Thompson Sampling to LLM routing**: Prior work uses UCB (FrugalGPT, LLM Bandit), policy gradient (BaRP, TREACLE), or static rules. Thompson Sampling's faster convergence and natural uncertainty quantification are particularly valuable for cost-sensitive routing.
 
-2. **Per-category Beta priors**: Unlike global priors in prior bandit formulations, RouteSmith maintains separate Beta(\$\alpha_c\$, \$\beta_c\$) priors for each query category, enabling faster convergence within categories and interpretable diagnostics.
+2. **Per-category Beta priors**: Unlike global priors in prior bandit formulations, RouteSmith maintains separate Beta($\alpha_c$, $\beta_c$) priors for each query category, enabling faster convergence within categories and interpretable diagnostics. This is a key innovation over RouteLLM, which uses a single global model for all queries and requires large training datasets. Our per-category approach means the system learns that "billing" queries are consistently handled well by cheaper models while "technical support" queries require premium models—without any labeled training data.
 
 3. **Complexity-aware cost bias**: RouteSmith's reward function modulates cost penalty by query complexity (R = \$\alpha\times\$quality - \$\beta\times\$cost×complexity), unlike linear combinations in prior work. This aligns with the BAR Theorem's tradeoff analysis.
 
@@ -104,12 +110,14 @@ Table 1 summarizes the landscape of LLM routing approaches and RouteSmith's posi
 
 | Method | Algorithm | Online Learning | Per-Category Priors | Cost Model | Statistical Validation |
 |--------|-----------|-----------------|---------------------|------------|----------------------|
-| FrugalGPT (2023) | Static cascade | \texttimes | \texttimes | Hard constraint | Limited |
-| BaRP (2025) | Policy gradient | \checkmark | \texttimes | Linear | Limited |
-| TREACLE (2024) | RL policy | \checkmark | \texttimes | Budget constraint | Moderate |
-| LLM Bandit (2025) | UCB | \checkmark | \texttimes | Linear | Limited |
-| PILOT (2025) | LinUCB + knapsack | \checkmark | \texttimes | Two-stage | Limited |
-| **RouteSmith (Ours)** | **Thompson Sampling** | **\checkmark** | **\checkmark** | **Complexity-aware** | **Comprehensive** |
+| FrugalGPT (2023) | Static cascade | ✗ | ✗ | Hard constraint | Limited |
+| RouteLLM (2024) | Matrix factorization / BERT | ✗ | ✗ | Linear | Limited |
+| BaRP (2025) | Policy gradient | ✓ | ✗ | Linear | Limited |
+| TREACLE (2024) | RL policy | ✓ | ✗ | Budget constraint | Moderate |
+| LLM Bandit (2025) | UCB | ✓ | ✗ | Linear | Limited |
+| PILOT (2025) | LinUCB + knapsack | ✓ | ✗ | Two-stage | Limited |
+| Router-R1 (2025) | Multi-round RL | ✓ | ✗ | Cost reward | Limited |
+| **RouteSmith (Ours)** | **Thompson Sampling** | **✓** | **✓** | **Complexity-aware** | **Comprehensive** |
 
 ---
 

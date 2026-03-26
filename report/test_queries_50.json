@@ -1,0 +1,214 @@
+[
+  {
+    "query": "What is the capital of France?",
+    "id": 1
+  },
+  {
+    "query": "Who invented the telephone?",
+    "id": 2
+  },
+  {
+    "query": "What year did WW2 end?",
+    "id": 3
+  },
+  {
+    "query": "What is the tallest mountain?",
+    "id": 4
+  },
+  {
+    "query": "What is H2O?",
+    "id": 5
+  },
+  {
+    "query": "How many planets are in our solar system?",
+    "id": 6
+  },
+  {
+    "query": "What is the speed of light?",
+    "id": 7
+  },
+  {
+    "query": "Who wrote Hamlet?",
+    "id": 8
+  },
+  {
+    "query": "What is the largest ocean?",
+    "id": 9
+  },
+  {
+    "query": "What is DNA?",
+    "id": 10
+  },
+  {
+    "query": "What is the currency of Japan?",
+    "id": 11
+  },
+  {
+    "query": "What is the main ingredient in guacamole?",
+    "id": 12
+  },
+  {
+    "query": "Who painted the Mona Lisa?",
+    "id": 13
+  },
+  {
+    "query": "What is the capital of Australia?",
+    "id": 14
+  },
+  {
+    "query": "What is the square root of 144?",
+    "id": 15
+  },
+  {
+    "query": "What is 25 * 18?",
+    "id": 16
+  },
+  {
+    "query": "What is 144 / 12?",
+    "id": 17
+  },
+  {
+    "query": "What is 15 + 27?",
+    "id": 18
+  },
+  {
+    "query": "What is 100 - 37?",
+    "id": 19
+  },
+  {
+    "query": "What is 12 squared?",
+    "id": 20
+  },
+  {
+    "query": "What is 1000 / 8?",
+    "id": 21
+  },
+  {
+    "query": "What is 7 * 11?",
+    "id": 22
+  },
+  {
+    "query": "What is 50 + 50?",
+    "id": 23
+  },
+  {
+    "query": "Write a Python function to reverse a string",
+    "id": 24
+  },
+  {
+    "query": "Create a sorted list function",
+    "id": 25
+  },
+  {
+    "query": "Write a binary search function",
+    "id": 26
+  },
+  {
+    "query": "Implement a hash table",
+    "id": 27
+  },
+  {
+    "query": "Write quicksort in Python",
+    "id": 28
+  },
+  {
+    "query": "Create a REST API endpoint",
+    "id": 29
+  },
+  {
+    "query": "Write a decorator function",
+    "id": 30
+  },
+  {
+    "query": "Implement a linked list",
+    "id": 31
+  },
+  {
+    "query": "Write a Python class for a stack",
+    "id": 32
+  },
+  {
+    "query": "Create a Fibonacci function",
+    "id": 33
+  },
+  {
+    "query": "Write a palindrome checker",
+    "id": 34
+  },
+  {
+    "query": "Implement bubble sort",
+    "id": 35
+  },
+  {
+    "query": "Write a Python script to parse JSON",
+    "id": 36
+  },
+  {
+    "query": "Create a binary tree traversal",
+    "id": 37
+  },
+  {
+    "query": "Write a function to find primes",
+    "id": 38
+  },
+  {
+    "query": "Explain quantum entanglement simply",
+    "id": 39
+  },
+  {
+    "query": "What is photosynthesis?",
+    "id": 40
+  },
+  {
+    "query": "Explain black holes",
+    "id": 41
+  },
+  {
+    "query": "What is Avogadro's number?",
+    "id": 42
+  },
+  {
+    "query": "Explain the theory of relativity",
+    "id": 43
+  },
+  {
+    "query": "What is the half-life of Carbon-14?",
+    "id": 44
+  },
+  {
+    "query": "What is nuclear fusion?",
+    "id": 45
+  },
+  {
+    "query": "Explain DNA replication",
+    "id": 46
+  },
+  {
+    "query": "What is entropy in thermodynamics?",
+    "id": 47
+  },
+  {
+    "query": "Explain how vaccines work",
+    "id": 48
+  },
+  {
+    "query": "If all cats are animals and some animals are black, are all cats black?",
+    "id": 49
+  },
+  {
+    "query": "What comes next: 2, 4, 8, 16, ?",
+    "id": 50
+  },
+  {
+    "query": "Solve this logic puzzle: A is taller than B, B is taller than C. Who is shortest?",
+    "id": 51
+  },
+  {
+    "query": "If it takes 5 machines 5 minutes to make 5 widgets, how long would 100 machines take?",
+    "id": 52
+  },
+  {
+    "query": "What is the missing number: 1, 1, 2, 3, 5, 8, ?",
+    "id": 53
+  }
+]
