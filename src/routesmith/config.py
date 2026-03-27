@@ -47,6 +47,33 @@ class PredictorConfig:
     n_estimators: int = 50
     blend_alpha: float = 0.7
 
+    # LinUCB contextual bandit parameters
+    linucb_alpha: float = 1.5  # Exploration parameter (confidence width scale)
+    linucb_cost_lambda: float = 0.3  # Cost penalty weight in reward signal
+    linucb_warmup_rounds: int = 1  # Min observations per arm before UCB kicks in
+
+    # REINFORCE policy gradient parameters
+    reinforce_lr: float = 0.01  # Policy learning rate
+    reinforce_baseline_lr: float = 0.05  # Value baseline learning rate
+    reinforce_cost_lambda: float = 0.3  # Cost penalty weight in reward signal
+    reinforce_temperature: float = 1.0  # Softmax temperature (lower = greedier)
+    reinforce_entropy_bonus: float = 0.01  # Entropy regularization coefficient
+
+    # NeuralUCB parameters
+    neural_ucb_alpha: float = 0.5  # UCB exploration on hidden features
+    neural_ucb_cost_lambda: float = 0.3  # Cost penalty weight
+    neural_ucb_latency_lambda: float = 0.1  # Latency penalty weight
+    neural_ucb_lr: float = 0.005  # MLP learning rate
+    neural_ucb_hidden_dim: int = 64  # MLP hidden layer size
+    neural_ucb_warmup_rounds: int = 2  # Min observations per arm
+    neural_ucb_replay_size: int = 2000  # Experience replay buffer size
+
+    # WarmStartLinUCB parameters
+    warmstart_alpha: float = 1.5  # UCB exploration parameter
+    warmstart_cost_lambda: float = 0.3  # Cost penalty weight
+    warmstart_latency_lambda: float = 0.1  # Latency penalty weight
+    warmstart_warmup_rounds: int = 0  # 0 because warm-started
+
 
 @dataclass
 class RouteSmithConfig:
@@ -57,7 +84,7 @@ class RouteSmithConfig:
     fallback_model: str | None = None  # Model to use if routing fails
 
     # Quality prediction
-    predictor_type: str = "adaptive"  # adaptive, embedding, classifier, random_forest
+    predictor_type: str = "adaptive"  # adaptive, embedding, linucb, reinforce, neural_ucb, warmstart_linucb
     predictor_model: str | None = None  # Custom predictor model path
 
     # Predictor settings
