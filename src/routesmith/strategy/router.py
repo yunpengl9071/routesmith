@@ -65,6 +65,55 @@ class Router:
                 blend_alpha=config.predictor.blend_alpha,
             )
 
+        if config.predictor_type == "linucb":
+            from routesmith.predictor.linucb import LinUCBPredictor
+
+            return LinUCBPredictor(
+                registry=registry,
+                alpha=config.predictor.linucb_alpha,
+                cost_lambda=config.predictor.linucb_cost_lambda,
+                warmup_rounds=config.predictor.linucb_warmup_rounds,
+            )
+
+        if config.predictor_type == "reinforce":
+            from routesmith.predictor.reinforce import ReinforcePredictor
+
+            return ReinforcePredictor(
+                registry=registry,
+                learning_rate=config.predictor.reinforce_lr,
+                baseline_lr=config.predictor.reinforce_baseline_lr,
+                cost_lambda=config.predictor.reinforce_cost_lambda,
+                temperature=config.predictor.reinforce_temperature,
+                entropy_bonus=config.predictor.reinforce_entropy_bonus,
+            )
+
+        if config.predictor_type == "neural_ucb":
+            from routesmith.predictor.neural_ucb import NeuralUCBPredictor
+
+            return NeuralUCBPredictor(
+                registry=registry,
+                alpha=config.predictor.neural_ucb_alpha,
+                cost_lambda=config.predictor.neural_ucb_cost_lambda,
+                latency_lambda=config.predictor.neural_ucb_latency_lambda,
+                learning_rate=config.predictor.neural_ucb_lr,
+                hidden_dim=config.predictor.neural_ucb_hidden_dim,
+                warmup_rounds=config.predictor.neural_ucb_warmup_rounds,
+                replay_size=config.predictor.neural_ucb_replay_size,
+            )
+
+        if config.predictor_type == "warmstart_linucb":
+            from routesmith.predictor.warmstart_linucb import (
+                WarmStartLinUCBPredictor,
+            )
+
+            return WarmStartLinUCBPredictor(
+                registry=registry,
+                alpha=config.predictor.warmstart_alpha,
+                cost_lambda=config.predictor.warmstart_cost_lambda,
+                latency_lambda=config.predictor.warmstart_latency_lambda,
+                warmup_rounds=config.predictor.warmstart_warmup_rounds,
+            )
+
         # Fallback to embedding predictor
         model_priors = {
             m.model_id: m.quality_score for m in registry.list_models()

@@ -121,23 +121,85 @@ rs.register_model("bedrock/claude", tags=["hipaa", "soc2"])
 response = rs.completion(messages=[...], require_tags=["hipaa"])
 ```
 
-## How It Works
+## Adaptive Routing with Contextual Bandits
 
+RouteSmith uses contextual bandit algorithms to learn optimal routing policies online. Unlike static routers, these predictors adapt to your specific workload by learning from feedback on every request.
+
+### Predictor Types
+
+| Predictor | Config value | Best for |
+|-----------|-------------|----------|
+| **LinUCB** | `"linucb"` | Fast, stable baseline. O(d²) updates, good theoretical guarantees |
+| **NeuralUCB** | `"neural_ucb"` | Complex workloads with nonlinear feature interactions |
+| **WarmStartLinUCB** | `"warmstart_linucb"` | When you have historical quality data to eliminate cold-start |
+| **REINFORCE** | `"reinforce"` | Stochastic policy with entropy-regularized exploration |
+| **Adaptive (RF)** | `"adaptive"` | Legacy batch-trained random forest baseline |
+
+```python
+from routesmith import RouteSmith, RouteSmithConfig
+from routesmith.config import PredictorConfig
+
+# LinUCB: good default for most workloads
+config = RouteSmithConfig(
+    predictor_type="linucb",
+    predictor=PredictorConfig(
+        linucb_alpha=1.5,        # Exploration width
+        linucb_cost_lambda=0.3,  # Cost penalty weight
+    ),
+)
+rs = RouteSmith(config=config)
+
+# NeuralUCB: captures nonlinear patterns
+config = RouteSmithConfig(
+    predictor_type="neural_ucb",
+    predictor=PredictorConfig(
+        neural_ucb_alpha=0.5,
+        neural_ucb_hidden_dim=64,
+        neural_ucb_replay_size=2000,
+    ),
+)
+
+# WarmStartLinUCB: pre-initialize from labeled data
+config = RouteSmithConfig(
+    predictor_type="warmstart_linucb",
+    predictor=PredictorConfig(
+        warmstart_alpha=1.5,
+        warmstart_cost_lambda=0.3,
+        warmstart_latency_lambda=0.1,
+    ),
+)
+# After creating the router, warm-start from historical data:
+# router.predictor.warm_start(labeled_examples, epochs=1)
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Your Application                             │
-├─────────────────────────────────────────────────────────────────┤
-│                       RouteSmith                                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────────┐  │
-│  │ Model    │  │ Quality  │  │ Router   │  │ Cost Tracker   │  │
-│  │ Registry │  │ Predictor│  │ Engine   │  │ + Feedback     │  │
-│  └──────────┘  └──────────┘  └──────────┘  └────────────────┘  │
-├─────────────────────────────────────────────────────────────────┤
-│                    LiteLLM (100+ providers)                      │
-├─────────────────────────────────────────────────────────────────┤
-│            OpenAI, Anthropic, Bedrock, Azure, Groq, etc.         │
-└─────────────────────────────────────────────────────────────────┘
-```
+
+### 27-Dimensional Context Features
+
+The routing decision uses a rich feature vector combining query characteristics and model metadata:
+
+- **Query type classification**: Math, reasoning, code, and creative task scores via keyword analysis
+- **Difficulty estimation**: Combines length, vocabulary complexity, and structural indicators
+- **Model metadata**: Cost, latency, quality prior, capabilities
+- **Interaction features**: Estimated response length, difficulty × quality prior
+
+### Empirical Results
+
+On RouteLLM public evaluation data (10 seeds, 14K MMLU questions):
+
+- **53% less cumulative regret** vs random routing
+- **Cold-start in ~100 queries** vs RF's 100+ label batch requirement
+- **Sub-millisecond routing decisions** for all predictor types
+- **WarmStartLinUCB eliminates cold-start** entirely with 500+ labeled examples
+
+### Comparison with Other Routers
+
+| | RouteSmith (CB) | RouteLLM | FrugalGPT | AutoMix |
+|---|---|---|---|---|
+| **Routing type** | Contextual bandit | Supervised classifier | LLM cascade | POMDP + self-verify |
+| **When it routes** | Before generation | Before generation | After generation | After generation |
+| **Pre-training data** | None (or optional 500 labels) | 55K+ labels | Scorer training | POMDP tuning |
+| **Routing latency** | <1ms | 5-800ms | Multiple LLM calls | ≥2× SLM calls |
+| **Online adaptation** | Yes | No | No | No |
+| **Multi-model** | N models | 2 models | Ordered chain | 2 models |
 
 ## Development
 
