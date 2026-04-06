@@ -1,0 +1,20 @@
+% paper/sections/04b_exp2.tex
+\section{Experiment 2: Multi-Model Quality Routing}
+\label{sec:exp2}
+
+\subsection{Setup}
+
+Five model arms via OpenRouter: GPT-4o, Claude-Sonnet-4-5, Qwen-Plus, MiniMax-M1, GLM-4-Plus. Reward is quality-dominant: $R_t = 0.85 \cdot \text{acc}(a_t, x_t) - 0.15 \cdot c_{a_t}/c_{\max}$. Evaluated on 600 MMLU questions with 3 random seeds.
+
+\textbf{RouteLLM-SW is excluded} --- it is architecturally binary (strong/weak) and cannot extend to $K > 2$ arms without $O(K^2)$ re-training. This structural gap is Moat~M2.
+
+\subsection{Results}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\linewidth]{figures/fig4_routing_heatmap.png}
+\includegraphics[width=0.48\linewidth]{figures/fig5_feature_importance.png}
+\caption{Left: Routing distribution by category (Exp 2, LinTS-5arm). Right: LinUCB feature importance.}
+\end{figure}
+
+[Fill in tables after experiments complete.]

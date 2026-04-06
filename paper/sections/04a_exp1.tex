@@ -1,0 +1,48 @@
+% paper/sections/04a_exp1.tex — fill in real numbers after experiments
+\section{Experiment 1: Binary Routing Comparison}
+\label{sec:exp1}
+
+\subsection{Setup}
+
+We evaluate all methods on 600 MMLU questions (5 categories $\times$ 120) and 300 GSM8K math word problems. Models: strong = \texttt{openai/gpt-4o}, weak = \texttt{openai/gpt-4o-mini} (via OpenRouter). Bandit methods run with 5 independent random seeds; mean $\pm$ 95\% CI reported. RouteLLM-SW is deterministic per threshold --- point estimate with embedding fallback noted if applicable.
+
+Reward: $R_t = 0.85 \cdot \text{acc}(a_t, x_t) - 0.15 \cdot c_{a_t}/c_{\max}$, matching RouteLLM's cost-quality trade-off benchmark setting.
+
+\subsection{Results}
+
+\begin{table}[h]
+\centering
+\caption{Experiment 1: Binary routing comparison on MMLU (600 questions) and GSM8K (300 questions). All results from real API calls. $\dagger$ = reported by Ong et al.\ (2025) if SW router fails to load.}
+\begin{tabular}{lccccc}
+\toprule
+Method & MMLU Acc & MMLU Cost & GSM8K Acc & GSM8K Cost & APGR \\
+\midrule
+Static-Strong (GPT-4o)   & [FILL] & \$[FILL] & [FILL] & \$[FILL] & 1.000 \\
+Static-Weak (GPT-4o-mini) & [FILL] & \$[FILL] & [FILL] & \$[FILL] & 0.000 \\
+Random Router             & [FILL] & \$[FILL] & [FILL] & \$[FILL] & [FILL] \\
+RouteLLM-SW ($\tau$=0.3)  & [FILL] & \$[FILL] & [FILL] & \$[FILL] & [FILL] \\
+RouteLLM-SW ($\tau$=0.5)  & [FILL] & \$[FILL] & [FILL] & \$[FILL] & [FILL] \\
+RouteLLM-SW ($\tau$=0.7)  & [FILL] & \$[FILL] & [FILL] & \$[FILL] & [FILL] \\
+TS-Cat (5 seeds)          & [FILL] & \$[FILL] & [FILL] & \$[FILL] & [FILL] \\
+LinUCB-27d (5 seeds)      & [FILL] & \$[FILL] & [FILL] & \$[FILL] & [FILL] \\
+\textbf{LinTS-27d (Ours, 5 seeds)} & [FILL] & \$[FILL] & [FILL] & \$[FILL] & [FILL] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\linewidth]{figures/fig1_cost_quality_pareto.png}
+\includegraphics[width=0.48\linewidth]{figures/fig2_learning_curves.png}
+\caption{Left: Cost--quality Pareto frontier. Right: Cold-start learning curves (5 seeds, $\pm1\sigma$).}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\linewidth]{figures/fig3_cumulative_regret.png}
+\caption{Cumulative regret on MMLU. Lower is better.}
+\end{figure}
+
+\subsection{Discussion}
+
+[Fill in after experiments: when LinTS beats LinUCB (no $\beta$ tuning), when RouteLLM-SW wins (more data), cold-start gap vs pretrained RouteLLM.]

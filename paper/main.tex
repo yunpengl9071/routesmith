@@ -1,0 +1,36 @@
+% paper/main.tex — RouteSmith ICML Paper
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\title{RouteSmith: Online Contextual Bandit Routing for Cost-Quality Trade-offs in Multi-LLM Systems}
+\author{Anonymous Author(s)}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04a_exp1}
+\input{sections/04b_exp2}
+\input{sections/05_analysis}
+\input{sections/06_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
