@@ -1,0 +1,364 @@
+{
+  "mmlu": {
+    "data_stats": {
+      "n": 14042,
+      "strong_accuracy": 0.8086,
+      "weak_accuracy": 0.6891,
+      "quality_gap": 0.1196,
+      "both_correct": 0.6265,
+      "only_strong_correct": 0.1822,
+      "neither_correct": 0.1288
+    },
+    "context_free": {
+      "Thompson Sampling": {
+        "accuracy_mean": 0.8076,
+        "accuracy_std": 0.0001,
+        "regret_mean": 894.3,
+        "regret_std": 2.1,
+        "cost_per_query": 0.039537,
+        "strong_pct_mean": 0.9883
+      },
+      "UCB (c=0.5)": {
+        "accuracy_mean": 0.8076,
+        "accuracy_std": 0.0003,
+        "regret_mean": 893.3,
+        "regret_std": 3.8,
+        "cost_per_query": 0.039644,
+        "strong_pct_mean": 0.991
+      },
+      "UCB (c=2.0)": {
+        "accuracy_mean": 0.7971,
+        "accuracy_std": 0.0017,
+        "regret_mean": 1041.0,
+        "regret_std": 23.6,
+        "cost_per_query": 0.03664,
+        "strong_pct_mean": 0.915
+      },
+      "Epsilon-Greedy (0.1)": {
+        "accuracy_mean": 0.8037,
+        "accuracy_std": 0.0013,
+        "regret_mean": 948.3,
+        "regret_std": 18.6,
+        "cost_per_query": 0.037988,
+        "strong_pct_mean": 0.9491
+      },
+      "Always-Strong": {
+        "accuracy_mean": 0.8086,
+        "accuracy_std": 0.0,
+        "regret_mean": 879.0,
+        "regret_std": 0.0,
+        "cost_per_query": 0.04,
+        "strong_pct_mean": 1.0
+      },
+      "Always-Weak": {
+        "accuracy_mean": 0.6891,
+        "accuracy_std": 0.0,
+        "regret_mean": 2558.0,
+        "regret_std": 0.0,
+        "cost_per_query": 0.00048,
+        "strong_pct_mean": 0.0
+      },
+      "Random": {
+        "accuracy_mean": 0.7482,
+        "accuracy_std": 0.0018,
+        "regret_mean": 1728.0,
+        "regret_std": 25.2,
+        "cost_per_query": 0.020186,
+        "strong_pct_mean": 0.4986
+      }
+    },
+    "contextual": {
+      "Random": {
+        "labels": 0,
+        "apgr_mean": 0.4962,
+        "apgr_std": 0.0062
+      },
+      "CB-RS-LinUCB (warm=0)": {
+        "labels": 0,
+        "label_type": "binary_correctness",
+        "apgr_mean": 0.4997,
+        "apgr_std": 0.0054
+      },
+      "CB-RS-LinUCB (warm=500)": {
+        "labels": 500,
+        "label_type": "binary_correctness",
+        "apgr_mean": 0.4983,
+        "apgr_std": 0.0093
+      },
+      "CB-RS-LinUCB (warm=5000)": {
+        "labels": 5000,
+        "label_type": "binary_correctness",
+        "apgr_mean": 0.498,
+        "apgr_std": 0.0135
+      },
+      "SW-Features (warm=500)": {
+        "labels": 500,
+        "label_type": "binary_correctness",
+        "apgr_mean": 0.5023,
+        "apgr_std": 0.0087
+      },
+      "SW-Features (warm=5000)": {
+        "labels": 5000,
+        "label_type": "binary_correctness",
+        "apgr_mean": 0.5047,
+        "apgr_std": 0.0014
+      },
+      "RouteLLM-MF": {
+        "labels": "55K+",
+        "label_type": "human_preference",
+        "apgr_mean": 0.57,
+        "apgr_std": null,
+        "source": "Ong et al. 2024"
+      },
+      "RouteLLM-BERT": {
+        "labels": "55K+",
+        "label_type": "human_preference",
+        "apgr_mean": 0.67,
+        "apgr_std": null,
+        "source": "Ong et al. 2024"
+      },
+      "RouteLLM-SW": {
+        "labels": "55K+",
+        "label_type": "human_preference",
+        "apgr_mean": 0.8,
+        "apgr_std": null,
+        "source": "Ong et al. 2024"
+      },
+      "RouteLLM-CausalLM": {
+        "labels": "55K+",
+        "label_type": "human_preference",
+        "apgr_mean": 0.72,
+        "apgr_std": null,
+        "source": "Ong et al. 2024"
+      }
+    },
+    "oracle_apgr": 1.3684,
+    "learning_curves": {
+      "Thompson Sampling": {
+        "50": 0.8067,
+        "100": 0.8033,
+        "200": 0.7767,
+        "500": 0.7847,
+        "1000": 0.7967,
+        "14042": 0.8073
+      },
+      "UCB (c=0.5)": {
+        "50": 0.8067,
+        "100": 0.8167,
+        "200": 0.7767,
+        "500": 0.788,
+        "1000": 0.7987,
+        "14042": 0.8073
+      },
+      "UCB (c=2.0)": {
+        "50": 0.7867,
+        "100": 0.8,
+        "200": 0.7767,
+        "500": 0.7707,
+        "1000": 0.78,
+        "14042": 0.7969
+      },
+      "Epsilon-Greedy (0.1)": {
+        "50": 0.8067,
+        "100": 0.82,
+        "200": 0.7983,
+        "500": 0.7933,
+        "1000": 0.801,
+        "14042": 0.8028
+      },
+      "Always-Strong": {
+        "50": 0.8333,
+        "100": 0.8333,
+        "200": 0.8083,
+        "500": 0.8047,
+        "1000": 0.81,
+        "14042": 0.8086
+      },
+      "Random": {
+        "50": 0.7933,
+        "100": 0.79,
+        "200": 0.7483,
+        "500": 0.744,
+        "1000": 0.7423,
+        "14042": 0.7482
+      }
+    },
+    "ts_vs_random_regret_reduction_pct": 48.2,
+    "elapsed_seconds": 546.0
+  },
+  "gsm8k": {
+    "data_stats": {
+      "n": 1319,
+      "strong_accuracy": 0.8476,
+      "weak_accuracy": 0.6126,
+      "quality_gap": 0.235,
+      "both_correct": 0.5754,
+      "only_strong_correct": 0.2722,
+      "neither_correct": 0.1152
+    },
+    "context_free": {
+      "Thompson Sampling": {
+        "accuracy_mean": 0.8448,
+        "accuracy_std": 0.0009,
+        "regret_mean": 52.7,
+        "regret_std": 1.2,
+        "cost_per_query": 0.03973,
+        "strong_pct_mean": 0.9932
+      },
+      "UCB (c=0.5)": {
+        "accuracy_mean": 0.8428,
+        "accuracy_std": 0.0016,
+        "regret_mean": 55.3,
+        "regret_std": 2.1,
+        "cost_per_query": 0.039171,
+        "strong_pct_mean": 0.979
+      },
+      "UCB (c=2.0)": {
+        "accuracy_mean": 0.817,
+        "accuracy_std": 0.0074,
+        "regret_mean": 89.3,
+        "regret_std": 9.7,
+        "cost_per_query": 0.034707,
+        "strong_pct_mean": 0.8661
+      },
+      "Epsilon-Greedy (0.1)": {
+        "accuracy_mean": 0.8362,
+        "accuracy_std": 0.002,
+        "regret_mean": 64.0,
+        "regret_std": 2.6,
+        "cost_per_query": 0.038042,
+        "strong_pct_mean": 0.9505
+      },
+      "Always-Strong": {
+        "accuracy_mean": 0.8476,
+        "accuracy_std": 0.0,
+        "regret_mean": 49.0,
+        "regret_std": 0.0,
+        "cost_per_query": 0.04,
+        "strong_pct_mean": 1.0
+      },
+      "Always-Weak": {
+        "accuracy_mean": 0.6126,
+        "accuracy_std": 0.0,
+        "regret_mean": 359.0,
+        "regret_std": 0.0,
+        "cost_per_query": 0.00048,
+        "strong_pct_mean": 0.0
+      },
+      "Random": {
+        "accuracy_mean": 0.7321,
+        "accuracy_std": 0.0012,
+        "regret_mean": 201.3,
+        "regret_std": 1.5,
+        "cost_per_query": 0.020405,
+        "strong_pct_mean": 0.5042
+      }
+    },
+    "contextual": {
+      "Random": {
+        "labels": 0,
+        "apgr_mean": 0.4944,
+        "apgr_std": 0.0067
+      },
+      "CB-RS-LinUCB (warm=0)": {
+        "labels": 0,
+        "label_type": "binary_correctness",
+        "apgr_mean": 0.4871,
+        "apgr_std": 0.0128
+      },
+      "CB-RS-LinUCB (warm=500)": {
+        "labels": 500,
+        "label_type": "binary_correctness",
+        "apgr_mean": 0.5177,
+        "apgr_std": 0.0112
+      },
+      "SW-Features (warm=500)": {
+        "labels": 500,
+        "label_type": "binary_correctness",
+        "apgr_mean": 0.4686,
+        "apgr_std": 0.0132
+      },
+      "RouteLLM-MF": {
+        "labels": "55K+",
+        "label_type": "human_preference",
+        "apgr_mean": 0.57,
+        "apgr_std": null,
+        "source": "Ong et al. 2024"
+      },
+      "RouteLLM-BERT": {
+        "labels": "55K+",
+        "label_type": "human_preference",
+        "apgr_mean": 0.67,
+        "apgr_std": null,
+        "source": "Ong et al. 2024"
+      },
+      "RouteLLM-SW": {
+        "labels": "55K+",
+        "label_type": "human_preference",
+        "apgr_mean": 0.8,
+        "apgr_std": null,
+        "source": "Ong et al. 2024"
+      },
+      "RouteLLM-CausalLM": {
+        "labels": "55K+",
+        "label_type": "human_preference",
+        "apgr_mean": 0.72,
+        "apgr_std": null,
+        "source": "Ong et al. 2024"
+      }
+    },
+    "oracle_apgr": 0.9975,
+    "learning_curves": {
+      "Thompson Sampling": {
+        "50": 0.8467,
+        "100": 0.8167,
+        "200": 0.85,
+        "500": 0.844,
+        "1000": 0.842,
+        "1319": 0.8426
+      },
+      "UCB (c=0.5)": {
+        "50": 0.8333,
+        "100": 0.82,
+        "200": 0.8533,
+        "500": 0.8507,
+        "1000": 0.8433,
+        "1319": 0.8433
+      },
+      "UCB (c=2.0)": {
+        "50": 0.7867,
+        "100": 0.7733,
+        "200": 0.81,
+        "500": 0.808,
+        "1000": 0.8113,
+        "1319": 0.8143
+      },
+      "Epsilon-Greedy (0.1)": {
+        "50": 0.8267,
+        "100": 0.81,
+        "200": 0.8517,
+        "500": 0.84,
+        "1000": 0.836,
+        "1319": 0.8365
+      },
+      "Always-Strong": {
+        "50": 0.86,
+        "100": 0.8333,
+        "200": 0.865,
+        "500": 0.8553,
+        "1000": 0.8483,
+        "1319": 0.8476
+      },
+      "Random": {
+        "50": 0.7133,
+        "100": 0.7,
+        "200": 0.7383,
+        "500": 0.736,
+        "1000": 0.7317,
+        "1319": 0.7288
+      }
+    },
+    "ts_vs_random_regret_reduction_pct": 73.8,
+    "elapsed_seconds": 5.4
+  }
+}

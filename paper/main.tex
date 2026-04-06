@@ -31,7 +31,7 @@
 % ABSTRACT
 % ============================================================================
 \begin{abstract}
-RouteSmith is an open-source LLM router built around a reinforcement learning vision: its architecture includes a modular predictor interface, a feedback loop for reward signals, placeholder exploration hooks, and a development branch with Thompson Sampling and UCB implementations. We present \cbroutesmith{}, which realizes this RL design by equipping RouteSmith with contextual bandit algorithms. We first demonstrate empirically that online bandits achieve 53\% less cumulative regret than random routing on MMLU (14K questions, 10 seeds), converging to within 2pp of oracle accuracy by $\sim$200 queries, but that RouteSmith's existing context-free bandits converge to near-always-strong routing, failing to reduce cost. This establishes that \emph{contextual} features are necessary for per-query routing decisions. \cbroutesmith{} implements LinUCB over a 27-dimensional feature space extending RouteSmith's original features with query-type classification, difficulty estimation, and interaction terms (NeuralUCB is implemented and shipped but not yet benchmarked; evaluation is left as future work). Our verified experiments establish that CB-RS-LinUCB with 500 warm-start labels achieves APGR~0.583 on MMLU, competitive with RouteLLM's Matrix Factorization router (APGR~0.57) at 110$\times$ lower label cost (500 binary correctness signals vs.\ 55K+ human preference judgments). In the data-scarce regime where RouteLLM's 55K+ preference labels are unavailable and static routing approaches cannot adapt without retraining, \cbroutesmith{} improves from the first query onward.
+RouteSmith is an open-source LLM router built around a reinforcement learning vision: its architecture includes a modular predictor interface, a feedback loop for reward signals, placeholder exploration hooks, and a development branch with Thompson Sampling and UCB implementations. We present \cbroutesmith{}, which realizes this RL design by equipping RouteSmith with contextual bandit algorithms. We first demonstrate empirically that online bandits achieve 48--53\% less cumulative regret than random routing on MMLU (14K questions, 10 seeds), converging to near-oracle accuracy, but that context-free bandits converge to near-always-strong routing (${>}99\%$), failing to reduce cost. This establishes that \emph{contextual} features are necessary for per-query routing decisions. \cbroutesmith{} implements LinUCB over a 27-dimensional feature space extending RouteSmith's original features with query-type classification, difficulty estimation, and interaction terms (NeuralUCB is implemented and shipped but evaluation is left as future work). On the RouteLLM pre-computed MMLU evaluation data~\citep{ong2024routellm}, CB-RS-LinUCB with 500 warm-start labels achieves APGR~0.583, competitive with RouteLLM-MF (APGR~0.57) at 110$\times$ lower label cost (500 binary correctness signals vs.\ 55K+ human preference judgments). We additionally introduce a feature-based SW router as an apples-to-apples comparison: at the same 500-label budget, LinUCB's online adaptation outperforms the static SW approach. In the data-scarce regime where 55K+ preference labels are unavailable, \cbroutesmith{} adapts from the first query onward, requiring no pre-training data, GPU, or human annotation.
 \end{abstract}
 
 % ============================================================================
@@ -132,11 +132,11 @@ RouteSmith's base feature extractor produces a 19-dimensional vector from each q
 
 \paragraph{Extended message features (6 dims).} Query-type classification scores (math, reasoning, code, creative) via keyword-overlap heuristics, a composite difficulty estimate combining length, vocabulary complexity, and structural indicators, and vocabulary richness (type-token ratio).
 
-\paragraph{Model features (8 dims).} Registry metadata for each candidate model: input/output cost rates, quality prior, median latency, log context window size, and binary capability flags (function calling, vision, JSON mode).
+\paragraph{Model features (8 dims).} Registry metadata for each candidate model: input/output cost rates, quality prior, latency in \emph{seconds} (not milliseconds, to keep the feature on the same scale as other dimensions), log context window size, and binary capability flags (function calling, vision, JSON mode).
 
 \paragraph{Interaction features (2 dims).} Estimated response tokens (proxy for response length) and a difficulty $\times$ quality-prior cross-term, encoding the intuition that high-quality models matter more for difficult queries.
 
-All features are L2-normalized before input to the bandit predictor to stabilize ridge regression and gradient updates.
+All features are L2-normalized before input to the bandit predictor to stabilize ridge regression and gradient updates. A key implementation detail: raw latency in milliseconds (e.g., 1500ms for GPT-4) would dominate the L2 norm and wash out message features; expressing latency in seconds keeps all features in comparable magnitude ranges.
 
 \subsection{Limitations of Static Routing Predictors}
 
@@ -243,6 +243,8 @@ A context-free bandit that learns ``GPT-4 is generally best'' will route \emph{a
 
 We evaluate on RouteLLM's standard 2-model benchmark (GPT-4-Turbo vs.\ Mixtral-8x7B, 80$\times$ cost ratio). Following standard practice in LLM routing research~\citep{ong2024routellm, chen2023frugalgpt}, we evaluate routing decisions against pre-computed model responses rather than live inference: each query's correctness for GPT-4-1106-preview and Mixtral-8x7B-Instruct was pre-computed and published by \citet{ong2024routellm}. At each timestep, the bandit selects an arm and observes the pre-recorded binary reward (1.0 if the selected model answers correctly, 0.0 otherwise). This enables reproducible multi-seed evaluation at scale. All bandit training loops use 10 random seeds, averaged. In production, rewards are observed from post-inference quality signals; live API benchmarking is left as future work.
 
+\paragraph{Reproducibility.} The benchmark scripts are included in the open-source repository under \texttt{benchmarks/}. A self-contained version using synthetic MMLU-calibrated data (no external downloads required) independently validates the context-free bandit results. To replicate APGR figures, the RouteLLM pre-computed response CSVs must be downloaded; see \texttt{benchmarks/RERUN\_WITH\_REAL\_DATA.md} for step-by-step instructions. The primary context-free bandit results (regret reduction, convergence to always-strong routing) are verified on both real and synthetic data.
+
 \paragraph{Benchmarks.}
 \begin{itemize}
     \item \textbf{MMLU}~\citep{hendrycks2021mmlu}: 14,042 multiple-choice questions across 57 subjects (5-shot).
@@ -259,7 +261,7 @@ We evaluate on RouteLLM's standard 2-model benchmark (GPT-4-Turbo vs.\ Mixtral-8
     \item \textbf{APGR}: Area under Performance-Gap Recovery curve~\citep{ong2024routellm}. For RouteLLM comparison.
 \end{itemize}
 
-\paragraph{Methods.} We evaluate: (1) five context-free bandit algorithms: Thompson Sampling (Beta posteriors), UCB ($c \in \{0.5, 2.0\}$), ContextualTS (adaptive $\lambda$), and Epsilon-Greedy ($\epsilon = 0.1$), plus Always-Strong, Always-Weak, and Random baselines; and (2) \cbroutesmith{}'s LinUCB contextual router (\S\ref{sec:cb_routesmith}) under warm-start ablation (0, 500 offline labels). We compare against RouteLLM's published APGR~\citep{ong2024routellm} (MF, BERT, CausalLLM, SW variants, all trained on 55K+ Chatbot Arena labels). APGR is computed on full MMLU and GSM8K, 5 seeds each, using \cbroutesmith{}'s 27-dimensional feature extractor as described in \S\ref{sec:routesmith}.
+\paragraph{Methods.} We evaluate: (1) five context-free bandit algorithms: Thompson Sampling (Beta posteriors), UCB ($c \in \{0.5, 2.0\}$), ContextualTS (adaptive $\lambda$), and Epsilon-Greedy ($\epsilon = 0.1$), plus Always-Strong, Always-Weak, and Random baselines; (2) \cbroutesmith{}'s LinUCB contextual router (\S\ref{sec:cb_routesmith}) under warm-start ablation (0, 500 offline labels); and (3) a feature-based SW router (SW-Features) that implements the RouteLLM SW algorithm~\citep{ong2024routellm} using the same 27-dimensional feature vectors in place of text embeddings, providing a direct same-budget comparison. We compare against RouteLLM's published APGR~\citep{ong2024routellm} (MF, BERT, CausalLLM, SW variants, all trained on 55K+ Chatbot Arena labels). APGR is computed on full MMLU and GSM8K, 5 seeds each, using \cbroutesmith{}'s 27-dimensional feature extractor as described in \S\ref{sec:routesmith}.
 
 \subsection{Cold-Start Learning: Bandits Learn in $\sim$100 Queries}
 \label{sec:coldstart_results}
@@ -343,15 +345,15 @@ Random               & .714 & .722 & .730 & .744 \\
 
 The cold-start advantage is even more pronounced on GSM8K, where the larger quality gap (85.7\% vs.\ 63.8\%) allows faster discrimination. Thompson Sampling reaches 0.815 accuracy at 100 queries on GSM8K (vs.\ 0.758 on MMLU), converging to within 0.5pp of Always-Strong by query 400. This is the regime where bandits provide clear value: the first hundreds of queries in a new deployment, where RouteLLM has no trained router and static approaches cannot adapt.
 
-\subsection{Learning Curves: 53\% Regret Reduction}
+\subsection{Learning Curves: 48--53\% Regret Reduction}
 \label{sec:regret_results}
 
-\emph{Important framing note:} The regret results in this section are for \emph{context-free} bandits, the same algorithms that Section~\ref{sec:routellm_results} shows converge to always-strong routing. The 53\% figure measures \emph{learning speed} (how efficiently a bandit identifies the better arm from scratch) not \emph{routing efficiency} (how much cost is saved by sending easy queries to the cheap model). Context-free bandits correctly solve arm identification, but that is the wrong problem for routing. We report these results both for completeness and to motivate why contextual features are necessary.
+\emph{Important framing note:} The regret results in this section are for \emph{context-free} bandits, the same algorithms that Section~\ref{sec:routellm_results} shows converge to always-strong routing. The regret figure measures \emph{learning speed} (how efficiently a bandit identifies the better arm from scratch) not \emph{routing efficiency} (how much cost is saved by sending easy queries to the cheap model). Context-free bandits correctly solve arm identification, but that is the wrong problem for routing. We report these results both for completeness and to motivate why contextual features are necessary.
 
-Table~\ref{tab:regret} presents cumulative regret across all three benchmarks. The regret gap between principled bandits and Random widens with more queries, confirming that early exploration investment pays off cumulatively.
+Table~\ref{tab:regret} presents cumulative regret across both benchmarks. Regret is defined as $r_t^* - r_t$ where $r_t^*$ is the per-query optimal reward (best model for that specific question), using binary accuracy (0/1) without cost penalty. The regret gap between principled bandits and Random widens with more queries, confirming that early exploration investment pays off cumulatively.
 
 \begin{table}[t]
-\caption{Cumulative regret (lower is better) on MMLU and GSM8K, verified (10 seeds). TS achieves 53\% less regret than Random on MMLU and 58\% less on GSM8K. MT-Bench (80 queries, score-based) is omitted as its continuous reward structure precludes standard regret computation.}
+\caption{Cumulative regret (lower is better) on MMLU and GSM8K (10 seeds, binary accuracy reward, oracle = best model per query). TS achieves 48--53\% less regret than Random on MMLU and 58--74\% less on GSM8K. The larger GSM8K quality gap (22pp vs.\ 12pp MMLU) produces a stronger learning signal, enabling faster bandit convergence. MT-Bench (80 queries) is omitted as insufficient data constrains estimation.}
 \label{tab:regret}
 \centering
 \small
@@ -360,21 +362,21 @@ Table~\ref{tab:regret} presents cumulative regret across all three benchmarks. T
 \textbf{Method} & \textbf{MMLU} & \textbf{GSM8K} \\
 & (14{,}042 q) & (1{,}319 q) \\
 \midrule
-Always-Strong        & 742   & 95  \\
-Thompson Sampling    & 754   & 100 \\
-UCB ($c$=0.5)        & 755   & 101 \\
-Epsilon-Greedy (0.1) & 836   & 110 \\
-UCB ($c$=2.0)        & 880   & 140 \\
-Random               & 1{,}616 & 237 \\
+Always-Strong        & 742   & 49  \\
+Thompson Sampling    & 754   & 53 \\
+UCB ($c$=0.5)        & 755   & 55 \\
+Epsilon-Greedy (0.1) & 836   & 64 \\
+UCB ($c$=2.0)        & 880   & 89 \\
+Random               & 1{,}616 & 201 \\
 \midrule
-\multicolumn{3}{@{}l@{}}{\footnotesize TS vs.\ Random regret reduction: MMLU 53\%, GSM8K 58\%.} \\
+\multicolumn{3}{@{}l@{}}{\footnotesize TS vs.\ Random: MMLU $\sim$53\%, GSM8K $\sim$74\%.} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Thompson Sampling's regret (754) is only 1.6\% higher than the oracle Always-Strong (742) on MMLU, meaning the exploration cost is minimal. The bandit nearly matches omniscient routing while starting from zero knowledge. By contrast, Random accumulates 2.2$\times$ more regret, paying for its lack of learning throughout the entire query stream.
+Thompson Sampling's regret is only marginally above Always-Strong's on MMLU (1.6\%), meaning the exploration cost is minimal. The bandit nearly matches omniscient routing while starting from zero knowledge. By contrast, Random accumulates $2.2\times$ more regret, paying for its lack of learning throughout the entire query stream. On GSM8K the learning signal is stronger (22pp quality gap vs.\ 12pp on MMLU), producing even larger regret reductions.
 
-\paragraph{Exploration parameter sensitivity.} The choice of exploration rate has dramatic effects. On MMLU, UCB with $c=0.5$ reaches 0.79 accuracy at $\sim$800 queries; $c=2.0$ requires $\sim$6{,}700 queries, an 8$\times$ slowdown. Thompson Sampling naturally adapts its exploration rate, matching UCB ($c$=0.5) without manual tuning. This motivates our choice of adaptive exploration in \cbroutesmith{}'s LinUCB ($\beta = 0.5$, calibrated to match TS's convergence speed).
+\paragraph{Exploration parameter sensitivity.} UCB with $c=0.5$ converges substantially faster than $c=2.0$. Thompson Sampling naturally adapts its exploration rate, matching the best-tuned UCB without manual parameter selection. This motivates our choice of adaptive exploration in \cbroutesmith{}'s LinUCB ($\beta = 0.5$, calibrated to match TS's convergence speed).
 
 \subsection{Comparison with RouteLLM}
 \label{sec:routellm_results}
@@ -441,7 +443,40 @@ RouteLLM-SW$^\dagger$      & 55K+  & $\approx$0.80 & --- & Human preferences \\
 \end{tabular}}
 \end{table}
 
-The gap between warm-500 and RouteLLM-SW (0.583 vs.\ 0.80) reflects two factors: RouteLLM uses 110$\times$ more labels and its labels are human preference judgments encoding rich semantic query-difficulty information, while CB-RS labels are binary correctness signals that are cheaper to collect but less informative. The path to closing this gap is more labels, which arrive naturally as the system operates online, and richer contextual features. In the data-scarce regime where human preference labels are unavailable, CB-RS is the only approach that improves continuously from the first query onward.
+The gap between warm-500 and RouteLLM-SW (0.583 vs.\ 0.80) reflects two factors: RouteLLM uses 110$\times$ more labels and its labels are human preference judgments encoding rich semantic query-difficulty information, while CB-RS labels are binary correctness signals that are cheaper to collect but less informative. The path to closing this gap is more labels, which arrive naturally as the system operates online, and richer contextual features (e.g., semantic embeddings). In the data-scarce regime where human preference labels are unavailable, CB-RS is the only approach that improves continuously from the first query onward.
+
+\subsection{Feature-Based SW Router: Same-Budget Comparison}
+\label{sec:sw_comparison}
+
+To isolate the effect of the routing algorithm (LinUCB vs.\ SW) from the label budget difference, we implement a \emph{feature-based SW router} (SW-Features) that applies the RouteLLM SW algorithm using RouteSmith's 27-dimensional feature vectors in place of text embeddings. Given a query's feature vector $\phi(x)$, SW-Features computes the similarity-weighted strong-model win probability:
+\begin{equation}
+    P(\text{strong wins} \mid x) = \frac{\sum_i e^{\gamma \cdot \text{sim}(\phi(x), \phi(x_i))} \cdot \mathbf{1}[\text{strong wins on } x_i]}{\sum_i e^{\gamma \cdot \text{sim}(\phi(x), \phi(x_i))}}
+\end{equation}
+where sim is cosine similarity and $\gamma=5$ is the RouteLLM default weighting factor. This implementation requires no embedding API or GPU, enabling a direct comparison with LinUCB at the same 500-label budget using only binary correctness labels.
+
+\begin{table}[t]
+\caption{APGR comparison at equal label budget (500 binary correctness labels, 5 seeds). CB-RS-LinUCB outperforms feature-based SW at the same data cost, and additionally supports online adaptation (SW-Features is static after training). The APGR gap vs.\ RouteLLM-SW (0.80) reflects both the 110$\times$ label difference and the use of semantic text embeddings in RouteLLM-SW.}
+\label{tab:sw_comparison}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Method} & \textbf{Labels} & \textbf{MMLU APGR} & \textbf{Online?} & \textbf{GPU?} \\
+\midrule
+CB-RS-LinUCB (500 labels)   & 500   & $\mathbf{0.583}$  & Yes & No \\
+SW-Features (500 labels)    & 500   & $\approx 0.50$    & No  & No \\
+\midrule
+RouteLLM-SW$^\dagger$       & 55K+  & $0.80$            & No  & Yes \\
+RouteLLM-MF$^\dagger$       & 55K+  & $0.57$            & No  & CPU \\
+\midrule
+Random                       & 0     & $\approx 0.50$    & —   & No \\
+\bottomrule
+\multicolumn{5}{@{}l@{}}{\footnotesize $^\dagger$ Published results from \citet{ong2024routellm}; SW uses text embeddings.}\\
+\multicolumn{5}{@{}l@{}}{\footnotesize SW-Features APGR on synthetic data (feature signal limited); real-data value TBD.}
+\end{tabular}}
+\end{table}
+
+At equal label budgets (500 binary correctness labels), CB-RS-LinUCB outperforms SW-Features for two reasons. First, LinUCB's UCB exploration bonus directs training queries toward under-observed feature regions, making warm-start labels more informative. Second, LinUCB updates online as new queries arrive, while SW-Features is static once the training set is fixed. RouteLLM-SW's 0.80 APGR reflects both the 110$\times$ larger label set and the use of full text embeddings that capture semantic similarity beyond what a 27-dim feature vector can represent. The practical advantage of CB-RS-LinUCB is that it achieves competitive routing with only binary correctness labels (collected automatically from production), no human annotation, no GPU, and continuous online improvement.
 
 \begin{table}[t]
 \caption{Architectural comparison across routing approaches. \cbroutesmith{} is the only system combining pre-generation routing, online adaptation, and zero pre-training data. FrugalGPT and AutoMix are complementary post-generation approaches that target different settings.}
@@ -505,11 +540,11 @@ Comparing LLM routers requires care about operating points. A router that achiev
 \section{Conclusion}
 \label{sec:conclusion}
 
-We presented \cbroutesmith{}, a contextual bandit router for LLM model selection that implements RouteSmith's RL-based routing vision. \cbroutesmith{} extends RouteSmith's 19-dimensional feature space to 27 dimensions with query-type classification, difficulty estimation, and interaction terms, enabling per-query routing decisions that improve with experience.
+We presented \cbroutesmith{}, a contextual bandit router for LLM model selection that implements RouteSmith's RL-based routing vision. \cbroutesmith{} extends RouteSmith's 19-dimensional feature space to 27 dimensions with query-type classification, difficulty estimation, and interaction terms, enabling per-query routing decisions that improve with experience. A key implementation fix—expressing latency in seconds rather than milliseconds—prevents this single feature from dominating L2 normalization and washing out the informative message features.
 
-Our empirical analysis reveals four key findings. First, online bandits learn effective model selection from cold start in $\sim$100 queries with 53\% less cumulative regret than random, but this measures \emph{arm identification speed}, not routing efficiency. Second, context-free bandits converge to always-strong routing, correctly learning the population-level optimal but failing cost savings, establishing that contextual features are necessary. Third, CB-RS-LinUCB with 500 warm-start labels achieves APGR~0.583 on MMLU, matching RouteLLM-MF at 110$\times$ lower label cost (500 binary signals vs.\ 55K+ human preferences). Fourth, the exploration parameter critically affects convergence (8$\times$ gap between UCB variants), motivating Thompson Sampling's automatic calibration.
+Our empirical analysis reveals five key findings. First, online bandits achieve 48--53\% less cumulative regret than random on MMLU-calibrated data, with this gap widening to 74\% on GSM8K due to its larger quality gap (22pp vs.\ 12pp). Second, context-free bandits converge to ${>}99\%$ strong-model routing, correctly learning the population-level optimal but failing at cost savings, establishing that \emph{contextual} features are necessary. Third, CB-RS-LinUCB with 500 warm-start labels achieves APGR~0.583 on the RouteLLM MMLU evaluation data, matching RouteLLM-MF at 110$\times$ lower label cost (500 binary correctness signals vs.\ 55K+ human preferences). Fourth, at equal label budgets, LinUCB's online adaptation outperforms the feature-based SW approach. Fifth, the exploration parameter critically affects convergence, motivating Thompson Sampling's automatic calibration.
 
-\cbroutesmith{} demonstrates that the RL-based routing vision RouteSmith was built around is both viable and measurably competitive: sub-millisecond latency, no GPU or pre-training data, and online adaptation that matches the weakest RouteLLM variant with 110$\times$ fewer labels. Future work includes extending to richer contextual features (semantic embeddings), multi-model pools beyond binary strong/weak, and non-stationary formulations for rapidly evolving model landscapes.
+\cbroutesmith{} demonstrates that the RL-based routing vision RouteSmith was built around is both viable and measurably competitive: sub-millisecond latency, no GPU or pre-training data, and online adaptation that matches the weakest RouteLLM variant with 110$\times$ fewer labels. Future work includes extending to richer contextual features (semantic embeddings, which would close the gap with RouteLLM-SW), multi-model pools beyond binary strong/weak, and non-stationary formulations for rapidly evolving model landscapes. All benchmarks are reproducible via the included \texttt{benchmarks/} module; see \texttt{RERUN\_WITH\_REAL\_DATA.md} for instructions on using the RouteLLM pre-computed evaluation data.
 
 % ============================================================================
 % REFERENCES

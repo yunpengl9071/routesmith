@@ -260,7 +260,7 @@ class FeatureExtractor:
                 0.001,   # cost_per_1k_input
                 0.002,   # cost_per_1k_output
                 0.5,     # quality_prior
-                500.0,   # latency_p50_ms
+                0.5,     # latency_p50_ms (in seconds; default 500ms)
                 math.log(128000),  # context_window_log
                 1.0,     # supports_function_calling
                 0.0,     # supports_vision
@@ -271,7 +271,7 @@ class FeatureExtractor:
             model.cost_per_1k_input,
             model.cost_per_1k_output,
             model.quality_score,
-            model.latency_p50_ms,
+            model.latency_p50_ms / 1000.0,   # convert ms → seconds (keeps ~[0, 5] range)
             math.log(max(model.context_window, 1)),
             1.0 if model.supports_function_calling else 0.0,
             1.0 if model.supports_vision else 0.0,

@@ -75,6 +75,54 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="Output as JSON instead of formatted table",
     )
 
+    # benchmark command
+    bench_parser = subparsers.add_parser(
+        "benchmark",
+        help="Benchmark RL-based routing against RouteLLM-SW and baselines",
+        description=(
+            "Run the CB-RouteSmith vs RouteLLM-SW benchmark.\n\n"
+            "Uses synthetic MMLU-calibrated data by default. For authoritative\n"
+            "APGR results, set ROUTELLM_DATA_DIR to a cloned RouteLLM repository\n"
+            "with pre-computed evaluation responses. See\n"
+            "benchmarks/RERUN_WITH_REAL_DATA.md for detailed instructions."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    bench_parser.add_argument(
+        "--benchmarks",
+        nargs="+",
+        default=["mmlu", "gsm8k"],
+        choices=["mmlu", "gsm8k", "mtbench"],
+        help="Benchmarks to run (default: mmlu gsm8k)",
+    )
+    bench_parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="Use 3 seeds for faster results (default: 10 seeds)",
+    )
+    bench_parser.add_argument(
+        "--seeds",
+        type=int,
+        default=None,
+        help="Override number of random seeds",
+    )
+    bench_parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Save results to JSON file",
+    )
+    bench_parser.add_argument(
+        "--routellm-data",
+        type=str,
+        default=None,
+        metavar="DIR",
+        help=(
+            "Path to cloned RouteLLM repo with pre-computed eval data "
+            "(overrides ROUTELLM_DATA_DIR env var)"
+        ),
+    )
+
     # version command
     parser.add_argument(
         "--version", "-v",
@@ -90,9 +138,63 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "stats":
         from routesmith.cli.stats import run_stats
         return run_stats(args)
+    elif args.command == "benchmark":
+        return _run_benchmark(args)
     else:
         parser.print_help()
         return 0
+
+
+def _run_benchmark(args) -> int:
+    """Run the CB-RouteSmith vs RouteLLM-SW benchmark."""
+    import os
+    import sys
+
+    # Locate the benchmarks module relative to the routesmith package
+    pkg_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    repo_root = os.path.dirname(pkg_root)
+
+    # Try src layout first, then repo root
+    for search_root in [repo_root, pkg_root]:
+        bench_dir = os.path.join(search_root, "benchmarks")
+        if os.path.isdir(bench_dir):
+            if search_root not in sys.path:
+                sys.path.insert(0, search_root)
+            break
+    else:
+        print("ERROR: Could not locate benchmarks/ directory.", file=sys.stderr)
+        print("Run 'python benchmarks/run_benchmark.py' from the repo root instead.", file=sys.stderr)
+        return 1
+
+    # Set ROUTELLM_DATA_DIR if --routellm-data was provided
+    if args.routellm_data:
+        os.environ["ROUTELLM_DATA_DIR"] = args.routellm_data
+
+    # Build argv for the benchmark script
+    bench_argv = []
+    bench_argv += ["--benchmarks"] + args.benchmarks
+    if args.fast:
+        bench_argv.append("--fast")
+    if args.seeds is not None:
+        bench_argv += ["--seeds", str(args.seeds)]
+    if args.output:
+        bench_argv += ["--output", args.output]
+
+    # Invoke the benchmark main function
+    import sys as _sys
+    old_argv = _sys.argv
+    try:
+        _sys.argv = ["routesmith benchmark"] + bench_argv
+        from benchmarks.run_benchmark import main as bench_main
+        bench_main()
+        return 0
+    except SystemExit as e:
+        return int(e.code) if e.code is not None else 0
+    except Exception as e:
+        print(f"Benchmark error: {e}", file=sys.stderr)
+        return 1
+    finally:
+        _sys.argv = old_argv
 
 
 if __name__ == "__main__":

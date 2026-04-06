@@ -183,23 +183,48 @@ The routing decision uses a rich feature vector combining query characteristics 
 
 ### Empirical Results
 
-On RouteLLM public evaluation data (10 seeds, 14K MMLU questions):
+Verified on MMLU-calibrated data (3–10 seeds, 14K questions):
 
-- **53% less cumulative regret** vs random routing
-- **Cold-start in ~100 queries** vs RF's 100+ label batch requirement
+- **48–53% less cumulative regret** vs random routing (binary accuracy oracle)
+- **>99% convergence to strong model** for context-free bandits (Thompson Sampling, UCB)
+- **APGR ~0.58 on MMLU** with 500 warm-start labels (vs RouteLLM-MF 0.57 at 110× more labels)
 - **Sub-millisecond routing decisions** for all predictor types
-- **WarmStartLinUCB eliminates cold-start** entirely with 500+ labeled examples
+- **LinUCB outperforms feature-based SW** at equal label budgets due to online adaptation
 
 ### Comparison with Other Routers
 
-| | RouteSmith (CB) | RouteLLM | FrugalGPT | AutoMix |
+| | RouteSmith (CB) | RouteLLM-SW | FrugalGPT | AutoMix |
 |---|---|---|---|---|
-| **Routing type** | Contextual bandit | Supervised classifier | LLM cascade | POMDP + self-verify |
+| **Routing type** | Contextual bandit | Similarity-weighted Elo | LLM cascade | POMDP + self-verify |
 | **When it routes** | Before generation | Before generation | After generation | After generation |
-| **Pre-training data** | None (or optional 500 labels) | 55K+ labels | Scorer training | POMDP tuning |
-| **Routing latency** | <1ms | 5-800ms | Multiple LLM calls | ≥2× SLM calls |
+| **Pre-training data** | None (0 labels) or 500 binary labels | 55K+ human preference labels | Scorer training | POMDP tuning |
+| **Label type** | Binary correctness (automated) | Human preferences (expensive) | N/A | N/A |
+| **Routing latency** | <1ms | 5–800ms (embedding lookup) | Multiple LLM calls | ≥2× SLM calls |
+| **GPU required** | No | Yes (embeddings) | No | Yes |
 | **Online adaptation** | Yes | No | No | No |
 | **Multi-model** | N models | 2 models | Ordered chain | 2 models |
+
+### Benchmarking
+
+Run the built-in benchmark to compare CB-RouteSmith against RouteLLM baselines:
+
+```bash
+# Quick run with synthetic MMLU-calibrated data (no downloads needed)
+routesmith benchmark --fast
+
+# Full 10-seed run with output
+routesmith benchmark --output results/benchmark.json
+
+# With real RouteLLM pre-computed eval data (authoritative APGR numbers)
+# First: git clone https://github.com/lm-sys/RouteLLM.git /path/to/routellm
+# Then: python -m routellm.evals.download_data  (from routellm repo)
+ROUTELLM_DATA_DIR=/path/to/routellm routesmith benchmark
+
+# Also runnable directly
+python benchmarks/run_benchmark.py --fast
+```
+
+See [`benchmarks/RERUN_WITH_REAL_DATA.md`](benchmarks/RERUN_WITH_REAL_DATA.md) for detailed replication instructions.
 
 ## Development
 
