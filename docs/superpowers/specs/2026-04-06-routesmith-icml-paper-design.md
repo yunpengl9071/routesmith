@@ -83,9 +83,9 @@ All L2-normalized before input to bandit predictors. Feature ablation (27d vs 17
 
 | Dataset | Task | Metric | Size used | Full dataset size | Ground truth |
 |---------|------|--------|-----------|------------------|-------------|
-| MMLU (`cais/mmlu`) | Knowledge MCQ | Accuracy | 300 questions, 5 categories × 60 | 14,042 test | Label in dataset |
-| GSM8K (`openai/gsm8k`, `main`) | Math word problems | Exact numeric match (after `####`) | 150 questions | 1,319 test | Label in dataset |
-| MBPP (`google-research-datasets/mbpp`, `sanitized`) | Python coding | Pass@1 (local execution) | 50 problems (random seed=42 sample) | 257 test | Unit tests in `test_list` |
+| MMLU (`cais/mmlu`) | Knowledge MCQ | Accuracy | 600 questions, 5 categories × 120 | 14,042 test | Label in dataset |
+| GSM8K (`openai/gsm8k`, `main`) | Math word problems | Exact numeric match (after `####`) | 300 questions | 1,319 test | Label in dataset |
+| MBPP (`google-research-datasets/mbpp`, `sanitized`) | Python coding | Pass@1 (local execution) | 100 problems (random seed=42 sample) | 257 test | Unit tests in `test_list` |
 
 MBPP pass@1: generate code, execute it locally against `test_list` assertions with `subprocess` in a 10s timeout sandbox. No LLM judge needed — this is a fully objective coding metric. We explicitly report that 50 of 257 sanitized test problems are used.
 
@@ -305,14 +305,14 @@ paper-pdf:      bash paper/build.sh
 
 | Experiment | Queries | API calls | Estimated cost |
 |------------|---------|-----------|----------------|
-| Exp 1: Static baselines (2 models × 450 queries) | 450 | 900 | ~$0.50 |
-| Exp 1: RouteLLM-SW (1 threshold × 450) | 450 | 450+embed | ~$0.30 |
-| Exp 1: TS-Cat + LinUCB + LinTS (5 seeds × 450) | 2250 | 3375 (weak always called) | ~$2.00 |
-| Exp 2: 5 models × 300 queries × 3 strategies × 3 seeds | 4500 | 9000 | ~$4.50 |
-| Ablations (feature dims, warm-start, β) | ~1000 | ~1500 | ~$1.00 |
-| **Total** | | | **~$8-12** |
+| Exp 1: Static baselines (2 models × 900 queries) | 900 | 1800 | ~$1.00 |
+| Exp 1: RouteLLM-SW (3 thresholds × 900) | 2700 | 2700+embed | ~$0.80 |
+| Exp 1: TS-Cat + LinUCB + LinTS (5 seeds × 900) | 13500 | ~18000 (weak always called) | ~$5.00 |
+| Exp 2: 5 models × 1000 queries × 3 strategies × 3 seeds | 9000 | ~13500 | ~$6.00 |
+| Ablations (feature dims, warm-start, β) | ~2000 | ~3000 | ~$2.00 |
+| **Total** | | | **~$15-20** |
 
-Rate limiting: 1.5s between calls. Batch by dataset to avoid context window overflow.
+Rate limiting: 1.5s between calls within a batch, 5s between batches of 50 queries. All runs save incrementally — interrupted experiments resume from last completed query.
 
 ---
 
