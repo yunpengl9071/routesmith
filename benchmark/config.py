@@ -59,7 +59,7 @@ NUM_SEEDS = 5
 SEEDS = list(range(42, 42 + NUM_SEEDS))   # [42, 43, 44, 45, 46]
 RATE_LIMIT_S = 1.5       # seconds between API calls
 MAX_TOKENS_MCQ = 5       # MCQ answers are single letters
-MAX_TOKENS_MATH = 150    # GSM8K needs step-by-step then a number
+MAX_TOKENS_MATH = 512    # GSM8K needs full chain-of-thought to reach #### answer
 MBPP_TIMEOUT_S = 10      # code execution timeout in seconds
 
 # ── Paths ────────────────────────────────────────────────────────────────────

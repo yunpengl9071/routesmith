@@ -105,6 +105,7 @@ def call_llm(
         ],
         max_tokens=max_tokens,
         temperature=temperature,
+        timeout=60.0,
     )
     return (
         resp.choices[0].message.content,
