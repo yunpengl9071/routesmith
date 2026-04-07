@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 echo "Checking figures..."
+shopt -s nullglob
 for fig in figures/fig{1..9}_*.png; do
     if [ ! -f "$fig" ]; then
         echo "WARNING: Missing $fig — run python3 -m benchmark.plot first"
