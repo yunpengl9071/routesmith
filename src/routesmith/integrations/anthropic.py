@@ -59,13 +59,22 @@ def _litellm_to_anthropic_message(response: Any, model: str) -> Message:
     text = choice.message.content or ""
     usage = getattr(response, "usage", None)
 
+    # Map OpenAI finish_reason → Anthropic stop_reason literal
+    _STOP_REASON_MAP = {
+        "stop": "end_turn",
+        "length": "max_tokens",
+        "tool_calls": "tool_use",
+        "content_filter": "refusal",
+    }
+    stop_reason = _STOP_REASON_MAP.get(choice.finish_reason, "end_turn")
+
     return Message(
         id=getattr(response, "id", "msg_routesmith"),
         type="message",
         role="assistant",
         content=[TextBlock(type="text", text=text)],
         model=model,
-        stop_reason="end_turn" if choice.finish_reason == "stop" else choice.finish_reason,
+        stop_reason=stop_reason,
         stop_sequence=None,
         usage=Usage(
             input_tokens=getattr(usage, "prompt_tokens", 0) if usage else 0,
