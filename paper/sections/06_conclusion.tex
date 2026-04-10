@@ -1,0 +1,11 @@
+% paper/sections/06_conclusion.tex
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented RouteSmith, an online contextual bandit routing system for multi-LLM deployment. Our key contribution, LinTS-27d, achieves competitive routing without pretraining data, scales to $K$ arms naturally, and requires no $\beta$ hyperparameter tuning unlike LinUCB.
+
+\textbf{RL Moat.} RouteLLM-SW provides a strong baseline when the pretraining distribution matches deployment, but (M1) requires 55K labels before routing any query, (M2) is architecturally binary, (M3) never explores under-represented model-query pairs, and (M4) provides no feature-level interpretability. LinTS addresses all four.
+
+\textbf{Limitations.} Our experiments use at most 600 MMLU and 300 GSM8K questions --- a subset of full benchmarks, reported explicitly throughout. MBPP evaluation is limited to 100 sanitized problems. RouteLLM-SW comparisons may be affected by the arena embedding dimension mismatch when using our sentence-transformers fallback. LinTS's regret bound applies to stochastic linear bandits; real deployment introduces non-stationarity when new models or query distributions arrive.
+
+\textbf{Future work.} NeuralUCB (implemented but not benchmarked --- insufficient queries for stable neural training), production deployment with real user traffic, and multi-turn conversation routing.

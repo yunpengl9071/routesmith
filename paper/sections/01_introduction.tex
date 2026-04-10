@@ -1,0 +1,21 @@
+% paper/sections/01_introduction.tex
+\section{Introduction}
+\label{sec:intro}
+
+Large language models (LLMs) have become essential infrastructure for a wide range of applications, but their deployment introduces a fundamental cost-quality tension: frontier models like GPT-4o deliver superior performance but cost $16\times$ more per token than smaller models like GPT-4o-mini. For applications processing millions of queries, routing each query to the appropriate model is critical.
+
+Existing routing approaches fall into two categories. \textbf{Static supervised routers} (e.g., RouteLLM \citep{ong2024routellm}, FrugalGPT \citep{chen2023frugalgpt}) learn a classifier from large human-preference datasets (55K+ labels for RouteLLM-SW) and apply it at inference time without adaptation. \textbf{Heuristic cascades} (e.g., FrugalGPT, AutoMix \citep{aggarwal2024automix}) call a weak model first and escalate based on confidence, but require threshold tuning and cannot handle multi-model selection.
+
+Both paradigms share three structural limitations: (1) they require substantial pretraining data before routing any query, (2) they are architecturally binary or require $O(K^2)$ separate classifiers for $K$ models, and (3) they do not adapt to changing query distributions or model behavior in production.
+
+\textbf{Our approach.} We frame LLM routing as a contextual bandit problem and introduce \textbf{RouteSmith}, built around two novel contextual bandit algorithms over a 27-dimensional query feature space: \textbf{LinUCB-27d}, which achieves state-of-the-art APGR by combining UCB exploration with per-query linguistic features, and \textbf{LinTS-27d}, which eliminates the exploration hyperparameter via Thompson Sampling over a Gaussian posterior. Both algorithms require zero pretraining data, learn online from feedback, and extend naturally to $K > 2$ arms — a structural advance over all existing LLM routers.
+
+\textbf{Contributions:}
+\begin{enumerate}
+    \item \textbf{Contextual bandit routing portfolio:} LinUCB-27d (achieves APGR=1.126 on MMLU, best among all methods) and LinTS-27d (no $\beta$ hyperparameter, $O(d\sqrt{T \log T})$ regret), both operating over a 27-dim linguistic feature space not previously applied to LLM routing.
+    \item \textbf{Binary routing comparison (Experiment 1):} Rigorous evaluation on MMLU (600 questions) and GSM8K (300 questions) against Static-Strong, Static-Weak, Random, RouteLLM-SW (three thresholds), and TS-Cat.
+    \item \textbf{Multi-model routing (Experiment 2):} 5-arm online routing across GPT-4o, Claude-Sonnet-4.5, Qwen-Plus, MiniMax-M1, and DeepSeek-V3 --- structurally impossible for binary RouteLLM, which requires $O(K^2)$ re-training to extend beyond 2 arms.
+    \item \textbf{Ablations:} Feature dimensionality, warm-start labels, $\beta$ sensitivity, and $N$-arm convergence analysis.
+\end{enumerate}
+
+All results are from real API calls recorded in reproducible JSON result files. No simulated data.

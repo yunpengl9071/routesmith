@@ -70,3 +70,18 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Benchmark results (large JSON files — only cache and summary JSONs committed)
+benchmark/results/*.json
+!benchmark/results/.gitkeep
+!benchmark/results/*_summary.json
+!benchmark/results/mmlu_600_queries.json
+!benchmark/results/gsm8k_300_queries.json
+!benchmark/results/mbpp_100_queries.json
+
+# Paper output
+paper/*.pdf
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc

@@ -52,7 +52,32 @@ class Router:
         registry: "ModelRegistry",
         storage: Any,
     ) -> BasePredictor:
-        """Create the appropriate predictor based on config."""
+        """Create the appropriate predictor based on config.
+
+        Supported predictor_type values:
+          - "lints"    : LinTS-27d (Thompson Sampling, no beta, recommended)
+          - "linucb"   : LinUCB-27d (UCB exploration, requires alpha tuning)
+          - "adaptive" : Random-forest adaptive predictor (offline training)
+          - "embedding": Embedding-based predictor (default fallback)
+        """
+        if config.predictor_type == "lints":
+            from routesmith.predictor.lints import LinTSPredictor
+
+            return LinTSPredictor(
+                registry=registry,
+                v_sq=config.predictor.lints_v_sq,
+                seed=config.predictor.seed,
+            )
+
+        if config.predictor_type == "linucb":
+            from routesmith.predictor.linucb import LinUCBPredictor
+
+            return LinUCBPredictor(
+                registry=registry,
+                alpha=config.predictor.linucb_alpha,
+                cost_lambda=config.predictor.linucb_cost_lambda,
+            )
+
         if config.predictor_type == "adaptive":
             from routesmith.predictor.learner import AdaptivePredictor
 

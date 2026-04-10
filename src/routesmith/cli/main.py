@@ -25,6 +25,27 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
+    # init command
+    init_parser = subparsers.add_parser(
+        "init",
+        help="Interactive setup: browse OpenRouter catalog and generate routesmith.yaml",
+        description=(
+            "Fetches the OpenRouter model catalog with live pricing, "
+            "lets you select 3–10 models, and writes routesmith.yaml."
+        ),
+    )
+    init_parser.add_argument(
+        "--output", "-o",
+        type=str,
+        default="routesmith.yaml",
+        help="Output config file path (default: routesmith.yaml)",
+    )
+    init_parser.add_argument(
+        "--force", "-f",
+        action="store_true",
+        help="Overwrite existing config file",
+    )
+
     # serve command
     serve_parser = subparsers.add_parser(
         "serve",
@@ -84,7 +105,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    if args.command == "serve":
+    if args.command == "init":
+        from routesmith.cli.init import run_init
+        return run_init(args)
+    elif args.command == "serve":
         from routesmith.cli.serve import run_serve
         return run_serve(args)
     elif args.command == "stats":
