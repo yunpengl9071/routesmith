@@ -78,6 +78,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="Logging level (default: INFO)",
     )
 
+    # openclaw-config command
+    openclaw_parser = subparsers.add_parser(
+        "openclaw-config",
+        help="Generate OpenClaw provider config for RouteSmith proxy",
+        description="Output a provider config snippet for adding RouteSmith to OpenClaw.",
+    )
+    openclaw_parser.add_argument(
+        "--host",
+        type=str,
+        default="http://localhost:9119",
+        help="RouteSmith proxy URL (default: http://localhost:9119)",
+    )
+    openclaw_parser.add_argument(
+        "--output", "-o",
+        type=str,
+        default=None,
+        help="Write config to file instead of stdout",
+    )
+
     # stats command
     stats_parser = subparsers.add_parser(
         "stats",
@@ -114,6 +133,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "stats":
         from routesmith.cli.stats import run_stats
         return run_stats(args)
+    elif args.command == "openclaw-config":
+        from routesmith.cli.openclaw import run_openclaw_config
+        return run_openclaw_config(args)
     else:
         parser.print_help()
         return 0
