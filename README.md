@@ -63,7 +63,7 @@ budget:
   max_cost_per_day: 50.0
   quality_threshold: 0.75
 
-# Option 1: specify models with pricing
+# Option 1: specify models with full pricing
 models:
   - id: openai/gpt-4o-mini
     cost_per_1k_input: 0.15
@@ -115,6 +115,97 @@ print(rs.stats)
 # {'request_count': 1, 'total_cost_usd': 0.0023, 'cost_savings_usd': 0.0190, 'savings_percent': 89.2}
 ```
 
+## Framework integrations
+
+RouteSmith works with every major agent framework — natively (no proxy needed) or via the OpenAI-compatible proxy.
+
+### Anthropic SDK
+
+```python
+from routesmith.integrations.anthropic import RouteSmithAnthropic
+
+# Auto-fetches Claude pricing from OpenRouter
+client = RouteSmithAnthropic.with_openrouter_models()
+
+msg = client.messages.create(
+    model="auto",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Explain transformers"}],
+)
+print(msg.content[0].text)
+```
+
+### LangChain
+
+```python
+from routesmith.integrations.langchain import ChatRouteSmith
+
+llm = ChatRouteSmith()
+llm.routesmith.register_model("openai/gpt-4o-mini", cost_per_1k_input=0.15,
+                               cost_per_1k_output=0.60, quality_score=0.85)
+response = llm.invoke("What is 2+2?")
+```
+
+### DSPy
+
+```python
+import dspy
+from routesmith.integrations.dspy import RouteSmithLM
+
+# Native mode — no proxy needed
+lm = RouteSmithLM()
+lm.register_model("openai/gpt-4o-mini", cost_per_1k_input=0.15,
+                  cost_per_1k_output=0.60, quality_score=0.85)
+dspy.configure(lm=lm)
+
+# Or proxy mode (requires routesmith serve)
+from routesmith.integrations.dspy import routesmith_lm
+dspy.configure(lm=routesmith_lm())
+```
+
+### CrewAI
+
+```python
+from crewai import Agent
+from routesmith.integrations.crewai import routesmith_crewai_chat_model
+
+# Native mode — ChatRouteSmith as CrewAI LLM
+llm = routesmith_crewai_chat_model()
+llm.routesmith.register_model("openai/gpt-4o-mini", cost_per_1k_input=0.15,
+                               cost_per_1k_output=0.60, quality_score=0.85)
+agent = Agent(role="Analyst", goal="Answer questions", backstory="...", llm=llm)
+
+# Or proxy mode
+from routesmith.integrations.crewai import routesmith_crewai_llm
+agent = Agent(role="Analyst", goal="...", backstory="...", llm=routesmith_crewai_llm())
+```
+
+### AutoGen
+
+```python
+from autogen import AssistantAgent, UserProxyAgent
+from routesmith.integrations.autogen import routesmith_autogen_agents
+
+# One-line agent pair
+assistant, user = routesmith_autogen_agents()
+user.initiate_chat(assistant, message="Write a haiku about cost optimization.")
+
+# Or configure manually
+from routesmith.integrations.autogen import routesmith_autogen_llm_config
+llm_config = routesmith_autogen_llm_config()
+agent = AssistantAgent("assistant", llm_config=llm_config)
+```
+
+### OpenClaw
+
+```bash
+# Generate provider config and add to OpenClaw settings
+routesmith openclaw-config --output openclaw-provider.json
+
+# Or pipe directly
+routesmith openclaw-config >> ~/.openclaw/settings.json
+```
+
 ## Routing strategies
 
 ```python
@@ -143,31 +234,13 @@ APGR (Performance Gap Recovery) = (router_acc − weak_acc) / (strong_acc − we
 
 5-arm routing across GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro, DeepSeek-V3, and GPT-4o-mini achieves 71.0% accuracy at $0.117/query — 45% cheaper than GPT-4o alone.
 
-## Framework integrations
-
-### LangChain
-
-```python
-from routesmith.integrations.langchain import RouteSmithChatModel
-
-llm = RouteSmithChatModel()
-response = llm.invoke([HumanMessage(content="Hello")])
-```
-
-### OpenAI-compatible proxy
-
-Any tool that accepts a custom base URL works out of the box:
-
-```bash
-OPENAI_BASE_URL=http://localhost:9119/v1 your-tool
-```
-
 ## CLI reference
 
 ```bash
-routesmith init [--output FILE] [--force]      # generate config interactively
-routesmith serve [--config FILE] [--port N]    # start proxy (default port 9119)
-routesmith stats [--server URL] [--json]       # show session stats
+routesmith init [--output FILE] [--force]        # generate config interactively
+routesmith serve [--config FILE] [--port N]      # start proxy (default port 9119)
+routesmith openclaw-config [--host URL] [-o FILE] # generate OpenClaw provider config
+routesmith stats [--server URL] [--json]         # show session stats
 ```
 
 ## Installation
@@ -176,11 +249,23 @@ routesmith stats [--server URL] [--json]       # show session stats
 # Proxy server + interactive setup (recommended)
 pip install "routesmith[proxy]"
 
-# Semantic caching (requires faiss)
-pip install "routesmith[cache]"
+# Anthropic SDK integration
+pip install "routesmith[anthropic]"
 
 # LangChain integration
 pip install "routesmith[langchain]"
+
+# DSPy integration
+pip install "routesmith[dspy]"
+
+# CrewAI integration
+pip install "routesmith[crewai]"
+
+# AutoGen integration
+pip install "routesmith[autogen]"
+
+# Semantic caching
+pip install "routesmith[cache]"
 
 # Core only (Python API, no proxy)
 pip install routesmith
