@@ -1,0 +1,29 @@
+{
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "routesmith": {
+        "baseUrl": "http://localhost:9119/v1",
+        "apiKey": "dummy",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "auto",
+            "name": "RouteSmith Auto Router",
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "models": {
+        "routesmith/auto": {
+          "alias": "routesmith"
+        }
+      }
+    }
+  }
+}
