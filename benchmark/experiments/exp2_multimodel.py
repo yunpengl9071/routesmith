@@ -36,16 +36,24 @@ SEEDS_EXP2 = [42, 43, 44]   # 3 seeds for cost control
 def _call_model(model_id: str, prompt: str) -> tuple[str, int, int]:
     from openai import OpenAI
     client = OpenAI(api_key=OPENROUTER_API_KEY, base_url=OPENROUTER_BASE_URL)
-    resp = client.chat.completions.create(
-        model=model_id,
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt},
-        ],
-        max_tokens=MAX_TOKENS_MCQ,
-        temperature=0.0,
-    )
-    return resp.choices[0].message.content, resp.usage.prompt_tokens, resp.usage.completion_tokens
+    try:
+        resp = client.chat.completions.create(
+            model=model_id,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=MAX_TOKENS_MCQ,
+            temperature=0.0,
+            timeout=60.0,
+        )
+        content = resp.choices[0].message.content or ""
+        pt = resp.usage.prompt_tokens if resp.usage else 0
+        ct = resp.usage.completion_tokens if resp.usage else 0
+        return content, pt, ct
+    except Exception as e:
+        print(f"  [WARN] {model_id} failed: {e}")
+        return "", 0, 0
 
 
 def _reward(correct: bool, c: float) -> float:
@@ -78,7 +86,7 @@ def run_lints_5arm(queries: list[dict], seed: int, results_path: Path) -> list[d
         model_id = ARM_IDS[arm]
 
         resp, pt, ct = _call_model(model_id, q["prompt"])
-        correct = extract_answer(resp) == q.get("answer_letter")
+        correct = extract_answer(resp or "") == q.get("answer_letter")
         c = cost_usd(model_id, pt, ct)
         reward = _reward(correct, c)
         router.update(arm=arm, x=x, reward=reward)

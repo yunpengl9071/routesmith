@@ -40,12 +40,23 @@ class BudgetConfig:
 
 @dataclass
 class PredictorConfig:
-    """Configuration for adaptive quality predictor."""
+    """Configuration for quality predictor (all predictor types)."""
 
+    # Shared
+    seed: int = 42
+
+    # Adaptive (random forest)
     min_samples_for_training: int = 100
     retrain_interval: int = 50
     n_estimators: int = 50
     blend_alpha: float = 0.7
+
+    # LinTS-27d (predictor_type="lints")
+    lints_v_sq: float = 1.0   # Posterior variance scaling; rarely needs tuning
+
+    # LinUCB-27d (predictor_type="linucb")
+    linucb_alpha: float = 1.5         # Exploration parameter (0.5–3.0 typical)
+    linucb_cost_lambda: float = 0.15  # Cost penalty weight in reward
 
 
 @dataclass

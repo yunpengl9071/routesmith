@@ -28,7 +28,7 @@ MULTI_ARMS: list[dict] = [
     {"id": "anthropic/claude-sonnet-4-5",    "name": "Claude-Sonnet", "role": "reasoning"},
     {"id": "qwen/qwen-plus",                 "name": "Qwen-Plus",     "role": "math"},
     {"id": "minimax/minimax-m1",             "name": "MiniMax-M1",    "role": "general"},
-    {"id": "zhipuai/glm-4-plus",             "name": "GLM-4-Plus",    "role": "knowledge"},
+    {"id": "deepseek/deepseek-chat-v3-0324", "name": "DeepSeek-V3",   "role": "knowledge"},
 ]
 
 # ── Pricing (USD per 1M tokens) ──────────────────────────────────────────────
@@ -38,7 +38,7 @@ PRICING: dict[str, dict[str, float]] = {
     "anthropic/claude-sonnet-4-5": {"input": 3.00,  "output": 15.00},
     "qwen/qwen-plus":              {"input": 0.40,  "output": 1.20},
     "minimax/minimax-m1":          {"input": 0.30,  "output": 1.10},
-    "zhipuai/glm-4-plus":          {"input": 0.10,  "output": 0.10},
+    "deepseek/deepseek-chat-v3-0324": {"input": 0.20, "output": 0.77},
 }
 
 

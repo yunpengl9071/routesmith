@@ -279,36 +279,58 @@ def fig4_routing_heatmap():
     _save("fig4_routing_heatmap.png")
 
 
-# ── Fig 5: Feature Importance (LinUCB θ weights) ──────────────────────────────
+# ── Fig 5: Feature Importance (LinUCB routing signal) ─────────────────────────
 def fig5_feature_importance():
-    """Fig 5: Feature importance for LinUCB (from θ_strong - θ_weak weights)."""
+    """Fig 5: Feature importance for LinUCB routing (mean feature: strong-routed minus weak-routed)."""
     print("Generating Fig 5: Feature Importance...")
-    # Check if linucb results exist to extract weights from
     r = _load("linucb_27d_alpha1.5_seed42_mmlu_results.json")
-    if not r:
-        # Generate placeholder
-        fig, ax = plt.subplots(figsize=(8, 4))
-        ax.text(0.5, 0.5, "LinUCB feature importance\n(available after LinUCB experiment)",
-                ha="center", va="center", transform=ax.transAxes, fontsize=12)
-        ax.set_title("Fig 5: LinUCB Feature Importance (Arm Strong vs Weak)")
-        _save("fig5_feature_importance.png")
+    queries_path = RESULTS_DIR / "mmlu_600_queries.json"
+    if not r or not queries_path.exists():
+        print("  SKIP: missing linucb results or MMLU query cache")
         return
 
-    # Reconstruct theta from A, b stored in UCB results
-    # (simplified: show per-category accuracy difference as proxy)
-    feature_names = [
-        "log_chars", "log_words", "n_sentences", "n_questions", "n_numbers",
-        "is_long", "code_blocks", "has_question", "has_caps", "vocab_rich", "word_sat",
-        "math_kw", "reason_kw", "code_kw", "creative_kw", "difficulty", "vocab2",
-        "pad0", "pad1", "pad2", "pad3", "pad4", "pad5", "pad6", "pad7", "pad8", "pad9",
-    ][:17]  # show non-padded features only
+    import json as _json
+    with open(queries_path) as f:
+        queries = _json.load(f)
+    q_map = {q["query_id"]: q for q in queries}
 
-    fig, ax = plt.subplots(figsize=(9, 4))
-    ax.text(0.5, 0.5,
-            "LinUCB θ feature weights\n(θ_strong - θ_weak per feature dimension)\n"
-            "[Computed from learned A,b matrices after experiment]",
-            ha="center", va="center", transform=ax.transAxes, fontsize=11)
-    ax.set_title("Fig 5: LinUCB Feature Importance per Arm")
+    from benchmark.strategies.linucb import _build_feature_vector
+
+    strong_feats, weak_feats = [], []
+    for row in r:
+        q = q_map.get(row["query_id"])
+        if q is None:
+            continue
+        x = _build_feature_vector(q)[:17]  # first 17 non-padding features
+        if row.get("routing_decision") == "strong":
+            strong_feats.append(x)
+        else:
+            weak_feats.append(x)
+
+    if not strong_feats or not weak_feats:
+        print("  SKIP: insufficient routing data")
+        return
+
+    strong_mean = np.mean(strong_feats, axis=0)
+    weak_mean = np.mean(weak_feats, axis=0)
+    diff = strong_mean - weak_mean
+
+    feature_names = [
+        "log_chars", "log_words", "n_sent", "n_questions", "n_numbers",
+        "is_long", "code_blocks", "has_?", "has_caps", "vocab_rich", "word_sat",
+        "math_kw", "reason_kw", "code_kw", "creative_kw", "difficulty", "vocab2",
+    ]
+
+    fig, ax = plt.subplots(figsize=(10, 4))
+    bar_colors = [COLORS["linucb"] if d > 0 else COLORS["static_weak"] for d in diff]
+    ax.bar(feature_names, diff, color=bar_colors, alpha=0.85)
+    ax.axhline(0, c="black", lw=0.8)
+    ax.set_xlabel("Feature")
+    ax.set_ylabel("Mean Difference (Strong-routed − Weak-routed queries)")
+    ax.set_title("Fig 5: LinUCB Routing Signal — Feature Means by Routing Decision (MMLU)")
+    ax.tick_params(axis="x", rotation=45)
+    ax.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
     _save("fig5_feature_importance.png")
 
 
@@ -347,32 +369,41 @@ def fig6_feature_dim_ablation():
 
 # ── Fig 7: Warm-Start Ablation ─────────────────────────────────────────────────
 def fig7_warm_start():
-    """Fig 7: APGR vs warm-start label count."""
+    """Fig 7: APGR vs warm-start label count (subset-corrected baselines)."""
     print("Generating Fig 7: Warm-Start Ablation...")
     strong_r = _load("static_strong_mmlu_results.json")
-    weak_r = _load("static_weak_mmlu_results.json")
-    if not strong_r or not weak_r:
+    if not strong_r:
         print("  SKIP: missing baselines")
         return
 
-    strong_acc = accuracy(strong_r)
-    weak_acc = accuracy(weak_r)
+    # Index static-strong by query_id for subset-correct PGR
+    strong_by_id = {row["query_id"]: row["correct"] for row in strong_r}
     n_labels_list = [0, 100, 500]
     pgr_vals = []
 
     for n in n_labels_list:
         r = _load(f"lints_warmstart{n}_seed42_warmstart{n}_ablation_results.json")
-        pgr = performance_gap_recovery(accuracy(r), weak_acc, strong_acc) if r else 0.0
+        if r:
+            router_acc = sum(x["correct"] for x in r) / len(r)
+            weak_acc_sub = sum(x["weak_correct"] for x in r) / len(r)
+            strong_acc_sub = sum(strong_by_id.get(x["query_id"], 0) for x in r) / len(r)
+            pgr = performance_gap_recovery(router_acc, weak_acc_sub, strong_acc_sub)
+        else:
+            pgr = 0.0
         pgr_vals.append(pgr)
 
     fig, ax = plt.subplots(figsize=(5, 3.5))
     ax.plot([str(n) for n in n_labels_list], pgr_vals,
             marker="o", c=COLORS["lints"], lw=2, ms=10)
+    for n, pgr in zip(n_labels_list, pgr_vals):
+        ax.annotate(f"{pgr:.3f}", (str(n), pgr), xytext=(0, 8),
+                    textcoords="offset points", ha="center", fontsize=9)
     ax.set_xlabel("Warm-Start Labels (oracle)")
-    ax.set_ylabel("APGR")
+    ax.set_ylabel("APGR (subset-corrected)")
     ax.set_title("Fig 7: Warm-Start Label Count vs APGR")
     ax.grid(True, alpha=0.3)
-    ax.set_ylim(0, 1)
+    ymax = max(pgr_vals) if pgr_vals else 1.0
+    ax.set_ylim(0, max(1.05, ymax * 1.15))
     _save("fig7_warm_start_ablation.png")
 
 
@@ -416,14 +447,52 @@ def fig8_beta_sensitivity():
 
 # ── Fig 9: N-Arm Scaling ──────────────────────────────────────────────────────
 def fig9_n_arm_scaling():
-    """Fig 9: Convergence speed vs number of arms (K=2, 3, 5)."""
-    print("Generating Fig 9: N-Arm Scaling (placeholder)...")
-    fig, ax = plt.subplots(figsize=(5, 3.5))
-    ax.text(0.5, 0.5,
-            "N-arm convergence comparison\n(K=2: binary, K=5: Exp 2)\n"
-            "[Populated from Exp 2 results]",
-            ha="center", va="center", transform=ax.transAxes, fontsize=11)
-    ax.set_title("Fig 9: N-Arm Scaling (K=2,3,5 convergence)")
+    """Fig 9: Convergence speed vs number of arms (K=2 binary vs K=5 multi-model)."""
+    print("Generating Fig 9: N-Arm Scaling...")
+    window = 30
+    step = 5
+
+    fig, ax = plt.subplots(figsize=(6.5, 4))
+
+    # K=2: LinTS-27d binary (Exp 1, MMLU, 5 seeds)
+    runs_k2 = _seed_results("lints_27d_vsq1.0", "mmlu")
+    if runs_k2:
+        n_q = len(runs_k2[0])
+        xs = list(range(window, n_q + 1, step))
+        all_accs: list[list[float]] = []
+        for r in runs_k2:
+            all_accs.append([sum(x["correct"] for x in r[:t]) / t for t in xs])
+        mean_a = [statistics.mean(col) for col in zip(*all_accs)]
+        std_a = [statistics.stdev(col) if len(col) > 1 else 0 for col in zip(*all_accs)]
+        ax.plot(xs, mean_a, c=COLORS["lints"], label="LinTS K=2 (binary, MMLU)", lw=2)
+        ax.fill_between(xs,
+                        [m - s for m, s in zip(mean_a, std_a)],
+                        [m + s for m, s in zip(mean_a, std_a)],
+                        alpha=0.2, color=COLORS["lints"])
+
+    # K=5: LinTS-5arm (Exp 2, MMLU, 3 seeds)
+    runs_k5 = [r for seed in [42, 43, 44]
+               if (r := _load(f"exp2_lints_5arm_seed{seed}_results.json")) is not None]
+    if runs_k5:
+        n_q5 = min(len(r) for r in runs_k5)
+        xs5 = list(range(window, n_q5 + 1, step))
+        all_accs5: list[list[float]] = []
+        for r in runs_k5:
+            all_accs5.append([sum(x["correct"] for x in r[:t]) / t for t in xs5])
+        mean_a5 = [statistics.mean(col) for col in zip(*all_accs5)]
+        std_a5 = [statistics.stdev(col) if len(col) > 1 else 0 for col in zip(*all_accs5)]
+        ax.plot(xs5, mean_a5, c="#17becf", label="LinTS K=5 (multi-model, MMLU)", lw=2, ls="--")
+        ax.fill_between(xs5,
+                        [m - s for m, s in zip(mean_a5, std_a5)],
+                        [m + s for m, s in zip(mean_a5, std_a5)],
+                        alpha=0.2, color="#17becf")
+
+    ax.set_xlabel("Queries processed")
+    ax.set_ylabel("Cumulative Accuracy")
+    ax.set_title("Fig 9: Convergence Speed — K=2 vs K=5 Arms (LinTS, MMLU)")
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
     _save("fig9_n_arm_scaling.png")
 
 

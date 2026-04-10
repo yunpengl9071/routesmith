@@ -107,8 +107,7 @@ def call_llm(
         temperature=temperature,
         timeout=60.0,
     )
-    return (
-        resp.choices[0].message.content,
-        resp.usage.prompt_tokens,
-        resp.usage.completion_tokens,
-    )
+    content = resp.choices[0].message.content or ""
+    pt = resp.usage.prompt_tokens if resp.usage else 0
+    ct = resp.usage.completion_tokens if resp.usage else 0
+    return content, pt, ct

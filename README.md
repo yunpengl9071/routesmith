@@ -1,170 +1,203 @@
 # RouteSmith
 
-**The adaptive LLM router that learns what works for your agents.**
+Adaptive LLM execution engine with online contextual bandit routing. Routes queries to the right model dynamically, learning which models work best for which tasks while minimizing cost.
 
-RouteSmith is an intelligent cost-quality optimization layer for LLM applications. It automatically routes queries to optimal models, cascades through model tiers, caches semantically similar responses, and enforces budget constraints—all while maintaining quality guarantees.
+## What it does
 
-## Why RouteSmith?
+Instead of hardcoding which LLM to use, RouteSmith:
 
-Most teams default to expensive models (GPT-4, Claude Opus) for everything because choosing the right model per query is hard. RouteSmith solves this by:
+- **Routes each query** to the cheapest model expected to answer it correctly
+- **Learns online** — updates routing decisions after each response using Thompson Sampling (LinTS) or UCB (LinUCB)
+- **Tracks budget** — enforces per-request and daily cost limits
+- **Caches semantically** — reuses responses to similar past queries
 
-- **Routing intelligently**: Automatically select the cheapest model that meets your quality threshold
-- **Learning from outcomes**: Unlike static routers, RouteSmith improves over time based on what works for YOUR specific use case
-- **Supporting enterprise patterns**: AWS Bedrock provisioned throughput, Azure OpenAI PTUs, compliance-based routing
-
-## Quick Start
+## Quick start
 
 ```bash
-pip install routesmith
+pip install "routesmith[proxy]"
+
+# Interactive setup: browse OpenRouter catalog, select models, generate config
+routesmith init
+
+# Start OpenAI-compatible proxy
+routesmith serve
 ```
 
+Point any OpenAI client at `http://localhost:9119`:
+
 ```python
-from routesmith import RouteSmith
+from openai import OpenAI
 
-rs = RouteSmith()
-
-# Register your available models
-rs.register_model("gpt-4o", cost_per_1k_input=0.005, cost_per_1k_output=0.015, quality_score=0.95)
-rs.register_model("gpt-4o-mini", cost_per_1k_input=0.00015, cost_per_1k_output=0.0006, quality_score=0.85)
-
-# RouteSmith automatically picks the best model
-response = rs.completion(
-    messages=[{"role": "user", "content": "What is 2+2?"}],
-    min_quality=0.8  # Use cheapest model meeting this threshold
+client = OpenAI(base_url="http://localhost:9119/v1", api_key="any")
+response = client.chat.completions.create(
+    model="auto",   # RouteSmith picks the model
+    messages=[{"role": "user", "content": "What is 2+2?"}]
 )
-
-# See what happened
-print(rs.stats)
-# {'request_count': 1, 'total_cost_usd': 0.0001, ...}
 ```
 
-## Features
+## Algorithms
 
-### Intelligent Routing
+### LinTS-27d (recommended, default)
+
+Linear Thompson Sampling. Maintains a Gaussian posterior over routing quality per model. Samples from each arm's posterior at decision time — no hyperparameter to tune, automatic exploration-exploitation balance.
+
+### LinUCB-27d
+
+Contextual bandit with UCB exploration. Uses an `alpha` parameter (default 1.5) to control exploration. Achieves higher routing accuracy in benchmarks (APGR=1.126 vs LinTS=0.593 on MMLU) at the cost of needing alpha tuning.
+
+Both use a 27-dimensional feature vector: message features (length, complexity, question type) × model features (cost, quality score, context window) + interaction terms.
+
+## Config file
+
+```yaml
+# routesmith.yaml
+
+routing:
+  strategy: direct
+  predictor: lints           # lints | linucb | embedding | adaptive
+  lints_v_sq: 1.0            # posterior variance scaling (LinTS)
+  # linucb_alpha: 1.5        # UCB exploration parameter (LinUCB)
+
+budget:
+  max_cost_per_request: 0.10
+  max_cost_per_day: 50.0
+  quality_threshold: 0.75
+
+# Option 1: specify models with pricing
+models:
+  - id: openai/gpt-4o-mini
+    cost_per_1k_input: 0.15
+    cost_per_1k_output: 0.60
+    quality_score: 0.85
+
+  - id: deepseek/deepseek-chat
+    cost_per_1k_input: 0.014
+    cost_per_1k_output: 0.028
+    quality_score: 0.72
+
+# Option 2: let RouteSmith fetch pricing from OpenRouter automatically
+openrouter_models:
+  - openai/gpt-4o-mini
+  - deepseek/deepseek-chat
+  - anthropic/claude-3-haiku
+```
+
+Generate a config interactively:
+
+```bash
+routesmith init                         # guided setup
+routesmith init --output custom.yaml    # custom output path
+routesmith init --force                 # overwrite existing
+```
+
+## Python API
 
 ```python
-# Simple queries → cheap models
-# Complex queries → premium models
-response = rs.completion(messages=[...], min_quality=0.8)
-```
+from routesmith import RouteSmith, RouteSmithConfig, PredictorConfig
 
-### Cost Tracking with Savings Calculation
+config = RouteSmithConfig(
+    predictor_type="lints",
+    predictor=PredictorConfig(lints_v_sq=1.0),
+    max_cost_per_request=0.05,
+)
+rs = RouteSmith(config=config)
 
-```python
+rs.register_model("openai/gpt-4o-mini", cost_per_1k_input=0.15, cost_per_1k_output=0.60, quality_score=0.85)
+rs.register_model("deepseek/deepseek-chat", cost_per_1k_input=0.014, cost_per_1k_output=0.028, quality_score=0.72)
+
+response = rs.complete(messages=[{"role": "user", "content": "Explain recursion"}])
+
+# Provide feedback to update routing posteriors
+rs.record_feedback(response, quality=0.9)
+
+# Session stats
 print(rs.stats)
-# {
-#   'total_cost_usd': 12.45,
-#   'estimated_without_routing': 89.20,
-#   'savings_percent': 86.0
-# }
+# {'request_count': 1, 'total_cost_usd': 0.0023, 'cost_savings_usd': 0.0190, 'savings_percent': 89.2}
 ```
 
-### Multiple Routing Strategies
+## Routing strategies
 
 ```python
 from routesmith.config import RoutingStrategy
 
-# Direct: Pick single best model
+# Direct: pick single best model per query (default)
 response = rs.completion(messages=[...], strategy=RoutingStrategy.DIRECT)
 
-# Cascade: Try cheap model first, escalate if needed
+# Cascade: try cheap model first, escalate if quality too low
 response = rs.completion(messages=[...], strategy=RoutingStrategy.CASCADE)
 ```
 
-### Budget Controls
+## Benchmark results
+
+Evaluated on MMLU (600 queries, GPT-4o as strong model, DeepSeek-V3 as weak model):
+
+| Method | Accuracy | Cost/query | APGR |
+|--------|----------|-----------|------|
+| Static strong (GPT-4o) | 77.7% | $0.213 | — |
+| Static weak (DeepSeek-V3) | 73.2% | $0.018 | — |
+| RouteLLM-SW | 73.0–74.8% | — | −0.111 to −0.222 |
+| **LinTS-27d** | **75.8%** | **$0.116** | 0.593 |
+| **LinUCB-27d** | **78.2%** | — | **1.126** |
+
+APGR (Performance Gap Recovery) = (router_acc − weak_acc) / (strong_acc − weak_acc). Values above 1.0 mean the router outperforms always-using-the-strong-model.
+
+5-arm routing across GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro, DeepSeek-V3, and GPT-4o-mini achieves 71.0% accuracy at $0.117/query — 45% cheaper than GPT-4o alone.
+
+## Framework integrations
+
+### LangChain
 
 ```python
-from routesmith import RouteSmithConfig
+from routesmith.integrations.langchain import RouteSmithChatModel
 
-config = RouteSmithConfig().with_budget(
-    max_cost_per_request=0.01,  # Cap per request
-    max_cost_per_day=50.0,      # Daily budget
-)
-rs = RouteSmith(config=config)
+llm = RouteSmithChatModel()
+response = llm.invoke([HumanMessage(content="Hello")])
 ```
 
-## Framework Integrations
+### OpenAI-compatible proxy
 
-RouteSmith works as middleware with popular agent frameworks:
+Any tool that accepts a custom base URL works out of the box:
 
-```python
-# OpenClaw - via local proxy
-routesmith serve --port 9119
-
-# LangChain
-from routesmith.integrations.langchain import RouteSmithLLM
-llm = RouteSmithLLM()
-
-# DSPy
-from routesmith.integrations.dspy import RouteSmithLM
-dspy.configure(lm=RouteSmithLM())
+```bash
+OPENAI_BASE_URL=http://localhost:9119/v1 your-tool
 ```
 
-## Enterprise Features
+## CLI reference
 
-- **AWS Bedrock**: Provisioned throughput support (maximize utilization of pre-paid capacity)
-- **Azure OpenAI**: PTU (Provisioned Throughput Units) support
-- **Compliance routing**: Tag models with `hipaa`, `soc2`, etc. and route accordingly
-- **Multi-tenant**: Per-project cost allocation and budgets
-
-```python
-# Provisioned throughput: marginal cost = $0 (already paid)
-rs.register_model(
-    "bedrock/claude-3-sonnet-provisioned",
-    cost_model=CostModel.PROVISIONED,
-    hourly_cost=66.0,
-    capacity_requests_per_min=20,
-)
-
-# Compliance-based routing
-rs.register_model("bedrock/claude", tags=["hipaa", "soc2"])
-response = rs.completion(messages=[...], require_tags=["hipaa"])
+```bash
+routesmith init [--output FILE] [--force]      # generate config interactively
+routesmith serve [--config FILE] [--port N]    # start proxy (default port 9119)
+routesmith stats [--server URL] [--json]       # show session stats
 ```
 
-## How It Works
+## Installation
 
+```bash
+# Proxy server + interactive setup (recommended)
+pip install "routesmith[proxy]"
+
+# Semantic caching (requires faiss)
+pip install "routesmith[cache]"
+
+# LangChain integration
+pip install "routesmith[langchain]"
+
+# Core only (Python API, no proxy)
+pip install routesmith
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Your Application                             │
-├─────────────────────────────────────────────────────────────────┤
-│                       RouteSmith                                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────────┐  │
-│  │ Model    │  │ Quality  │  │ Router   │  │ Cost Tracker   │  │
-│  │ Registry │  │ Predictor│  │ Engine   │  │ + Feedback     │  │
-│  └──────────┘  └──────────┘  └──────────┘  └────────────────┘  │
-├─────────────────────────────────────────────────────────────────┤
-│                    LiteLLM (100+ providers)                      │
-├─────────────────────────────────────────────────────────────────┤
-│            OpenAI, Anthropic, Bedrock, Azure, Groq, etc.         │
-└─────────────────────────────────────────────────────────────────┘
-```
+
+Requires Python 3.10+. Set `OPENROUTER_API_KEY` to use OpenRouter models.
 
 ## Development
 
 ```bash
-# Clone and install
-git clone https://github.com/yourusername/routesmith.git
+git clone https://github.com/yunpengl9071/routesmith.git
 cd routesmith
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-
-# Run tests
-pytest tests/
-
-# Run linting
-ruff check src/
+uv venv .venv --python 3.13
+uv pip install -e ".[dev]"
+.venv/bin/pytest tests/
 ```
-
-## Requirements
-
-- Python 3.10+
-- At least one LLM provider API key (OpenAI, Anthropic, Groq, etc.)
 
 ## License
 
 MIT
-
-## Contributing
-
-Contributions welcome! Please read our contributing guidelines before submitting PRs.

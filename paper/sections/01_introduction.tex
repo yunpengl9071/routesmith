@@ -8,13 +8,13 @@ Existing routing approaches fall into two categories. \textbf{Static supervised 
 
 Both paradigms share three structural limitations: (1) they require substantial pretraining data before routing any query, (2) they are architecturally binary or require $O(K^2)$ separate classifiers for $K$ models, and (3) they do not adapt to changing query distributions or model behavior in production.
 
-\textbf{Our approach.} We frame LLM routing as a contextual bandit problem and introduce \textbf{RouteSmith}, which uses Linear Thompson Sampling (LinTS-27d) to route queries with zero pretraining data, natural extension to $K$ arms, and continuous adaptation. LinTS explores via posterior sampling over a 27-dimensional query feature space, which includes query type classification, difficulty estimation, and vocabulary richness signals.
+\textbf{Our approach.} We frame LLM routing as a contextual bandit problem and introduce \textbf{RouteSmith}, built around two novel contextual bandit algorithms over a 27-dimensional query feature space: \textbf{LinUCB-27d}, which achieves state-of-the-art APGR by combining UCB exploration with per-query linguistic features, and \textbf{LinTS-27d}, which eliminates the exploration hyperparameter via Thompson Sampling over a Gaussian posterior. Both algorithms require zero pretraining data, learn online from feedback, and extend naturally to $K > 2$ arms — a structural advance over all existing LLM routers.
 
 \textbf{Contributions:}
 \begin{enumerate}
-    \item \textbf{LinTS-27d algorithm:} A Linear Thompson Sampling router with $O(d\sqrt{T \log T})$ regret and no hyperparameter tuning (unlike LinUCB's $\beta$).
-    \item \textbf{Binary comparison (Experiment 1):} Rigorous comparison on MMLU (600 questions) and GSM8K (300 questions) against Static-Strong, Static-Weak, Random, RouteLLM-SW (three thresholds), TS-Cat, and LinUCB-27d.
-    \item \textbf{Multi-model routing (Experiment 2):} 5-arm routing across GPT-4o, Claude-Sonnet-4-5, Qwen-Plus, MiniMax-M1, and GLM-4-Plus --- structurally impossible for binary RouteLLM.
+    \item \textbf{Contextual bandit routing portfolio:} LinUCB-27d (achieves APGR=1.126 on MMLU, best among all methods) and LinTS-27d (no $\beta$ hyperparameter, $O(d\sqrt{T \log T})$ regret), both operating over a 27-dim linguistic feature space not previously applied to LLM routing.
+    \item \textbf{Binary routing comparison (Experiment 1):} Rigorous evaluation on MMLU (600 questions) and GSM8K (300 questions) against Static-Strong, Static-Weak, Random, RouteLLM-SW (three thresholds), and TS-Cat.
+    \item \textbf{Multi-model routing (Experiment 2):} 5-arm online routing across GPT-4o, Claude-Sonnet-4.5, Qwen-Plus, MiniMax-M1, and DeepSeek-V3 --- structurally impossible for binary RouteLLM, which requires $O(K^2)$ re-training to extend beyond 2 arms.
     \item \textbf{Ablations:} Feature dimensionality, warm-start labels, $\beta$ sensitivity, and $N$-arm convergence analysis.
 \end{enumerate}
 

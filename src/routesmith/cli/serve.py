@@ -35,20 +35,28 @@ def run_serve(args: Namespace) -> int:
     routesmith_config = None
     models: list[dict] = []
 
-    if config_path.exists():
-        logger.info(f"Loading config from {config_path}")
-        try:
-            from routesmith.cli.yaml_loader import load_config_file
-            routesmith_config, models = load_config_file(config_path)
-        except ImportError:
-            logger.warning("PyYAML not installed. Install with: pip install pyyaml")
-            logger.warning("Using default configuration")
-        except Exception as e:
-            logger.error(f"Error loading config: {e}")
-            return 1
-    else:
-        logger.warning(f"Config file {config_path} not found, using defaults")
-        logger.info("Create a routesmith.yaml file to register models")
+    if not config_path.exists():
+        print(f"No config file found at '{config_path}'.")
+        print()
+        print("To get started, run:")
+        print(f"  routesmith init --output {config_path}")
+        print()
+        print("This will fetch the OpenRouter model catalog and let you pick")
+        print("3–10 models interactively, then write the config file for you.")
+        print()
+        print("Alternatively, create the file manually — see the docs for format.")
+        return 1
+
+    logger.info(f"Loading config from {config_path}")
+    try:
+        from routesmith.cli.yaml_loader import load_config_file
+        routesmith_config, models = load_config_file(config_path)
+    except ImportError:
+        print("PyYAML not installed. Run: pip install 'routesmith[proxy]'")
+        return 1
+    except Exception as e:
+        logger.error(f"Error loading config: {e}")
+        return 1
 
     # Initialize RouteSmith
     rs = RouteSmith(config=routesmith_config)
@@ -60,14 +68,11 @@ def run_serve(args: Namespace) -> int:
         logger.info(f"Registered model: {model_id}")
 
     if len(rs.registry) == 0:
-        logger.warning("No models registered!")
-        logger.warning("Add models to routesmith.yaml or they won't be available for routing")
-        logger.warning("Example config:")
-        logger.warning("  models:")
-        logger.warning("    - id: gpt-4o-mini")
-        logger.warning("      cost_per_1k_input: 0.00015")
-        logger.warning("      cost_per_1k_output: 0.0006")
-        logger.warning("      quality_score: 0.85")
+        print(f"No models registered from '{config_path}'.")
+        print()
+        print("Add a 'models:' or 'openrouter_models:' section, or re-run:")
+        print(f"  routesmith init --output {config_path} --force")
+        return 1
 
     # Create server
     server_config = ServerConfig(

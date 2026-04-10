@@ -31,8 +31,8 @@ def _truncated_lints(d_actual: int, seed: int) -> LinTSStrategy:
         orig_select = self._router.select
         orig_update = self._router.update
 
-        self._router.select = lambda _x: orig_select(x_zeroed)
-        self._router.update = lambda arm, _x, reward: orig_update(arm, x_zeroed, reward)
+        self._router.select = lambda x: orig_select(x_zeroed)
+        self._router.update = lambda arm, x, reward: orig_update(arm, x_zeroed, reward)
 
         result = orig_route(self, query)
         result["strategy"] = f"lints_{d_actual}d_seed{seed}"

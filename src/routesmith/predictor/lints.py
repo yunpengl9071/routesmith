@@ -127,3 +127,119 @@ class LinTSRouter:
         self.v_sq = state["v_sq"]
         self._t = state["t"]
         self.arms = [LinTSArm.from_dict(a) for a in state["arms"]]
+
+
+class LinTSPredictor:
+    """BasePredictor-compatible wrapper around LinTSRouter.
+
+    Maps model IDs to arm indices (registration order from registry).
+    Uses the package's FeatureExtractor for 27-dim feature vectors.
+
+    Parameters
+    ----------
+    registry : ModelRegistry
+        Registered models become arms (indexed by registration order).
+    v_sq : float
+        Posterior variance scaling. Default 1.0 rarely needs tuning.
+    seed : int
+        Random seed for reproducibility.
+    """
+
+    def __init__(
+        self,
+        registry: "Any",
+        v_sq: float = 1.0,
+        seed: int = 42,
+    ) -> None:
+        from routesmith.predictor.features import FeatureExtractor
+        from routesmith.predictor.base import PredictionResult
+
+        self._registry = registry
+        self._extractor = FeatureExtractor(registry)
+        self._PredictionResult = PredictionResult
+
+        models = registry.list_models()
+        self._arm_index: dict[str, int] = {m.model_id: i for i, m in enumerate(models)}
+        self._arm_names: list[str] = [m.model_id for m in models]
+        n_arms = len(models)
+        d = 27  # matches FeatureExtractor total output length
+
+        self._router = LinTSRouter(n_arms=n_arms, d=d, v_sq=v_sq, seed=seed)
+        self._total_updates = 0
+
+    def _features(self, messages: list[dict], model_id: str) -> np.ndarray:
+        fv = self._extractor.extract(messages, model_id)
+        x = np.array(fv.features[:27], dtype=np.float64)
+        if len(x) < 27:
+            x = np.pad(x, (0, 27 - len(x)))
+        return x  # LinTSRouter.select/update handles normalization internally
+
+    def predict(
+        self,
+        messages: list[dict],
+        model_ids: list[str],
+    ) -> list:
+        """Sample from each arm's posterior and return ranked predictions."""
+        results = []
+        for model_id in model_ids:
+            arm_idx = self._arm_index.get(model_id)
+            if arm_idx is None:
+                results.append(self._PredictionResult(
+                    model_id=model_id,
+                    predicted_quality=0.0,
+                    confidence=0.0,
+                    metadata={"lints": "unregistered_model"},
+                ))
+                continue
+
+            x = self._features(messages, model_id)
+            x_norm = x / (np.linalg.norm(x) + 1e-8)
+            arm = self._router.arms[arm_idx]
+            theta_sample = arm.sample(self._router._rng, self._router.v_sq)
+            score = float(theta_sample @ x_norm)
+
+            update_count = int(np.sum(arm.A) - arm.A.shape[0])  # rank-1 updates applied
+            results.append(self._PredictionResult(
+                model_id=model_id,
+                predicted_quality=score,
+                confidence=min(1.0, update_count / 20.0),
+                metadata={
+                    "lints_arm": arm_idx,
+                    "lints_score": round(score, 4),
+                    "lints_t": self._router._t,
+                },
+            ))
+
+        return sorted(results, key=lambda r: r.predicted_quality, reverse=True)
+
+    def update(
+        self,
+        messages: list[dict],
+        model_id: str,
+        actual_quality: float,
+    ) -> None:
+        """Update the arm's Gaussian posterior with observed quality."""
+        arm_idx = self._arm_index.get(model_id)
+        if arm_idx is None:
+            return
+        x = self._features(messages, model_id)
+        self._router.update(arm=arm_idx, x=x, reward=actual_quality)
+        self._total_updates += 1
+
+    def get_state(self) -> dict[str, Any]:
+        return {"arm_index": self._arm_index, **self._router.get_state()}
+
+    def load_state(self, state: dict[str, Any]) -> None:
+        self._arm_index = state.get("arm_index", self._arm_index)
+        self._router.load_state(state)
+
+    def diagnostics(self) -> dict[str, Any]:
+        return {
+            "type": "lints",
+            "v_sq": self._router.v_sq,
+            "n_arms": self._router.n_arms,
+            "d": self._router.d,
+            "t": self._router._t,
+            "total_updates": self._total_updates,
+            "arms": self._arm_names,
+        }
