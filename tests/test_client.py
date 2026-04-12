@@ -488,3 +488,57 @@ class TestCapabilityAutoDetection:
 
         with pytest.raises(Exception, match="API error"):
             rs.completion(messages=[{"role": "user", "content": "Hello"}])
+
+
+def _mock_litellm_response():
+    return MagicMock(
+        choices=[MagicMock(
+            message=MagicMock(content="hi", tool_calls=None),
+            finish_reason="stop",
+        )],
+        usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+        id="resp_1",
+        model="gpt-4o-mini",
+    )
+
+
+def _make_rs():
+    rs = RouteSmith()
+    rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                     cost_per_1k_output=0.015, quality_score=0.9)
+    rs.register_model("gpt-4o-mini", cost_per_1k_input=0.00015,
+                     cost_per_1k_output=0.0006, quality_score=0.7)
+    return rs
+
+
+class TestCompletionWithContext:
+    @patch("litellm.completion")
+    def test_accepts_context_param(self, mock_litellm):
+        mock_litellm.return_value = _mock_litellm_response()
+        rs = _make_rs()
+        from routesmith.config import RouteContext
+        ctx = RouteContext(agent_role="research", turn_index=2)
+        response = rs.completion(
+            messages=[{"role": "user", "content": "hello"}],
+            context=ctx,
+        )
+        assert response is not None
+
+    @patch("litellm.completion")
+    def test_without_context_still_works(self, mock_litellm):
+        mock_litellm.return_value = _mock_litellm_response()
+        rs = _make_rs()
+        response = rs.completion(messages=[{"role": "user", "content": "hello"}])
+        assert response is not None
+
+    @patch("litellm.completion")
+    def test_agent_role_inferred_when_missing(self, mock_litellm):
+        mock_litellm.return_value = _mock_litellm_response()
+        rs = _make_rs()
+        from routesmith.config import RouteContext
+        msgs = [
+            {"role": "system", "content": "You are a research assistant."},
+            {"role": "user", "content": "hello"},
+        ]
+        ctx = RouteContext()  # no agent_role
+        rs.completion(messages=msgs, context=ctx)  # should not raise

@@ -12,7 +12,7 @@ from typing import Any
 import litellm
 from litellm import ModelResponse
 
-from routesmith.config import RouteSmithConfig, RoutingStrategy
+from routesmith.config import RouteContext, RouteSmithConfig, RoutingStrategy
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry
 from routesmith.strategy.router import Router
@@ -85,6 +85,23 @@ class RouteSmith:
             from routesmith.feedback.reward import compile_reward_fn
             self._reward_fn = compile_reward_fn(self.config.reward_expr)
 
+        # Load persisted predictor state if storage is configured.
+        if self.config.feedback_storage_path:
+            self._load_predictor_state()
+
+    def _load_predictor_state(self) -> None:
+        """Load persisted predictor weights from storage on startup."""
+        if self.feedback._storage is None:
+            return
+        blob = self.feedback._storage.load_predictor_state(self.config.predictor_type)
+        if blob is not None:
+            predictor = self.router.predictor
+            if hasattr(predictor, "load_state"):
+                try:
+                    predictor.load_state(blob)
+                except Exception:
+                    pass  # corrupt or incompatible state; cold start
+
     @staticmethod
     def _has_image_content(message: dict[str, Any]) -> bool:
         """Check if a message contains image content."""
@@ -151,6 +168,7 @@ class RouteSmith:
         max_cost: float | None = None,
         min_quality: float | None = None,
         include_metadata: bool = False,
+        context: RouteContext | None = None,
         **kwargs: Any,
     ) -> ModelResponse:
         """
@@ -173,6 +191,25 @@ class RouteSmith:
         self._request_count += 1
         request_id = uuid.uuid4().hex[:16]
 
+        # Infer agent role from messages when context is provided without one.
+        if context is not None and context.agent_role is None:
+            if not hasattr(self, "_agent_inferencer"):
+                from routesmith.predictor.agent_inferencer import AgentInferencer
+                self._agent_inferencer = AgentInferencer()
+            role, confidence = self._agent_inferencer.infer(messages)
+            if role is not None:
+                context = RouteContext(
+                    agent_id=context.agent_id,
+                    agent_role=role,
+                    conversation_id=context.conversation_id,
+                    turn_index=context.turn_index,
+                    metadata={
+                        **context.metadata,
+                        "role_inferred": True,
+                        "role_confidence": confidence,
+                    },
+                )
+
         # Determine routing strategy
         effective_strategy = strategy or self.config.default_strategy
         routing_reason = ""
@@ -193,6 +230,7 @@ class RouteSmith:
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
                 required_capabilities=required_capabilities or None,
+                context=context,
             )
             routing_reason = self._get_routing_reason(
                 effective_strategy, selected_model, max_cost, min_quality
@@ -266,6 +304,10 @@ class RouteSmith:
             model=selected_model,
             response=response,
             latency_ms=total_latency_ms,
+            agent_id=context.agent_id if context else None,
+            agent_role=context.agent_role if context else None,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
         )
 
         return response
@@ -576,7 +618,11 @@ class RouteSmith:
             record = self.feedback.get_record_by_id(request_id)
             if record is not None:
                 reward_override = None
-                if self._reward_fn is not None:
+                # Resolve per-role reward function, falling back to global reward_fn.
+                effective_reward_fn = self.feedback.resolve_reward_fn(
+                    agent_role=record.agent_role
+                ) or self._reward_fn
+                if effective_reward_fn is not None:
                     from routesmith.feedback.reward import build_reward_context
                     ctx = build_reward_context(
                         model_id=record.model_id,
@@ -586,7 +632,7 @@ class RouteSmith:
                         registry=self.registry,
                     )
                     try:
-                        reward_override = float(self._reward_fn(ctx))
+                        reward_override = float(effective_reward_fn(ctx))
                     except Exception as e:
                         logger.warning(
                             "reward_fn raised an error, skipping reward override: %s", e

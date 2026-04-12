@@ -29,6 +29,10 @@ class FeedbackRecord:
     quality_score: float | None = None
     user_feedback: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    agent_id: str | None = None
+    agent_role: str | None = None
+    conversation_id: str | None = None
+    turn_index: int | None = None
 
 
 class FeedbackCollector:
@@ -86,6 +90,10 @@ class FeedbackCollector:
         response: Any,
         latency_ms: float,
         metadata: dict[str, Any] | None = None,
+        agent_id: str | None = None,
+        agent_role: str | None = None,
+        conversation_id: str | None = None,
+        turn_index: int | None = None,
     ) -> FeedbackRecord | None:
         """
         Record a completion for potential feedback collection.
@@ -118,6 +126,10 @@ class FeedbackCollector:
             latency_ms=latency_ms,
             timestamp=time.time(),
             metadata=metadata or {},
+            agent_id=agent_id,
+            agent_role=agent_role,
+            conversation_id=conversation_id,
+            turn_index=turn_index,
         )
 
         # Auto-evaluate if evaluator is set
@@ -144,6 +156,10 @@ class FeedbackCollector:
                 latency_ms=latency_ms,
                 quality_score=record.quality_score,
                 metadata=metadata,
+                agent_id=agent_id,
+                agent_role=agent_role,
+                conversation_id=conversation_id,
+                turn_index=turn_index,
             )
 
         # Extract implicit signals
