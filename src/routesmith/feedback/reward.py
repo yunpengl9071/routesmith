@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Callable, TypedDict
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, TypedDict
 
 if TYPE_CHECKING:
     from routesmith.registry.models import ModelRegistry
@@ -28,7 +29,7 @@ def build_reward_context(
     quality: float,
     response: Any,
     latency_ms: float,
-    registry: "ModelRegistry",
+    registry: ModelRegistry,
 ) -> RewardContext:
     """Build a RewardContext from a completion response and registry data."""
     tokens_in = 0
@@ -77,7 +78,10 @@ def compile_reward_fn(expr: str) -> Callable[[RewardContext], float]:
         ValueError: If the expression has a syntax error or disallowed operation.
     """
     try:
-        from simpleeval import EvalWithCompoundTypes, FeatureNotAvailable
+        from simpleeval import (  # type: ignore[import-untyped]
+            EvalWithCompoundTypes,
+            FeatureNotAvailable,
+        )
     except ImportError as e:
         raise ImportError(
             "simpleeval is required for reward expressions. "
@@ -109,6 +113,8 @@ def compile_reward_fn(expr: str) -> Callable[[RewardContext], float]:
             result = ev.eval(expr)
         except FeatureNotAvailable as exc:
             raise ValueError(f"Disallowed operation in reward expression: {exc}") from exc
+        except ArithmeticError as exc:
+            raise ValueError(f"Arithmetic error evaluating reward expression '{expr}': {exc}") from exc
         return float(result)
 
     return _fn
