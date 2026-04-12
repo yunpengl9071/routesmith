@@ -1,6 +1,9 @@
 """Tests for custom reward function support."""
 from __future__ import annotations
 
+import os
+import tempfile
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -338,3 +341,57 @@ class TestPredictorRewardOverride:
         pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
         pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=0.1)
         assert pred_a._ema_priors["openai/gpt-4o-mini"] != pred_b._ema_priors["openai/gpt-4o-mini"]
+
+
+# ---------------------------------------------------------------------------
+# YAML loader reward support
+# ---------------------------------------------------------------------------
+
+
+class TestYamlLoaderReward:
+    def test_feedback_reward_string_sets_reward_expr(self):
+        from routesmith.cli.yaml_loader import load_config_file
+
+        yaml_content = (
+            "routing:\n  predictor: lints\n"
+            "feedback:\n  reward: \"quality - 0.15 * cost_normalized\"\n"
+            "models: []\n"
+        )
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(yaml_content)
+            path = f.name
+        try:
+            config, _ = load_config_file(Path(path))
+            assert config.reward_expr == "quality - 0.15 * cost_normalized"
+        finally:
+            os.unlink(path)
+
+    def test_no_feedback_section_leaves_reward_expr_none(self):
+        from routesmith.cli.yaml_loader import load_config_file
+
+        yaml_content = "routing:\n  predictor: lints\nmodels: []\n"
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(yaml_content)
+            path = f.name
+        try:
+            config, _ = load_config_file(Path(path))
+            assert config.reward_expr is None
+        finally:
+            os.unlink(path)
+
+    def test_feedback_without_reward_leaves_expr_none(self):
+        from routesmith.cli.yaml_loader import load_config_file
+
+        yaml_content = (
+            "routing:\n  predictor: lints\n"
+            "feedback:\n  enabled: true\n  sample_rate: 0.5\n"
+            "models: []\n"
+        )
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(yaml_content)
+            path = f.name
+        try:
+            config, _ = load_config_file(Path(path))
+            assert config.reward_expr is None
+        finally:
+            os.unlink(path)
