@@ -183,7 +183,7 @@ class RouteSmith:
 
     def _persist_predictor_state(self) -> None:
         """Serialize current predictor state to storage (non-fatal on failure)."""
-        if not self.config.feedback_storage_path:
+        if not self.config.feedback_storage_path or not self.feedback._storage:
             return
         predictor = self.router.predictor
         if hasattr(predictor, "serialize_state"):
@@ -685,6 +685,89 @@ class RouteSmith:
                 )
 
         return found
+
+    def recommend_model_for_agent(
+        self,
+        agent_role: str | None,
+        min_samples: int = 50,
+    ) -> dict | None:
+        """Return the historically best model for an agent role.
+
+        Returns None when agent_role is None or fewer than min_samples
+        quality records exist for the role.
+
+        Returns a dict with:
+            model: str — recommended model_id
+            confidence: float — 0-1, based on sample count
+            sample_count: int — records for the recommended model
+            avg_quality: float
+            avg_cost_usd: float
+            new_models_to_explore: list[str] — registered models with < min_samples data
+        """
+        if agent_role is None:
+            return None
+
+        if self.feedback._storage is None:
+            return None
+
+        records = self.feedback._storage.get_records_by_agent_role(agent_role)
+        if len(records) < min_samples:
+            return None
+
+        from collections import defaultdict
+        model_quality: dict[str, list[float]] = defaultdict(list)
+        for r in records:
+            if r["quality_score"] is not None:
+                model_quality[r["model_id"]].append(float(r["quality_score"]))
+
+        registered = {m.model_id: m for m in self.registry.list_models()}
+        best_model = None
+        best_efficiency = -1.0
+        model_stats: dict[str, dict] = {}
+
+        for model_id, qualities in model_quality.items():
+            if model_id not in registered:
+                continue
+            model = registered[model_id]
+            avg_quality = sum(qualities) / len(qualities)
+            avg_cost = (model.cost_per_1k_input + model.cost_per_1k_output) / 2
+            efficiency = avg_quality / max(avg_cost * 1000, 1e-6)
+            model_stats[model_id] = {
+                "avg_quality": avg_quality,
+                "avg_cost_usd": avg_cost,
+                "sample_count": len(qualities),
+            }
+            if efficiency > best_efficiency:
+                best_efficiency = efficiency
+                best_model = model_id
+
+        if best_model is None:
+            return None
+
+        new_models_to_explore = [
+            m.model_id for m in self.registry.list_models()
+            if len(model_quality.get(m.model_id, [])) < min_samples
+            and m.model_id != best_model
+        ]
+        total_samples = sum(len(q) for q in model_quality.values())
+        confidence = min(1.0, total_samples / (min_samples * 3))
+        stats = model_stats[best_model]
+
+        return {
+            "model": best_model,
+            "confidence": round(confidence, 3),
+            "sample_count": stats["sample_count"],
+            "avg_quality": round(stats["avg_quality"], 3),
+            "avg_cost_usd": round(stats["avg_cost_usd"], 6),
+            "new_models_to_explore": new_models_to_explore,
+        }
+
+    def register_reward_fn(self, agent_role: str, fn: Callable[..., float]) -> None:
+        """Register a per-role reward function at runtime.
+
+        Takes priority over the global reward_fn/reward_expr for this role.
+        """
+        self.config.reward_fns[agent_role] = fn
 
     def reset_stats(self) -> None:
         """Reset session statistics."""

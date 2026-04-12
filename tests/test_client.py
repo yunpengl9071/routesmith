@@ -578,3 +578,77 @@ class TestModelLifecycle:
                          cost_per_1k_output=0.00125, quality_score=0.75)
         predictor = rs.router.predictor
         assert "claude-haiku" in predictor._arm_index
+
+
+class TestRecommendModelForAgent:
+    def test_returns_none_for_none_role(self):
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                         cost_per_1k_output=0.015, quality_score=0.9)
+        assert rs.recommend_model_for_agent(None) is None
+
+    def test_returns_none_when_insufficient_samples(self):
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                         cost_per_1k_output=0.015, quality_score=0.9)
+        assert rs.recommend_model_for_agent("research") is None
+
+    def test_returns_recommendation_with_enough_samples(self):
+        rs = RouteSmith(config=RouteSmithConfig(feedback_storage_path=":memory:"))
+        rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                         cost_per_1k_output=0.015, quality_score=0.9)
+        rs.register_model("gpt-4o-mini", cost_per_1k_input=0.00015,
+                         cost_per_1k_output=0.0006, quality_score=0.7)
+        storage = rs.feedback._storage
+        for i in range(55):
+            storage.store_record(
+                request_id=f"req_{i}",
+                model_id="gpt-4o",
+                messages=[{"role": "user", "content": "research question"}],
+                latency_ms=200.0,
+                quality_score=0.9,
+                agent_role="research",
+            )
+        result = rs.recommend_model_for_agent("research", min_samples=50)
+        assert result is not None
+        assert result["model"] == "gpt-4o"
+        assert result["sample_count"] >= 50
+        assert "confidence" in result
+        assert "new_models_to_explore" in result
+
+    def test_new_models_to_explore_includes_models_with_no_data(self):
+        rs = RouteSmith(config=RouteSmithConfig(feedback_storage_path=":memory:"))
+        rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                         cost_per_1k_output=0.015, quality_score=0.9)
+        rs.register_model("gpt-4o-mini", cost_per_1k_input=0.00015,
+                         cost_per_1k_output=0.0006, quality_score=0.7)
+        storage = rs.feedback._storage
+        for i in range(55):
+            storage.store_record(
+                request_id=f"req_{i}",
+                model_id="gpt-4o",
+                messages=[{"role": "user", "content": "hi"}],
+                latency_ms=100.0,
+                quality_score=0.9,
+                agent_role="research",
+            )
+        result = rs.recommend_model_for_agent("research", min_samples=50)
+        assert "gpt-4o-mini" in result["new_models_to_explore"]
+
+
+class TestRegisterRewardFn:
+    def test_adds_to_config(self):
+        rs = RouteSmith()
+        def _fn(r, m):
+            return 0.95
+        rs.register_reward_fn("research", _fn)
+        assert rs.config.reward_fns["research"] is _fn
+
+    def test_overrides_existing(self):
+        def _fn1(r, m):
+            return 0.8
+        def _fn2(r, m):
+            return 0.95
+        rs = RouteSmith(config=RouteSmithConfig(reward_fns={"research": _fn1}))
+        rs.register_reward_fn("research", _fn2)
+        assert rs.config.reward_fns["research"] is _fn2

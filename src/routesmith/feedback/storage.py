@@ -257,6 +257,22 @@ class FeedbackStorage:
             for row in rows
         }
 
+    def get_records_by_agent_role(
+        self,
+        agent_role: str,
+        limit: int = 10000,
+    ) -> list[dict[str, Any]]:
+        """Fetch feedback records with quality scores for a given agent role."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            """SELECT model_id, quality_score, latency_ms
+               FROM feedback_records
+               WHERE agent_role = ? AND quality_score IS NOT NULL
+               ORDER BY created_at DESC LIMIT ?""",
+            (agent_role, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
     def save_predictor_state(self, predictor_type: str, serialized_state: bytes) -> None:
         """Persist serialized predictor state to SQLite."""
         conn = self._get_conn()
