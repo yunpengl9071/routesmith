@@ -5,8 +5,54 @@ import time
 
 import pytest
 
+from routesmith.config import RouteContext
 from routesmith.predictor.features import FeatureExtractor, FeatureVector
 from routesmith.registry.models import ModelRegistry
+
+
+def _make_registry():
+    reg = ModelRegistry()
+    reg.register("gpt-4o", cost_per_1k_input=0.005, cost_per_1k_output=0.015, quality_score=0.9)
+    return reg
+
+
+class TestContextFeatures:
+    def test_no_context_gives_35_features_zeros_for_new_dims(self):
+        extractor = FeatureExtractor(_make_registry())
+        fv = extractor.extract([{"role": "user", "content": "hello"}], "gpt-4o", context=None)
+        assert len(fv.features) == 35
+        assert all(f == 0.0 for f in fv.features[27:])
+
+    def test_context_with_explicit_role_sets_confidence_1(self):
+        extractor = FeatureExtractor(_make_registry())
+        ctx = RouteContext(agent_role="research", turn_index=2)
+        fv = extractor.extract([{"role": "user", "content": "hello"}], "gpt-4o", context=ctx)
+        assert len(fv.features) == 35
+        assert fv.features[32] == pytest.approx(1.0)  # agent_role_confidence
+        assert fv.features[34] == pytest.approx(1.0)  # has_agent_context
+
+    def test_turn_index_normalized(self):
+        extractor = FeatureExtractor(_make_registry())
+        ctx = RouteContext(turn_index=10)
+        fv = extractor.extract([{"role": "user", "content": "hello"}], "gpt-4o", context=ctx)
+        assert fv.features[27] == pytest.approx(0.5)  # 10/20
+
+    def test_turn_index_capped_at_one(self):
+        extractor = FeatureExtractor(_make_registry())
+        ctx = RouteContext(turn_index=100)
+        fv = extractor.extract([{"role": "user", "content": "hello"}], "gpt-4o", context=ctx)
+        assert fv.features[27] == pytest.approx(1.0)
+
+    def test_feature_names_length(self):
+        extractor = FeatureExtractor(_make_registry())
+        fv = extractor.extract([{"role": "user", "content": "hello"}], "gpt-4o")
+        assert len(fv.feature_names) == 35
+
+    def test_backward_compat_no_context_arg(self):
+        """extract() with no context kwarg still returns 35 features with zeros."""
+        extractor = FeatureExtractor(_make_registry())
+        fv = extractor.extract([{"role": "user", "content": "hello"}], "gpt-4o")
+        assert len(fv.features) == 35
 
 
 @pytest.fixture
@@ -42,11 +88,11 @@ def extractor(registry):
 
 class TestFeatureVector:
     def test_feature_count(self, extractor):
-        """Extract produces exactly 27 features."""
+        """Extract produces exactly 35 features (27 base + 8 context)."""
         msgs = [{"role": "user", "content": "Hello"}]
         fv = extractor.extract(msgs, "gpt-4o")
-        assert len(fv.features) == 27
-        assert len(fv.feature_names) == 27
+        assert len(fv.features) == 35
+        assert len(fv.feature_names) == 35
 
     def test_feature_names_match_length(self, extractor):
         """feature_names length always matches features length."""
@@ -127,8 +173,8 @@ class TestModelFeatures:
 
     def test_unknown_model(self, extractor):
         fv = extractor.extract([{"role": "user", "content": "Hi"}], "unknown-model")
-        # Should return defaults without crashing (27 features in 27-dim version)
-        assert len(fv.features) == 27
+        # Should return defaults without crashing (35 features: 27 base + 8 context)
+        assert len(fv.features) == 35
         # quality_prior default = 0.5 (at index 19 in model features)
         assert fv.features[19] == 0.5
 

@@ -104,9 +104,10 @@ class LinUCBPredictor(BasePredictor):
         self,
         messages: list[dict[str, str]],
         model_id: str,
+        context=None,
     ) -> np.ndarray:
         """Extract and normalize feature vector as context."""
-        fv = self._extractor.extract(messages, model_id)
+        fv = self._extractor.extract(messages, model_id, context=context)
         x = np.array(fv.features, dtype=np.float64)
 
         # L2 normalize to stabilize ridge regression
@@ -120,6 +121,7 @@ class LinUCBPredictor(BasePredictor):
         self,
         messages: list[dict[str, str]],
         model_ids: list[str],
+        context=None,
     ) -> list[PredictionResult]:
         """Predict quality for each model using LinUCB scores.
 
@@ -130,7 +132,7 @@ class LinUCBPredictor(BasePredictor):
         results: list[PredictionResult] = []
 
         for model_id in model_ids:
-            x = self._get_context(messages, model_id)
+            x = self._get_context(messages, model_id, context=context)
             d = len(x)
 
             if self._d is None:
@@ -185,6 +187,7 @@ class LinUCBPredictor(BasePredictor):
         model_id: str,
         actual_quality: float,
         reward_override: float | None = None,
+        context=None,
     ) -> None:
         """Update the arm's ridge regression with observed reward.
 
@@ -195,7 +198,7 @@ class LinUCBPredictor(BasePredictor):
         is similar, while still routing to expensive models when they
         provide meaningfully higher quality.
         """
-        x = self._get_context(messages, model_id)
+        x = self._get_context(messages, model_id, context=context)
         d = len(x)
 
         if self._d is None:

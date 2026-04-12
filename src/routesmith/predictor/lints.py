@@ -75,7 +75,7 @@ class LinTSRouter:
     n_arms : int
         Number of model arms.
     d : int
-        Feature dimension (27 for RouteSmith's full feature space).
+        Feature dimension (35 for RouteSmith's full feature space).
     v_sq : float
         Noise variance scaling for posterior samples. Default 1.0.
         Unlike LinUCB's alpha, this rarely needs tuning.
@@ -133,7 +133,7 @@ class LinTSPredictor:
     """BasePredictor-compatible wrapper around LinTSRouter.
 
     Maps model IDs to arm indices (registration order from registry).
-    Uses the package's FeatureExtractor for 27-dim feature vectors.
+    Uses the package's FeatureExtractor for 35-dim feature vectors.
 
     Parameters
     ----------
@@ -162,22 +162,23 @@ class LinTSPredictor:
         self._arm_index: dict[str, int] = {m.model_id: i for i, m in enumerate(models)}
         self._arm_names: list[str] = [m.model_id for m in models]
         n_arms = len(models)
-        d = 27  # matches FeatureExtractor total output length
+        d = 35  # matches FeatureExtractor full output (27 base + 8 context)
 
         self._router = LinTSRouter(n_arms=n_arms, d=d, v_sq=v_sq, seed=seed)
         self._total_updates = 0
 
-    def _features(self, messages: list[dict], model_id: str) -> np.ndarray:
-        fv = self._extractor.extract(messages, model_id)
-        x = np.array(fv.features[:27], dtype=np.float64)
-        if len(x) < 27:
-            x = np.pad(x, (0, 27 - len(x)))
+    def _features(self, messages: list[dict], model_id: str, context=None) -> np.ndarray:
+        fv = self._extractor.extract(messages, model_id, context=context)
+        x = np.array(fv.features[:35], dtype=np.float64)
+        if len(x) < 35:
+            x = np.pad(x, (0, 35 - len(x)))
         return x  # LinTSRouter.select/update handles normalization internally
 
     def predict(
         self,
         messages: list[dict],
         model_ids: list[str],
+        context=None,
     ) -> list:
         """Sample from each arm's posterior and return ranked predictions."""
         results = []
@@ -192,7 +193,7 @@ class LinTSPredictor:
                 ))
                 continue
 
-            x = self._features(messages, model_id)
+            x = self._features(messages, model_id, context=context)
             x_norm = x / (np.linalg.norm(x) + 1e-8)
             arm = self._router.arms[arm_idx]
             theta_sample = arm.sample(self._router._rng, self._router.v_sq)
@@ -218,12 +219,13 @@ class LinTSPredictor:
         model_id: str,
         actual_quality: float,
         reward_override: float | None = None,
+        context=None,
     ) -> None:
         """Update the arm's Gaussian posterior with observed quality."""
         arm_idx = self._arm_index.get(model_id)
         if arm_idx is None:
             return
-        x = self._features(messages, model_id)
+        x = self._features(messages, model_id, context=context)
         reward = reward_override if reward_override is not None else actual_quality
         self._router.update(arm=arm_idx, x=x, reward=reward)
         self._total_updates += 1
