@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -92,6 +93,12 @@ class RouteSmithConfig:
     # Provider settings passed to LiteLLM
     litellm_params: dict[str, Any] = field(default_factory=dict)
 
+    # Custom reward function for predictor updates.
+    # reward_fn takes priority over reward_expr. When neither is set,
+    # each predictor uses its internal default reward computation.
+    reward_fn: Callable[..., float] | None = None
+    reward_expr: str | None = None  # Expression string, compiled on RouteSmith init
+
     def with_cache(self, **kwargs: Any) -> RouteSmithConfig:
         """Return a new config with updated cache settings."""
         new_cache = CacheConfig(
@@ -117,6 +124,8 @@ class RouteSmithConfig:
             routing_timeout_ms=self.routing_timeout_ms,
             enable_telemetry=self.enable_telemetry,
             litellm_params=self.litellm_params,
+            reward_fn=self.reward_fn,
+            reward_expr=self.reward_expr,
         )
 
     def with_budget(self, **kwargs: Any) -> RouteSmithConfig:
@@ -146,4 +155,6 @@ class RouteSmithConfig:
             routing_timeout_ms=self.routing_timeout_ms,
             enable_telemetry=self.enable_telemetry,
             litellm_params=self.litellm_params,
+            reward_fn=self.reward_fn,
+            reward_expr=self.reward_expr,
         )

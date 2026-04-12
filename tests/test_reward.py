@@ -190,3 +190,33 @@ class TestCompileRewardFn:
             latency_ms=0.0, tokens_in=0, tokens_out=0, model_id="x",
         )
         assert abs(fn(ctx) - 0.9) < 1e-9
+
+
+class TestRouteSmithConfigRewardFields:
+    def test_reward_fn_defaults_to_none(self):
+        from routesmith import RouteSmithConfig
+        assert RouteSmithConfig().reward_fn is None
+
+    def test_reward_expr_defaults_to_none(self):
+        from routesmith import RouteSmithConfig
+        assert RouteSmithConfig().reward_expr is None
+
+    def test_reward_fn_accepts_callable(self):
+        from routesmith import RouteSmithConfig
+        fn = lambda ctx: ctx["quality"]
+        assert RouteSmithConfig(reward_fn=fn).reward_fn is fn
+
+    def test_reward_expr_accepts_string(self):
+        from routesmith import RouteSmithConfig
+        config = RouteSmithConfig(reward_expr="quality - 0.15 * cost_normalized")
+        assert config.reward_expr == "quality - 0.15 * cost_normalized"
+
+    def test_with_cache_preserves_reward_fn(self):
+        from routesmith import RouteSmithConfig
+        fn = lambda ctx: ctx["quality"]
+        assert RouteSmithConfig(reward_fn=fn).with_cache(enabled=True).reward_fn is fn
+
+    def test_with_budget_preserves_reward_expr(self):
+        from routesmith import RouteSmithConfig
+        config = RouteSmithConfig(reward_expr="quality").with_budget(max_cost_per_request=0.10)
+        assert config.reward_expr == "quality"
