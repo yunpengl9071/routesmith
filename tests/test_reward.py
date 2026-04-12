@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+import numpy as np
 import pytest
 
 # ---------------------------------------------------------------------------
@@ -222,9 +223,6 @@ class TestRouteSmithConfigRewardFields:
         assert config.reward_expr == "quality"
 
 
-import numpy as np
-
-
 def _make_linucb(models=None):
     from routesmith.predictor.linucb import LinUCBPredictor
     return LinUCBPredictor(registry=_make_registry(models))
@@ -328,8 +326,10 @@ class TestPredictorRewardOverride:
     def test_adaptive_none_override_identical_to_default(self):
         pred_a = _make_adaptive()
         pred_b = _make_adaptive()
-        pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
-        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=None)
+        pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.1)  # quality != initial prior
+        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.1, reward_override=None)
+        # Verify update was effective (EMA moved from initial 0.8 toward 0.1)
+        assert pred_a._ema_priors["openai/gpt-4o-mini"] < 0.8
         assert pred_a._ema_priors["openai/gpt-4o-mini"] == pred_b._ema_priors["openai/gpt-4o-mini"]
 
     def test_adaptive_reward_override_changes_ema(self):
