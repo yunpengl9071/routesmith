@@ -72,15 +72,33 @@ class RouteSmithLM:
     Args:
         routesmith: Pre-configured RouteSmith instance.
         config: RouteSmithConfig to use when creating a new instance.
+        agent_role: Optional role label for routing heuristics (e.g. "coding").
+        conversation_id: Optional ID to associate turns in a conversation.
+        track_conversation: If True, create a ConversationTracker to pass
+            per-turn RouteContext to completion().
+        reward_fn: Optional reward function forwarded to ConversationTracker.
     """
 
     def __init__(
         self,
         routesmith: RouteSmith | None = None,
         config: RouteSmithConfig | None = None,
+        agent_role: str | None = None,
+        conversation_id: str | None = None,
+        track_conversation: bool = False,
+        reward_fn: Any = None,
     ) -> None:
         self._rs = routesmith or RouteSmith(config=config)
         self.history: list[dict[str, Any]] = []
+        self.agent_role = agent_role
+        self._tracker = None
+        if track_conversation:
+            from routesmith.feedback.conversation import ConversationTracker
+            self._tracker = ConversationTracker(
+                agent_role=agent_role,
+                conversation_id=conversation_id,
+                reward_fn=reward_fn,
+            )
 
     def __call__(
         self,
@@ -105,7 +123,14 @@ class RouteSmithLM:
                 raise ValueError("Either prompt or messages must be provided")
             messages = [{"role": "user", "content": prompt}]
 
-        response = self._rs.completion(messages=messages, **kwargs)
+        from routesmith.config import RouteContext
+        ctx = None
+        if self._tracker is not None:
+            ctx = self._tracker.next_context(messages)
+        elif self.agent_role is not None:
+            ctx = RouteContext(agent_role=self.agent_role)
+
+        response = self._rs.completion(messages=messages, context=ctx, **kwargs)
         text = response.choices[0].message.content or ""
 
         self.history.append({

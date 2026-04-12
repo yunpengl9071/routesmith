@@ -86,8 +86,10 @@ def _litellm_to_anthropic_message(response: Any, model: str) -> Message:
 class _MessagesResource:
     """Mimics anthropic.resources.Messages."""
 
-    def __init__(self, rs: RouteSmith) -> None:
+    def __init__(self, rs: RouteSmith, tracker=None, agent_role=None) -> None:
         self._rs = rs
+        self._tracker = tracker
+        self._agent_role = agent_role
 
     def create(
         self,
@@ -100,16 +102,23 @@ class _MessagesResource:
         **kwargs: Any,
     ) -> Message:
         """Create a message, routing through RouteSmith."""
+        from routesmith.config import RouteContext
         openai_messages: list[dict[str, Any]] = []
         if system:
             openai_messages.append({"role": "system", "content": system})
         openai_messages.extend(_anthropic_to_openai_messages(messages))
 
+        ctx = None
+        if self._tracker is not None:
+            ctx = self._tracker.next_context(openai_messages)
+        elif self._agent_role is not None:
+            ctx = RouteContext(agent_role=self._agent_role)
+
         extra: dict[str, Any] = {"max_tokens": max_tokens}
         if temperature is not None:
             extra["temperature"] = temperature
 
-        response = self._rs.completion(messages=openai_messages, **extra)
+        response = self._rs.completion(messages=openai_messages, context=ctx, **extra)
         selected = getattr(self._rs._last_routing_metadata, "model_selected", model)
         return _litellm_to_anthropic_message(response, selected)
 
@@ -120,6 +129,11 @@ class RouteSmithAnthropic:
     Args:
         routesmith: Pre-configured RouteSmith instance. If None, creates one.
         config: RouteSmithConfig to use when creating a new instance.
+        agent_role: Optional role label for routing heuristics (e.g. "summarizer").
+        conversation_id: Optional ID to associate turns in a conversation.
+        track_conversation: If True, create a ConversationTracker to pass
+            per-turn RouteContext to completion().
+        reward_fn: Optional reward function forwarded to ConversationTracker.
 
     Example:
         client = RouteSmithAnthropic()
@@ -133,9 +147,22 @@ class RouteSmithAnthropic:
         self,
         routesmith: RouteSmith | None = None,
         config: RouteSmithConfig | None = None,
+        agent_role: str | None = None,
+        conversation_id: str | None = None,
+        track_conversation: bool = False,
+        reward_fn: Any = None,
     ) -> None:
         self._rs = routesmith or RouteSmith(config=config)
-        self.messages = _MessagesResource(self._rs)
+        self.agent_role = agent_role
+        self._tracker = None
+        if track_conversation:
+            from routesmith.feedback.conversation import ConversationTracker
+            self._tracker = ConversationTracker(
+                agent_role=agent_role,
+                conversation_id=conversation_id,
+                reward_fn=reward_fn,
+            )
+        self.messages = _MessagesResource(self._rs, self._tracker, agent_role)
 
     # Delegate registry helpers so callers can do client.register_model(...)
     def register_model(self, model_id: str, **kwargs: Any) -> None:

@@ -237,3 +237,23 @@ class TestRouteSmithLMCallMessages:
         lm = RouteSmithLM(routesmith=rs)
         result = lm("Hello")
         assert result == [""]
+
+
+# ---------------------------------------------------------------------------
+# RouteSmithLM — agent context
+# ---------------------------------------------------------------------------
+
+
+class TestRouteSmithLMAgentContext:
+    def test_agent_role_stored(self):
+        lm = RouteSmithLM(agent_role="coding")
+        assert lm.agent_role == "coding"
+
+    def test_track_conversation_creates_tracker(self):
+        from routesmith.feedback.conversation import ConversationTracker
+        lm = RouteSmithLM(track_conversation=True, agent_role="qa")
+        assert isinstance(lm._tracker, ConversationTracker)
+
+    def test_no_tracker_by_default(self):
+        lm = RouteSmithLM()
+        assert lm._tracker is None

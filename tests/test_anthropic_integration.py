@@ -412,3 +412,23 @@ class TestOpenClawConfig:
         assert exc_info.value.code == 0
         captured = capsys.readouterr()
         assert "--host" in captured.out
+
+
+# ---------------------------------------------------------------------------
+# RouteSmithAnthropic — agent context
+# ---------------------------------------------------------------------------
+
+
+class TestRouteSmithAnthropicAgentContext:
+    def test_agent_role_stored(self):
+        client = RouteSmithAnthropic(agent_role="summarizer")
+        assert client.agent_role == "summarizer"
+
+    def test_track_conversation_creates_tracker(self):
+        from routesmith.feedback.conversation import ConversationTracker
+        client = RouteSmithAnthropic(track_conversation=True, agent_role="research")
+        assert isinstance(client._tracker, ConversationTracker)
+
+    def test_no_tracker_by_default(self):
+        client = RouteSmithAnthropic()
+        assert client._tracker is None
