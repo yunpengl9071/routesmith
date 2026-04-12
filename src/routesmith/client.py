@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import time
 import uuid
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -78,13 +78,12 @@ class RouteSmith:
         self._last_routing_metadata: RoutingMetadata | None = None
 
         # Resolve reward_fn from config (fail fast on bad expressions).
+        self._reward_fn: Callable[..., float] | None = None
         if self.config.reward_fn is not None:
             self._reward_fn = self.config.reward_fn
         elif self.config.reward_expr is not None:
             from routesmith.feedback.reward import compile_reward_fn
             self._reward_fn = compile_reward_fn(self.config.reward_expr)
-        else:
-            self._reward_fn = None
 
     @staticmethod
     def _has_image_content(message: dict[str, Any]) -> bool:
