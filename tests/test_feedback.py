@@ -3,17 +3,15 @@
 from __future__ import annotations
 
 import json
-import time
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from routesmith import RouteSmith, RouteSmithConfig
-from routesmith.feedback.collector import FeedbackCollector, FeedbackRecord
+from routesmith.feedback.collector import FeedbackCollector
 from routesmith.feedback.signals import QualitySignal, SignalExtractor
 from routesmith.feedback.storage import FeedbackStorage
 from routesmith.registry.models import ModelRegistry
-
 
 # ---------------------------------------------------------------------------
 # QualitySignal dataclass
