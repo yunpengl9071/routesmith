@@ -44,6 +44,7 @@ except ImportError as e:
 from pydantic import ConfigDict, PrivateAttr
 
 from routesmith.client import RouteSmith
+from routesmith.config import RouteContext
 
 
 def _langchain_messages_to_dicts(messages: list[BaseMessage]) -> list[dict[str, Any]]:
@@ -193,9 +194,8 @@ class ChatRouteSmith(BaseChatModel):
                 reward_fn=self.reward_fn,
             )
 
-    def _build_context(self, messages_dicts: list[dict]) -> Any:
+    def _build_context(self, messages_dicts: list[dict]) -> RouteContext | None:
         """Build a RouteContext from tracker state or static fields."""
-        from routesmith.config import RouteContext
         if self._tracker is not None:
             return self._tracker.next_context(messages_dicts)
         if self.agent_role is not None:
@@ -296,8 +296,7 @@ class ChatRouteSmith(BaseChatModel):
             stream_kwargs["stop"] = stop
         stream_kwargs.update(kwargs)
         ctx = self._build_context(msg_dicts)
-        if ctx is not None:
-            stream_kwargs["context"] = ctx
+        stream_kwargs["context"] = ctx
 
         for chunk in self.routesmith.completion_stream(messages=msg_dicts, **stream_kwargs):
             gen_chunk = _litellm_chunk_to_generation_chunk(chunk)
@@ -321,8 +320,7 @@ class ChatRouteSmith(BaseChatModel):
             stream_kwargs["stop"] = stop
         stream_kwargs.update(kwargs)
         ctx = self._build_context(msg_dicts)
-        if ctx is not None:
-            stream_kwargs["context"] = ctx
+        stream_kwargs["context"] = ctx
 
         async for chunk in self.routesmith.acompletion_stream(
             messages=msg_dicts, **stream_kwargs
