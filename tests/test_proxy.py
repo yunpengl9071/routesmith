@@ -5,7 +5,8 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
 from routesmith import RouteSmith
-from routesmith.proxy.handler import RequestHandler, ChatCompletionRequest
+from routesmith.config import RouteContext
+from routesmith.proxy.handler import RequestHandler, ChatCompletionRequest, extract_route_context_from_headers
 from routesmith.proxy.responses import (
     format_chat_completion,
     format_stream_chunk,
@@ -573,3 +574,32 @@ class TestResponseFormattingEdgeCases:
         )
         after = int(time.time())
         assert before <= result["created"] <= after
+
+
+class TestProxyRouteContextHeaders:
+    def test_extracts_all_fields(self):
+        headers = {
+            "x-routesmith-agent-id": "agent_42",
+            "x-routesmith-agent-role": "research",
+            "x-routesmith-conversation-id": "conv_abc",
+        }
+        ctx = extract_route_context_from_headers(headers)
+        assert ctx is not None
+        assert ctx.agent_id == "agent_42"
+        assert ctx.agent_role == "research"
+        assert ctx.conversation_id == "conv_abc"
+
+    def test_returns_none_when_no_routesmith_headers(self):
+        assert extract_route_context_from_headers({}) is None
+        assert extract_route_context_from_headers({"content-type": "application/json"}) is None
+
+    def test_partial_headers(self):
+        ctx = extract_route_context_from_headers({"x-routesmith-agent-role": "summarizer"})
+        assert ctx is not None
+        assert ctx.agent_role == "summarizer"
+        assert ctx.agent_id is None
+
+    def test_case_insensitive(self):
+        ctx = extract_route_context_from_headers({"X-RouteSmith-Agent-Role": "coding"})
+        assert ctx is not None
+        assert ctx.agent_role == "coding"

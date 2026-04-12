@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import json
 import logging
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator
+from typing import Any
 
 from routesmith import RouteSmith
-from routesmith.config import RoutingStrategy
+from routesmith.config import RouteContext, RoutingStrategy
 from routesmith.proxy.responses import (
     format_models_list,
     format_stream_chunk,
@@ -16,6 +16,28 @@ from routesmith.proxy.responses import (
 )
 
 logger = logging.getLogger(__name__)
+
+_ROUTESMITH_HEADERS = {
+    "x-routesmith-agent-id": "agent_id",
+    "x-routesmith-agent-role": "agent_role",
+    "x-routesmith-conversation-id": "conversation_id",
+}
+
+
+def extract_route_context_from_headers(
+    headers: dict[str, str],
+) -> RouteContext | None:
+    """Build RouteContext from X-RouteSmith-* HTTP headers.
+
+    Returns None if no RouteSmith headers are present.
+    Header matching is case-insensitive.
+    """
+    normalized = {k.lower(): v for k, v in headers.items()}
+    kwargs: dict[str, str] = {}
+    for header, attr in _ROUTESMITH_HEADERS.items():
+        if header in normalized:
+            kwargs[attr] = normalized[header]
+    return RouteContext(**kwargs) if kwargs else None
 
 
 @dataclass
@@ -40,7 +62,7 @@ class ChatCompletionRequest:
     extra_kwargs: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ChatCompletionRequest":
+    def from_dict(cls, data: dict[str, Any]) -> ChatCompletionRequest:
         """
         Parse request from JSON dict.
 
@@ -138,6 +160,7 @@ class RequestHandler:
     async def handle_completion(
         self,
         request: ChatCompletionRequest,
+        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Handle non-streaming chat completion request.
@@ -146,6 +169,8 @@ class RequestHandler:
 
         Args:
             request: Parsed completion request.
+            headers: Optional HTTP request headers; X-RouteSmith-* values are
+                     extracted and forwarded as a RouteContext.
 
         Returns:
             OpenAI-compatible response dict.
@@ -163,6 +188,9 @@ class RequestHandler:
             except ValueError:
                 logger.warning(f"Unknown strategy: {request.routesmith_strategy}")
 
+        # Extract route context from X-RouteSmith-* headers (if any)
+        ctx = extract_route_context_from_headers(headers or {})
+
         # Execute through RouteSmith
         response = await self.routesmith.acompletion(
             messages=request.messages,
@@ -171,6 +199,7 @@ class RequestHandler:
             max_cost=request.routesmith_max_cost,
             min_quality=request.routesmith_min_quality,
             include_metadata=True,
+            context=ctx,
             **request.to_litellm_kwargs(),
         )
 
