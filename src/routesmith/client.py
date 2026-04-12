@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import time
 import uuid
+from collections import defaultdict
 from collections.abc import AsyncIterator, Callable, Iterator
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -690,7 +691,7 @@ class RouteSmith:
         self,
         agent_role: str | None,
         min_samples: int = 50,
-    ) -> dict | None:
+    ) -> dict[str, Any] | None:
         """Return the historically best model for an agent role.
 
         Returns None when agent_role is None or fewer than min_samples
@@ -714,20 +715,25 @@ class RouteSmith:
         if len(records) < min_samples:
             return None
 
-        from collections import defaultdict
         model_quality: dict[str, list[float]] = defaultdict(list)
         for r in records:
             if r["quality_score"] is not None:
                 model_quality[r["model_id"]].append(float(r["quality_score"]))
 
         registered = {m.model_id: m for m in self.registry.list_models()}
+        # Filter to only registered models, then check per-model sample threshold.
+        model_quality = defaultdict(
+            list,
+            {k: v for k, v in model_quality.items() if k in registered},
+        )
+        if not any(len(q) >= min_samples for q in model_quality.values()):
+            return None
+
         best_model = None
         best_efficiency = -1.0
-        model_stats: dict[str, dict] = {}
+        model_stats: dict[str, dict[str, Any]] = {}
 
         for model_id, qualities in model_quality.items():
-            if model_id not in registered:
-                continue
             model = registered[model_id]
             avg_quality = sum(qualities) / len(qualities)
             avg_cost = (model.cost_per_1k_input + model.cost_per_1k_output) / 2

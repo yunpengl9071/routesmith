@@ -271,7 +271,7 @@ class FeedbackStorage:
                ORDER BY created_at DESC LIMIT ?""",
             (agent_role, limit),
         ).fetchall()
-        return [dict(r) for r in rows]
+        return [self._row_to_dict(r) for r in rows]
 
     def save_predictor_state(self, predictor_type: str, serialized_state: bytes) -> None:
         """Persist serialized predictor state to SQLite."""

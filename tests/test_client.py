@@ -635,6 +635,23 @@ class TestRecommendModelForAgent:
         result = rs.recommend_model_for_agent("research", min_samples=50)
         assert "gpt-4o-mini" in result["new_models_to_explore"]
 
+    def test_returns_none_when_all_records_are_unregistered_models(self):
+        rs = RouteSmith(config=RouteSmithConfig(feedback_storage_path=":memory:"))
+        rs.register_model(
+            "gpt-4o", cost_per_1k_input=0.005, cost_per_1k_output=0.015, quality_score=0.9
+        )
+        storage = rs.feedback._storage
+        for i in range(55):
+            storage.store_record(
+                request_id=f"req_ghost_{i}",
+                model_id="ghost-model",
+                messages=[{"role": "user", "content": "hi"}],
+                latency_ms=100.0,
+                quality_score=0.9,
+                agent_role="research",
+            )
+        assert rs.recommend_model_for_agent("research", min_samples=50) is None
+
 
 class TestRegisterRewardFn:
     def test_adds_to_config(self):
