@@ -270,3 +270,57 @@ class LinUCBPredictor(BasePredictor):
         if len(names) != len(theta):
             return {f"f{i}": float(theta[i]) for i in range(len(theta))}
         return {name: round(float(theta[i]), 4) for i, name in enumerate(names)}
+
+    def add_arm(self, model_id: str) -> None:
+        """Signal intent to add a new arm.
+
+        LinUCBPredictor uses dict-based lazy arm init — the arm is
+        initialized automatically by _ensure_arm() on first predict/update.
+        This method is a no-op if the arm already has state.
+        """
+        pass  # arm auto-initialized on first predict via _ensure_arm
+
+    def remove_arm(self, model_id: str) -> None:
+        """Remove arm state for a deregistered model."""
+        self._arms.pop(model_id, None)
+
+    def serialize_state(self) -> bytes:
+        """Serialize arm states to JSON bytes (no pickle)."""
+        import json
+        state = {
+            "total_updates": self._total_updates,
+            "d": self._d,
+            "arms": {
+                model_id: {
+                    "A": arm["A"].tolist(),
+                    "b": arm["b"].tolist(),
+                    "count": arm["count"],
+                }
+                for model_id, arm in self._arms.items()
+            },
+        }
+        return json.dumps(state).encode()
+
+    def load_state(self, blob: bytes) -> None:
+        """Load arm states from JSON bytes.
+
+        Skips load if stored feature dimension differs (cold start on mismatch).
+        """
+        import json
+
+        import numpy as np
+        state = json.loads(blob.decode())
+        stored_d = state.get("d")
+        if stored_d is not None and self._d is not None and stored_d != self._d:
+            return  # dimension mismatch — cold start
+        self._total_updates = state.get("total_updates", 0)
+        if stored_d is not None:
+            self._d = stored_d
+        for model_id, arm_data in state.get("arms", {}).items():
+            A = np.array(arm_data["A"], dtype=np.float64)  # noqa: N806
+            self._arms[model_id] = {
+                "A": A,
+                "b": np.array(arm_data["b"], dtype=np.float64),
+                "A_inv": np.linalg.inv(A),
+                "count": arm_data["count"],
+            }
