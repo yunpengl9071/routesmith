@@ -50,7 +50,11 @@ class FeedbackStorage:
                 quality_score REAL,
                 user_feedback TEXT,
                 metadata_json TEXT,
-                created_at REAL NOT NULL
+                created_at REAL NOT NULL,
+                agent_id TEXT,
+                agent_role TEXT,
+                conversation_id TEXT,
+                turn_index INTEGER
             );
 
             CREATE TABLE IF NOT EXISTS outcome_signals (
@@ -64,11 +68,49 @@ class FeedbackStorage:
                 FOREIGN KEY (request_id) REFERENCES feedback_records(request_id)
             );
 
+            CREATE TABLE IF NOT EXISTS trajectories (
+                trajectory_id TEXT PRIMARY KEY,
+                conversation_id TEXT,
+                agent_id TEXT,
+                agent_role TEXT,
+                request_ids TEXT NOT NULL,
+                start_time REAL NOT NULL,
+                end_time REAL,
+                turn_count INTEGER NOT NULL DEFAULT 0,
+                total_cost REAL NOT NULL DEFAULT 0.0,
+                avg_quality REAL
+            );
+
+            CREATE TABLE IF NOT EXISTS predictor_state (
+                predictor_type TEXT PRIMARY KEY,
+                serialized_state BLOB NOT NULL,
+                updated_at REAL NOT NULL
+            );
+
             CREATE INDEX IF NOT EXISTS idx_signals_request
                 ON outcome_signals(request_id);
             CREATE INDEX IF NOT EXISTS idx_records_model
                 ON feedback_records(model_id);
+            CREATE INDEX IF NOT EXISTS idx_records_agent_role
+                ON feedback_records(agent_role);
+            CREATE INDEX IF NOT EXISTS idx_records_conversation
+                ON feedback_records(conversation_id);
         """)
+
+        # Idempotent migration for existing databases
+        for col, coltype in [
+            ("agent_id", "TEXT"),
+            ("agent_role", "TEXT"),
+            ("conversation_id", "TEXT"),
+            ("turn_index", "INTEGER"),
+        ]:
+            try:
+                self._conn.execute(
+                    f"ALTER TABLE feedback_records ADD COLUMN {col} {coltype}"
+                )
+                self._conn.commit()
+            except Exception:
+                pass  # Column already exists
 
     def store_record(
         self,
@@ -79,14 +121,19 @@ class FeedbackStorage:
         quality_score: float | None = None,
         user_feedback: str | None = None,
         metadata: dict[str, Any] | None = None,
+        agent_id: str | None = None,
+        agent_role: str | None = None,
+        conversation_id: str | None = None,
+        turn_index: int | None = None,
     ) -> None:
         """Store a feedback record."""
         conn = self._get_conn()
         conn.execute(
             """INSERT OR REPLACE INTO feedback_records
                (request_id, model_id, messages_json, latency_ms,
-                quality_score, user_feedback, metadata_json, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                quality_score, user_feedback, metadata_json, created_at,
+                agent_id, agent_role, conversation_id, turn_index)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 request_id,
                 model_id,
@@ -96,6 +143,10 @@ class FeedbackStorage:
                 user_feedback,
                 json.dumps(metadata) if metadata else None,
                 time.time(),
+                agent_id,
+                agent_role,
+                conversation_id,
+                turn_index,
             ),
         )
         conn.commit()

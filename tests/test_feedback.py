@@ -497,3 +497,61 @@ class TestFeedbackConfigPreservation:
     def test_default_storage_path_is_none(self):
         config = RouteSmithConfig()
         assert config.feedback_storage_path is None
+
+
+# ---------------------------------------------------------------------------
+# Storage Schema Extensions
+# ---------------------------------------------------------------------------
+
+class TestStorageSchemaExtensions:
+    def test_feedback_records_has_agent_columns(self):
+        storage = FeedbackStorage(":memory:")
+        conn = storage._get_conn()
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(feedback_records)")}
+        assert "agent_id" in cols
+        assert "agent_role" in cols
+        assert "conversation_id" in cols
+        assert "turn_index" in cols
+
+    def test_trajectories_table_exists(self):
+        storage = FeedbackStorage(":memory:")
+        conn = storage._get_conn()
+        tables = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )}
+        assert "trajectories" in tables
+
+    def test_predictor_state_table_exists(self):
+        storage = FeedbackStorage(":memory:")
+        conn = storage._get_conn()
+        tables = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )}
+        assert "predictor_state" in tables
+
+    def test_store_record_with_agent_context(self):
+        storage = FeedbackStorage(":memory:")
+        storage.store_record(
+            request_id="req1",
+            model_id="gpt-4o",
+            messages=[{"role": "user", "content": "hi"}],
+            latency_ms=100.0,
+            agent_id="agent_42",
+            agent_role="research",
+            conversation_id="conv_abc",
+            turn_index=2,
+        )
+        record = storage.get_record("req1")
+        assert record["agent_role"] == "research"
+        assert record["turn_index"] == 2
+
+    def test_store_record_without_agent_context_still_works(self):
+        storage = FeedbackStorage(":memory:")
+        storage.store_record(
+            request_id="req2",
+            model_id="gpt-4o-mini",
+            messages=[{"role": "user", "content": "hi"}],
+            latency_ms=50.0,
+        )
+        record = storage.get_record("req2")
+        assert record["agent_id"] is None
