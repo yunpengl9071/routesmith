@@ -38,7 +38,6 @@ class FeedbackStorage:
         return self._conn
 
     def _create_tables(self) -> None:
-        conn = self._get_conn() if self._conn else self._conn
         # _conn is guaranteed set by caller (_get_conn sets it before calling us)
         assert self._conn is not None
         self._conn.executescript("""
@@ -109,7 +108,7 @@ class FeedbackStorage:
                     f"ALTER TABLE feedback_records ADD COLUMN {col} {coltype}"
                 )
                 self._conn.commit()
-            except Exception:
+            except sqlite3.OperationalError:
                 pass  # Column already exists
 
     def store_record(
