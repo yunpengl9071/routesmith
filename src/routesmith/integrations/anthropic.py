@@ -16,10 +16,9 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 try:
-    import anthropic
     from anthropic.types import Message, TextBlock, Usage
 except ImportError as e:
     raise ImportError(
@@ -28,7 +27,18 @@ except ImportError as e:
     ) from e
 
 from routesmith.client import RouteSmith
-from routesmith.config import RouteSmithConfig, PredictorConfig
+from routesmith.config import PredictorConfig, RouteSmithConfig
+
+if TYPE_CHECKING:
+    from routesmith.feedback.conversation import ConversationTracker
+
+# Map OpenAI finish_reason → Anthropic stop_reason literal
+_STOP_REASON_MAP: dict[str, str] = {
+    "stop": "end_turn",
+    "length": "max_tokens",
+    "tool_calls": "tool_use",
+    "content_filter": "refusal",
+}
 
 
 def _anthropic_to_openai_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -59,13 +69,6 @@ def _litellm_to_anthropic_message(response: Any, model: str) -> Message:
     text = choice.message.content or ""
     usage = getattr(response, "usage", None)
 
-    # Map OpenAI finish_reason → Anthropic stop_reason literal
-    _STOP_REASON_MAP = {
-        "stop": "end_turn",
-        "length": "max_tokens",
-        "tool_calls": "tool_use",
-        "content_filter": "refusal",
-    }
     stop_reason = _STOP_REASON_MAP.get(choice.finish_reason, "end_turn")
 
     return Message(
@@ -86,7 +89,7 @@ def _litellm_to_anthropic_message(response: Any, model: str) -> Message:
 class _MessagesResource:
     """Mimics anthropic.resources.Messages."""
 
-    def __init__(self, rs: RouteSmith, tracker=None, agent_role=None) -> None:
+    def __init__(self, rs: RouteSmith, tracker: ConversationTracker | None = None, agent_role: str | None = None) -> None:
         self._rs = rs
         self._tracker = tracker
         self._agent_role = agent_role
@@ -177,7 +180,7 @@ class RouteSmithAnthropic:
         cls,
         model_ids: list[str] | None = None,
         predictor_type: str = "lints",
-    ) -> "RouteSmithAnthropic":
+    ) -> RouteSmithAnthropic:
         """Create a client pre-loaded with Claude models from OpenRouter.
 
         Args:

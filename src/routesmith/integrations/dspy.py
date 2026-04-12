@@ -29,7 +29,7 @@ from __future__ import annotations
 from typing import Any
 
 from routesmith.client import RouteSmith
-from routesmith.config import RouteSmithConfig, PredictorConfig
+from routesmith.config import PredictorConfig, RouteSmithConfig
 
 
 def routesmith_lm(
@@ -152,7 +152,7 @@ class RouteSmithLM:
         cls,
         model_ids: list[str] | None = None,
         predictor_type: str = "lints",
-    ) -> "RouteSmithLM":
+    ) -> RouteSmithLM:
         """Create an LM pre-loaded with models fetched from OpenRouter.
 
         Args:
