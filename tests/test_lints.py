@@ -1,14 +1,16 @@
 # tests/test_lints.py
 """Unit tests for LinTS-27d posterior math — no API calls needed."""
 from __future__ import annotations
+
 import json
-import numpy as np
-import pytest
-import sys
 import pathlib
+import sys
+
+import numpy as np
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 
-from routesmith.predictor.lints import LinTSPredictor, LinTSArm
+from routesmith.predictor.lints import LinTSArm, LinTSPredictor
 from routesmith.registry.models import ModelRegistry
 
 
@@ -83,7 +85,6 @@ class TestLinTSArmLifecycle:
 
 
 def test_lints_arm_init():
-    from routesmith.predictor.lints import LinTSArm
     arm = LinTSArm(d=3)
     np.testing.assert_array_equal(arm.A, np.eye(3))
     np.testing.assert_array_equal(arm.b, np.zeros(3))
@@ -91,18 +92,16 @@ def test_lints_arm_init():
 
 def test_lints_arm_update():
     """After one update with x=[1,0,0], r=1.0: b=[1,0,0], A=I+xx^T."""
-    from routesmith.predictor.lints import LinTSArm
     arm = LinTSArm(d=3)
     x = np.array([1.0, 0.0, 0.0])
     arm.update(x, reward=1.0)
-    expected_A = np.eye(3) + np.outer(x, x)
-    np.testing.assert_array_almost_equal(arm.A, expected_A)
+    expected_a = np.eye(3) + np.outer(x, x)
+    np.testing.assert_array_almost_equal(arm.A, expected_a)
     np.testing.assert_array_almost_equal(arm.b, x)
 
 
 def test_lints_arm_mu():
     """mu = A^{-1} b. After x=[1,0,0], r=1: A=diag(2,1,1), b=[1,0,0] → mu=[0.5,0,0]."""
-    from routesmith.predictor.lints import LinTSArm
     arm = LinTSArm(d=3)
     x = np.array([1.0, 0.0, 0.0])
     arm.update(x, reward=1.0)
@@ -113,7 +112,6 @@ def test_lints_arm_mu():
 
 
 def test_lints_arm_sample_shape():
-    from routesmith.predictor.lints import LinTSArm
     arm = LinTSArm(d=5)
     rng = np.random.default_rng(42)
     sample = arm.sample(rng, v_sq=1.0)
@@ -121,7 +119,6 @@ def test_lints_arm_sample_shape():
 
 
 def test_lints_arm_serialization():
-    from routesmith.predictor.lints import LinTSArm
     arm = LinTSArm(d=3)
     x = np.array([1.0, 0.5, 0.0])
     arm.update(x, reward=0.8)
