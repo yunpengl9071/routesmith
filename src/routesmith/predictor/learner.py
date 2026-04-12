@@ -66,6 +66,7 @@ class AdaptivePredictor(BasePredictor):
         self,
         messages: list[dict[str, str]],
         model_ids: list[str],
+        context: Any | None = None,
     ) -> list[PredictionResult]:
         """Predict quality for each model given input messages."""
         results: list[PredictionResult] = []

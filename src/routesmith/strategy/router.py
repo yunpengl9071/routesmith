@@ -209,7 +209,7 @@ class Router:
 
         # Get predicted quality for all candidates
         candidate_ids = [m.model_id for m in candidates]
-        predictions = self.predictor.predict(messages, candidate_ids)
+        predictions = self.predictor.predict(messages, candidate_ids, context=context)
 
         # Build a cost lookup
         cost_map = {m.model_id: m.cost_per_1k_total for m in candidates}
@@ -265,7 +265,7 @@ class Router:
         candidates = self._filter_by_capabilities(candidates, required_capabilities)
 
         candidate_ids = [m.model_id for m in candidates]
-        predictions = self.predictor.predict(messages, candidate_ids)
+        predictions = self.predictor.predict(messages, candidate_ids, context=context)
 
         cost_map = {m.model_id: m.cost_per_1k_total for m in candidates}
 
