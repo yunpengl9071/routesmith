@@ -39,13 +39,33 @@ response = client.chat.completions.create(
 
 ### LinTS-27d (recommended, default)
 
-Linear Thompson Sampling. Maintains a Gaussian posterior over routing quality per model. Samples from each arm's posterior at decision time — no hyperparameter to tune, automatic exploration-exploitation balance.
+Linear Thompson Sampling — a classical reinforcement learning method adapted for LLM routing. Maintains a Gaussian posterior over routing quality per model and samples from it at decision time, naturally balancing exploration (trying cheaper models) and exploitation (using what's known to work). No hyperparameter tuning required.
 
 ### LinUCB-27d
 
 Contextual bandit with UCB exploration. Uses an `alpha` parameter (default 1.5) to control exploration. Achieves higher routing accuracy in benchmarks (APGR=1.126 vs LinTS=0.593 on MMLU) at the cost of needing alpha tuning.
 
-Both use a 27-dimensional feature vector: message features (length, complexity, question type) × model features (cost, quality score, context window) + interaction terms.
+Both use a 27-dimensional feature vector: message features (length, complexity, question type) × model features (cost, quality score, context window) + interaction terms. The feature vector describes the current task — not conversation history, which is passed through to the model unchanged.
+
+## How learning works
+
+RouteSmith learns from **explicit feedback** you provide after each response. Until feedback arrives, it relies on the `quality_score` you set at model registration as a prior.
+
+```python
+# After getting a response, tell RouteSmith how it went
+rs.record_outcome(request_id, score=0.9)    # explicit float 0–1
+rs.record_outcome(request_id, success=True) # binary success/failure
+```
+
+**Best fit:**
+- Apps with a user feedback signal (thumbs up/down, "regenerate" clicks, task completion)
+- Automated pipelines with a natural success signal (code that runs, tests that pass, tool calls that return valid results)
+
+**Less ideal for:**
+- Open-ended chat with no feedback mechanism — learning requires a signal
+- Very low-traffic apps — the bandit needs enough feedback to build meaningful posteriors
+
+**Current limitation:** RouteSmith only learns from explicit feedback — implicit signals (refusals, empty replies, truncated output, latency anomalies) are extracted and stored for diagnostics but are not yet wired into the predictor update loop. If your pipeline has no natural feedback signal, routing will rely on the registered `quality_score` priors and won't adapt. Closing this loop is a high-priority area for contribution.
 
 ## Config file
 
@@ -107,13 +127,34 @@ rs.register_model("deepseek/deepseek-chat", cost_per_1k_input=0.014, cost_per_1k
 
 response = rs.complete(messages=[{"role": "user", "content": "Explain recursion"}])
 
-# Provide feedback to update routing posteriors
-rs.record_feedback(response, quality=0.9)
+# RouteSmith learns from explicit feedback — call this after you know how the response went
+# (user thumbs up/down, task completion, test passing, etc.)
+rs.record_outcome(response.request_id, score=0.9)   # explicit float 0–1
+rs.record_outcome(response.request_id, success=True) # or binary
 
 # Session stats
 print(rs.stats)
 # {'request_count': 1, 'total_cost_usd': 0.0023, 'cost_savings_usd': 0.0190, 'savings_percent': 89.2}
 ```
+
+## Custom reward functions
+
+By default RouteSmith optimises for quality. You can override this to weight cost, latency, or any combination:
+
+```yaml
+# routesmith.yaml
+feedback:
+  reward: "quality - 0.3 * cost_normalized"
+```
+
+```python
+# Python API
+config = RouteSmithConfig(
+    reward_fn=lambda ctx: 0.7 * ctx["quality"] - 0.3 * ctx["latency_ms"] / 5000,
+)
+```
+
+Available context variables: `quality`, `cost_usd`, `cost_normalized`, `latency_ms`, `tokens_in`, `tokens_out`, `model_id`. YAML expressions support `min`, `max`, `abs`, `round` — no arbitrary code execution.
 
 ## Framework integrations
 
