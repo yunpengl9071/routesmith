@@ -226,3 +226,65 @@ class AdaptivePredictor(BasePredictor):
         if self._model is not None and self._model.is_trained():
             diag["feature_importances"] = self._model.feature_importances
         return diag
+
+    def add_arm(self, model_id: str, quality_score: float = 0.8) -> None:
+        """Register a new model arm with a cold-start EMA prior.
+
+        No-op if model already has a prior (preserves learned value).
+        """
+        if model_id not in self._ema_priors:
+            self._ema_priors[model_id] = quality_score
+
+    def remove_arm(self, model_id: str) -> None:
+        """Remove EMA prior for a deregistered model.
+
+        Historical training records in storage are unaffected.
+        """
+        self._ema_priors.pop(model_id, None)
+
+    def serialize_state(self) -> bytes:
+        """Serialize predictor state to bytes.
+
+        Format: 4-byte big-endian length prefix + JSON metadata + optional joblib RF bytes.
+        joblib is only used for scikit-learn RF objects (no general pickle).
+        """
+        import io
+        import json
+        meta = {
+            "phase": self._phase,
+            "update_count": self._update_count,
+            "ema_priors": self._ema_priors,
+            "has_rf_model": self._model is not None,
+        }
+        meta_bytes = json.dumps(meta).encode()
+        if self._model is not None:
+            try:
+                import joblib
+                buf = io.BytesIO()
+                joblib.dump(self._model, buf)
+                meta_len = len(meta_bytes).to_bytes(4, "big")
+                return meta_len + meta_bytes + buf.getvalue()
+            except Exception:
+                pass  # RF serialization failed; store meta only
+        meta_len = len(meta_bytes).to_bytes(4, "big")
+        return meta_len + meta_bytes
+
+    def load_state(self, blob: bytes) -> None:
+        """Load predictor state from bytes produced by serialize_state()."""
+        import io
+        import json
+        if len(blob) < 4:
+            return
+        meta_len = int.from_bytes(blob[:4], "big")
+        meta_bytes = blob[4:4 + meta_len]
+        rf_bytes = blob[4 + meta_len:]
+        meta = json.loads(meta_bytes.decode())
+        self._phase = meta.get("phase", "cold_start")
+        self._update_count = meta.get("update_count", 0)
+        self._ema_priors.update(meta.get("ema_priors", {}))
+        if rf_bytes and meta.get("has_rf_model"):
+            try:
+                import joblib
+                self._model = joblib.load(io.BytesIO(rf_bytes))
+            except Exception:
+                self._model = None

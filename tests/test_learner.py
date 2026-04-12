@@ -321,3 +321,45 @@ class TestSortOrder:
         )
         qualities = [r.predicted_quality for r in results]
         assert qualities == sorted(qualities, reverse=True)
+
+
+def _make_adaptive():
+    reg = ModelRegistry()
+    reg.register("gpt-4o", cost_per_1k_input=0.005, cost_per_1k_output=0.015, quality_score=0.9)
+    reg.register("gpt-4o-mini", cost_per_1k_input=0.00015, cost_per_1k_output=0.0006, quality_score=0.7)
+    return AdaptivePredictor(registry=reg)
+
+
+class TestAdaptiveArmLifecycle:
+    def test_add_arm_adds_ema_prior(self):
+        p = _make_adaptive()
+        p.add_arm("claude-haiku", quality_score=0.75)
+        assert "claude-haiku" in p._ema_priors
+        assert p._ema_priors["claude-haiku"] == pytest.approx(0.75)
+
+    def test_add_existing_arm_is_noop(self):
+        p = _make_adaptive()
+        original = p._ema_priors["gpt-4o"]
+        p.add_arm("gpt-4o", quality_score=0.1)
+        assert p._ema_priors["gpt-4o"] == original  # not overwritten
+
+    def test_remove_arm_removes_ema_prior(self):
+        p = _make_adaptive()
+        p.remove_arm("gpt-4o-mini")
+        assert "gpt-4o-mini" not in p._ema_priors
+
+    def test_remove_nonexistent_is_noop(self):
+        p = _make_adaptive()
+        p.remove_arm("nonexistent")  # should not raise
+
+    def test_serialize_deserialize_cold_start_phase(self):
+        p = _make_adaptive()
+        blob = p.serialize_state()
+        assert isinstance(blob, bytes)
+        # Parse JSON from the blob (first 4 bytes are length prefix)
+        meta_len = int.from_bytes(blob[:4], "big")
+        meta = json.loads(blob[4:4 + meta_len].decode())
+        assert "phase" in meta
+        p2 = _make_adaptive()
+        p2.load_state(blob)
+        assert p2._phase == p._phase
