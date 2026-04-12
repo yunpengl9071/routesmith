@@ -13,8 +13,8 @@ Example:
 from __future__ import annotations
 
 import json
-from collections.abc import Callable, Sequence
-from typing import Any, Iterator, AsyncIterator
+from collections.abc import AsyncIterator, Callable, Iterator, Sequence
+from typing import Any
 
 try:
     from langchain_core.callbacks import (
@@ -41,7 +41,7 @@ except ImportError as e:
         "Install it with: pip install routesmith[langchain]"
     ) from e
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, PrivateAttr
 
 from routesmith.client import RouteSmith
 
@@ -172,6 +172,12 @@ class ChatRouteSmith(BaseChatModel):
     min_quality: float | None = None
     max_cost: float | None = None
     include_routing_metadata: bool = True
+    agent_role: str | None = None
+    conversation_id: str | None = None
+    track_conversation: bool = False
+    reward_fn: Any = None
+
+    _tracker: Any = PrivateAttr(default=None)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -179,6 +185,25 @@ class ChatRouteSmith(BaseChatModel):
         super().__init__(**kwargs)
         if self.routesmith is None:
             self.routesmith = RouteSmith()
+        if self.track_conversation:
+            from routesmith.feedback.conversation import ConversationTracker
+            self._tracker = ConversationTracker(
+                agent_role=self.agent_role,
+                conversation_id=self.conversation_id,
+                reward_fn=self.reward_fn,
+            )
+
+    def _build_context(self, messages_dicts: list[dict]) -> Any:
+        """Build a RouteContext from tracker state or static fields."""
+        from routesmith.config import RouteContext
+        if self._tracker is not None:
+            return self._tracker.next_context(messages_dicts)
+        if self.agent_role is not None:
+            return RouteContext(
+                agent_role=self.agent_role,
+                conversation_id=self.conversation_id,
+            )
+        return None
 
     @property
     def _llm_type(self) -> str:
@@ -227,8 +252,9 @@ class ChatRouteSmith(BaseChatModel):
         completion_kwargs = self._build_completion_kwargs(**kwargs)
         if stop:
             completion_kwargs["stop"] = stop
+        ctx = self._build_context(msg_dicts)
 
-        response = self.routesmith.completion(messages=msg_dicts, **completion_kwargs)
+        response = self.routesmith.completion(messages=msg_dicts, context=ctx, **completion_kwargs)
 
         routing_meta = getattr(response, "routesmith_metadata", None)
         ai_message = _litellm_response_to_ai_message(response, routing_meta)
@@ -246,8 +272,9 @@ class ChatRouteSmith(BaseChatModel):
         completion_kwargs = self._build_completion_kwargs(**kwargs)
         if stop:
             completion_kwargs["stop"] = stop
+        ctx = self._build_context(msg_dicts)
 
-        response = await self.routesmith.acompletion(messages=msg_dicts, **completion_kwargs)
+        response = await self.routesmith.acompletion(messages=msg_dicts, context=ctx, **completion_kwargs)
 
         routing_meta = getattr(response, "routesmith_metadata", None)
         ai_message = _litellm_response_to_ai_message(response, routing_meta)
@@ -268,6 +295,9 @@ class ChatRouteSmith(BaseChatModel):
         if stop:
             stream_kwargs["stop"] = stop
         stream_kwargs.update(kwargs)
+        ctx = self._build_context(msg_dicts)
+        if ctx is not None:
+            stream_kwargs["context"] = ctx
 
         for chunk in self.routesmith.completion_stream(messages=msg_dicts, **stream_kwargs):
             gen_chunk = _litellm_chunk_to_generation_chunk(chunk)
@@ -290,6 +320,9 @@ class ChatRouteSmith(BaseChatModel):
         if stop:
             stream_kwargs["stop"] = stop
         stream_kwargs.update(kwargs)
+        ctx = self._build_context(msg_dicts)
+        if ctx is not None:
+            stream_kwargs["context"] = ctx
 
         async for chunk in self.routesmith.acompletion_stream(
             messages=msg_dicts, **stream_kwargs

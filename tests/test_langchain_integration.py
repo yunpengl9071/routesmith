@@ -442,6 +442,34 @@ class TestImportGuard:
 
 
 # ---------------------------------------------------------------------------
+# Agent context fields
+# ---------------------------------------------------------------------------
+
+
+class TestChatRouteSmithAgentContext:
+    def test_agent_role_field(self):
+        llm = ChatRouteSmith(agent_role="research")
+        assert llm.agent_role == "research"
+
+    def test_track_conversation_creates_tracker(self):
+        from routesmith.feedback.conversation import ConversationTracker
+
+        llm = ChatRouteSmith(track_conversation=True, agent_role="coding")
+        assert llm._tracker is not None
+        assert isinstance(llm._tracker, ConversationTracker)
+        assert llm._tracker._agent_role == "coding"
+
+    def test_no_tracker_when_false(self):
+        llm = ChatRouteSmith(track_conversation=False)
+        assert llm._tracker is None
+
+    def test_reward_fn_field(self):
+        fn = lambda r, m: 0.9  # noqa: E731
+        llm = ChatRouteSmith(reward_fn=fn)
+        assert llm.reward_fn is fn
+
+
+# ---------------------------------------------------------------------------
 # bind_tools
 # ---------------------------------------------------------------------------
 
