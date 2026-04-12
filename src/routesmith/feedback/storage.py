@@ -257,6 +257,26 @@ class FeedbackStorage:
             for row in rows
         }
 
+    def save_predictor_state(self, predictor_type: str, serialized_state: bytes) -> None:
+        """Persist serialized predictor state to SQLite."""
+        conn = self._get_conn()
+        conn.execute(
+            """INSERT OR REPLACE INTO predictor_state
+               (predictor_type, serialized_state, updated_at)
+               VALUES (?, ?, ?)""",
+            (predictor_type, serialized_state, time.time()),
+        )
+        conn.commit()
+
+    def load_predictor_state(self, predictor_type: str) -> bytes | None:
+        """Load serialized predictor state. Returns None if not found."""
+        conn = self._get_conn()
+        row = conn.execute(
+            "SELECT serialized_state FROM predictor_state WHERE predictor_type = ?",
+            (predictor_type,),
+        ).fetchone()
+        return row[0] if row else None
+
     def _row_to_dict(self, row: sqlite3.Row) -> dict[str, Any]:
         """Convert a Row to a plain dict, deserializing JSON fields."""
         d = dict(row)

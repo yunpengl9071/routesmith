@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 from unittest.mock import MagicMock, patch
 
@@ -555,3 +556,30 @@ class TestStorageSchemaExtensions:
         )
         record = storage.get_record("req2")
         assert record["agent_id"] is None
+
+
+# ---------------------------------------------------------------------------
+# Predictor State Persistence
+# ---------------------------------------------------------------------------
+
+class TestPredictorStatePersistence:
+    def test_save_and_load_predictor_state(self):
+        storage = FeedbackStorage(":memory:")
+        # State stored as JSON bytes (no pickle)
+        state = {"arms": [], "d": 35, "t": 0}
+        blob = json.dumps(state).encode()
+        storage.save_predictor_state("lints", blob)
+        loaded = storage.load_predictor_state("lints")
+        assert loaded is not None
+        recovered = json.loads(loaded.decode())
+        assert recovered["d"] == 35
+
+    def test_load_missing_predictor_returns_none(self):
+        storage = FeedbackStorage(":memory:")
+        assert storage.load_predictor_state("nonexistent") is None
+
+    def test_save_overwrites_existing(self):
+        storage = FeedbackStorage(":memory:")
+        storage.save_predictor_state("lints", b"v1")
+        storage.save_predictor_state("lints", b"v2")
+        assert storage.load_predictor_state("lints") == b"v2"
