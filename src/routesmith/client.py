@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
+import logging
 import time
 import uuid
-from dataclasses import dataclass, asdict
-from typing import Any, AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Iterator
+from dataclasses import asdict, dataclass
+from typing import Any
 
 import litellm
 from litellm import ModelResponse
 
 from routesmith.config import RouteSmithConfig, RoutingStrategy
+from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry
 from routesmith.strategy.router import Router
-from routesmith.feedback.collector import FeedbackCollector
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -72,6 +76,15 @@ class RouteSmith:
         self._total_cost = 0.0
         self._counterfactual_cost = 0.0  # Cost if always used most expensive model
         self._last_routing_metadata: RoutingMetadata | None = None
+
+        # Resolve reward_fn from config (fail fast on bad expressions).
+        if self.config.reward_fn is not None:
+            self._reward_fn = self.config.reward_fn
+        elif self.config.reward_expr is not None:
+            from routesmith.feedback.reward import compile_reward_fn
+            self._reward_fn = compile_reward_fn(self.config.reward_expr)
+        else:
+            self._reward_fn = None
 
     @staticmethod
     def _has_image_content(message: dict[str, Any]) -> bool:
@@ -563,10 +576,27 @@ class RouteSmith:
         if quality is not None:
             record = self.feedback.get_record_by_id(request_id)
             if record is not None:
+                reward_override = None
+                if self._reward_fn is not None:
+                    from routesmith.feedback.reward import build_reward_context
+                    ctx = build_reward_context(
+                        model_id=record.model_id,
+                        quality=quality,
+                        response=record.response,
+                        latency_ms=record.latency_ms,
+                        registry=self.registry,
+                    )
+                    try:
+                        reward_override = float(self._reward_fn(ctx))
+                    except Exception as e:
+                        logger.warning(
+                            "reward_fn raised an error, skipping reward override: %s", e
+                        )
                 self.router.predictor.update(
                     messages=record.messages,
                     model_id=record.model_id,
                     actual_quality=quality,
+                    reward_override=reward_override,
                 )
 
         return found

@@ -395,3 +395,121 @@ class TestYamlLoaderReward:
             assert config.reward_expr is None
         finally:
             os.unlink(path)
+
+
+from unittest.mock import patch
+
+
+def _make_client(config=None):
+    from routesmith import RouteSmith, RouteSmithConfig
+    cfg = config or RouteSmithConfig()
+    cfg.feedback_sample_rate = 1.0
+    rs = RouteSmith(config=cfg)
+    rs.register_model("openai/gpt-4o-mini", cost_per_1k_input=0.15,
+                      cost_per_1k_output=0.60, quality_score=0.8)
+    rs.register_model("openai/gpt-4o", cost_per_1k_input=2.50,
+                      cost_per_1k_output=10.0, quality_score=0.95)
+    return rs
+
+
+def _insert_record(rs, request_id="req-001"):
+    from routesmith.feedback.collector import FeedbackRecord
+    import time
+    fake_response = MagicMock()
+    fake_response.usage.prompt_tokens = 100
+    fake_response.usage.completion_tokens = 50
+    record = FeedbackRecord(
+        request_id=request_id,
+        messages=[{"role": "user", "content": "Hi"}],
+        model_id="openai/gpt-4o-mini",
+        response=fake_response,
+        latency_ms=150.0,
+        timestamp=time.time(),
+    )
+    rs.feedback._request_index[request_id] = record
+    return record
+
+
+class TestClientRewardFn:
+    def test_no_reward_fn_stores_none(self):
+        from routesmith import RouteSmith
+        assert RouteSmith()._reward_fn is None
+
+    def test_reward_fn_callable_stored(self):
+        from routesmith import RouteSmith, RouteSmithConfig
+        fn = lambda ctx: ctx["quality"]
+        rs = RouteSmith(config=RouteSmithConfig(reward_fn=fn))
+        assert rs._reward_fn is fn
+
+    def test_reward_expr_compiled_on_init(self):
+        from routesmith import RouteSmith, RouteSmithConfig
+        rs = RouteSmith(config=RouteSmithConfig(
+            reward_expr="quality - 0.15 * cost_normalized"
+        ))
+        assert callable(rs._reward_fn)
+
+    def test_bad_reward_expr_raises_on_init(self):
+        from routesmith import RouteSmith, RouteSmithConfig
+        with pytest.raises(ValueError):
+            RouteSmith(config=RouteSmithConfig(reward_expr="quality ***"))
+
+    def test_reward_fn_passes_override_to_predictor(self):
+        from routesmith import RouteSmithConfig
+
+        called_with = {}
+        def _spy(messages, model_id, actual_quality, reward_override=None):
+            called_with["reward_override"] = reward_override
+
+        rs = _make_client(RouteSmithConfig(reward_fn=lambda ctx: 0.42, feedback_sample_rate=1.0))
+        rs.router.predictor.update = _spy
+        _insert_record(rs, "req-001")
+
+        rs.record_outcome("req-001", score=0.9)
+        assert abs(called_with["reward_override"] - 0.42) < 1e-9
+
+    def test_no_reward_fn_passes_none_override(self):
+        called_with = {}
+        def _spy(messages, model_id, actual_quality, reward_override=None):
+            called_with["reward_override"] = reward_override
+
+        rs = _make_client()
+        rs.router.predictor.update = _spy
+        _insert_record(rs, "req-002")
+
+        rs.record_outcome("req-002", score=0.9)
+        assert called_with["reward_override"] is None
+
+    def test_reward_fn_exception_logs_warning_and_uses_none(self):
+        from routesmith import RouteSmithConfig
+
+        called_with = {}
+        def _spy(messages, model_id, actual_quality, reward_override=None):
+            called_with["reward_override"] = reward_override
+
+        def _bad_fn(ctx):
+            raise RuntimeError("boom")
+
+        rs = _make_client(RouteSmithConfig(reward_fn=_bad_fn, feedback_sample_rate=1.0))
+        rs.router.predictor.update = _spy
+        _insert_record(rs, "req-003")
+
+        with patch("routesmith.client.logger") as mock_logger:
+            rs.record_outcome("req-003", score=0.9)
+            mock_logger.warning.assert_called_once()
+
+        assert called_with["reward_override"] is None
+
+    def test_reward_expr_end_to_end(self):
+        from routesmith import RouteSmithConfig
+
+        called_with = {}
+        def _spy(messages, model_id, actual_quality, reward_override=None):
+            called_with["reward_override"] = reward_override
+
+        rs = _make_client(RouteSmithConfig(reward_expr="quality", feedback_sample_rate=1.0))
+        rs.router.predictor.update = _spy
+        _insert_record(rs, "req-004")
+
+        rs.record_outcome("req-004", score=0.85)
+        # reward_expr="quality" -> reward_override == 0.85
+        assert abs(called_with["reward_override"] - 0.85) < 1e-9
