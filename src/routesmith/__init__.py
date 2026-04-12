@@ -5,7 +5,7 @@ Intelligent routing, cascading, semantic caching, and budget management for LLM 
 """
 
 from routesmith.client import RouteSmith, RoutingMetadata
-from routesmith.config import RouteSmithConfig, RoutingStrategy
+from routesmith.config import RouteContext, RouteSmithConfig, RoutingStrategy
 from routesmith.predictor.linucb import LinUCBPredictor
 from routesmith.predictor.lints import LinTSPredictor, LinTSRouter
 from routesmith.registry.models import ModelConfig, ModelRegistry
@@ -20,6 +20,7 @@ __all__ = [
     "LinUCBPredictor",
     "ModelConfig",
     "ModelRegistry",
+    "RouteContext",
     "RouteSmith",
     "RouteSmithConfig",
     "RoutingMetadata",

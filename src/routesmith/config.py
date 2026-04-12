@@ -18,6 +18,17 @@ class RoutingStrategy(Enum):
 
 
 @dataclass
+class RouteContext:
+    """Agent and conversation context for a completion request."""
+
+    agent_id: str | None = None
+    agent_role: str | None = None
+    conversation_id: str | None = None
+    turn_index: int | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
 class CacheConfig:
     """Configuration for semantic cache layer."""
 
@@ -99,6 +110,15 @@ class RouteSmithConfig:
     reward_fn: Callable[..., float] | None = None
     reward_expr: str | None = None  # Expression string, compiled on RouteSmith init
 
+    # Per-agent-role reward functions. Resolution order:
+    # reward_fns[agent_role] → reward_fn/reward_expr → predictor default.
+    reward_fns: dict[str, Callable[..., float]] = field(default_factory=dict)
+
+    # Pre-routing filter callables.
+    # Signature: (models: list[ModelConfig], context: RouteContext | None) -> list[ModelConfig]
+    # Run before capability filtering; predictor only sees the filtered set.
+    business_rules: list[Callable[..., list]] = field(default_factory=list)
+
     def with_cache(self, **kwargs: Any) -> RouteSmithConfig:
         """Return a new config with updated cache settings."""
         new_cache = CacheConfig(
@@ -126,6 +146,8 @@ class RouteSmithConfig:
             litellm_params=self.litellm_params,
             reward_fn=self.reward_fn,
             reward_expr=self.reward_expr,
+            reward_fns=self.reward_fns,
+            business_rules=self.business_rules,
         )
 
     def with_budget(self, **kwargs: Any) -> RouteSmithConfig:
@@ -157,4 +179,6 @@ class RouteSmithConfig:
             litellm_params=self.litellm_params,
             reward_fn=self.reward_fn,
             reward_expr=self.reward_expr,
+            reward_fns=self.reward_fns,
+            business_rules=self.business_rules,
         )
