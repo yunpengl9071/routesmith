@@ -159,6 +159,41 @@ class RouteSmith:
             context_window=context_window,
             **kwargs,
         )
+        predictor = self.router.predictor
+        if hasattr(predictor, "add_arm"):
+            predictor.add_arm(model_id)
+
+    def deregister_model(self, model_id: str) -> None:
+        """Remove a model from routing.
+
+        Raises ValueError if it's the last registered model.
+        Historical feedback records are preserved; predictor arm is retired.
+        """
+        if self.registry.get(model_id) is None:
+            return
+        if len(self.registry.list_models()) <= 1:
+            raise ValueError(
+                f"Cannot deregister '{model_id}': it is the last registered model."
+            )
+        self.registry.deregister(model_id)
+        predictor = self.router.predictor
+        if hasattr(predictor, "remove_arm"):
+            predictor.remove_arm(model_id)
+        self._persist_predictor_state()
+
+    def _persist_predictor_state(self) -> None:
+        """Serialize current predictor state to storage (non-fatal on failure)."""
+        if not self.config.feedback_storage_path:
+            return
+        predictor = self.router.predictor
+        if hasattr(predictor, "serialize_state"):
+            try:
+                blob = predictor.serialize_state()
+                self.feedback._storage.save_predictor_state(
+                    self.config.predictor_type, blob
+                )
+            except Exception:
+                pass
 
     def completion(
         self,
@@ -309,6 +344,11 @@ class RouteSmith:
             conversation_id=context.conversation_id if context else None,
             turn_index=context.turn_index if context else None,
         )
+
+        # Periodic predictor state persistence every 50 updates
+        updates = getattr(self.router.predictor, "_total_updates", 0)
+        if updates > 0 and updates % 50 == 0:
+            self._persist_predictor_state()
 
         return response
 

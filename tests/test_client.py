@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock
 from routesmith import RouteSmith, RouteSmithConfig, RoutingStrategy, RoutingMetadata
+from routesmith.config import RouteSmithConfig
 
 
 class TestRoutingMetadata:
@@ -542,3 +543,38 @@ class TestCompletionWithContext:
         ]
         ctx = RouteContext()  # no agent_role
         rs.completion(messages=msgs, context=ctx)  # should not raise
+
+
+class TestModelLifecycle:
+    def test_deregister_removes_from_registry(self):
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                         cost_per_1k_output=0.015, quality_score=0.9)
+        rs.register_model("gpt-4o-mini", cost_per_1k_input=0.00015,
+                         cost_per_1k_output=0.0006, quality_score=0.7)
+        rs.deregister_model("gpt-4o-mini")
+        ids = [m.model_id for m in rs.registry.list_models()]
+        assert "gpt-4o-mini" not in ids
+
+    def test_deregister_last_model_raises(self):
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                         cost_per_1k_output=0.015, quality_score=0.9)
+        with pytest.raises(ValueError, match="last registered model"):
+            rs.deregister_model("gpt-4o")
+
+    def test_deregister_nonexistent_is_noop(self):
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                         cost_per_1k_output=0.015, quality_score=0.9)
+        rs.deregister_model("nonexistent")
+        assert len(rs.registry.list_models()) == 1
+
+    def test_register_model_adds_predictor_arm(self):
+        rs = RouteSmith(config=RouteSmithConfig(predictor_type="lints"))
+        rs.register_model("gpt-4o", cost_per_1k_input=0.005,
+                         cost_per_1k_output=0.015, quality_score=0.9)
+        rs.register_model("claude-haiku", cost_per_1k_input=0.00025,
+                         cost_per_1k_output=0.00125, quality_score=0.75)
+        predictor = rs.router.predictor
+        assert "claude-haiku" in predictor._arm_index

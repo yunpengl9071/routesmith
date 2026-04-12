@@ -107,6 +107,10 @@ class ModelRegistry:
         self._models[model_id] = config
         return config
 
+    def deregister(self, model_id: str) -> None:
+        """Remove a model from the registry."""
+        self._models.pop(model_id, None)
+
     def get(self, model_id: str) -> ModelConfig | None:
         """Get model config by ID."""
         return self._models.get(model_id)
