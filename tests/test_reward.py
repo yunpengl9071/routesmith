@@ -220,3 +220,86 @@ class TestRouteSmithConfigRewardFields:
         from routesmith import RouteSmithConfig
         config = RouteSmithConfig(reward_expr="quality").with_budget(max_cost_per_request=0.10)
         assert config.reward_expr == "quality"
+
+
+import numpy as np
+
+
+def _make_linucb(models=None):
+    from routesmith.predictor.linucb import LinUCBPredictor
+    return LinUCBPredictor(registry=_make_registry(models))
+
+
+def _make_lints(models=None):
+    from routesmith.predictor.lints import LinTSPredictor
+    return LinTSPredictor(registry=_make_registry(models))
+
+
+_MSGS = [{"role": "user", "content": "Hello"}]
+
+
+class TestPredictorRewardOverride:
+    def test_linucb_accepts_reward_override_param(self):
+        pred = _make_linucb()
+        pred.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=0.5)
+
+    def test_linucb_reward_override_changes_b_vector(self):
+        """Two LinUCB predictors updated with same quality but different
+        reward_override should diverge in their b vectors."""
+        pred_default = _make_linucb()
+        pred_override = _make_linucb()
+
+        pred_default.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+        pred_override.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8,
+                             reward_override=0.5)
+
+        b_default = pred_default._arms["openai/gpt-4o-mini"]["b"]
+        b_override = pred_override._arms["openai/gpt-4o-mini"]["b"]
+        assert not np.allclose(b_default, b_override), (
+            "b vectors should differ when reward_override is used"
+        )
+
+    def test_linucb_none_override_identical_to_default(self):
+        pred_a = _make_linucb()
+        pred_b = _make_linucb()
+
+        pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=None)
+
+        np.testing.assert_array_almost_equal(
+            pred_a._arms["openai/gpt-4o-mini"]["b"],
+            pred_b._arms["openai/gpt-4o-mini"]["b"],
+        )
+
+    def test_lints_accepts_reward_override_param(self):
+        pred = _make_lints()
+        pred.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=0.5)
+
+    def test_lints_reward_override_changes_arm_state(self):
+        pred_default = _make_lints()
+        pred_override = _make_lints()
+
+        pred_default.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+        pred_override.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8,
+                             reward_override=0.3)
+
+        idx_d = pred_default._arm_index["openai/gpt-4o-mini"]
+        idx_o = pred_override._arm_index["openai/gpt-4o-mini"]
+        assert not np.allclose(
+            pred_default._router.arms[idx_d].b,
+            pred_override._router.arms[idx_o].b,
+        )
+
+    def test_lints_none_override_identical_to_default(self):
+        pred_a = _make_lints()
+        pred_b = _make_lints()
+
+        pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=None)
+
+        idx_a = pred_a._arm_index["openai/gpt-4o-mini"]
+        idx_b = pred_b._arm_index["openai/gpt-4o-mini"]
+        np.testing.assert_array_almost_equal(
+            pred_a._router.arms[idx_a].b,
+            pred_b._router.arms[idx_b].b,
+        )
