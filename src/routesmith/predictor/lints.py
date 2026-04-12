@@ -230,12 +230,57 @@ class LinTSPredictor:
         self._router.update(arm=arm_idx, x=x, reward=reward)
         self._total_updates += 1
 
+    def add_arm(self, model_id: str) -> None:
+        """Add a new arm with optimistic initialization (A=I, b=0)."""
+        if model_id in self._arm_index:
+            return
+        new_idx = len(self._arm_names)
+        self._arm_names.append(model_id)
+        self._arm_index[model_id] = new_idx
+        self._router.arms.append(LinTSArm(d=self._router.d))
+        self._router.n_arms += 1
+
+    def remove_arm(self, model_id: str) -> None:
+        """Remove an arm and reindex remaining arms."""
+        if model_id not in self._arm_index:
+            return
+        idx = self._arm_index.pop(model_id)
+        self._arm_names.pop(idx)
+        self._router.arms.pop(idx)
+        self._router.n_arms -= 1
+        # Reindex arms that shifted down
+        for name in self._arm_names[idx:]:
+            self._arm_index[name] -= 1
+
+    def serialize_state(self) -> bytes:
+        """Serialize predictor state to JSON bytes."""
+        import json
+        state = {
+            "router_state": self._router.get_state(),
+            "arm_names": self._arm_names,
+            "arm_index": self._arm_index,
+            "total_updates": self._total_updates,
+        }
+        return json.dumps(state).encode()
+
+    def load_state(self, blob: bytes) -> None:
+        """Load predictor state from JSON bytes.
+
+        If stored feature dimension differs from current, skips load (cold start).
+        """
+        import json
+        state = json.loads(blob.decode())
+        router_state = state["router_state"]
+        stored_d = router_state.get("d", self._router.d)
+        if stored_d != self._router.d:
+            return  # dimension mismatch — cold start
+        self._router.load_state(router_state)
+        self._arm_names = state["arm_names"]
+        self._arm_index = state["arm_index"]
+        self._total_updates = state.get("total_updates", 0)
+
     def get_state(self) -> dict[str, Any]:
         return {"arm_index": self._arm_index, **self._router.get_state()}
-
-    def load_state(self, state: dict[str, Any]) -> None:
-        self._arm_index = state.get("arm_index", self._arm_index)
-        self._router.load_state(state)
 
     def diagnostics(self) -> dict[str, Any]:
         return {

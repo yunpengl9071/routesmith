@@ -1,11 +1,85 @@
 # tests/test_lints.py
 """Unit tests for LinTS-27d posterior math — no API calls needed."""
 from __future__ import annotations
+import json
 import numpy as np
 import pytest
 import sys
 import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
+
+from routesmith.predictor.lints import LinTSPredictor, LinTSArm
+from routesmith.registry.models import ModelRegistry
+
+
+def _make_lints():
+    reg = ModelRegistry()
+    reg.register("gpt-4o", cost_per_1k_input=0.005, cost_per_1k_output=0.015, quality_score=0.9)
+    reg.register("gpt-4o-mini", cost_per_1k_input=0.00015, cost_per_1k_output=0.0006, quality_score=0.7)
+    return LinTSPredictor(registry=reg)
+
+
+class TestLinTSArmLifecycle:
+    def test_add_new_arm(self):
+        p = _make_lints()
+        p.add_arm("claude-haiku")
+        assert "claude-haiku" in p._arm_index
+        assert len(p._arm_names) == 3
+        assert p._router.n_arms == 3
+
+    def test_add_existing_arm_is_noop(self):
+        p = _make_lints()
+        p.add_arm("gpt-4o")
+        assert len(p._arm_names) == 2
+
+    def test_remove_arm(self):
+        p = _make_lints()
+        p.remove_arm("gpt-4o-mini")
+        assert "gpt-4o-mini" not in p._arm_index
+        assert len(p._arm_names) == 1
+        assert p._router.n_arms == 1
+
+    def test_remove_arm_reindexes_remaining(self):
+        p = _make_lints()
+        p.add_arm("claude-haiku")
+        # arms: gpt-4o=0, gpt-4o-mini=1, claude-haiku=2
+        p.remove_arm("gpt-4o-mini")
+        # arms: gpt-4o=0, claude-haiku=1
+        assert p._arm_index["claude-haiku"] == 1
+        assert p._arm_index["gpt-4o"] == 0
+
+    def test_remove_nonexistent_arm_is_noop(self):
+        p = _make_lints()
+        p.remove_arm("nonexistent")
+        assert len(p._arm_names) == 2
+
+    def test_serialize_deserialize_roundtrip(self):
+        p = _make_lints()
+        msgs = [{"role": "user", "content": "hello"}]
+        p.update(msgs, "gpt-4o", actual_quality=0.9)
+        blob = p.serialize_state()
+        assert isinstance(blob, bytes)
+        # Verify it's valid JSON (not binary format)
+        state = json.loads(blob.decode())
+        assert "router_state" in state
+
+        p2 = _make_lints()
+        p2.load_state(blob)
+        assert p2._router._t == p._router._t
+
+    def test_load_state_dimension_mismatch_cold_starts(self):
+        """If stored d != current d, load_state does nothing (cold start)."""
+        bad_state = json.dumps({
+            "router_state": {"n_arms": 2, "d": 5, "v_sq": 1.0, "t": 0,
+                             "arms": []},
+            "arm_names": ["gpt-4o", "gpt-4o-mini"],
+            "arm_index": {"gpt-4o": 0, "gpt-4o-mini": 1},
+            "total_updates": 0,
+        }).encode()
+        p2 = _make_lints()
+        original_t = p2._router._t
+        p2.load_state(bad_state)
+        assert p2._router._t == original_t  # unchanged — cold start
 
 
 def test_lints_arm_init():
