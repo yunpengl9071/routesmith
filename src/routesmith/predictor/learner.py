@@ -130,12 +130,14 @@ class AdaptivePredictor(BasePredictor):
         messages: list[dict[str, str]],
         model_id: str,
         actual_quality: float,
+        reward_override: float | None = None,
     ) -> None:
         """Update with observed quality feedback."""
         # EMA update
+        target = reward_override if reward_override is not None else actual_quality
         alpha = 0.1
         current = self._get_ema_prior(model_id)
-        self._ema_priors[model_id] = alpha * actual_quality + (1 - alpha) * current
+        self._ema_priors[model_id] = alpha * target + (1 - alpha) * current
 
         self._update_count += 1
         self._samples_since_retrain += 1

@@ -59,7 +59,7 @@ class LinTSArm:
         return {"A": self.A.tolist(), "b": self.b.tolist(), "d": self.d}
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "LinTSArm":
+    def from_dict(cls, data: dict[str, Any]) -> LinTSArm:
         arm = cls(d=data["d"])
         arm.A = np.array(data["A"])
         arm.b = np.array(data["b"])
@@ -147,12 +147,12 @@ class LinTSPredictor:
 
     def __init__(
         self,
-        registry: "Any",
+        registry: Any,
         v_sq: float = 1.0,
         seed: int = 42,
     ) -> None:
-        from routesmith.predictor.features import FeatureExtractor
         from routesmith.predictor.base import PredictionResult
+        from routesmith.predictor.features import FeatureExtractor
 
         self._registry = registry
         self._extractor = FeatureExtractor(registry)
@@ -217,13 +217,15 @@ class LinTSPredictor:
         messages: list[dict],
         model_id: str,
         actual_quality: float,
+        reward_override: float | None = None,
     ) -> None:
         """Update the arm's Gaussian posterior with observed quality."""
         arm_idx = self._arm_index.get(model_id)
         if arm_idx is None:
             return
         x = self._features(messages, model_id)
-        self._router.update(arm=arm_idx, x=x, reward=actual_quality)
+        reward = reward_override if reward_override is not None else actual_quality
+        self._router.update(arm=arm_idx, x=x, reward=reward)
         self._total_updates += 1
 
     def get_state(self) -> dict[str, Any]:

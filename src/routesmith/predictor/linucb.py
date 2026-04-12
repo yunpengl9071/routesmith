@@ -66,7 +66,7 @@ class LinUCBPredictor(BasePredictor):
 
     def __init__(
         self,
-        registry: "ModelRegistry",
+        registry: ModelRegistry,
         alpha: float = 1.5,
         cost_lambda: float = 0.3,
         warmup_rounds: int = 1,
@@ -139,7 +139,7 @@ class LinUCBPredictor(BasePredictor):
             arm = self._ensure_arm(model_id, d)
 
             # Compute LinUCB score
-            A_inv = arm["A_inv"]
+            A_inv = arm["A_inv"]  # noqa: N806
             theta = A_inv @ arm["b"]
 
             # Predicted reward (mean estimate)
@@ -184,6 +184,7 @@ class LinUCBPredictor(BasePredictor):
         messages: list[dict[str, str]],
         model_id: str,
         actual_quality: float,
+        reward_override: float | None = None,
     ) -> None:
         """Update the arm's ridge regression with observed reward.
 
@@ -209,13 +210,16 @@ class LinUCBPredictor(BasePredictor):
         else:
             normalized_cost = 0.0
 
-        reward = actual_quality - self._cost_lambda * normalized_cost
+        if reward_override is not None:
+            reward = reward_override
+        else:
+            reward = actual_quality - self._cost_lambda * normalized_cost
 
         # Sherman-Morrison rank-1 update for A_inv
         # A_new = A + x x^T
         # A_inv_new = A_inv - (A_inv x x^T A_inv) / (1 + x^T A_inv x)
-        A_inv = arm["A_inv"]
-        A_inv_x = A_inv @ x
+        A_inv = arm["A_inv"]  # noqa: N806
+        A_inv_x = A_inv @ x  # noqa: N806
         denom = 1.0 + float(x @ A_inv_x)
         arm["A_inv"] = A_inv - np.outer(A_inv_x, A_inv_x) / denom
 

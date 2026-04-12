@@ -91,6 +91,8 @@ def load_config_file(path: Path) -> tuple[RouteSmithConfig, list[dict[str, Any]]
         config.feedback_enabled = fb.get("enabled", True)
         if "sample_rate" in fb:
             config.feedback_sample_rate = fb["sample_rate"]
+        if "reward" in fb:
+            config.reward_expr = fb["reward"]
 
     # ── Models: Style A — full spec ───────────────────────────────────────────
     models: list[dict[str, Any]] = []
