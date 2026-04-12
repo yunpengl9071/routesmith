@@ -9,6 +9,7 @@ from routesmith.predictor.base import BasePredictor
 from routesmith.predictor.embedding import EmbeddingPredictor
 
 if TYPE_CHECKING:
+    from routesmith.config import RouteContext
     from routesmith.feedback.storage import FeedbackStorage
     from routesmith.registry.models import ModelRegistry
 
@@ -27,8 +28,8 @@ class Router:
     def __init__(
         self,
         config: RouteSmithConfig,
-        registry: "ModelRegistry",
-        storage: "FeedbackStorage | None" = None,
+        registry: ModelRegistry,
+        storage: FeedbackStorage | None = None,
     ) -> None:
         """
         Initialize router.
@@ -49,7 +50,7 @@ class Router:
     @staticmethod
     def _create_predictor(
         config: RouteSmithConfig,
-        registry: "ModelRegistry",
+        registry: ModelRegistry,
         storage: Any,
     ) -> BasePredictor:
         """Create the appropriate predictor based on config.
@@ -103,6 +104,7 @@ class Router:
         max_cost: float | None = None,
         min_quality: float = 0.0,
         required_capabilities: set[str] | None = None,
+        context: RouteContext | None = None,
     ) -> str:
         """
         Select the optimal model for a query.
@@ -113,6 +115,7 @@ class Router:
             max_cost: Maximum cost constraint (USD per 1k tokens).
             min_quality: Minimum quality threshold (0-1).
             required_capabilities: Capabilities the selected model must support.
+            context: Optional agent/conversation context for business rules.
 
         Returns:
             Selected model ID.
@@ -124,15 +127,35 @@ class Router:
             raise ValueError("No models registered. Call register_model() first.")
 
         if strategy == RoutingStrategy.DIRECT:
-            return self._route_direct(messages, max_cost, min_quality, required_capabilities)
+            return self._route_direct(messages, max_cost, min_quality, required_capabilities, context)
         elif strategy == RoutingStrategy.CASCADE:
-            return self._route_cascade(messages, max_cost, min_quality, required_capabilities)
+            return self._route_cascade(messages, max_cost, min_quality, required_capabilities, context)
         elif strategy == RoutingStrategy.PARALLEL:
-            return self._route_parallel(messages, max_cost, min_quality, required_capabilities)
+            return self._route_parallel(messages, max_cost, min_quality, required_capabilities, context)
         elif strategy == RoutingStrategy.SPECULATIVE:
-            return self._route_speculative(messages, max_cost, min_quality, required_capabilities)
+            return self._route_speculative(messages, max_cost, min_quality, required_capabilities, context)
         else:
             raise ValueError(f"Unknown routing strategy: {strategy}")
+
+    def _apply_business_rules(
+        self,
+        candidates: list[Any],
+        context: RouteContext | None,
+    ) -> list[Any]:
+        """Apply configured business rules to the candidate model list.
+
+        Rules are applied in order. Each rule receives the current candidate list
+        and the RouteContext, and returns a filtered list. If any rule empties the
+        list, a ValueError is raised immediately.
+        """
+        for rule in self.config.business_rules:
+            candidates = rule(candidates, context)
+            if not candidates:
+                raise ValueError(
+                    "All models were filtered out by business rules. "
+                    "Check your RouteSmithConfig.business_rules."
+                )
+        return candidates
 
     def _filter_by_capabilities(
         self,
@@ -157,6 +180,7 @@ class Router:
         max_cost: float | None,
         min_quality: float,
         required_capabilities: set[str] | None = None,
+        context: RouteContext | None = None,
     ) -> str:
         """
         Direct routing: select cheapest model meeting quality threshold.
@@ -169,6 +193,9 @@ class Router:
             candidates = self.registry.filter_by_cost(max_cost)
         else:
             candidates = self.registry.list_models()
+
+        # Apply business rules before capability filtering
+        candidates = self._apply_business_rules(candidates, context)
 
         # Filter by required capabilities
         candidates = self._filter_by_capabilities(candidates, required_capabilities)
@@ -217,6 +244,7 @@ class Router:
         max_cost: float | None,
         min_quality: float,
         required_capabilities: set[str] | None = None,
+        context: RouteContext | None = None,
     ) -> str:
         """
         Cascade routing: start with cheap model, escalate if needed.
@@ -229,6 +257,9 @@ class Router:
         candidates = self.registry.list_models()
         if not candidates:
             raise ValueError("No models available for cascade")
+
+        # Apply business rules before capability filtering
+        candidates = self._apply_business_rules(candidates, context)
 
         # Filter by required capabilities
         candidates = self._filter_by_capabilities(candidates, required_capabilities)
@@ -262,6 +293,7 @@ class Router:
         max_cost: float | None,
         min_quality: float,
         required_capabilities: set[str] | None = None,
+        context: RouteContext | None = None,
     ) -> str:
         """
         Parallel routing: run multiple models, select best.
@@ -274,6 +306,9 @@ class Router:
             candidates = self.registry.filter_by_cost(max_cost)
         else:
             candidates = self.registry.list_models()
+
+        # Apply business rules before capability filtering
+        candidates = self._apply_business_rules(candidates, context)
 
         candidates = self._filter_by_capabilities(candidates, required_capabilities)
 
@@ -289,6 +324,7 @@ class Router:
         max_cost: float | None,
         min_quality: float,
         required_capabilities: set[str] | None = None,
+        context: RouteContext | None = None,
     ) -> str:
         """
         Speculative routing: start cheap while evaluating escalation.
@@ -296,7 +332,7 @@ class Router:
         Similar to cascade but begins generation immediately.
         """
         # Start with cheapest model
-        return self._route_cascade(messages, max_cost, min_quality, required_capabilities)
+        return self._route_cascade(messages, max_cost, min_quality, required_capabilities, context)
 
     def get_cascade_models(
         self,

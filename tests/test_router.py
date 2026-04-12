@@ -1,9 +1,69 @@
 """Comprehensive tests for the routing engine."""
 
 import pytest
-from routesmith.config import RouteSmithConfig, RoutingStrategy
+
+from routesmith.config import RouteContext, RouteSmithConfig, RoutingStrategy
 from routesmith.registry.models import ModelRegistry
 from routesmith.strategy.router import Router
+
+
+def _make_router(rules):
+    reg = ModelRegistry()
+    reg.register("gpt-4o", cost_per_1k_input=0.005, cost_per_1k_output=0.015, quality_score=0.9)
+    reg.register("gpt-4o-mini", cost_per_1k_input=0.00015, cost_per_1k_output=0.0006, quality_score=0.7)
+    return Router(RouteSmithConfig(business_rules=rules), reg)
+
+
+class TestBusinessRules:
+    def test_rule_filters_candidate(self):
+        def exclude_expensive(models, ctx):
+            return [m for m in models if m.cost_per_1k_input < 0.001]
+
+        router = _make_router([exclude_expensive])
+        selected = router.route(
+            [{"role": "user", "content": "hi"}],
+            strategy=RoutingStrategy.DIRECT,
+        )
+        assert selected == "gpt-4o-mini"
+
+    def test_rule_receives_context(self):
+        seen = []
+
+        def capture(models, ctx):
+            seen.append(ctx)
+            return models
+
+        router = _make_router([capture])
+        ctx = RouteContext(agent_role="research")
+        router.route(
+            [{"role": "user", "content": "hi"}],
+            strategy=RoutingStrategy.DIRECT,
+            context=ctx,
+        )
+        assert len(seen) == 1
+        assert seen[0].agent_role == "research"
+
+    def test_multiple_rules_applied_in_order(self):
+        def rule1(models, ctx):
+            return [m for m in models if m.cost_per_1k_input < 0.01]
+
+        def rule2(models, ctx):
+            return [m for m in models if m.quality_score >= 0.7]
+
+        router = _make_router([rule1, rule2])
+        selected = router.route(
+            [{"role": "user", "content": "hi"}],
+            strategy=RoutingStrategy.DIRECT,
+        )
+        assert selected in ("gpt-4o", "gpt-4o-mini")
+
+    def test_rule_removing_all_models_raises(self):
+        router = _make_router([lambda m, c: []])
+        with pytest.raises(ValueError, match="business rules"):
+            router.route(
+                [{"role": "user", "content": "hi"}],
+                strategy=RoutingStrategy.DIRECT,
+            )
 
 
 class TestRouterBasics:
