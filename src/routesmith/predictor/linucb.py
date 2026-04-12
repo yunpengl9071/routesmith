@@ -139,7 +139,7 @@ class LinUCBPredictor(BasePredictor):
             arm = self._ensure_arm(model_id, d)
 
             # Compute LinUCB score
-            A_inv = arm["A_inv"]
+            A_inv = arm["A_inv"]  # noqa: N806
             theta = A_inv @ arm["b"]
 
             # Predicted reward (mean estimate)
@@ -218,8 +218,8 @@ class LinUCBPredictor(BasePredictor):
         # Sherman-Morrison rank-1 update for A_inv
         # A_new = A + x x^T
         # A_inv_new = A_inv - (A_inv x x^T A_inv) / (1 + x^T A_inv x)
-        A_inv = arm["A_inv"]
-        A_inv_x = A_inv @ x
+        A_inv = arm["A_inv"]  # noqa: N806
+        A_inv_x = A_inv @ x  # noqa: N806
         denom = 1.0 + float(x @ A_inv_x)
         arm["A_inv"] = A_inv - np.outer(A_inv_x, A_inv_x) / denom
 

@@ -230,6 +230,11 @@ def _make_linucb(models=None):
     return LinUCBPredictor(registry=_make_registry(models))
 
 
+def _make_adaptive(models=None):
+    from routesmith.predictor.learner import AdaptivePredictor
+    return AdaptivePredictor(registry=_make_registry(models))
+
+
 def _make_lints(models=None):
     from routesmith.predictor.lints import LinTSPredictor
     return LinTSPredictor(registry=_make_registry(models))
@@ -303,3 +308,33 @@ class TestPredictorRewardOverride:
             pred_a._router.arms[idx_a].b,
             pred_b._router.arms[idx_b].b,
         )
+
+    def test_embedding_none_override_identical_to_default(self):
+        from routesmith.predictor.embedding import EmbeddingPredictor
+        pred_a = EmbeddingPredictor(model_quality_priors={"m": 0.5})
+        pred_b = EmbeddingPredictor(model_quality_priors={"m": 0.5})
+        pred_a.update(_MSGS, "m", actual_quality=0.8)
+        pred_b.update(_MSGS, "m", actual_quality=0.8, reward_override=None)
+        assert pred_a.model_quality_priors["m"] == pred_b.model_quality_priors["m"]
+
+    def test_embedding_reward_override_changes_prior(self):
+        from routesmith.predictor.embedding import EmbeddingPredictor
+        pred_a = EmbeddingPredictor(model_quality_priors={"m": 0.5})
+        pred_b = EmbeddingPredictor(model_quality_priors={"m": 0.5})
+        pred_a.update(_MSGS, "m", actual_quality=0.8)
+        pred_b.update(_MSGS, "m", actual_quality=0.8, reward_override=0.1)
+        assert pred_a.model_quality_priors["m"] != pred_b.model_quality_priors["m"]
+
+    def test_adaptive_none_override_identical_to_default(self):
+        pred_a = _make_adaptive()
+        pred_b = _make_adaptive()
+        pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=None)
+        assert pred_a._ema_priors["openai/gpt-4o-mini"] == pred_b._ema_priors["openai/gpt-4o-mini"]
+
+    def test_adaptive_reward_override_changes_ema(self):
+        pred_a = _make_adaptive()
+        pred_b = _make_adaptive()
+        pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=0.1)
+        assert pred_a._ema_priors["openai/gpt-4o-mini"] != pred_b._ema_priors["openai/gpt-4o-mini"]
