@@ -117,7 +117,7 @@ class RouteSmithConfig:
     # Pre-routing filter callables.
     # Signature: (models: list[ModelConfig], context: RouteContext | None) -> list[ModelConfig]
     # Run before capability filtering; predictor only sees the filtered set.
-    business_rules: list[Callable[..., list]] = field(default_factory=list)
+    business_rules: list[Callable[..., list[Any]]] = field(default_factory=list)
 
     def with_cache(self, **kwargs: Any) -> RouteSmithConfig:
         """Return a new config with updated cache settings."""

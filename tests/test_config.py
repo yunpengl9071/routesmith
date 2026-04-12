@@ -1,9 +1,6 @@
 """Tests for configuration."""
 
-import pytest
 from routesmith.config import (
-    BudgetConfig,
-    CacheConfig,
     RouteContext,
     RouteSmithConfig,
     RoutingStrategy,
@@ -67,6 +64,7 @@ class TestRouteSmithConfigExtensions:
         assert config.business_rules == []
 
     def test_reward_fns_set(self):
-        fn = lambda r, m: 0.9
-        config = RouteSmithConfig(reward_fns={"research": fn})
-        assert config.reward_fns["research"] is fn
+        def _fn(r, m):
+            return 0.9
+        config = RouteSmithConfig(reward_fns={"research": _fn})
+        assert config.reward_fns["research"] is _fn
