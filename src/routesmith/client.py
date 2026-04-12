@@ -347,7 +347,9 @@ class RouteSmith:
         )
 
         # Periodic predictor state persistence every 50 updates
-        updates = getattr(self.router.predictor, "_total_updates", 0)
+        updates = getattr(self.router.predictor, "_total_updates", None)
+        if updates is None:
+            updates = getattr(self.router.predictor, "_update_count", 0)
         if updates > 0 and updates % 50 == 0:
             self._persist_predictor_state()
 
@@ -388,6 +390,7 @@ class RouteSmith:
         max_cost: float | None = None,
         min_quality: float | None = None,
         include_metadata: bool = False,
+        context: RouteContext | None = None,
         **kwargs: Any,
     ) -> ModelResponse:
         """
@@ -400,6 +403,7 @@ class RouteSmith:
             max_cost: Maximum cost constraint for this request (USD).
             min_quality: Minimum quality threshold for this request (0-1).
             include_metadata: If True, attach routesmith_metadata to response.
+            context: Optional routing context (agent_id, agent_role, etc.).
             **kwargs: Additional arguments passed to litellm.acompletion().
 
         Returns:
@@ -409,6 +413,25 @@ class RouteSmith:
         routing_start = time.perf_counter()
         self._request_count += 1
         request_id = uuid.uuid4().hex[:16]
+
+        # Infer agent role from messages when context is provided without one.
+        if context is not None and context.agent_role is None:
+            if not hasattr(self, "_agent_inferencer"):
+                from routesmith.predictor.agent_inferencer import AgentInferencer
+                self._agent_inferencer = AgentInferencer()
+            role, confidence = self._agent_inferencer.infer(messages)
+            if role is not None:
+                context = RouteContext(
+                    agent_id=context.agent_id,
+                    agent_role=role,
+                    conversation_id=context.conversation_id,
+                    turn_index=context.turn_index,
+                    metadata={
+                        **context.metadata,
+                        "role_inferred": True,
+                        "role_confidence": confidence,
+                    },
+                )
 
         # Auto-detect required capabilities
         required_capabilities = self._detect_required_capabilities(messages, kwargs)
@@ -430,6 +453,7 @@ class RouteSmith:
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
                 required_capabilities=required_capabilities or None,
+                context=context,
             )
             routing_reason = self._get_routing_reason(
                 effective_strategy, selected_model, max_cost, min_quality
@@ -503,7 +527,18 @@ class RouteSmith:
             model=selected_model,
             response=response,
             latency_ms=total_latency_ms,
+            agent_id=context.agent_id if context else None,
+            agent_role=context.agent_role if context else None,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
         )
+
+        # Periodic predictor state persistence every 50 updates
+        updates = getattr(self.router.predictor, "_total_updates", None)
+        if updates is None:
+            updates = getattr(self.router.predictor, "_update_count", 0)
+        if updates > 0 and updates % 50 == 0:
+            self._persist_predictor_state()
 
         return response
 

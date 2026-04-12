@@ -293,6 +293,7 @@ class LinUCBPredictor(BasePredictor):
             "arms": {
                 model_id: {
                     "A": arm["A"].tolist(),
+                    "A_inv": arm["A_inv"].tolist(),
                     "b": arm["b"].tolist(),
                     "count": arm["count"],
                 }
@@ -318,9 +319,15 @@ class LinUCBPredictor(BasePredictor):
             self._d = stored_d
         for model_id, arm_data in state.get("arms", {}).items():
             A = np.array(arm_data["A"], dtype=np.float64)  # noqa: N806
+            # Prefer the stored A_inv for numerical identity; fall back to
+            # recomputing it for blobs serialized before this fix was applied.
+            if "A_inv" in arm_data:
+                A_inv = np.array(arm_data["A_inv"], dtype=np.float64)  # noqa: N806
+            else:
+                A_inv = np.linalg.inv(A)  # noqa: N806
             self._arms[model_id] = {
                 "A": A,
                 "b": np.array(arm_data["b"], dtype=np.float64),
-                "A_inv": np.linalg.inv(A),
+                "A_inv": A_inv,
                 "count": arm_data["count"],
             }

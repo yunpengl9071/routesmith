@@ -215,15 +215,19 @@ class FeedbackCollector:
                 quality_score=quality,
                 user_feedback=feedback,
             )
-            # Store explicit signal
+            # Store explicit signal only when the request record exists in storage.
+            # Requests filtered out by sample_rate are never stored, so inserting a
+            # signal for them would violate the foreign-key constraint.
             if quality is not None:
-                self._storage.store_signal(
-                    request_id=request_id,
-                    signal_type="explicit",
-                    signal_name="user_quality_score",
-                    signal_value=quality,
-                    raw_value={"success": success, "score": score, "feedback": feedback},
-                )
+                stored = self._storage.get_record(request_id)
+                if stored is not None:
+                    self._storage.store_signal(
+                        request_id=request_id,
+                        signal_type="explicit",
+                        signal_name="user_quality_score",
+                        signal_value=quality,
+                        raw_value={"success": success, "score": score, "feedback": feedback},
+                    )
 
         return record is not None
 
