@@ -499,6 +499,39 @@ class TestFeedbackConfigPreservation:
 
 
 # ---------------------------------------------------------------------------
+# Per-role reward functions
+# ---------------------------------------------------------------------------
+
+class TestPerRoleRewardFns:
+    def test_resolve_by_role(self):
+        fn = lambda r, m: 0.95  # noqa: E731
+        collector = FeedbackCollector(RouteSmithConfig(reward_fns={"research": fn}))
+        assert collector.resolve_reward_fn(agent_role="research") is fn
+
+    def test_falls_back_to_global(self):
+        global_fn = lambda r, m: 0.5  # noqa: E731
+        collector = FeedbackCollector(RouteSmithConfig(reward_fn=global_fn))
+        assert collector.resolve_reward_fn(agent_role="coding") is global_fn
+
+    def test_returns_none_when_nothing_configured(self):
+        collector = FeedbackCollector(RouteSmithConfig())
+        assert collector.resolve_reward_fn(agent_role="research") is None
+
+    def test_role_fn_takes_priority_over_global(self):
+        role_fn = lambda r, m: 0.99  # noqa: E731
+        global_fn = lambda r, m: 0.5  # noqa: E731
+        collector = FeedbackCollector(RouteSmithConfig(
+            reward_fn=global_fn, reward_fns={"research": role_fn}
+        ))
+        assert collector.resolve_reward_fn(agent_role="research") is role_fn
+
+    def test_none_role_falls_back_to_global(self):
+        global_fn = lambda r, m: 0.5  # noqa: E731
+        collector = FeedbackCollector(RouteSmithConfig(reward_fn=global_fn))
+        assert collector.resolve_reward_fn(agent_role=None) is global_fn
+
+
+# ---------------------------------------------------------------------------
 # Storage Schema Extensions
 # ---------------------------------------------------------------------------
 

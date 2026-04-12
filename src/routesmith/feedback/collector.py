@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import random
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from routesmith.config import RouteSmithConfig
-from routesmith.feedback.signals import QualitySignal, SignalExtractor
+from routesmith.feedback.signals import SignalExtractor
 from routesmith.feedback.storage import FeedbackStorage
 
 if TYPE_CHECKING:
@@ -251,6 +252,21 @@ class FeedbackCollector:
             evaluator: Function that takes FeedbackRecord and returns quality 0-1.
         """
         self._quality_evaluator = evaluator
+
+    def resolve_reward_fn(self, agent_role: str | None = None) -> Callable[..., float] | None:
+        """Resolve reward function with per-role priority.
+
+        Resolution: config.reward_fns[agent_role] → config.reward_fn → None
+
+        Args:
+            agent_role: Optional agent role to look up in per-role functions.
+
+        Returns:
+            The resolved reward function or None if no function is configured.
+        """
+        if agent_role and agent_role in getattr(self.config, "reward_fns", {}):
+            return self.config.reward_fns[agent_role]
+        return getattr(self.config, "reward_fn", None)
 
     def get_model_stats(self) -> dict[str, dict[str, Any]]:
         """
