@@ -10,6 +10,7 @@ Instead of hardcoding which LLM to use, RouteSmith:
 - **Learns online** — updates routing decisions after each response using Thompson Sampling (LinTS) or UCB (LinUCB)
 - **Tracks budget** — enforces per-request and daily cost limits
 - **Caches semantically** — reuses responses to similar past queries
+- **Routes per agent role** — in multi-agent pipelines, learns which models work best for planners, coders, critics, and other roles independently
 
 ## Quick start
 
@@ -155,6 +156,10 @@ config = RouteSmithConfig(
 ```
 
 Available context variables: `quality`, `cost_usd`, `cost_normalized`, `latency_ms`, `tokens_in`, `tokens_out`, `model_id`. YAML expressions support `min`, `max`, `abs`, `round` — no arbitrary code execution.
+
+## Documentation
+
+**[Full tutorial](docs/tutorial.md)** — covers everything: first request, model registration, routing strategies, budget constraints, the feedback loop, reward functions, algorithms, all framework integrations, multi-agent routing, capability-aware routing, state persistence, and CLI reference.
 
 ## Framework integrations
 
