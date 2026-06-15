@@ -174,6 +174,18 @@ class LinTSPredictor:
             x = np.pad(x, (0, 35 - len(x)))
         return x  # LinTSRouter.select/update handles normalization internally
 
+    def _features_from_parts(
+        self,
+        msg_features: list[float],
+        context_features: list[float],
+        model_id: str,
+    ) -> np.ndarray:
+        fv = self._extractor.extract_for_model(msg_features, context_features, model_id)
+        x = np.array(fv.features[:35], dtype=np.float64)
+        if len(x) < 35:
+            x = np.pad(x, (0, 35 - len(x)))
+        return x
+
     def predict(
         self,
         messages: list[dict],
@@ -181,6 +193,7 @@ class LinTSPredictor:
         context=None,
     ) -> list:
         """Sample from each arm's posterior and return ranked predictions."""
+        msg_features, ctx_features = self._extractor.extract_message_and_context(messages, context)
         results = []
         for model_id in model_ids:
             arm_idx = self._arm_index.get(model_id)
@@ -193,7 +206,7 @@ class LinTSPredictor:
                 ))
                 continue
 
-            x = self._features(messages, model_id, context=context)
+            x = self._features_from_parts(msg_features, ctx_features, model_id)
             x_norm = x / (np.linalg.norm(x) + 1e-8)
             arm = self._router.arms[arm_idx]
             theta_sample = arm.sample(self._router._rng, self._router.v_sq)
