@@ -565,6 +565,10 @@ def _make_litellm_response(content="", tool_calls=None, model="test"):
 class TestLangGraphAgent:
     """Tests for ChatRouteSmith with LangGraph prebuilt agents."""
 
+    @classmethod
+    def setup_class(cls):
+        pytest.importorskip("langgraph", reason="langgraph not installed")
+
     @patch("routesmith.client.litellm")
     def test_create_react_agent_construction(self, mock_litellm):
         """Test that create_react_agent accepts ChatRouteSmith."""
