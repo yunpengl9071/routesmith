@@ -1,0 +1,23 @@
+name: Nightly Live Tests
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  live-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --extra dev --extra anthropic --extra langchain --extra langchain-agents
+      - name: Run real API tests
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          if [ -n "$GROQ_API_KEY" ]; then
+            uv run python tests/manual/test_real_api.py
+            uv run python tests/manual/test_langchain_live.py
+          else
+            echo "GROQ_API_KEY not set — skipping live tests"
+          fi
