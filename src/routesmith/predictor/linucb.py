@@ -117,6 +117,20 @@ class LinUCBPredictor(BasePredictor):
 
         return x
 
+    def _get_context_from_parts(
+        self,
+        msg_features: list[float],
+        context_features: list[float],
+        model_id: str,
+    ) -> np.ndarray:
+        """Assemble and normalize feature vector from pre-computed message/context parts."""
+        fv = self._extractor.extract_for_model(msg_features, context_features, model_id)
+        x = np.array(fv.features, dtype=np.float64)
+        norm = np.linalg.norm(x)
+        if norm > 0:
+            x = x / norm
+        return x
+
     def predict(
         self,
         messages: list[dict[str, str]],
@@ -130,9 +144,10 @@ class LinUCBPredictor(BasePredictor):
         to ensure all arms are tried.
         """
         results: list[PredictionResult] = []
+        msg_features, ctx_features = self._extractor.extract_message_and_context(messages, context)
 
         for model_id in model_ids:
-            x = self._get_context(messages, model_id, context=context)
+            x = self._get_context_from_parts(msg_features, ctx_features, model_id)
             d = len(x)
 
             if self._d is None:

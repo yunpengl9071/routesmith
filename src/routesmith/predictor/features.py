@@ -172,6 +172,39 @@ class FeatureExtractor:
             feature_names=list(self.ALL_FEATURE_NAMES),
         )
 
+    def extract_message_and_context(
+        self,
+        messages: list[dict[str, str]],
+        context: RouteContext | None = None,
+    ) -> tuple[list[float], list[float]]:
+        """Extract model-independent features once for reuse across multiple models.
+
+        Returns:
+            Tuple of (msg_features, context_features) to pass into extract_for_model.
+        """
+        return (
+            self._extract_message_features(messages),
+            self._extract_context_features(messages, context),
+        )
+
+    def extract_for_model(
+        self,
+        msg_features: list[float],
+        context_features: list[float],
+        model_id: str,
+    ) -> FeatureVector:
+        """Assemble a full feature vector given pre-computed message/context features.
+
+        Use with extract_message_and_context to avoid recomputing message features
+        for every candidate model in a predict() loop.
+        """
+        model_features = self._extract_model_features(model_id)
+        interaction_features = self._extract_interaction_features(msg_features, model_features)
+        return FeatureVector(
+            features=msg_features + model_features + interaction_features + context_features,
+            feature_names=list(self.ALL_FEATURE_NAMES),
+        )
+
     def _extract_message_features(
         self, messages: list[dict[str, str]]
     ) -> list[float]:
