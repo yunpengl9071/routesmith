@@ -8,8 +8,10 @@ from routesmith.client import RouteSmith, RoutingMetadata
 from routesmith.config import BudgetBehavior, CostModel, RouteContext, RouteSmithConfig, RoutingStrategy
 from routesmith.exceptions import (
     BudgetExceededError,
+    CapacityExhaustedError,
     CircuitOpenError,
     NoCapableModelError,
+    NoCompliantModelError,
     ProviderUnavailableError,
     RouteSmithError,
 )
@@ -24,6 +26,7 @@ __all__ = [
     "ABTestRunner",
     "BudgetBehavior",
     "BudgetExceededError",
+    "CapacityExhaustedError",
     "CircuitOpenError",
     "CostModel",
     "LinTSPredictor",
@@ -32,6 +35,7 @@ __all__ = [
     "ModelConfig",
     "ModelRegistry",
     "NoCapableModelError",
+    "NoCompliantModelError",
     "ProviderUnavailableError",
     "RouteContext",
     "RouteSmith",
