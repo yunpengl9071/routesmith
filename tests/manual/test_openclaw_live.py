@@ -19,12 +19,11 @@ Or use OpenAI:
 NOTE: Skipped by pytest unless API keys are set.
 """
 
-import os
-import sys
 import json
-import time
+import os
 import subprocess
-import threading
+import sys
+import time
 
 import pytest
 
