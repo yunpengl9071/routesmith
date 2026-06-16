@@ -47,6 +47,7 @@ proxy = [
     "httpx>=0.24.0",
     "questionary>=2.0.0",
     "certifi>=2024.0.0",
+    "prometheus-client>=0.16.0",
 ]
 dev = [
     "pytest>=7.0.0",
