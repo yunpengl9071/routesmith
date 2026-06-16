@@ -71,6 +71,10 @@ Thumbs.db
 *.log
 logs/
 
+# Worktree directories
+.worktrees/
+worktrees/
+
 # Benchmark results (large JSON files — only cache and summary JSONs committed)
 benchmark/results/*.json
 !benchmark/results/.gitkeep
