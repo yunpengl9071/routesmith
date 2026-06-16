@@ -1,18 +1,18 @@
 """Real use case: no memory leaks under sustained routing load."""
 import os
 import pytest
-from routesmith import RouteSmith
 
-pytestmark = pytest.mark.skipif(
+_live = pytest.mark.skipif(
     not os.getenv("GROQ_API_KEY"),
     reason="Requires GROQ_API_KEY."
 )
 
 
-@pytest.mark.slow
+@_live
 def test_no_memory_leak_over_sustained_load():
     """Route 50 queries and verify memory doesn't grow unbounded."""
     import tracemalloc
+    from routesmith import RouteSmith
 
     rs = RouteSmith()
     rs.register_model("groq/llama-3.3-70b-versatile",
