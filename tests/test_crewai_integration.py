@@ -8,8 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from routesmith import RouteSmith, RouteSmithConfig
-from routesmith.integrations.crewai import routesmith_crewai_chat_model, routesmith_crewai_llm
-
+from routesmith.integrations.crewai import routesmith_crewai_chat_model
 
 # ---------------------------------------------------------------------------
 # routesmith_crewai_llm (proxy-based)
@@ -19,8 +18,9 @@ from routesmith.integrations.crewai import routesmith_crewai_chat_model, routesm
 class TestRoutesmithCrewaiLlm:
     def test_raises_import_error_when_crewai_missing(self):
         with patch.dict(sys.modules, {"crewai": None}):
-            from routesmith.integrations import crewai as rs_crewai
             import importlib
+
+            from routesmith.integrations import crewai as rs_crewai
             importlib.reload(rs_crewai)
 
             with pytest.raises(ImportError, match="crewai"):

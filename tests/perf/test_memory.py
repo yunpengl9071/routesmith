@@ -1,5 +1,6 @@
 """Real use case: no memory leaks under sustained routing load."""
 import os
+
 import pytest
 
 _live = pytest.mark.skipif(
@@ -12,6 +13,7 @@ _live = pytest.mark.skipif(
 def test_no_memory_leak_over_sustained_load():
     """Route 50 queries and verify memory doesn't grow unbounded."""
     import tracemalloc
+
     from routesmith import RouteSmith
 
     rs = RouteSmith()

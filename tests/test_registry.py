@@ -1,6 +1,7 @@
 """Tests for model registry."""
 
 import pytest
+
 from routesmith.registry.models import ModelConfig, ModelRegistry
 
 

@@ -12,7 +12,6 @@ import math
 import ssl
 import urllib.request
 from dataclasses import dataclass
-from typing import Any
 
 _MODELS_URL = "https://openrouter.ai/api/v1/models"
 

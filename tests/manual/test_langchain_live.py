@@ -142,9 +142,9 @@ def test_tool_calling():
 
 def test_react_agent_loop():
     """create_react_agent runs a full tool-call loop and returns correct answer."""
-    from langgraph.prebuilt import create_react_agent
     from langchain_core.messages import AIMessage, ToolMessage
     from langchain_core.tools import tool
+    from langgraph.prebuilt import create_react_agent
 
     print("3. ReAct agent (full tool-call loop)...")
 
@@ -186,9 +186,9 @@ def test_react_agent_loop():
 
 def test_react_agent_multi_tool():
     """Agent picks the right tool from multiple options."""
-    from langgraph.prebuilt import create_react_agent
     from langchain_core.messages import ToolMessage
     from langchain_core.tools import tool
+    from langgraph.prebuilt import create_react_agent
 
     print("4. ReAct agent (multi-tool selection)...")
 
@@ -258,6 +258,7 @@ def test_streaming():
 def test_async_invoke():
     """ainvoke() returns correct result."""
     import asyncio
+
     from langchain_core.messages import AIMessage
 
     print("6. Async invoke...")
@@ -294,7 +295,7 @@ def test_record_outcome():
     assert found is True, "record_outcome could not find the request"
 
     print(f"   Request ID: {request_id}")
-    print(f"   Outcome recorded: success=True, score=0.95")
+    print("   Outcome recorded: success=True, score=0.95")
     print("   PASSED")
 
 
@@ -302,8 +303,8 @@ def test_record_outcome():
 
 def test_cost_tracking():
     """RouteSmith stats accumulate across an agent's tool-calling loop."""
-    from langgraph.prebuilt import create_react_agent
     from langchain_core.tools import tool
+    from langgraph.prebuilt import create_react_agent
 
     print("8. Cost tracking across agent run...")
 
@@ -336,10 +337,10 @@ def test_cost_tracking():
 
 def test_supervisor_agent():
     """Supervisor delegates to specialist sub-agents."""
-    from langgraph_supervisor import create_supervisor
-    from langgraph.prebuilt import create_react_agent
     from langchain_core.messages import AIMessage, ToolMessage
     from langchain_core.tools import tool
+    from langgraph.prebuilt import create_react_agent
+    from langgraph_supervisor import create_supervisor
 
     print("9. Supervisor multi-agent...")
 
@@ -417,10 +418,10 @@ def test_supervisor_agent():
 
 def test_swarm_agent():
     """Swarm agents hand off to each other."""
-    from langgraph_swarm import create_swarm, create_handoff_tool
-    from langgraph.prebuilt import create_react_agent
     from langchain_core.messages import AIMessage
     from langchain_core.tools import tool
+    from langgraph.prebuilt import create_react_agent
+    from langgraph_swarm import create_handoff_tool, create_swarm
 
     print("10. Swarm multi-agent (handoff)...")
 

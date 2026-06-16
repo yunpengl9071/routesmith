@@ -1,18 +1,9 @@
 """Tests for LangChain integration (ChatRouteSmith)."""
 
 import json
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
-
-from routesmith import RouteSmith, RouteSmithConfig
-from routesmith.integrations.langchain import (
-    ChatRouteSmith,
-    _langchain_messages_to_dicts,
-    _litellm_response_to_ai_message,
-    _litellm_chunk_to_generation_chunk,
-)
-
 from langchain_core.messages import (
     AIMessage,
     HumanMessage,
@@ -20,6 +11,13 @@ from langchain_core.messages import (
     ToolMessage,
 )
 
+from routesmith import RouteSmith, RouteSmithConfig
+from routesmith.integrations.langchain import (
+    ChatRouteSmith,
+    _langchain_messages_to_dicts,
+    _litellm_chunk_to_generation_chunk,
+    _litellm_response_to_ai_message,
+)
 
 # ---------------------------------------------------------------------------
 # Message conversion helpers
@@ -571,8 +569,9 @@ class TestLangGraphAgent:
     def test_create_react_agent_construction(self, mock_litellm):
         """Test that create_react_agent accepts ChatRouteSmith."""
         import warnings
-        from langgraph.prebuilt import create_react_agent
+
         from langchain_core.tools import tool
+        from langgraph.prebuilt import create_react_agent
 
         @tool
         def add(a: int, b: int) -> int:
@@ -595,8 +594,9 @@ class TestLangGraphAgent:
     def test_react_agent_tool_call_loop(self, mock_litellm):
         """Test full ReAct loop: LLM calls tool -> tool executes -> LLM responds."""
         import warnings
-        from langgraph.prebuilt import create_react_agent
+
         from langchain_core.tools import tool
+        from langgraph.prebuilt import create_react_agent
 
         @tool
         def multiply(a: int, b: int) -> int:
@@ -653,8 +653,9 @@ class TestLangGraphAgent:
     def test_react_agent_no_tool_needed(self, mock_litellm):
         """Test ReAct agent when LLM answers directly without tools."""
         import warnings
-        from langgraph.prebuilt import create_react_agent
+
         from langchain_core.tools import tool
+        from langgraph.prebuilt import create_react_agent
 
         @tool
         def search(query: str) -> str:
@@ -687,8 +688,9 @@ class TestLangGraphAgent:
     def test_react_agent_multi_tool_calls(self, mock_litellm):
         """Test ReAct agent with parallel tool calls in a single response."""
         import warnings
-        from langgraph.prebuilt import create_react_agent
+
         from langchain_core.tools import tool
+        from langgraph.prebuilt import create_react_agent
 
         @tool
         def get_weather(city: str) -> str:
@@ -746,8 +748,9 @@ class TestLangGraphAgent:
     def test_react_agent_tools_kwarg_forwarded(self, mock_litellm):
         """Test that tools are forwarded to litellm.completion via kwargs."""
         import warnings
-        from langgraph.prebuilt import create_react_agent
+
         from langchain_core.tools import tool
+        from langgraph.prebuilt import create_react_agent
 
         @tool
         def calculator(expression: str) -> str:

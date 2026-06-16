@@ -7,7 +7,6 @@ then writes routesmith.yaml.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -41,7 +40,7 @@ def run_init(args: Any) -> int:
     out_path.write_text(yaml_text)
     print(f"\nWrote {out_path}")
     print("\nNext steps:")
-    print(f"  export OPENROUTER_API_KEY=sk-or-...")
+    print("  export OPENROUTER_API_KEY=sk-or-...")
     print(f"  routesmith serve --config {out_path}")
     return 0
 
@@ -123,12 +122,12 @@ def _select_predictor() -> str:
 
 def _fallback_select(models: list[OpenRouterModel]) -> list[OpenRouterModel] | None:
     """Minimal numbered list fallback when questionary is unavailable."""
-    PAGE = 25
+    page_size = 25
     offset = 0
     chosen: set[int] = set()
 
     while True:
-        page = models[offset: offset + PAGE]
+        page = models[offset: offset + page_size]
         total = len(models)
         print(f"\n{'─'*70}")
         print(f"  {'#':>3}  {'Model ID':<44}  {'$/1k in':>8}")
@@ -139,7 +138,7 @@ def _fallback_select(models: list[OpenRouterModel]) -> list[OpenRouterModel] | N
             mid = m.id[:44] if len(m.id) <= 44 else m.id[:41] + "..."
             print(f"  {i:>3} {mark}  {mid:<44}  ${m.cost_per_1k_input:.4f}")
         print(f"{'─'*70}")
-        print(f"  Page {offset//PAGE+1}/{(total+PAGE-1)//PAGE}  |  {len(chosen)} selected")
+        print(f"  Page {offset//page_size+1}/{(total+page_size-1)//page_size}  |  {len(chosen)} selected")
 
         try:
             raw = input("\nToggle numbers / n=next / p=prev / done / q=quit: ").strip().lower()
@@ -153,10 +152,10 @@ def _fallback_select(models: list[OpenRouterModel]) -> list[OpenRouterModel] | N
                 return [models[i] for i in sorted(chosen)]
             print(f"  Select 3–10 models (have {len(chosen)}).")
             continue
-        if raw == "n" and offset + PAGE < total:
-            offset += PAGE
-        elif raw == "p" and offset >= PAGE:
-            offset -= PAGE
+        if raw == "n" and offset + page_size < total:
+            offset += page_size
+        elif raw == "p" and offset >= page_size:
+            offset -= page_size
         else:
             for tok in raw.replace(",", " ").split():
                 try:

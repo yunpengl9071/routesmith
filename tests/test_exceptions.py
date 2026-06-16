@@ -1,12 +1,12 @@
 """Real use case: exception hierarchy enforces consistent error handling."""
 import json
-import pytest
+
 from routesmith.exceptions import (
-    RouteSmithError,
     BudgetExceededError,
+    CircuitOpenError,
     NoCapableModelError,
     ProviderUnavailableError,
-    CircuitOpenError,
+    RouteSmithError,
 )
 
 

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from routesmith import RouteSmith
-from routesmith.proxy.handler import RequestHandler, ChatCompletionRequest
+from routesmith.proxy.handler import ChatCompletionRequest, RequestHandler
 from routesmith.proxy.responses import format_error
 
 logger = logging.getLogger(__name__)
@@ -286,7 +286,7 @@ class RouteSmithProxyServer:
             f"Content-Length: {len(body)}\r\n"
             f"Access-Control-Allow-Origin: *\r\n"
             f"\r\n"
-        ).encode("utf-8") + body
+        ).encode() + body
 
         writer.write(response)
         await writer.drain()

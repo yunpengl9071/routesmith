@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sys
 from argparse import Namespace
 
 
@@ -49,7 +48,7 @@ def run_openclaw_config(args: Namespace) -> int:
         print(f"Wrote OpenClaw config to {args.output}")
         print()
         print("Add to your OpenClaw settings.json, or pass with --config.")
-        print(f"Make sure RouteSmith is running: routesmith serve")
+        print("Make sure RouteSmith is running: routesmith serve")
     else:
         print(output)
 

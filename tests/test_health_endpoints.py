@@ -1,5 +1,5 @@
-from routesmith.proxy.handler import RequestHandler
 from routesmith import RouteSmith
+from routesmith.proxy.handler import RequestHandler
 
 
 def make_handler():

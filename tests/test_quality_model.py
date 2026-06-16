@@ -104,7 +104,6 @@ class TestSerialization:
 class TestLazyImport:
     def test_sklearn_not_imported_at_init(self):
         """sklearn should not be imported just from creating QualityModel."""
-        import sys
         # Just creating the model should not import sklearn
         model = QualityModel()
         # We can't reliably test this since sklearn may already be imported

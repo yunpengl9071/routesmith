@@ -166,8 +166,9 @@ def test_feedback_system():
 
     print("Testing feedback system...")
 
-    import tempfile
     import os
+    import tempfile
+
     from routesmith.feedback.storage import FeedbackStorage
 
     db_path = os.path.join(tempfile.gettempdir(), "routesmith_test_feedback.db")
@@ -247,7 +248,7 @@ def test_feedback_system():
     training = reopened.get_training_data()
     assert len(training) >= 1
     reopened.close()
-    print(f"  Persistence verified: record and training data survived reopen")
+    print("  Persistence verified: record and training data survived reopen")
 
     # Cleanup
     os.remove(db_path)

@@ -1,10 +1,11 @@
 """Tests for A/B test framework."""
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from routesmith import RouteSmith, RouteSmithConfig, ABTestRunner
-from routesmith.strategy.ab_test import ABTestResults, VariantStats, MIN_SAMPLES_FOR_WINNER
+import pytest
+
+from routesmith import ABTestRunner, RouteSmith, RouteSmithConfig
+from routesmith.strategy.ab_test import MIN_SAMPLES_FOR_WINNER, ABTestResults, VariantStats
 
 
 def _make_mock_response(request_id: str, model: str = "gpt-4o-mini"):

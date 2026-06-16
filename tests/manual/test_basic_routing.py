@@ -96,7 +96,7 @@ def test_high_quality_routing_mocked():
         )
 
         # Request with high quality requirement (should use gpt-4o)
-        response = rs.completion(
+        rs.completion(
             messages=[{"role": "user", "content": "Explain quantum computing"}],
             min_quality=0.9,  # Higher than mini's 0.85
         )

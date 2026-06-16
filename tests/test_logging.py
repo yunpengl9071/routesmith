@@ -1,7 +1,8 @@
 """Real use case: JSON logs must be parseable at scale."""
 import json
 import logging
-from routesmith.utils.logging import setup_logger, JsonFormatter, RouteSmithLogger
+
+from routesmith.utils.logging import JsonFormatter, RouteSmithLogger, setup_logger
 
 
 class TestJsonFormatter:
