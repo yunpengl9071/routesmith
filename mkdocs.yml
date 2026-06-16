@@ -1,0 +1,41 @@
+site_name: RouteSmith
+site_description: Adaptive LLM Execution Engine — intelligent routing, cascading, caching, and budget management
+repo_url: https://github.com/routesmith/routesmith
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: amber
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - content.code.copy
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - admonition
+  - toc:
+      permalink: true
+plugins:
+  - search
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Concepts:
+      - Routing Strategies: concepts/strategies.md
+      - Cost Management: concepts/budget.md
+      - Adaptive Learning: concepts/adaptive.md
+      - Caching: concepts/cache.md
+  - Integrations:
+      - Standalone: integrations/standalone.md
+      - LangChain: integrations/langchain.md
+      - DSPy: integrations/dspy.md
+      - CrewAI: integrations/crewai.md
+      - AutoGen: integrations/autogen.md
+  - Deployment:
+      - Docker: deployment/docker.md
+  - Migration: migration/litellm.md
+  - Best Practices: best-practices.md
+  - FAQ: faq.md

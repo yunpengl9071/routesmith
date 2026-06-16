@@ -86,6 +86,11 @@ langchain-agents = [
     "langgraph-supervisor>=0.0.20",
     "langgraph-swarm>=0.1.0",
 ]
+docs = [
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.25.0",
+    "pymdown-extensions>=10.0.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/routesmith/routesmith"
