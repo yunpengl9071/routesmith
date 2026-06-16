@@ -60,6 +60,7 @@ class ModelRegistry:
 
     def __init__(self) -> None:
         self._models: dict[str, ModelConfig] = {}
+        self._capacity_trackers: dict[str, Any] = {}
 
     def register(
         self,
@@ -130,6 +131,7 @@ class ModelRegistry:
     def deregister(self, model_id: str) -> None:
         """Remove a model from the registry."""
         self._models.pop(model_id, None)
+        self._capacity_trackers.pop(model_id, None)
 
     def get(self, model_id: str) -> ModelConfig | None:
         """Get model config by ID."""
@@ -203,6 +205,23 @@ class ModelRegistry:
     def filter_by_cost_model(self, cost_model: CostModel) -> list[ModelConfig]:
         """Get models with a specific cost model."""
         return [m for m in self._models.values() if m.cost_model == cost_model]
+
+    def get_capacity_tracker(self, model_id: str):
+        """Get or create a CapacityTracker for a provisioned model.
+
+        Returns None for on-demand or self-hosted models, or unknown model IDs.
+        """
+        config = self._models.get(model_id)
+        if config is None:
+            return None
+        if config.cost_model == CostModel.ON_DEMAND or config.cost_model == CostModel.SELF_HOSTED:
+            return None
+        if model_id not in self._capacity_trackers:
+            from routesmith.strategy.capacity_tracker import CapacityTracker
+            self._capacity_trackers[model_id] = CapacityTracker(
+                max_rpm=config.capacity_requests_per_min,
+            )
+        return self._capacity_trackers[model_id]
 
     def __contains__(self, model_id: str) -> bool:
         return model_id in self._models

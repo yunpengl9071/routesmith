@@ -181,6 +181,71 @@ class TestModelRegistry:
         assert result[0].model_id == "with-tools"
 
 
+class TestCapacityTrackerIntegration:
+    def test_registry_creates_tracker_for_provisioned(self):
+        from routesmith.config import CostModel
+        from routesmith.registry.models import ModelRegistry
+
+        reg = ModelRegistry()
+        reg.register(
+            "provisioned-model",
+            cost_per_1k_input=0.0,
+            cost_per_1k_output=0.0,
+            cost_model=CostModel.PROVISIONED,
+            capacity_requests_per_min=10,
+        )
+        tracker = reg.get_capacity_tracker("provisioned-model")
+        assert tracker is not None
+        assert tracker.max_rpm == 10
+
+    def test_registry_returns_none_for_on_demand(self):
+        from routesmith.registry.models import ModelRegistry
+
+        reg = ModelRegistry()
+        reg.register("on-demand-model", 0.001, 0.002)
+        tracker = reg.get_capacity_tracker("on-demand-model")
+        assert tracker is None
+
+    def test_registry_returns_none_for_unknown_model(self):
+        from routesmith.registry.models import ModelRegistry
+
+        reg = ModelRegistry()
+        assert reg.get_capacity_tracker("nonexistent") is None
+
+    def test_capacity_tracker_reused_same_model(self):
+        from routesmith.config import CostModel
+        from routesmith.registry.models import ModelRegistry
+
+        reg = ModelRegistry()
+        reg.register(
+            "provisioned-model",
+            cost_per_1k_input=0.0,
+            cost_per_1k_output=0.0,
+            cost_model=CostModel.PROVISIONED,
+            capacity_requests_per_min=10,
+        )
+        t1 = reg.get_capacity_tracker("provisioned-model")
+        t2 = reg.get_capacity_tracker("provisioned-model")
+        assert t1 is t2  # Same tracker instance reused
+
+    def test_deregister_cleans_up_tracker(self):
+        from routesmith.config import CostModel
+        from routesmith.registry.models import ModelRegistry
+
+        reg = ModelRegistry()
+        reg.register(
+            "provisioned-model",
+            cost_per_1k_input=0.0,
+            cost_per_1k_output=0.0,
+            cost_model=CostModel.PROVISIONED,
+            capacity_requests_per_min=10,
+        )
+        _ = reg.get_capacity_tracker("provisioned-model")
+        reg.deregister("provisioned-model")
+        # After deregister, get should return None
+        assert reg.get_capacity_tracker("provisioned-model") is None
+
+
 class TestComplianceFiltering:
     def test_model_has_compliance_tags_default_empty(self):
         from routesmith.registry.models import ModelConfig
