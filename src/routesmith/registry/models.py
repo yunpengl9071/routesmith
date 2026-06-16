@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from routesmith.config import CostModel
+
 
 @dataclass
 class ModelConfig:
@@ -24,6 +26,12 @@ class ModelConfig:
     supports_json_mode: bool = True
     capabilities: set[str] = field(default_factory=set)
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    # Cost model and provisioned throughput fields
+    cost_model: "CostModel" = field(default_factory=lambda: CostModel.ON_DEMAND)
+    capacity_requests_per_min: int = 0
+    provisioned_hourly_cost: float = 0.0
+    provisioned_units: int = 0
 
     def __post_init__(self) -> None:
         """Auto-populate capabilities from boolean flags."""
@@ -66,6 +74,10 @@ class ModelRegistry:
         supports_vision: bool = False,
         supports_json_mode: bool = True,
         supports_streaming: bool = True,
+        cost_model: CostModel | None = None,
+        capacity_requests_per_min: int = 0,
+        provisioned_hourly_cost: float = 0.0,
+        provisioned_units: int = 0,
         **kwargs: Any,
     ) -> ModelConfig:
         """
@@ -102,6 +114,10 @@ class ModelRegistry:
             supports_json_mode=supports_json_mode,
             supports_streaming=supports_streaming,
             capabilities=capabilities or set(),
+            cost_model=cost_model or CostModel.ON_DEMAND,
+            capacity_requests_per_min=capacity_requests_per_min,
+            provisioned_hourly_cost=provisioned_hourly_cost,
+            provisioned_units=provisioned_units,
             metadata=kwargs,
         )
         self._models[model_id] = config
@@ -170,6 +186,10 @@ class ModelRegistry:
 
     def __len__(self) -> int:
         return len(self._models)
+
+    def filter_by_cost_model(self, cost_model: CostModel) -> list[ModelConfig]:
+        """Get models with a specific cost model."""
+        return [m for m in self._models.values() if m.cost_model == cost_model]
 
     def __contains__(self, model_id: str) -> bool:
         return model_id in self._models
