@@ -184,6 +184,18 @@ class RouteSmithProxyServer:
             await self._send_json(writer, result, 200)
             return
 
+        # Liveness probe (Kubernetes)
+        if path == "/live" and method == "GET":
+            result = await self.handler.handle_liveness()
+            await self._send_json(writer, result, 200)
+            return
+
+        # Readiness probe (Kubernetes)
+        if path == "/ready" and method == "GET":
+            result = await self.handler.handle_readiness()
+            await self._send_json(writer, result, 200)
+            return
+
         # Models list
         if path == "/v1/models" and method == "GET":
             result = await self.handler.handle_models()
