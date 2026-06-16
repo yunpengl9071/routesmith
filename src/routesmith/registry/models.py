@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from routesmith.config import CostModel
+
 
 @dataclass
 class ModelConfig:
@@ -23,7 +25,14 @@ class ModelConfig:
     supports_vision: bool = False
     supports_json_mode: bool = True
     capabilities: set[str] = field(default_factory=set)
+    compliance_tags: set[str] = field(default_factory=set)
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    # Cost model and provisioned throughput fields
+    cost_model: CostModel = field(default_factory=lambda: CostModel.ON_DEMAND)
+    capacity_requests_per_min: int = 0
+    provisioned_hourly_cost: float = 0.0
+    provisioned_units: int = 0
 
     def __post_init__(self) -> None:
         """Auto-populate capabilities from boolean flags."""
@@ -51,6 +60,7 @@ class ModelRegistry:
 
     def __init__(self) -> None:
         self._models: dict[str, ModelConfig] = {}
+        self._capacity_trackers: dict[str, Any] = {}
 
     def register(
         self,
@@ -62,10 +72,15 @@ class ModelRegistry:
         latency_p99_ms: float = 2000.0,
         context_window: int = 128000,
         capabilities: set[str] | None = None,
+        compliance_tags: set[str] | None = None,
         supports_function_calling: bool = True,
         supports_vision: bool = False,
         supports_json_mode: bool = True,
         supports_streaming: bool = True,
+        cost_model: CostModel | None = None,
+        capacity_requests_per_min: int = 0,
+        provisioned_hourly_cost: float = 0.0,
+        provisioned_units: int = 0,
         **kwargs: Any,
     ) -> ModelConfig:
         """
@@ -80,6 +95,7 @@ class ModelRegistry:
             latency_p99_ms: 99th percentile latency
             context_window: Maximum context size
             capabilities: Explicit capability set (merged with auto-detected)
+            compliance_tags: Compliance tags (e.g., {"hipaa", "soc2"})
             supports_function_calling: Whether the model supports tool/function calling
             supports_vision: Whether the model supports image inputs
             supports_json_mode: Whether the model supports JSON mode
@@ -102,6 +118,11 @@ class ModelRegistry:
             supports_json_mode=supports_json_mode,
             supports_streaming=supports_streaming,
             capabilities=capabilities or set(),
+            compliance_tags=compliance_tags or set(),
+            cost_model=cost_model or CostModel.ON_DEMAND,
+            capacity_requests_per_min=capacity_requests_per_min,
+            provisioned_hourly_cost=provisioned_hourly_cost,
+            provisioned_units=provisioned_units,
             metadata=kwargs,
         )
         self._models[model_id] = config
@@ -110,6 +131,7 @@ class ModelRegistry:
     def deregister(self, model_id: str) -> None:
         """Remove a model from the registry."""
         self._models.pop(model_id, None)
+        self._capacity_trackers.pop(model_id, None)
 
     def get(self, model_id: str) -> ModelConfig | None:
         """Get model config by ID."""
@@ -152,6 +174,15 @@ class ModelRegistry:
         """Get models supporting all required capabilities."""
         return [m for m in self._models.values() if required.issubset(m.capabilities)]
 
+    def filter_by_compliance(self, required_tags: set[str]) -> list[ModelConfig]:
+        """Get models that have ALL required compliance tags."""
+        if not required_tags:
+            return self.list_models()
+        return [
+            m for m in self._models.values()
+            if required_tags.issubset(m.compliance_tags)
+        ]
+
     def sorted_by_cost(self, descending: bool = False) -> list[ModelConfig]:
         """Get models sorted by cost."""
         return sorted(
@@ -170,6 +201,27 @@ class ModelRegistry:
 
     def __len__(self) -> int:
         return len(self._models)
+
+    def filter_by_cost_model(self, cost_model: CostModel) -> list[ModelConfig]:
+        """Get models with a specific cost model."""
+        return [m for m in self._models.values() if m.cost_model == cost_model]
+
+    def get_capacity_tracker(self, model_id: str):
+        """Get or create a CapacityTracker for a provisioned model.
+
+        Returns None for on-demand or self-hosted models, or unknown model IDs.
+        """
+        config = self._models.get(model_id)
+        if config is None:
+            return None
+        if config.cost_model == CostModel.ON_DEMAND or config.cost_model == CostModel.SELF_HOSTED:
+            return None
+        if model_id not in self._capacity_trackers:
+            from routesmith.strategy.capacity_tracker import CapacityTracker
+            self._capacity_trackers[model_id] = CapacityTracker(
+                max_rpm=config.capacity_requests_per_min,
+            )
+        return self._capacity_trackers[model_id]
 
     def __contains__(self, model_id: str) -> bool:
         return model_id in self._models

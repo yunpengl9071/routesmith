@@ -15,6 +15,23 @@ class RoutingStrategy(Enum):
     CASCADE = "cascade"  # Try cheap model first, escalate if needed
     PARALLEL = "parallel"  # Run multiple models, select best response
     SPECULATIVE = "speculative"  # Start with cheap model while evaluating
+    PROVISIONED_FIRST = "provisioned_first"  # Route to provisioned first, overflow to on-demand
+
+
+class CostModel(Enum):
+    """Pricing model for a registered model."""
+
+    ON_DEMAND = "on_demand"  # Pay per token (default)
+    PROVISIONED = "provisioned"  # Fixed hourly cost, capacity-limited
+    SELF_HOSTED = "self_hosted"  # Local/Ollama, near-zero marginal cost
+
+
+class BudgetBehavior(Enum):
+    """Behavior when budget is exhausted."""
+
+    FAIL = "fail"  # Raise BudgetExceededError (default)
+    FALLBACK = "fallback"  # Route to cheapest eligible model
+    QUEUE = "queue"  # Hold until budget window resets (async only)
 
 
 @dataclass
@@ -119,6 +136,9 @@ class RouteSmithConfig:
     # Run before capability filtering; predictor only sees the filtered set.
     business_rules: list[Callable[..., list[Any]]] = field(default_factory=list)
 
+    # Budget enforcement behavior
+    budget_behavior: BudgetBehavior = BudgetBehavior.FAIL
+
     def with_cache(self, **kwargs: Any) -> RouteSmithConfig:
         """Return a new config with updated cache settings."""
         new_cache = CacheConfig(
@@ -148,6 +168,7 @@ class RouteSmithConfig:
             reward_expr=self.reward_expr,
             reward_fns=self.reward_fns,
             business_rules=self.business_rules,
+            budget_behavior=self.budget_behavior,
         )
 
     def with_budget(self, **kwargs: Any) -> RouteSmithConfig:
@@ -181,4 +202,5 @@ class RouteSmithConfig:
             reward_expr=self.reward_expr,
             reward_fns=self.reward_fns,
             business_rules=self.business_rules,
+            budget_behavior=self.budget_behavior,
         )

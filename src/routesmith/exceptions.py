@@ -94,6 +94,47 @@ class ProviderUnavailableError(RouteSmithError):
         self.original_error = original_error
 
 
+class CapacityExhaustedError(RouteSmithError):
+    """
+    Raised when provisioned capacity is exhausted and no on-demand fallback exists.
+
+    Attributes:
+        model_id: The model whose capacity is exhausted.
+    """
+
+    def __init__(
+        self,
+        model_id: str,
+        **kwargs: object,
+    ) -> None:
+        msg = f"Provisioned capacity exhausted for model '{model_id}'"
+        super().__init__(msg, **kwargs)
+        self.model_id = model_id
+
+
+class NoCompliantModelError(RouteSmithError):
+    """
+    Raised when no registered model satisfies required compliance tags.
+
+    Attributes:
+        required_tags: The compliance tags that were required.
+        available_tags: All compliance tags available across registered models.
+    """
+
+    def __init__(
+        self,
+        required_tags: set[str],
+        available_tags: set[str] | None = None,
+        **kwargs: object,
+    ) -> None:
+        msg = f"No models with required compliance tags: {required_tags}"
+        if available_tags:
+            msg += f". Available tags: {available_tags}"
+        super().__init__(msg, **kwargs)
+        self.required_tags = required_tags
+        self.available_tags = available_tags or set()
+
+
 class CircuitOpenError(RouteSmithError):
     """
     Raised when the circuit breaker is open for a model.

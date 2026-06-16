@@ -55,6 +55,46 @@ class TestExceptionHierarchy:
         assert err.custom_field == "x"
 
 
+class TestCapacityExhaustedError:
+    def test_is_routesmith_error(self):
+        from routesmith.exceptions import CapacityExhaustedError, RouteSmithError
+        err = CapacityExhaustedError(model_id="test-model")
+        assert isinstance(err, RouteSmithError)
+        assert err.model_id == "test-model"
+
+    def test_message_includes_model(self):
+        from routesmith.exceptions import CapacityExhaustedError
+        err = CapacityExhaustedError(model_id="gpt-4o")
+        assert "gpt-4o" in str(err)
+
+    def test_extra_kwargs_attached(self):
+        from routesmith.exceptions import CapacityExhaustedError
+        err = CapacityExhaustedError(model_id="x", available_models=["a", "b"])
+        assert err.available_models == ["a", "b"]
+
+
+class TestNoCompliantModelError:
+    def test_is_routesmith_error(self):
+        from routesmith.exceptions import NoCompliantModelError, RouteSmithError
+        err = NoCompliantModelError(required_tags={"hipaa"})
+        assert isinstance(err, RouteSmithError)
+        assert err.required_tags == {"hipaa"}
+
+    def test_message_includes_required_tags(self):
+        from routesmith.exceptions import NoCompliantModelError
+        err = NoCompliantModelError(required_tags={"hipaa", "soc2"})
+        msg = str(err)
+        assert "hipaa" in msg or "No compliant" in msg
+
+    def test_with_available_tags(self):
+        from routesmith.exceptions import NoCompliantModelError
+        err = NoCompliantModelError(
+            required_tags={"hipaa"},
+            available_tags={"soc2", "pci"},
+        )
+        assert err.available_tags == {"soc2", "pci"}
+
+
 class TestRealUseCaseErrors:
     """End-to-end: exceptions carry enough info for a monitoring system."""
 

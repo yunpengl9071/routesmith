@@ -37,5 +37,9 @@ nav:
   - Deployment:
       - Docker: deployment/docker.md
   - Migration: migration/litellm.md
+  - Cost Models: cost-models.md
+  - Compliance: compliance.md
+  - Multi-Project: multi-project.md
+  - Budget Enforcement: budget-enforcement.md
   - Best Practices: best-practices.md
   - FAQ: faq.md
