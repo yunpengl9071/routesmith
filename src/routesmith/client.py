@@ -214,6 +214,7 @@ class RouteSmith:
         min_quality: float | None = None,
         include_metadata: bool = False,
         context: RouteContext | None = None,
+        required_compliance: set[str] | None = None,
         **kwargs: Any,
     ) -> ModelResponse:
         """
@@ -226,6 +227,7 @@ class RouteSmith:
             max_cost: Maximum cost constraint for this request (USD).
             min_quality: Minimum quality threshold for this request (0-1).
             include_metadata: If True, attach routesmith_metadata to response.
+            required_compliance: Required compliance tags (e.g., {"hipaa", "soc2"}).
             **kwargs: Additional arguments passed to litellm.completion().
 
         Returns:
@@ -275,6 +277,7 @@ class RouteSmith:
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
                 required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
                 context=context,
             )
             routing_reason = self._get_routing_reason(
@@ -501,6 +504,7 @@ class RouteSmith:
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
                 required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
                 context=context,
             )
             routing_reason = self._get_routing_reason(

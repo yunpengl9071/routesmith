@@ -104,6 +104,7 @@ class Router:
         max_cost: float | None = None,
         min_quality: float = 0.0,
         required_capabilities: set[str] | None = None,
+        required_compliance: set[str] | None = None,
         context: RouteContext | None = None,
     ) -> str:
         """
@@ -115,6 +116,7 @@ class Router:
             max_cost: Maximum cost constraint (USD per 1k tokens).
             min_quality: Minimum quality threshold (0-1).
             required_capabilities: Capabilities the selected model must support.
+            required_compliance: Compliance tags the selected model must have.
             context: Optional agent/conversation context for business rules.
 
         Returns:
@@ -127,13 +129,15 @@ class Router:
             raise ValueError("No models registered. Call register_model() first.")
 
         if strategy == RoutingStrategy.DIRECT:
-            return self._route_direct(messages, max_cost, min_quality, required_capabilities, context)
+            return self._route_direct(messages, max_cost, min_quality, required_capabilities, required_compliance, context)
         elif strategy == RoutingStrategy.CASCADE:
-            return self._route_cascade(messages, max_cost, min_quality, required_capabilities, context)
+            return self._route_cascade(messages, max_cost, min_quality, required_capabilities, required_compliance, context)
         elif strategy == RoutingStrategy.PARALLEL:
-            return self._route_parallel(messages, max_cost, min_quality, required_capabilities, context)
+            return self._route_parallel(messages, max_cost, min_quality, required_capabilities, required_compliance, context)
         elif strategy == RoutingStrategy.SPECULATIVE:
-            return self._route_speculative(messages, max_cost, min_quality, required_capabilities, context)
+            return self._route_speculative(messages, max_cost, min_quality, required_capabilities, required_compliance, context)
+        elif strategy == RoutingStrategy.PROVISIONED_FIRST:
+            return self._route_provisioned_first(messages, max_cost, min_quality, required_capabilities, required_compliance, context)
         else:
             raise ValueError(f"Unknown routing strategy: {strategy}")
 
@@ -156,6 +160,26 @@ class Router:
                     "Check your RouteSmithConfig.business_rules."
                 )
         return candidates
+
+    def _filter_by_compliance(
+        self,
+        candidates: list[Any],
+        required_compliance: set[str] | None,
+    ) -> list[Any]:
+        """Filter candidates by required compliance tags."""
+        if not required_compliance:
+            return candidates
+        filtered = [c for c in candidates if required_compliance.issubset(c.compliance_tags)]
+        if not filtered:
+            from routesmith.exceptions import NoCompliantModelError
+            available_tags: set[str] = set()
+            for m in self.registry.list_models():
+                available_tags.update(m.compliance_tags)
+            raise NoCompliantModelError(
+                required_tags=required_compliance,
+                available_tags=available_tags,
+            )
+        return filtered
 
     def _filter_by_capabilities(
         self,
@@ -180,6 +204,7 @@ class Router:
         max_cost: float | None,
         min_quality: float,
         required_capabilities: set[str] | None = None,
+        required_compliance: set[str] | None = None,
         context: RouteContext | None = None,
     ) -> str:
         """
@@ -194,11 +219,14 @@ class Router:
         else:
             candidates = self.registry.list_models()
 
-        # Apply business rules before capability filtering
+        # Apply business rules before capability/compliance filtering
         candidates = self._apply_business_rules(candidates, context)
 
         # Filter by required capabilities
         candidates = self._filter_by_capabilities(candidates, required_capabilities)
+
+        # Filter by required compliance
+        candidates = self._filter_by_compliance(candidates, required_compliance)
 
         if not candidates:
             # Fallback to cheapest model if no candidates meet cost constraints
@@ -244,6 +272,7 @@ class Router:
         max_cost: float | None,
         min_quality: float,
         required_capabilities: set[str] | None = None,
+        required_compliance: set[str] | None = None,
         context: RouteContext | None = None,
     ) -> str:
         """
@@ -258,11 +287,14 @@ class Router:
         if not candidates:
             raise ValueError("No models available for cascade")
 
-        # Apply business rules before capability filtering
+        # Apply business rules before capability/compliance filtering
         candidates = self._apply_business_rules(candidates, context)
 
         # Filter by required capabilities
         candidates = self._filter_by_capabilities(candidates, required_capabilities)
+
+        # Filter by required compliance
+        candidates = self._filter_by_compliance(candidates, required_compliance)
 
         candidate_ids = [m.model_id for m in candidates]
         predictions = self.predictor.predict(messages, candidate_ids, context=context)
@@ -293,6 +325,7 @@ class Router:
         max_cost: float | None,
         min_quality: float,
         required_capabilities: set[str] | None = None,
+        required_compliance: set[str] | None = None,
         context: RouteContext | None = None,
     ) -> str:
         """
@@ -307,10 +340,13 @@ class Router:
         else:
             candidates = self.registry.list_models()
 
-        # Apply business rules before capability filtering
+        # Apply business rules before capability/compliance filtering
         candidates = self._apply_business_rules(candidates, context)
 
         candidates = self._filter_by_capabilities(candidates, required_capabilities)
+
+        # Filter by required compliance
+        candidates = self._filter_by_compliance(candidates, required_compliance)
 
         if candidates:
             best = max(candidates, key=lambda m: m.quality_score)
@@ -324,6 +360,7 @@ class Router:
         max_cost: float | None,
         min_quality: float,
         required_capabilities: set[str] | None = None,
+        required_compliance: set[str] | None = None,
         context: RouteContext | None = None,
     ) -> str:
         """
@@ -332,7 +369,7 @@ class Router:
         Similar to cascade but begins generation immediately.
         """
         # Start with cheapest model
-        return self._route_cascade(messages, max_cost, min_quality, required_capabilities, context)
+        return self._route_cascade(messages, max_cost, min_quality, required_capabilities, required_compliance, context)
 
     def get_cascade_models(
         self,
@@ -359,3 +396,68 @@ class Router:
             candidates = [c for c in candidates if required_capabilities.issubset(c.capabilities)]
         sorted_models = sorted(candidates, key=lambda m: m.cost_per_1k_total)
         return [m.model_id for m in sorted_models[:max_tiers]]
+
+    def _route_provisioned_first(
+        self,
+        messages: list[dict[str, str]],
+        max_cost: float | None,
+        min_quality: float,
+        required_capabilities: set[str] | None = None,
+        required_compliance: set[str] | None = None,
+        context: RouteContext | None = None,
+    ) -> str:
+        """
+        PROVISIONED_FIRST strategy: route to provisioned capacity first.
+
+        Checks provisioned models in cost order. If capacity available,
+        uses provisioned model (marginal cost = $0). If all provisioned
+        capacity exhausted, falls through to on-demand routing using
+        quality prediction.
+
+        Raises CapacityExhaustedError if no provisioned capacity AND
+        no on-demand models are available.
+        """
+        from routesmith.config import CostModel
+        from routesmith.exceptions import CapacityExhaustedError
+
+        # Get all models, apply filters
+        candidates = self.registry.list_models()
+        candidates = self._apply_business_rules(candidates, context)
+        candidates = self._filter_by_capabilities(candidates, required_capabilities)
+        candidates = self._filter_by_compliance(candidates, required_compliance)
+
+        # Separate into provisioned and on-demand
+        provisioned = [m for m in candidates if m.cost_model == CostModel.PROVISIONED]
+        on_demand = [m for m in candidates if m.cost_model != CostModel.PROVISIONED]
+
+        # Try provisioned models (sorted by cost for deterministic behavior)
+        provisioned.sort(key=lambda m: m.provisioned_hourly_cost)
+        for model in provisioned:
+            tracker = self.registry.get_capacity_tracker(model.model_id)
+            if tracker is not None and tracker.available():
+                tracker.record_request()
+                return model.model_id
+
+        # All provisioned capacity exhausted — fall through to on-demand
+        if not on_demand:
+            provisioned_ids = [m.model_id for m in provisioned]
+            raise CapacityExhaustedError(
+                model_id=provisioned_ids[0] if provisioned_ids else "unknown",
+            )
+
+        # Use direct routing on on-demand models
+        if max_cost is not None:
+            on_demand = [m for m in on_demand if m.cost_per_1k_total <= max_cost]
+
+        candidate_ids = [m.model_id for m in on_demand]
+        predictions = self.predictor.predict(messages, candidate_ids, context=context)
+        cost_map = {m.model_id: m.cost_per_1k_total for m in on_demand}
+
+        qualifying = [p for p in predictions if p.predicted_quality >= min_quality]
+        if qualifying:
+            return min(qualifying, key=lambda p: cost_map.get(p.model_id, float("inf"))).model_id
+
+        if predictions:
+            return max(predictions, key=lambda p: p.predicted_quality).model_id
+
+        raise ValueError("No models available for provisioned-first routing")
