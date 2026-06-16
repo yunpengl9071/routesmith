@@ -25,6 +25,7 @@ class ModelConfig:
     supports_vision: bool = False
     supports_json_mode: bool = True
     capabilities: set[str] = field(default_factory=set)
+    compliance_tags: set[str] = field(default_factory=set)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     # Cost model and provisioned throughput fields
@@ -70,6 +71,7 @@ class ModelRegistry:
         latency_p99_ms: float = 2000.0,
         context_window: int = 128000,
         capabilities: set[str] | None = None,
+        compliance_tags: set[str] | None = None,
         supports_function_calling: bool = True,
         supports_vision: bool = False,
         supports_json_mode: bool = True,
@@ -92,6 +94,7 @@ class ModelRegistry:
             latency_p99_ms: 99th percentile latency
             context_window: Maximum context size
             capabilities: Explicit capability set (merged with auto-detected)
+            compliance_tags: Compliance tags (e.g., {"hipaa", "soc2"})
             supports_function_calling: Whether the model supports tool/function calling
             supports_vision: Whether the model supports image inputs
             supports_json_mode: Whether the model supports JSON mode
@@ -114,6 +117,7 @@ class ModelRegistry:
             supports_json_mode=supports_json_mode,
             supports_streaming=supports_streaming,
             capabilities=capabilities or set(),
+            compliance_tags=compliance_tags or set(),
             cost_model=cost_model or CostModel.ON_DEMAND,
             capacity_requests_per_min=capacity_requests_per_min,
             provisioned_hourly_cost=provisioned_hourly_cost,
@@ -167,6 +171,15 @@ class ModelRegistry:
     def filter_by_capabilities(self, required: set[str]) -> list[ModelConfig]:
         """Get models supporting all required capabilities."""
         return [m for m in self._models.values() if required.issubset(m.capabilities)]
+
+    def filter_by_compliance(self, required_tags: set[str]) -> list[ModelConfig]:
+        """Get models that have ALL required compliance tags."""
+        if not required_tags:
+            return self.list_models()
+        return [
+            m for m in self._models.values()
+            if required_tags.issubset(m.compliance_tags)
+        ]
 
     def sorted_by_cost(self, descending: bool = False) -> list[ModelConfig]:
         """Get models sorted by cost."""

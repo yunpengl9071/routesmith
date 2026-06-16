@@ -179,3 +179,68 @@ class TestModelRegistry:
         result = reg.get_by_capability("tool_calling")
         assert len(result) == 1
         assert result[0].model_id == "with-tools"
+
+
+class TestComplianceFiltering:
+    def test_model_has_compliance_tags_default_empty(self):
+        from routesmith.registry.models import ModelConfig
+        model = ModelConfig(model_id="test", cost_per_1k_input=0.001, cost_per_1k_output=0.002)
+        assert model.compliance_tags == set()
+
+    def test_model_compliance_tags_settable(self):
+        from routesmith.registry.models import ModelConfig
+        model = ModelConfig(
+            model_id="test",
+            cost_per_1k_input=0.001,
+            cost_per_1k_output=0.002,
+            compliance_tags={"hipaa", "soc2"},
+        )
+        assert model.compliance_tags == {"hipaa", "soc2"}
+
+    def test_filter_by_compliance_exact_match(self):
+        from routesmith.registry.models import ModelRegistry
+        reg = ModelRegistry()
+        reg.register("hipaa-model", 0.001, 0.002, compliance_tags={"hipaa", "soc2"})
+        reg.register("no-compliance", 0.001, 0.002)
+
+        results = reg.filter_by_compliance({"hipaa"})
+        assert len(results) == 1
+        assert results[0].model_id == "hipaa-model"
+
+    def test_filter_by_compliance_requires_all_tags(self):
+        from routesmith.registry.models import ModelRegistry
+        reg = ModelRegistry()
+        reg.register("hipaa-only", 0.001, 0.002, compliance_tags={"hipaa"})
+        reg.register("hipaa-soc2", 0.001, 0.002, compliance_tags={"hipaa", "soc2"})
+
+        results = reg.filter_by_compliance({"hipaa", "soc2"})
+        assert len(results) == 1
+        assert results[0].model_id == "hipaa-soc2"
+
+    def test_filter_by_compliance_empty_required_returns_all(self):
+        from routesmith.registry.models import ModelRegistry
+        reg = ModelRegistry()
+        reg.register("model-a", 0.001, 0.002, compliance_tags={"hipaa"})
+        reg.register("model-b", 0.001, 0.002)
+
+        results = reg.filter_by_compliance(set())
+        assert len(results) == 2
+
+    def test_filter_by_compliance_no_match_returns_empty(self):
+        from routesmith.registry.models import ModelRegistry
+        reg = ModelRegistry()
+        reg.register("model-a", 0.001, 0.002, compliance_tags={"soc2"})
+
+        results = reg.filter_by_compliance({"hipaa"})
+        assert len(results) == 0
+
+    def test_register_accepts_compliance_tags(self):
+        from routesmith.registry.models import ModelRegistry
+        reg = ModelRegistry()
+        config = reg.register(
+            "test-model",
+            0.001,
+            0.002,
+            compliance_tags={"hipaa", "us-east-1"},
+        )
+        assert config.compliance_tags == {"hipaa", "us-east-1"}
