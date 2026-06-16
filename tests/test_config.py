@@ -36,6 +36,11 @@ class TestRoutingStrategy:
         assert RoutingStrategy.CASCADE.value == "cascade"
         assert RoutingStrategy.PARALLEL.value == "parallel"
         assert RoutingStrategy.SPECULATIVE.value == "speculative"
+        assert RoutingStrategy.PROVISIONED_FIRST.value == "provisioned_first"
+
+    def test_provisioned_first_strategy_exists(self):
+        assert RoutingStrategy.PROVISIONED_FIRST.value == "provisioned_first"
+        assert RoutingStrategy("provisioned_first") == RoutingStrategy.PROVISIONED_FIRST
 
 
 class TestRouteContext:
