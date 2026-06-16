@@ -2,16 +2,45 @@
 
 from __future__ import annotations
 
+import logging
 import time
-from typing import Any, AsyncIterator, Iterator
+import uuid
+from collections import defaultdict
+from collections.abc import AsyncIterator, Callable, Iterator
+from dataclasses import asdict, dataclass
+from typing import Any
 
 import litellm
 from litellm import ModelResponse
 
-from routesmith.config import RouteSmithConfig, RoutingStrategy
-from routesmith.registry.models import ModelRegistry
-from routesmith.strategy.router import Router
+from routesmith.config import RouteContext, RouteSmithConfig, RoutingStrategy
 from routesmith.feedback.collector import FeedbackCollector
+from routesmith.registry.models import ModelRegistry
+from routesmith.strategy.circuit_breaker import CircuitBreaker
+from routesmith.strategy.router import Router
+from routesmith.utils.logging import RouteSmithLogger, setup_logger
+from routesmith.utils.retry import RetryExhaustedError, retry_with_backoff
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class RoutingMetadata:
+    """Metadata about a routing decision for transparency."""
+
+    request_id: str
+    model_selected: str
+    routing_strategy: str
+    routing_reason: str
+    routing_latency_ms: float
+    estimated_cost_usd: float
+    counterfactual_cost_usd: float  # What it would have cost with most expensive model
+    cost_savings_usd: float
+    models_considered: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary for response attachment."""
+        return asdict(self)
 
 
 class RouteSmith:
@@ -43,10 +72,68 @@ class RouteSmith:
         """
         self.config = config or RouteSmithConfig()
         self.registry = registry or ModelRegistry()
-        self.router = Router(self.config, self.registry)
-        self.feedback = FeedbackCollector(self.config)
+        self.feedback = FeedbackCollector(self.config, registry=self.registry)
+        self.router = Router(
+            self.config, self.registry, storage=self.feedback._storage
+        )
         self._request_count = 0
         self._total_cost = 0.0
+        self._counterfactual_cost = 0.0  # Cost if always used most expensive model
+        self._last_routing_metadata: RoutingMetadata | None = None
+
+        # Resilience: circuit breakers per model, structured logging
+        self._circuit_breakers: dict[str, CircuitBreaker] = {}
+        self._log: RouteSmithLogger = RouteSmithLogger(
+            setup_logger("routesmith", json_format=True)
+        )
+
+        # Resolve reward_fn from config (fail fast on bad expressions).
+        self._reward_fn: Callable[..., float] | None = None
+        if self.config.reward_fn is not None:
+            self._reward_fn = self.config.reward_fn
+        elif self.config.reward_expr is not None:
+            from routesmith.feedback.reward import compile_reward_fn
+            self._reward_fn = compile_reward_fn(self.config.reward_expr)
+
+        # Load persisted predictor state if storage is configured.
+        if self.config.feedback_storage_path:
+            self._load_predictor_state()
+
+    def _load_predictor_state(self) -> None:
+        """Load persisted predictor weights from storage on startup."""
+        if self.feedback._storage is None:
+            return
+        blob = self.feedback._storage.load_predictor_state(self.config.predictor_type)
+        if blob is not None:
+            predictor = self.router.predictor
+            if hasattr(predictor, "load_state"):
+                try:
+                    predictor.load_state(blob)
+                except Exception:
+                    pass  # corrupt or incompatible state; cold start
+
+    @staticmethod
+    def _has_image_content(message: dict[str, Any]) -> bool:
+        """Check if a message contains image content."""
+        content = message.get("content")
+        if isinstance(content, list):
+            return any(
+                isinstance(part, dict) and part.get("type") == "image_url"
+                for part in content
+            )
+        return False
+
+    @staticmethod
+    def _detect_required_capabilities(
+        messages: list[dict[str, Any]], kwargs: dict[str, Any]
+    ) -> set[str]:
+        """Auto-detect required capabilities from messages and kwargs."""
+        required: set[str] = set()
+        if "tools" in kwargs or "functions" in kwargs:
+            required.add("tool_calling")
+        if any(RouteSmith._has_image_content(m) for m in messages):
+            required.add("vision")
+        return required
 
     def register_model(
         self,
@@ -82,6 +169,41 @@ class RouteSmith:
             context_window=context_window,
             **kwargs,
         )
+        predictor = self.router.predictor
+        if hasattr(predictor, "add_arm"):
+            predictor.add_arm(model_id)
+
+    def deregister_model(self, model_id: str) -> None:
+        """Remove a model from routing.
+
+        Raises ValueError if it's the last registered model.
+        Historical feedback records are preserved; predictor arm is retired.
+        """
+        if self.registry.get(model_id) is None:
+            return
+        if len(self.registry.list_models()) <= 1:
+            raise ValueError(
+                f"Cannot deregister '{model_id}': it is the last registered model."
+            )
+        self.registry.deregister(model_id)
+        predictor = self.router.predictor
+        if hasattr(predictor, "remove_arm"):
+            predictor.remove_arm(model_id)
+        self._persist_predictor_state()
+
+    def _persist_predictor_state(self) -> None:
+        """Serialize current predictor state to storage (non-fatal on failure)."""
+        if not self.config.feedback_storage_path or not self.feedback._storage:
+            return
+        predictor = self.router.predictor
+        if hasattr(predictor, "serialize_state"):
+            try:
+                blob = predictor.serialize_state()
+                self.feedback._storage.save_predictor_state(
+                    self.config.predictor_type, blob
+                )
+            except Exception:
+                pass
 
     def completion(
         self,
@@ -90,6 +212,8 @@ class RouteSmith:
         strategy: RoutingStrategy | None = None,
         max_cost: float | None = None,
         min_quality: float | None = None,
+        include_metadata: bool = False,
+        context: RouteContext | None = None,
         **kwargs: Any,
     ) -> ModelResponse:
         """
@@ -101,54 +225,210 @@ class RouteSmith:
             strategy: Override default routing strategy.
             max_cost: Maximum cost constraint for this request (USD).
             min_quality: Minimum quality threshold for this request (0-1).
+            include_metadata: If True, attach routesmith_metadata to response.
             **kwargs: Additional arguments passed to litellm.completion().
 
         Returns:
-            ModelResponse from the selected model.
+            ModelResponse from the selected model. If include_metadata is True,
+            response will have a routesmith_metadata attribute with routing details.
         """
-        start_time = time.perf_counter()
+        routing_start = time.perf_counter()
         self._request_count += 1
+        request_id = uuid.uuid4().hex[:16]
+
+        # Infer agent role from messages when context is provided without one.
+        if context is not None and context.agent_role is None:
+            if not hasattr(self, "_agent_inferencer"):
+                from routesmith.predictor.agent_inferencer import AgentInferencer
+                self._agent_inferencer = AgentInferencer()
+            role, confidence = self._agent_inferencer.infer(messages)
+            if role is not None:
+                context = RouteContext(
+                    agent_id=context.agent_id,
+                    agent_role=role,
+                    conversation_id=context.conversation_id,
+                    turn_index=context.turn_index,
+                    metadata={
+                        **context.metadata,
+                        "role_inferred": True,
+                        "role_confidence": confidence,
+                    },
+                )
+
+        # Determine routing strategy
+        effective_strategy = strategy or self.config.default_strategy
+        routing_reason = ""
+        models_considered = [m.model_id for m in self.registry.list_models()]
+
+        # Auto-detect required capabilities
+        required_capabilities = self._detect_required_capabilities(messages, kwargs)
 
         # If specific model requested, skip routing
         if model:
             selected_model = model
+            routing_reason = "explicit model specified"
         else:
             # Route to optimal model
-            effective_strategy = strategy or self.config.default_strategy
             selected_model = self.router.route(
                 messages=messages,
                 strategy=effective_strategy,
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
+                required_capabilities=required_capabilities or None,
+                context=context,
+            )
+            routing_reason = self._get_routing_reason(
+                effective_strategy, selected_model, max_cost, min_quality
             )
 
-        # Execute completion via LiteLLM
-        response = litellm.completion(
-            model=selected_model,
-            messages=messages,
-            **{**self.config.litellm_params, **kwargs},
-        )
+        routing_latency_ms = (time.perf_counter() - routing_start) * 1000
 
-        # Track costs
+        # Execute completion via LiteLLM with circuit breaker and retry
+        breaker = self._circuit_breakers.get(selected_model)
+        if breaker is None:
+            breaker = CircuitBreaker(selected_model)
+            self._circuit_breakers[selected_model] = breaker
+
+        if not breaker.allow_request():
+            from routesmith.exceptions import CircuitOpenError
+            self._log.warning(
+                "circuit_open", model_id=selected_model,
+                request_id=request_id,
+            )
+            raise CircuitOpenError(
+                selected_model, retry_after=breaker.retry_after_seconds()
+            )
+
+        try:
+            response = retry_with_backoff(
+                lambda: litellm.completion(
+                    model=selected_model,
+                    messages=messages,
+                    **{**self.config.litellm_params, **kwargs},
+                ),
+                max_retries=2,
+                base_delay=1.0,
+            )
+            breaker.record_success()
+            self._log.info(
+                "llm_call_success", model_id=selected_model,
+                request_id=request_id,
+            )
+        except RetryExhaustedError as e:
+            breaker.record_failure()
+            self._log.error(
+                "llm_call_exhausted", model_id=selected_model,
+                request_id=request_id,
+            )
+            self.feedback.record_outcome(
+                request_id=request_id, success=False, feedback=str(e)
+            )
+            raise
+        except Exception as e:
+            breaker.record_failure()
+            self._log.error(
+                "llm_call_failed", model_id=selected_model,
+                request_id=request_id,
+            )
+            self.feedback.record_outcome(
+                request_id=request_id, success=False, feedback=str(e)
+            )
+            raise
+
+        # Track costs and calculate counterfactual
+        actual_cost = 0.0
+        counterfactual_cost = 0.0
+
         if hasattr(response, "usage") and response.usage:
             model_config = self.registry.get(selected_model)
             if model_config:
-                cost = (
+                actual_cost = (
                     (response.usage.prompt_tokens / 1000) * model_config.cost_per_1k_input
                     + (response.usage.completion_tokens / 1000) * model_config.cost_per_1k_output
                 )
-                self._total_cost += cost
+                self._total_cost += actual_cost
+
+            # Calculate counterfactual cost (what would most expensive model cost?)
+            most_expensive = self.registry.get_best_quality()
+            if most_expensive and most_expensive.model_id != selected_model:
+                counterfactual_cost = (
+                    (response.usage.prompt_tokens / 1000) * most_expensive.cost_per_1k_input
+                    + (response.usage.completion_tokens / 1000) * most_expensive.cost_per_1k_output
+                )
+            else:
+                counterfactual_cost = actual_cost
+            self._counterfactual_cost += counterfactual_cost
+
+        # Build routing metadata
+        metadata = RoutingMetadata(
+            request_id=request_id,
+            model_selected=selected_model,
+            routing_strategy=effective_strategy.value,
+            routing_reason=routing_reason,
+            routing_latency_ms=round(routing_latency_ms, 3),
+            estimated_cost_usd=round(actual_cost, 6),
+            counterfactual_cost_usd=round(counterfactual_cost, 6),
+            cost_savings_usd=round(counterfactual_cost - actual_cost, 6),
+            models_considered=models_considered,
+        )
+        self._last_routing_metadata = metadata
+
+        # Attach metadata to response if requested
+        if include_metadata:
+            response.routesmith_metadata = metadata.to_dict()  # type: ignore[attr-defined]
+
+        # Attach request_id to response for outcome tracking
+        response._routesmith_request_id = request_id  # type: ignore[attr-defined]
 
         # Collect feedback sample
-        latency_ms = (time.perf_counter() - start_time) * 1000
+        total_latency_ms = (time.perf_counter() - routing_start) * 1000
         self.feedback.record(
+            request_id=request_id,
             messages=messages,
             model=selected_model,
             response=response,
-            latency_ms=latency_ms,
+            latency_ms=total_latency_ms,
+            agent_id=context.agent_id if context else None,
+            agent_role=context.agent_role if context else None,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
         )
 
+        # Periodic predictor state persistence every 50 updates
+        updates = getattr(self.router.predictor, "_total_updates", None)
+        if updates is None:
+            updates = getattr(self.router.predictor, "_update_count", 0)
+        if updates > 0 and updates % 50 == 0:
+            self._persist_predictor_state()
+
         return response
+
+    def _get_routing_reason(
+        self,
+        strategy: RoutingStrategy,
+        selected_model: str,
+        max_cost: float | None,
+        min_quality: float | None,
+    ) -> str:
+        """Generate human-readable routing reason."""
+        model_config = self.registry.get(selected_model)
+        quality_str = f"quality={model_config.quality_score:.2f}" if model_config else ""
+        cost_str = f"cost=${model_config.cost_per_1k_total:.4f}/1k" if model_config else ""
+
+        if strategy == RoutingStrategy.DIRECT:
+            if max_cost is not None:
+                return f"cheapest model meeting quality threshold under ${max_cost}/1k ({quality_str}, {cost_str})"
+            elif min_quality is not None:
+                return f"cheapest model with quality >= {min_quality} ({quality_str}, {cost_str})"
+            else:
+                return f"best quality-cost tradeoff ({quality_str}, {cost_str})"
+        elif strategy == RoutingStrategy.CASCADE:
+            return f"cascade start with cheapest qualifying model ({quality_str}, {cost_str})"
+        elif strategy == RoutingStrategy.PARALLEL:
+            return f"parallel execution primary model ({quality_str}, {cost_str})"
+        elif strategy == RoutingStrategy.SPECULATIVE:
+            return f"speculative start with cheap model ({quality_str}, {cost_str})"
+        return f"selected by {strategy.value} strategy"
 
     async def acompletion(
         self,
@@ -157,6 +437,8 @@ class RouteSmith:
         strategy: RoutingStrategy | None = None,
         max_cost: float | None = None,
         min_quality: float | None = None,
+        include_metadata: bool = False,
+        context: RouteContext | None = None,
         **kwargs: Any,
     ) -> ModelResponse:
         """
@@ -168,52 +450,143 @@ class RouteSmith:
             strategy: Override default routing strategy.
             max_cost: Maximum cost constraint for this request (USD).
             min_quality: Minimum quality threshold for this request (0-1).
+            include_metadata: If True, attach routesmith_metadata to response.
+            context: Optional routing context (agent_id, agent_role, etc.).
             **kwargs: Additional arguments passed to litellm.acompletion().
 
         Returns:
-            ModelResponse from the selected model.
+            ModelResponse from the selected model. If include_metadata is True,
+            response will have a routesmith_metadata attribute with routing details.
         """
-        start_time = time.perf_counter()
+        routing_start = time.perf_counter()
         self._request_count += 1
+        request_id = uuid.uuid4().hex[:16]
+
+        # Infer agent role from messages when context is provided without one.
+        if context is not None and context.agent_role is None:
+            if not hasattr(self, "_agent_inferencer"):
+                from routesmith.predictor.agent_inferencer import AgentInferencer
+                self._agent_inferencer = AgentInferencer()
+            role, confidence = self._agent_inferencer.infer(messages)
+            if role is not None:
+                context = RouteContext(
+                    agent_id=context.agent_id,
+                    agent_role=role,
+                    conversation_id=context.conversation_id,
+                    turn_index=context.turn_index,
+                    metadata={
+                        **context.metadata,
+                        "role_inferred": True,
+                        "role_confidence": confidence,
+                    },
+                )
+
+        # Auto-detect required capabilities
+        required_capabilities = self._detect_required_capabilities(messages, kwargs)
+
+        # Determine routing strategy
+        effective_strategy = strategy or self.config.default_strategy
+        routing_reason = ""
+        models_considered = [m.model_id for m in self.registry.list_models()]
 
         # If specific model requested, skip routing
         if model:
             selected_model = model
+            routing_reason = "explicit model specified"
         else:
             # Route to optimal model
-            effective_strategy = strategy or self.config.default_strategy
             selected_model = self.router.route(
                 messages=messages,
                 strategy=effective_strategy,
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
+                required_capabilities=required_capabilities or None,
+                context=context,
+            )
+            routing_reason = self._get_routing_reason(
+                effective_strategy, selected_model, max_cost, min_quality
             )
 
-        # Execute completion via LiteLLM
-        response = await litellm.acompletion(
-            model=selected_model,
-            messages=messages,
-            **{**self.config.litellm_params, **kwargs},
-        )
+        routing_latency_ms = (time.perf_counter() - routing_start) * 1000
 
-        # Track costs
+        # Execute completion via LiteLLM
+        try:
+            response = await litellm.acompletion(
+                model=selected_model,
+                messages=messages,
+                **{**self.config.litellm_params, **kwargs},
+            )
+        except Exception as e:
+            self.feedback.record_outcome(
+                request_id=request_id, success=False, feedback=str(e)
+            )
+            raise
+
+        # Track costs and calculate counterfactual
+        actual_cost = 0.0
+        counterfactual_cost = 0.0
+
         if hasattr(response, "usage") and response.usage:
             model_config = self.registry.get(selected_model)
             if model_config:
-                cost = (
+                actual_cost = (
                     (response.usage.prompt_tokens / 1000) * model_config.cost_per_1k_input
                     + (response.usage.completion_tokens / 1000) * model_config.cost_per_1k_output
                 )
-                self._total_cost += cost
+                self._total_cost += actual_cost
+
+            # Calculate counterfactual cost
+            most_expensive = self.registry.get_best_quality()
+            if most_expensive and most_expensive.model_id != selected_model:
+                counterfactual_cost = (
+                    (response.usage.prompt_tokens / 1000) * most_expensive.cost_per_1k_input
+                    + (response.usage.completion_tokens / 1000) * most_expensive.cost_per_1k_output
+                )
+            else:
+                counterfactual_cost = actual_cost
+            self._counterfactual_cost += counterfactual_cost
+
+        # Build routing metadata
+        metadata = RoutingMetadata(
+            request_id=request_id,
+            model_selected=selected_model,
+            routing_strategy=effective_strategy.value,
+            routing_reason=routing_reason,
+            routing_latency_ms=round(routing_latency_ms, 3),
+            estimated_cost_usd=round(actual_cost, 6),
+            counterfactual_cost_usd=round(counterfactual_cost, 6),
+            cost_savings_usd=round(counterfactual_cost - actual_cost, 6),
+            models_considered=models_considered,
+        )
+        self._last_routing_metadata = metadata
+
+        # Attach metadata to response if requested
+        if include_metadata:
+            response.routesmith_metadata = metadata.to_dict()  # type: ignore[attr-defined]
+
+        # Attach request_id to response for outcome tracking
+        response._routesmith_request_id = request_id  # type: ignore[attr-defined]
 
         # Collect feedback sample
-        latency_ms = (time.perf_counter() - start_time) * 1000
+        total_latency_ms = (time.perf_counter() - routing_start) * 1000
         self.feedback.record(
+            request_id=request_id,
             messages=messages,
             model=selected_model,
             response=response,
-            latency_ms=latency_ms,
+            latency_ms=total_latency_ms,
+            agent_id=context.agent_id if context else None,
+            agent_role=context.agent_role if context else None,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
         )
+
+        # Periodic predictor state persistence every 50 updates
+        updates = getattr(self.router.predictor, "_total_updates", None)
+        if updates is None:
+            updates = getattr(self.router.predictor, "_update_count", 0)
+        if updates > 0 and updates % 50 == 0:
+            self._persist_predictor_state()
 
         return response
 
@@ -290,15 +663,204 @@ class RouteSmith:
 
     @property
     def stats(self) -> dict[str, Any]:
-        """Get current session statistics."""
-        return {
+        """
+        Get current session statistics.
+
+        Returns:
+            Dictionary with:
+            - request_count: Number of requests made
+            - total_cost_usd: Actual cost of all requests
+            - estimated_without_routing: What it would have cost using most expensive model
+            - cost_savings_usd: Total savings from intelligent routing
+            - savings_percent: Percentage saved vs using most expensive model
+            - registered_models: Number of models available
+            - feedback_samples: Number of feedback records collected
+            - last_routing: Metadata from last routing decision (if any)
+        """
+        savings = self._counterfactual_cost - self._total_cost
+        savings_percent = (
+            (savings / self._counterfactual_cost * 100)
+            if self._counterfactual_cost > 0
+            else 0.0
+        )
+
+        result = {
             "request_count": self._request_count,
             "total_cost_usd": round(self._total_cost, 6),
+            "estimated_without_routing": round(self._counterfactual_cost, 6),
+            "cost_savings_usd": round(savings, 6),
+            "savings_percent": round(savings_percent, 1),
             "registered_models": len(self.registry),
             "feedback_samples": len(self.feedback),
         }
+
+        if self._last_routing_metadata:
+            result["last_routing"] = self._last_routing_metadata.to_dict()
+
+        return result
+
+    @property
+    def last_routing_metadata(self) -> RoutingMetadata | None:
+        """Get metadata from the last routing decision."""
+        return self._last_routing_metadata
+
+    def record_outcome(
+        self,
+        request_id: str,
+        success: bool | None = None,
+        score: float | None = None,
+        feedback: str | None = None,
+    ) -> bool:
+        """
+        Record explicit feedback for a previous request.
+
+        Use this to provide quality signals that improve future routing.
+
+        Args:
+            request_id: Request ID from response._routesmith_request_id
+                or RoutingMetadata.request_id.
+            success: Whether the response was successful.
+            score: Explicit quality score (0-1).
+            feedback: Free-text user feedback.
+
+        Returns:
+            True if the request was found, False otherwise.
+        """
+        found = self.feedback.record_outcome(
+            request_id=request_id,
+            success=success,
+            score=score,
+            feedback=feedback,
+        )
+
+        # Feed quality score to predictor for online learning
+        quality = score
+        if quality is None and success is not None:
+            quality = 1.0 if success else 0.0
+
+        if quality is not None:
+            record = self.feedback.get_record_by_id(request_id)
+            if record is not None:
+                reward_override = None
+                # Resolve per-role reward function, falling back to global reward_fn.
+                effective_reward_fn = self.feedback.resolve_reward_fn(
+                    agent_role=record.agent_role
+                ) or self._reward_fn
+                if effective_reward_fn is not None:
+                    from routesmith.feedback.reward import build_reward_context
+                    ctx = build_reward_context(
+                        model_id=record.model_id,
+                        quality=quality,
+                        response=record.response,
+                        latency_ms=record.latency_ms,
+                        registry=self.registry,
+                    )
+                    try:
+                        reward_override = float(effective_reward_fn(ctx))
+                    except Exception as e:
+                        logger.warning(
+                            "reward_fn raised an error, skipping reward override: %s", e
+                        )
+                self.router.predictor.update(
+                    messages=record.messages,
+                    model_id=record.model_id,
+                    actual_quality=quality,
+                    reward_override=reward_override,
+                )
+
+        return found
+
+    def recommend_model_for_agent(
+        self,
+        agent_role: str | None,
+        min_samples: int = 50,
+    ) -> dict[str, Any] | None:
+        """Return the historically best model for an agent role.
+
+        Returns None when agent_role is None or fewer than min_samples
+        quality records exist for the role.
+
+        Returns a dict with:
+            model: str — recommended model_id
+            confidence: float — 0-1, based on sample count
+            sample_count: int — records for the recommended model
+            avg_quality: float
+            avg_cost_usd: float
+            new_models_to_explore: list[str] — registered models with < min_samples data
+        """
+        if agent_role is None:
+            return None
+
+        if self.feedback._storage is None:
+            return None
+
+        records = self.feedback._storage.get_records_by_agent_role(agent_role)
+        if len(records) < min_samples:
+            return None
+
+        model_quality: dict[str, list[float]] = defaultdict(list)
+        for r in records:
+            if r["quality_score"] is not None:
+                model_quality[r["model_id"]].append(float(r["quality_score"]))
+
+        registered = {m.model_id: m for m in self.registry.list_models()}
+        # Filter to only registered models, then check per-model sample threshold.
+        model_quality = defaultdict(
+            list,
+            {k: v for k, v in model_quality.items() if k in registered},
+        )
+        if not any(len(q) >= min_samples for q in model_quality.values()):
+            return None
+
+        best_model = None
+        best_efficiency = -1.0
+        model_stats: dict[str, dict[str, Any]] = {}
+
+        for model_id, qualities in model_quality.items():
+            model = registered[model_id]
+            avg_quality = sum(qualities) / len(qualities)
+            avg_cost = (model.cost_per_1k_input + model.cost_per_1k_output) / 2
+            efficiency = avg_quality / max(avg_cost * 1000, 1e-6)
+            model_stats[model_id] = {
+                "avg_quality": avg_quality,
+                "avg_cost_usd": avg_cost,
+                "sample_count": len(qualities),
+            }
+            if efficiency > best_efficiency:
+                best_efficiency = efficiency
+                best_model = model_id
+
+        if best_model is None:
+            return None
+
+        new_models_to_explore = [
+            m.model_id for m in self.registry.list_models()
+            if len(model_quality.get(m.model_id, [])) < min_samples
+            and m.model_id != best_model
+        ]
+        total_samples = sum(len(q) for q in model_quality.values())
+        confidence = min(1.0, total_samples / (min_samples * 3))
+        stats = model_stats[best_model]
+
+        return {
+            "model": best_model,
+            "confidence": round(confidence, 3),
+            "sample_count": stats["sample_count"],
+            "avg_quality": round(stats["avg_quality"], 3),
+            "avg_cost_usd": round(stats["avg_cost_usd"], 6),
+            "new_models_to_explore": new_models_to_explore,
+        }
+
+    def register_reward_fn(self, agent_role: str, fn: Callable[..., float]) -> None:
+        """Register a per-role reward function at runtime.
+
+        Takes priority over the global reward_fn/reward_expr for this role.
+        """
+        self.config.reward_fns[agent_role] = fn
 
     def reset_stats(self) -> None:
         """Reset session statistics."""
         self._request_count = 0
         self._total_cost = 0.0
+        self._counterfactual_cost = 0.0
+        self._last_routing_metadata = None

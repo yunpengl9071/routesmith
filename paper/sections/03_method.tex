@@ -1,0 +1,67 @@
+% paper/sections/03_method.tex
+\section{Method}
+\label{sec:method}
+
+\subsection{Problem Formulation}
+
+We model LLM routing as a contextual bandit problem. At each time step $t$:
+\begin{enumerate}
+    \item A query $x_t \in \mathcal{X}$ arrives (e.g., a natural language prompt).
+    \item The router selects a model arm $a_t \in \mathcal{A} = \{1, \ldots, K\}$.
+    \item The router receives a reward $r_t = R(a_t, x_t) \in [0, 1]$.
+\end{enumerate}
+
+The reward function balances quality and cost:
+\begin{equation}
+R_t = \alpha_q \cdot \text{acc}(a_t, x_t) - \alpha_c \cdot \frac{c_{a_t}}{c_{\max}}
+\end{equation}
+where $\alpha_q + \alpha_c = 1$, $c_{a_t}$ is the per-query cost of arm $a_t$, and $c_{\max}$ is the cost of the most expensive arm. For Experiment 1 (binary routing), $\alpha_q = 0.85$, $\alpha_c = 0.15$. For Experiment 2 (quality-dominant), $\alpha_q = 0.85$.
+
+\subsection{Feature Space}
+\label{sec:features}
+
+We extract a 27-dimensional context vector $\phi(x_t) \in \mathbb{R}^{27}$ from each query:
+\begin{itemize}
+    \item \textbf{Message features [0--10]:} Log character count, log word count, sentence count, question mark count, number count, long-query indicator, code block pairs, has-question flag, capitalization flag, vocabulary richness, word saturation.
+    \item \textbf{Extended features [11--16]:} Math/reasoning/code/creative keyword scores, difficulty estimate, vocabulary richness (alias).
+    \item \textbf{Model features [17--26]:} Ten zero-initialized dimensions reserved for model-specific embeddings; populated from model metadata when available, otherwise zero-padded.
+\end{itemize}
+All features are L2-normalized before input: $\tilde{\phi}(x_t) = \phi(x_t) / \|\phi(x_t)\|$.
+
+\subsection{LinUCB-27d}
+\label{sec:linucb}
+
+LinUCB \citep{li2010contextual} maintains per-arm ridge regression models. For arm $a$:
+\begin{align}
+A_a &\leftarrow A_a + \tilde{\phi}(x_t)\tilde{\phi}(x_t)^\top, \quad
+b_a \leftarrow b_a + r_t \cdot \tilde{\phi}(x_t) \\
+\hat{\theta}_a &= A_a^{-1} b_a, \quad
+p_a(x_t) = \hat{\theta}_a^\top \tilde{\phi}(x_t) + \beta \sqrt{\tilde{\phi}(x_t)^\top A_a^{-1} \tilde{\phi}(x_t)}
+\end{align}
+The UCB score $p_a(x_t)$ trades off estimated quality (first term) with uncertainty (second term, controlled by $\beta$).
+
+\subsection{LinTS-27d (New Contribution)}
+\label{sec:lints}
+
+We propose \textbf{LinTS-27d}, Linear Thompson Sampling adapted for LLM routing. For each arm $a$, LinTS maintains a Gaussian posterior over the weight vector $\theta_a$:
+\begin{equation}
+p(\theta_a \mid \mathcal{D}_a) = \mathcal{N}(\mu_a, v^2 \Sigma_a)
+\end{equation}
+where $\Sigma_a = A_a^{-1}$, $\mu_a = \Sigma_a b_a$. At each step, we sample:
+\begin{equation}
+\tilde{\theta}_a \sim \mathcal{N}(\mu_a, v^2 \Sigma_a) \quad \forall a \in \mathcal{A}
+\end{equation}
+and select $a^* = \arg\max_{a} \tilde{\phi}(x_t)^\top \tilde{\theta}_a$.
+
+\textbf{Key advantage over LinUCB:} LinTS has no $\beta$ hyperparameter. Exploration is proportional to posterior variance, which decays naturally as data accumulates. We show in \S\ref{sec:ablations} that LinUCB's performance is sensitive to $\beta$, while LinTS requires no tuning.
+
+\textbf{Regret bound:} LinTS achieves $O(d\sqrt{T \log T})$ cumulative regret with high probability \citep{abeille2017linear}, the same order as LinUCB.
+
+\subsection{TS-Cat Baseline}
+\label{sec:tscat}
+
+As a context-free bandit baseline, TS-Cat maintains a Beta($\alpha_k$, $\beta_k$) posterior per query category $k$:
+\begin{equation}
+\theta_k \sim \text{Beta}(\alpha_k, \beta_k), \quad \alpha_k, \beta_k \leftarrow 1.0 \text{ (uniform prior)}
+\end{equation}
+Route to strong if $\theta_k > 0.5$. Update: if weak model answers correctly, $\beta_k \mathrel{+}= 1$; else $\alpha_k \mathrel{+}= 1$. TS-Cat captures category-level routing preferences but ignores query-level features.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -14,6 +15,17 @@ class RoutingStrategy(Enum):
     CASCADE = "cascade"  # Try cheap model first, escalate if needed
     PARALLEL = "parallel"  # Run multiple models, select best response
     SPECULATIVE = "speculative"  # Start with cheap model while evaluating
+
+
+@dataclass
+class RouteContext:
+    """Agent and conversation context for a completion request."""
+
+    agent_id: str | None = None
+    agent_role: str | None = None
+    conversation_id: str | None = None
+    turn_index: int | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -39,6 +51,27 @@ class BudgetConfig:
 
 
 @dataclass
+class PredictorConfig:
+    """Configuration for quality predictor (all predictor types)."""
+
+    # Shared
+    seed: int = 42
+
+    # Adaptive (random forest)
+    min_samples_for_training: int = 100
+    retrain_interval: int = 50
+    n_estimators: int = 50
+    blend_alpha: float = 0.7
+
+    # LinTS-27d (predictor_type="lints")
+    lints_v_sq: float = 1.0   # Posterior variance scaling; rarely needs tuning
+
+    # LinUCB-27d (predictor_type="linucb")
+    linucb_alpha: float = 1.5         # Exploration parameter (0.5–3.0 typical)
+    linucb_cost_lambda: float = 0.15  # Cost penalty weight in reward
+
+
+@dataclass
 class RouteSmithConfig:
     """Main configuration for RouteSmith."""
 
@@ -47,8 +80,11 @@ class RouteSmithConfig:
     fallback_model: str | None = None  # Model to use if routing fails
 
     # Quality prediction
-    predictor_type: str = "embedding"  # embedding, classifier, random_forest
+    predictor_type: str = "adaptive"  # adaptive, embedding, classifier, random_forest
     predictor_model: str | None = None  # Custom predictor model path
+
+    # Predictor settings
+    predictor: PredictorConfig = field(default_factory=PredictorConfig)
 
     # Cache settings
     cache: CacheConfig = field(default_factory=CacheConfig)
@@ -59,6 +95,7 @@ class RouteSmithConfig:
     # Feedback loop
     feedback_enabled: bool = True
     feedback_sample_rate: float = 0.1  # Fraction of requests to evaluate
+    feedback_storage_path: str | None = None  # SQLite path; None = in-memory only
 
     # Performance
     routing_timeout_ms: int = 50  # Max time for routing decision
@@ -66,6 +103,21 @@ class RouteSmithConfig:
 
     # Provider settings passed to LiteLLM
     litellm_params: dict[str, Any] = field(default_factory=dict)
+
+    # Custom reward function for predictor updates.
+    # reward_fn takes priority over reward_expr. When neither is set,
+    # each predictor uses its internal default reward computation.
+    reward_fn: Callable[..., float] | None = None
+    reward_expr: str | None = None  # Expression string, compiled on RouteSmith init
+
+    # Per-agent-role reward functions. Resolution order:
+    # reward_fns[agent_role] → reward_fn/reward_expr → predictor default.
+    reward_fns: dict[str, Callable[..., float]] = field(default_factory=dict)
+
+    # Pre-routing filter callables.
+    # Signature: (models: list[ModelConfig], context: RouteContext | None) -> list[ModelConfig]
+    # Run before capability filtering; predictor only sees the filtered set.
+    business_rules: list[Callable[..., list[Any]]] = field(default_factory=list)
 
     def with_cache(self, **kwargs: Any) -> RouteSmithConfig:
         """Return a new config with updated cache settings."""
@@ -83,13 +135,19 @@ class RouteSmithConfig:
             fallback_model=self.fallback_model,
             predictor_type=self.predictor_type,
             predictor_model=self.predictor_model,
+            predictor=self.predictor,
             cache=new_cache,
             budget=self.budget,
             feedback_enabled=self.feedback_enabled,
             feedback_sample_rate=self.feedback_sample_rate,
+            feedback_storage_path=self.feedback_storage_path,
             routing_timeout_ms=self.routing_timeout_ms,
             enable_telemetry=self.enable_telemetry,
             litellm_params=self.litellm_params,
+            reward_fn=self.reward_fn,
+            reward_expr=self.reward_expr,
+            reward_fns=self.reward_fns,
+            business_rules=self.business_rules,
         )
 
     def with_budget(self, **kwargs: Any) -> RouteSmithConfig:
@@ -110,11 +168,17 @@ class RouteSmithConfig:
             fallback_model=self.fallback_model,
             predictor_type=self.predictor_type,
             predictor_model=self.predictor_model,
+            predictor=self.predictor,
             cache=self.cache,
             budget=new_budget,
             feedback_enabled=self.feedback_enabled,
             feedback_sample_rate=self.feedback_sample_rate,
+            feedback_storage_path=self.feedback_storage_path,
             routing_timeout_ms=self.routing_timeout_ms,
             enable_telemetry=self.enable_telemetry,
             litellm_params=self.litellm_params,
+            reward_fn=self.reward_fn,
+            reward_expr=self.reward_expr,
+            reward_fns=self.reward_fns,
+            business_rules=self.business_rules,
         )

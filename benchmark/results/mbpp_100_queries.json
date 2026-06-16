@@ -1,0 +1,1203 @@
+[
+  {
+    "query_id": 1,
+    "dataset": "mbpp",
+    "task_id": 113,
+    "text": "Write a function to check if a string represents an integer or not.",
+    "test_list": [
+      "assert check_integer(\"python\")==False",
+      "assert check_integer(\"1\")==True",
+      "assert check_integer(\"12345\")==True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check if a string represents an integer or not.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 2,
+    "dataset": "mbpp",
+    "task_id": 61,
+    "text": "Write a python function to count the number of substrings with the sum of digits equal to their length.",
+    "test_list": [
+      "assert count_Substrings('112112') == 6",
+      "assert count_Substrings('111') == 6",
+      "assert count_Substrings('1101112') == 12"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to count the number of substrings with the sum of digits equal to their length.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 3,
+    "dataset": "mbpp",
+    "task_id": 406,
+    "text": "Write a python function to find whether the parity of a given number is odd.",
+    "test_list": [
+      "assert find_Parity(12) == False",
+      "assert find_Parity(7) == True",
+      "assert find_Parity(10) == False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find whether the parity of a given number is odd.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 4,
+    "dataset": "mbpp",
+    "task_id": 129,
+    "text": "Write a function to calculate whether the matrix is a magic square.",
+    "test_list": [
+      "assert magic_square_test([[7, 12, 1, 14], [2, 13, 8, 11], [16, 3, 10, 5], [9, 6, 15, 4]])==True",
+      "assert magic_square_test([[2, 7, 6], [9, 5, 1], [4, 3, 8]])==True",
+      "assert magic_square_test([[2, 7, 6], [9, 5, 1], [4, 3, 7]])==False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to calculate whether the matrix is a magic square.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 5,
+    "dataset": "mbpp",
+    "task_id": 119,
+    "text": "Write a python function to find the element that appears only once in a sorted array.",
+    "test_list": [
+      "assert search([1,1,2,2,3]) == 3",
+      "assert search([1,1,3,3,4,4,5,5,7,7,8]) == 8",
+      "assert search([1,2,2,3,3,4,4]) == 1"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the element that appears only once in a sorted array.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 6,
+    "dataset": "mbpp",
+    "task_id": 479,
+    "text": "Write a python function to find the first digit of a given number.",
+    "test_list": [
+      "assert first_Digit(123) == 1",
+      "assert first_Digit(456) == 4",
+      "assert first_Digit(12) == 1"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the first digit of a given number.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 7,
+    "dataset": "mbpp",
+    "task_id": 88,
+    "text": "Write a function to get the frequency of all the elements in a list, returned as a dictionary.",
+    "test_list": [
+      "assert freq_count([10,10,10,10,20,20,20,20,40,40,50,50,30])==({10: 4, 20: 4, 40: 2, 50: 2, 30: 1})",
+      "assert freq_count([1,2,3,4,3,2,4,1,3,1,4])==({1:3, 2:2,3:3,4:3})",
+      "assert freq_count([5,6,7,4,9,10,4,5,6,7,9,5])==({10:1,5:3,6:2,7:2,4:2,9:2})"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to get the frequency of all the elements in a list, returned as a dictionary.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 8,
+    "dataset": "mbpp",
+    "task_id": 405,
+    "text": "Write a function to check whether an element exists within a tuple.",
+    "test_list": [
+      "assert check_tuplex((\"w\", 3, \"r\", \"e\", \"s\", \"o\", \"u\", \"r\", \"c\", \"e\"),'r')==True",
+      "assert check_tuplex((\"w\", 3, \"r\", \"e\", \"s\", \"o\", \"u\", \"r\", \"c\", \"e\"),'5')==False",
+      "assert check_tuplex((\"w\", 3, \"r\", \"e\", \"s\", \"o\", \"u\", \"r\", \"c\",\"e\"),3)==True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check whether an element exists within a tuple.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 9,
+    "dataset": "mbpp",
+    "task_id": 77,
+    "text": "Write a python function to find whether a number is divisible by 11.",
+    "test_list": [
+      "assert is_Diff (12345) == False",
+      "assert is_Diff(1212112) == True",
+      "assert is_Diff(1212) == False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find whether a number is divisible by 11.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 10,
+    "dataset": "mbpp",
+    "task_id": 388,
+    "text": "Write a python function to find the highest power of 2 that is less than or equal to n.",
+    "test_list": [
+      "assert highest_Power_of_2(10) == 8",
+      "assert highest_Power_of_2(19) == 16",
+      "assert highest_Power_of_2(32) == 32"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the highest power of 2 that is less than or equal to n.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 11,
+    "dataset": "mbpp",
+    "task_id": 477,
+    "text": "Write a python function to convert the given string to lower case.",
+    "test_list": [
+      "assert is_lower(\"InValid\") == \"invalid\"",
+      "assert is_lower(\"TruE\") == \"true\"",
+      "assert is_lower(\"SenTenCE\") == \"sentence\""
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to convert the given string to lower case.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 12,
+    "dataset": "mbpp",
+    "task_id": 447,
+    "text": "Write a function to find cubes of individual elements in a list.",
+    "test_list": [
+      "assert cube_nums([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])==[1, 8, 27, 64, 125, 216, 343, 512, 729, 1000]",
+      "assert cube_nums([10,20,30])==([1000, 8000, 27000])",
+      "assert cube_nums([12,15])==([1728, 3375])"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find cubes of individual elements in a list.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 13,
+    "dataset": "mbpp",
+    "task_id": 273,
+    "text": "Write a function that takes in two tuples and subtracts the elements of the first tuple by the elements of the second tuple with the same index.",
+    "test_list": [
+      "assert substract_elements((10, 4, 5), (2, 5, 18)) == (8, -1, -13)",
+      "assert substract_elements((11, 2, 3), (24, 45 ,16)) == (-13, -43, -13)",
+      "assert substract_elements((7, 18, 9), (10, 11, 12)) == (-3, 7, -3)"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that takes in two tuples and subtracts the elements of the first tuple by the elements of the second tuple with the same index.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 14,
+    "dataset": "mbpp",
+    "task_id": 71,
+    "text": "Write a function to sort a list of elements.",
+    "test_list": [
+      "assert comb_sort([5, 15, 37, 25, 79]) == [5, 15, 25, 37, 79]",
+      "assert comb_sort([41, 32, 15, 19, 22]) == [15, 19, 22, 32, 41]",
+      "assert comb_sort([99, 15, 13, 47]) == [13, 15, 47, 99]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to sort a list of elements.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 15,
+    "dataset": "mbpp",
+    "task_id": 286,
+    "text": "Write a function to find the largest sum of a contiguous array in the modified array which is formed by repeating the given array k times.",
+    "test_list": [
+      "assert max_sub_array_sum_repeated([10, 20, -30, -1], 4, 3) == 30",
+      "assert max_sub_array_sum_repeated([-1, 10, 20], 3, 2) == 59",
+      "assert max_sub_array_sum_repeated([-1, -2, -3], 3, 3) == -1"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the largest sum of a contiguous array in the modified array which is formed by repeating the given array k times.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 16,
+    "dataset": "mbpp",
+    "task_id": 237,
+    "text": "Write a function that takes in a list of tuples and returns a dictionary mapping each unique tuple to the number of times it occurs in the list.",
+    "test_list": [
+      "assert check_occurences([(3, 1), (1, 3), (2, 5), (5, 2), (6, 3)] ) == {(1, 3): 2, (2, 5): 2, (3, 6): 1}",
+      "assert check_occurences([(4, 2), (2, 4), (3, 6), (6, 3), (7, 4)] ) == {(2, 4): 2, (3, 6): 2, (4, 7): 1}",
+      "assert check_occurences([(13, 2), (11, 23), (12, 25), (25, 12), (16, 23)] ) == {(2, 13): 1, (11, 23): 1, (12, 25): 2, (16, 23): 1}"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that takes in a list of tuples and returns a dictionary mapping each unique tuple to the number of times it occurs in the list.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 17,
+    "dataset": "mbpp",
+    "task_id": 56,
+    "text": "Write a python function to check if a given number is one less than twice its reverse.",
+    "test_list": [
+      "assert check(70) == False",
+      "assert check(23) == False",
+      "assert check(73) == True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to check if a given number is one less than twice its reverse.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 18,
+    "dataset": "mbpp",
+    "task_id": 20,
+    "text": "Write a function to check if the given number is woodball or not.",
+    "test_list": [
+      "assert is_woodall(383) == True",
+      "assert is_woodall(254) == False",
+      "assert is_woodall(200) == False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check if the given number is woodball or not.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 19,
+    "dataset": "mbpp",
+    "task_id": 72,
+    "text": "Write a python function to check whether the given number can be represented as the difference of two squares or not.",
+    "test_list": [
+      "assert dif_Square(5) == True",
+      "assert dif_Square(10) == False",
+      "assert dif_Square(15) == True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to check whether the given number can be represented as the difference of two squares or not.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 20,
+    "dataset": "mbpp",
+    "task_id": 109,
+    "text": "Write a python function to find the number of numbers with an odd value when rotating a binary string the given number of times.",
+    "test_list": [
+      "assert odd_Equivalent(\"011001\",6) == 3",
+      "assert odd_Equivalent(\"11011\",5) == 4",
+      "assert odd_Equivalent(\"1010\",4) == 2"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the number of numbers with an odd value when rotating a binary string the given number of times.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 21,
+    "dataset": "mbpp",
+    "task_id": 116,
+    "text": "Write a function to convert a given tuple of positive integers into a single integer.",
+    "test_list": [
+      "assert tuple_to_int((1,2,3))==123",
+      "assert tuple_to_int((4,5,6))==456",
+      "assert tuple_to_int((5,6,7))==567"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to convert a given tuple of positive integers into a single integer.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 22,
+    "dataset": "mbpp",
+    "task_id": 262,
+    "text": "Write a function that takes in a list and an integer L and splits the given list into two parts where the length of the first part of the list is L, and returns the resulting lists in a tuple.",
+    "test_list": [
+      "assert split_two_parts([1,1,2,3,4,4,5,1],3)==([1, 1, 2], [3, 4, 4, 5, 1])",
+      "assert split_two_parts(['a', 'b', 'c', 'd'],2)==(['a', 'b'], ['c', 'd'])",
+      "assert split_two_parts(['p', 'y', 't', 'h', 'o', 'n'],4)==(['p', 'y', 't', 'h'], ['o', 'n'])"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that takes in a list and an integer L and splits the given list into two parts where the length of the first part of the list is L, and returns the resulting lists in a tuple.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 23,
+    "dataset": "mbpp",
+    "task_id": 291,
+    "text": "Write a function to find out the number of ways of painting the fence such that at most 2 adjacent posts have the same color for the given fence with n posts and k colors.",
+    "test_list": [
+      "assert count_no_of_ways(2, 4) == 16",
+      "assert count_no_of_ways(3, 2) == 6",
+      "assert count_no_of_ways(4, 4) == 228"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find out the number of ways of painting the fence such that at most 2 adjacent posts have the same color for the given fence with n posts and k colors.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 24,
+    "dataset": "mbpp",
+    "task_id": 19,
+    "text": "Write a function to find whether a given array of integers contains any duplicate element.",
+    "test_list": [
+      "assert test_duplicate(([1,2,3,4,5]))==False",
+      "assert test_duplicate(([1,2,3,4, 4]))==True",
+      "assert test_duplicate([1,1,2,2,3,3,4,4,5])==True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find whether a given array of integers contains any duplicate element.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 25,
+    "dataset": "mbpp",
+    "task_id": 278,
+    "text": "Write a function to find the number of elements that occurs before the tuple element in the given tuple.",
+    "test_list": [
+      "assert count_first_elements((1, 5, 7, (4, 6), 10) ) == 3",
+      "assert count_first_elements((2, 9, (5, 7), 11) ) == 2",
+      "assert count_first_elements((11, 15, 5, 8, (2, 3), 8) ) == 4"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the number of elements that occurs before the tuple element in the given tuple.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 26,
+    "dataset": "mbpp",
+    "task_id": 103,
+    "text": "Write a function to find the Eulerian number a(n, m).",
+    "test_list": [
+      "assert eulerian_num(3, 1) == 4",
+      "assert eulerian_num(4, 1) == 11",
+      "assert eulerian_num(5, 3) == 26"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the Eulerian number a(n, m).\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 27,
+    "dataset": "mbpp",
+    "task_id": 398,
+    "text": "Write a function to compute the sum of digits of each number of a given list.",
+    "test_list": [
+      "assert sum_of_digits([10,2,56])==14",
+      "assert sum_of_digits([[10,20,4,5,'b',70,'a']])==19",
+      "assert sum_of_digits([10,20,-4,5,-70])==19"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to compute the sum of digits of each number of a given list.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 28,
+    "dataset": "mbpp",
+    "task_id": 306,
+    "text": "Write a function to find the maximum sum of increasing subsequence from prefix until ith index and also including a given kth element which is after i, i.e., k > i .",
+    "test_list": [
+      "assert max_sum_increasing_subseq([1, 101, 2, 3, 100, 4, 5 ], 7, 4, 6) == 11",
+      "assert max_sum_increasing_subseq([1, 101, 2, 3, 100, 4, 5 ], 7, 2, 5) == 7",
+      "assert max_sum_increasing_subseq([11, 15, 19, 21, 26, 28, 31], 7, 2, 4) == 71"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the maximum sum of increasing subsequence from prefix until ith index and also including a given kth element which is after i, i.e., k > i .\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 29,
+    "dataset": "mbpp",
+    "task_id": 394,
+    "text": "Write a function to check if given tuple contains no duplicates.",
+    "test_list": [
+      "assert check_distinct((1, 4, 5, 6, 1, 4)) == False",
+      "assert check_distinct((1, 4, 5, 6)) == True",
+      "assert check_distinct((2, 3, 4, 5, 6)) == True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check if given tuple contains no duplicates.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 30,
+    "dataset": "mbpp",
+    "task_id": 464,
+    "text": "Write a function to check if all values are same in a dictionary.",
+    "test_list": [
+      "assert check_value({'Cierra Vega': 12, 'Alden Cantrell': 12, 'Kierra Gentry': 12, 'Pierre Cox': 12},10)==False",
+      "assert check_value({'Cierra Vega': 12, 'Alden Cantrell': 12, 'Kierra Gentry': 12, 'Pierre Cox': 12},12)==True",
+      "assert check_value({'Cierra Vega': 12, 'Alden Cantrell': 12, 'Kierra Gentry': 12, 'Pierre Cox': 12},5)==False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check if all values are same in a dictionary.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 31,
+    "dataset": "mbpp",
+    "task_id": 235,
+    "text": "Write a python function to set all even bits of a given number.",
+    "test_list": [
+      "assert even_bit_set_number(10) == 10",
+      "assert even_bit_set_number(20) == 30",
+      "assert even_bit_set_number(30) == 30"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to set all even bits of a given number.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 32,
+    "dataset": "mbpp",
+    "task_id": 111,
+    "text": "Write a function to find the common elements in given nested lists.",
+    "test_list": [
+      "assert set(common_in_nested_lists([[12, 18, 23, 25, 45], [7, 12, 18, 24, 28], [1, 5, 8, 12, 15, 16, 18]]))==set([18, 12])",
+      "assert set(common_in_nested_lists([[12, 5, 23, 25, 45], [7, 11, 5, 23, 28], [1, 5, 8, 18, 23, 16]]))==set([5,23])",
+      "assert set(common_in_nested_lists([[2, 3,4, 1], [4, 5], [6,4, 8],[4, 5], [6, 8,4]]))==set([4])"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the common elements in given nested lists.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 33,
+    "dataset": "mbpp",
+    "task_id": 245,
+    "text": "Write a function that takes an array and finds the maximum sum of a bitonic subsequence for the given array, where a sequence is bitonic if it is first increasing and then decreasing.",
+    "test_list": [
+      "assert max_sum([1, 15, 51, 45, 33, 100, 12, 18, 9]) == 194",
+      "assert max_sum([80, 60, 30, 40, 20, 10]) == 210",
+      "assert max_sum([2, 3 ,14, 16, 21, 23, 29, 30]) == 138"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that takes an array and finds the maximum sum of a bitonic subsequence for the given array, where a sequence is bitonic if it is first increasing and then decreasing.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 34,
+    "dataset": "mbpp",
+    "task_id": 285,
+    "text": "Write a function that checks whether a string contains the 'a' character followed by two or three 'b' characters.",
+    "test_list": [
+      "assert text_match_two_three(\"ac\")==(False)",
+      "assert text_match_two_three(\"dc\")==(False)",
+      "assert text_match_two_three(\"abbbba\")==(True)"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that checks whether a string contains the 'a' character followed by two or three 'b' characters.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 35,
+    "dataset": "mbpp",
+    "task_id": 130,
+    "text": "Write a function to find the item with maximum frequency in a given list.",
+    "test_list": [
+      "assert max_occurrences([2,3,8,4,7,9,8,2,6,5,1,6,1,2,3,2,4,6,9,1,2])==2",
+      "assert max_occurrences([2,3,8,4,7,9,8,7,9,15,14,10,12,13,16,18])==8",
+      "assert max_occurrences([10,20,20,30,40,90,80,50,30,20,50,10])==20"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the item with maximum frequency in a given list.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 36,
+    "dataset": "mbpp",
+    "task_id": 426,
+    "text": "Write a function to filter odd numbers.",
+    "test_list": [
+      "assert filter_oddnumbers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])==[1,3,5,7,9]",
+      "assert filter_oddnumbers([10,20,45,67,84,93])==[45,67,93]",
+      "assert filter_oddnumbers([5,7,9,8,6,4,3])==[5,7,9,3]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to filter odd numbers.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 37,
+    "dataset": "mbpp",
+    "task_id": 12,
+    "text": "Write a function to sort a given matrix in ascending order according to the sum of its rows.",
+    "test_list": [
+      "assert sort_matrix([[1, 2, 3], [2, 4, 5], [1, 1, 1]])==[[1, 1, 1], [1, 2, 3], [2, 4, 5]]",
+      "assert sort_matrix([[1, 2, 3], [-2, 4, -5], [1, -1, 1]])==[[-2, 4, -5], [1, -1, 1], [1, 2, 3]]",
+      "assert sort_matrix([[5,8,9],[6,4,3],[2,1,4]])==[[2, 1, 4], [6, 4, 3], [5, 8, 9]]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to sort a given matrix in ascending order according to the sum of its rows.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 38,
+    "dataset": "mbpp",
+    "task_id": 411,
+    "text": "Write a function to convert the given snake case string to camel case string.",
+    "test_list": [
+      "assert snake_to_camel('android_tv') == 'AndroidTv'",
+      "assert snake_to_camel('google_pixel') == 'GooglePixel'",
+      "assert snake_to_camel('apple_watch') == 'AppleWatch'"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to convert the given snake case string to camel case string.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 39,
+    "dataset": "mbpp",
+    "task_id": 425,
+    "text": "Write a function to count the number of sublists containing a particular element.",
+    "test_list": [
+      "assert count_element_in_list([[1, 3], [5, 7], [1, 11], [1, 15, 7]],1)==3",
+      "assert count_element_in_list([['A', 'B'], ['A', 'C'], ['A', 'D', 'E'], ['B', 'C', 'D']],'A')==3",
+      "assert count_element_in_list([['A', 'B'], ['A', 'C'], ['A', 'D', 'E'], ['B', 'C', 'D']],'E')==1"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to count the number of sublists containing a particular element.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 40,
+    "dataset": "mbpp",
+    "task_id": 93,
+    "text": "Write a function to calculate the value of 'a' to the power 'b'.",
+    "test_list": [
+      "assert power(3,4) == 81",
+      "assert power(2,3) == 8",
+      "assert power(5,5) == 3125"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to calculate the value of 'a' to the power 'b'.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 41,
+    "dataset": "mbpp",
+    "task_id": 393,
+    "text": "Write a function to find the list with maximum length.",
+    "test_list": [
+      "assert max_length_list([[0], [1, 3], [5, 7], [9, 11], [13, 15, 17]])==(3, [13, 15, 17])",
+      "assert max_length_list([[1,2,3,4,5],[1,2,3,4],[1,2,3],[1,2],[1]])==(5,[1,2,3,4,5])",
+      "assert max_length_list([[3,4,5],[6,7,8,9],[10,11,12]])==(4,[6,7,8,9])"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the list with maximum length.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 42,
+    "dataset": "mbpp",
+    "task_id": 461,
+    "text": "Write a python function to count the upper case characters in a given string.",
+    "test_list": [
+      "assert upper_ctr('PYthon') == 1",
+      "assert upper_ctr('BigData') == 1",
+      "assert upper_ctr('program') == 0"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to count the upper case characters in a given string.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 43,
+    "dataset": "mbpp",
+    "task_id": 163,
+    "text": "Write a function to calculate the area of a regular polygon given the length and number of its sides.",
+    "test_list": [
+      "assert math.isclose(area_polygon(4, 20), 400., rel_tol=0.001)",
+      "assert math.isclose(area_polygon(10, 15), 1731.197, rel_tol=0.001)",
+      "assert math.isclose(area_polygon(9, 7), 302.909, rel_tol=0.001)"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to calculate the area of a regular polygon given the length and number of its sides.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 44,
+    "dataset": "mbpp",
+    "task_id": 441,
+    "text": "Write a function to find the surface area of a cube of a given size.",
+    "test_list": [
+      "assert surfacearea_cube(5)==150",
+      "assert surfacearea_cube(3)==54",
+      "assert surfacearea_cube(10)==600"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the surface area of a cube of a given size.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 45,
+    "dataset": "mbpp",
+    "task_id": 92,
+    "text": "Write a function to check whether the given number is undulating or not.",
+    "test_list": [
+      "assert is_undulating(1212121) == True",
+      "assert is_undulating(1991) == False",
+      "assert is_undulating(121) == True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check whether the given number is undulating or not.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 46,
+    "dataset": "mbpp",
+    "task_id": 457,
+    "text": "Write a python function to find the sublist having minimum length.",
+    "test_list": [
+      "assert Find_Min([[1],[1,2],[1,2,3]]) == [1]",
+      "assert Find_Min([[1,1],[1,1,1],[1,2,7,8]]) == [1,1]",
+      "assert Find_Min([['x'],['x','y'],['x','y','z']]) == ['x']"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the sublist having minimum length.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 47,
+    "dataset": "mbpp",
+    "task_id": 412,
+    "text": "Write a python function to remove odd numbers from a given list.",
+    "test_list": [
+      "assert remove_odd([1,2,3]) == [2]",
+      "assert remove_odd([2,4,6]) == [2,4,6]",
+      "assert remove_odd([10,20,3]) == [10,20]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to remove odd numbers from a given list.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 48,
+    "dataset": "mbpp",
+    "task_id": 162,
+    "text": "Write a function to calculate the sum (n - 2*i) from i=0 to n // 2, for instance n + (n-2) + (n-4)... (until n-x =< 0).",
+    "test_list": [
+      "assert sum_series(6) == 12",
+      "assert sum_series(10) == 30",
+      "assert sum_series(9) == 25"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to calculate the sum (n - 2*i) from i=0 to n // 2, for instance n + (n-2) + (n-4)... (until n-x =< 0).\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 49,
+    "dataset": "mbpp",
+    "task_id": 471,
+    "text": "Write a python function to find the product of the array multiplication modulo n.",
+    "test_list": [
+      "assert find_remainder([ 100, 10, 5, 25, 35, 14 ],11) ==9",
+      "assert find_remainder([1,1,1],1) == 0",
+      "assert find_remainder([1,2,1],2) == 0"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the product of the array multiplication modulo n.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 50,
+    "dataset": "mbpp",
+    "task_id": 458,
+    "text": "Write a function to find the area of a rectangle.",
+    "test_list": [
+      "assert rectangle_area(10,20)==200",
+      "assert rectangle_area(10,5)==50",
+      "assert rectangle_area(4,2)==8"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the area of a rectangle.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 51,
+    "dataset": "mbpp",
+    "task_id": 223,
+    "text": "Write a function that takes in a sorted array, its length (n), and an element and returns whether the element is the majority element in the given sorted array. (The majority element is the element that occurs more than n/2 times.)",
+    "test_list": [
+      "assert is_majority([1, 2, 3, 3, 3, 3, 10], 7, 3) == True",
+      "assert is_majority([1, 1, 2, 4, 4, 4, 6, 6], 8, 4) == False",
+      "assert is_majority([1, 1, 1, 2, 2], 5, 1) == True",
+      "assert is_majority([1, 1, 2, 2], 5, 1) == False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that takes in a sorted array, its length (n), and an element and returns whether the element is the majority element in the given sorted array. (The majority element is the element that occurs more than n/2 times.)\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 52,
+    "dataset": "mbpp",
+    "task_id": 74,
+    "text": "Write a function to check whether it follows the sequence given in the patterns array.",
+    "test_list": [
+      "assert is_samepatterns([\"red\",\"green\",\"green\"], [\"a\", \"b\", \"b\"])==True",
+      "assert is_samepatterns([\"red\",\"green\",\"greenn\"], [\"a\",\"b\",\"b\"])==False",
+      "assert is_samepatterns([\"red\",\"green\",\"greenn\"], [\"a\",\"b\"])==False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check whether it follows the sequence given in the patterns array.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 53,
+    "dataset": "mbpp",
+    "task_id": 167,
+    "text": "Write a python function to find the smallest power of 2 greater than or equal to n.",
+    "test_list": [
+      "assert next_power_of_2(0) == 1",
+      "assert next_power_of_2(5) == 8",
+      "assert next_power_of_2(17) == 32"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the smallest power of 2 greater than or equal to n.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 54,
+    "dataset": "mbpp",
+    "task_id": 164,
+    "text": "Write a function to determine if the sum of the divisors of two integers are the same.",
+    "test_list": [
+      "assert are_equivalent(36, 57) == False",
+      "assert are_equivalent(2, 4) == False",
+      "assert are_equivalent(23, 47) == True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to determine if the sum of the divisors of two integers are the same.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 55,
+    "dataset": "mbpp",
+    "task_id": 454,
+    "text": "Write a function that matches a word containing 'z'.",
+    "test_list": [
+      "assert text_match_wordz(\"pythonz.\")==True",
+      "assert text_match_wordz(\"xyz.\")==True",
+      "assert text_match_wordz(\"  lang  .\")==False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that matches a word containing 'z'.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 56,
+    "dataset": "mbpp",
+    "task_id": 126,
+    "text": "Write a python function to find the sum of common divisors of two given numbers.",
+    "test_list": [
+      "assert sum(10,15) == 6",
+      "assert sum(100,150) == 93",
+      "assert sum(4,6) == 3"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the sum of common divisors of two given numbers.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 57,
+    "dataset": "mbpp",
+    "task_id": 59,
+    "text": "Write a function to find the nth octagonal number.",
+    "test_list": [
+      "assert is_octagonal(5) == 65",
+      "assert is_octagonal(10) == 280",
+      "assert is_octagonal(15) == 645"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the nth octagonal number.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 58,
+    "dataset": "mbpp",
+    "task_id": 401,
+    "text": "Write a function to perform index wise addition of tuple elements in the given two nested tuples.",
+    "test_list": [
+      "assert add_nested_tuples(((1, 3), (4, 5), (2, 9), (1, 10)), ((6, 7), (3, 9), (1, 1), (7, 3))) == ((7, 10), (7, 14), (3, 10), (8, 13))",
+      "assert add_nested_tuples(((2, 4), (5, 6), (3, 10), (2, 11)), ((7, 8), (4, 10), (2, 2), (8, 4))) == ((9, 12), (9, 16), (5, 12), (10, 15))",
+      "assert add_nested_tuples(((3, 5), (6, 7), (4, 11), (3, 12)), ((8, 9), (5, 11), (3, 3), (9, 5))) == ((11, 14), (11, 18), (7, 14), (12, 17))"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to perform index wise addition of tuple elements in the given two nested tuples.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 59,
+    "dataset": "mbpp",
+    "task_id": 248,
+    "text": "Write a function that takes in an integer n and calculates the harmonic sum of n-1.",
+    "test_list": [
+      "assert math.isclose(harmonic_sum(7), 2.5928571428571425, rel_tol=0.001)",
+      "assert math.isclose(harmonic_sum(4), 2.083333333333333, rel_tol=0.001)",
+      "assert math.isclose(harmonic_sum(19), 3.547739657143682, rel_tol=0.001)"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that takes in an integer n and calculates the harmonic sum of n-1.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 60,
+    "dataset": "mbpp",
+    "task_id": 271,
+    "text": "Write a python function that takes in an integer n and finds the sum of the first n even natural numbers that are raised to the fifth power.",
+    "test_list": [
+      "assert even_Power_Sum(2) == 1056",
+      "assert even_Power_Sum(3) == 8832",
+      "assert even_Power_Sum(1) == 32"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function that takes in an integer n and finds the sum of the first n even natural numbers that are raised to the fifth power.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 61,
+    "dataset": "mbpp",
+    "task_id": 84,
+    "text": "Write a function to find the nth number in the newman conway sequence.",
+    "test_list": [
+      "assert sequence(10) == 6",
+      "assert sequence(2) == 1",
+      "assert sequence(3) == 2"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the nth number in the newman conway sequence.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 62,
+    "dataset": "mbpp",
+    "task_id": 222,
+    "text": "Write a function to check if all the elements in tuple have same data type or not.",
+    "test_list": [
+      "assert check_type((5, 6, 7, 3, 5, 6) ) == True",
+      "assert check_type((1, 2, \"4\") ) == False",
+      "assert check_type((3, 2, 1, 4, 5) ) == True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check if all the elements in tuple have same data type or not.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 63,
+    "dataset": "mbpp",
+    "task_id": 69,
+    "text": "Write a function to check whether a list contains the given sublist or not.",
+    "test_list": [
+      "assert is_sublist([2,4,3,5,7],[3,7])==False",
+      "assert is_sublist([2,4,3,5,7],[4,3])==True",
+      "assert is_sublist([2,4,3,5,7],[1,6])==False"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check whether a list contains the given sublist or not.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 64,
+    "dataset": "mbpp",
+    "task_id": 276,
+    "text": "Write a function that takes in the radius and height of a cylinder and returns the the volume.",
+    "test_list": [
+      "assert math.isclose(volume_cylinder(10,5), 1570.7500000000002, rel_tol=0.001)",
+      "assert math.isclose(volume_cylinder(4,5), 251.32000000000002, rel_tol=0.001)",
+      "assert math.isclose(volume_cylinder(4,10), 502.64000000000004, rel_tol=0.001)"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that takes in the radius and height of a cylinder and returns the the volume.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 65,
+    "dataset": "mbpp",
+    "task_id": 135,
+    "text": "Write a function to find the nth hexagonal number.",
+    "test_list": [
+      "assert hexagonal_num(10) == 190",
+      "assert hexagonal_num(5) == 45",
+      "assert hexagonal_num(7) == 91"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the nth hexagonal number.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 66,
+    "dataset": "mbpp",
+    "task_id": 297,
+    "text": "Write a function to flatten a given nested list structure.",
+    "test_list": [
+      "assert flatten_list([0, 10, [20, 30], 40, 50, [60, 70, 80], [90, 100, 110, 120]])==[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]",
+      "assert flatten_list([[10, 20], [40], [30, 56, 25], [10, 20], [33], [40]])==[10, 20, 40, 30, 56, 25, 10, 20, 33, 40]",
+      "assert flatten_list([[1,2,3], [4,5,6], [10,11,12], [7,8,9]])==[1, 2, 3, 4, 5, 6, 10, 11, 12, 7, 8, 9]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to flatten a given nested list structure.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 67,
+    "dataset": "mbpp",
+    "task_id": 295,
+    "text": "Write a function to return the sum of all divisors of a number.",
+    "test_list": [
+      "assert sum_div(8)==7",
+      "assert sum_div(12)==16",
+      "assert sum_div(7)==1"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to return the sum of all divisors of a number.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 68,
+    "dataset": "mbpp",
+    "task_id": 168,
+    "text": "Write a function to count the number of occurrences of a number in a given list.",
+    "test_list": [
+      "assert frequency([1,2,3], 4) == 0",
+      "assert frequency([1,2,2,3,3,3,4], 3) == 3",
+      "assert frequency([0,1,2,3,1,2], 1) == 2"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to count the number of occurrences of a number in a given list.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 69,
+    "dataset": "mbpp",
+    "task_id": 282,
+    "text": "Write a function to subtract two lists element-wise.",
+    "test_list": [
+      "assert sub_list([1, 2, 3],[4,5,6])==[-3,-3,-3]",
+      "assert sub_list([1,2],[3,4])==[-2,-2]",
+      "assert sub_list([90,120],[50,70])==[40,50]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to subtract two lists element-wise.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 70,
+    "dataset": "mbpp",
+    "task_id": 102,
+    "text": "Write a function to convert a snake case string to camel case string.",
+    "test_list": [
+      "assert snake_to_camel('python_program')=='PythonProgram'",
+      "assert snake_to_camel('python_language')==('PythonLanguage')",
+      "assert snake_to_camel('programming_language')==('ProgrammingLanguage')"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to convert a snake case string to camel case string.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 71,
+    "dataset": "mbpp",
+    "task_id": 395,
+    "text": "Write a python function to find the first non-repeated character in a given string.",
+    "test_list": [
+      "assert first_non_repeating_character(\"abcabc\") == None",
+      "assert first_non_repeating_character(\"abc\") == \"a\"",
+      "assert first_non_repeating_character(\"ababc\") == \"c\""
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the first non-repeated character in a given string.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 72,
+    "dataset": "mbpp",
+    "task_id": 66,
+    "text": "Write a python function to count the number of positive numbers in a list.",
+    "test_list": [
+      "assert pos_count([1,-2,3,-4]) == 2",
+      "assert pos_count([3,4,5,-1]) == 3",
+      "assert pos_count([1,2,3,4]) == 4"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to count the number of positive numbers in a list.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 73,
+    "dataset": "mbpp",
+    "task_id": 418,
+    "text": "Write a python function to find the element of a list having maximum length.",
+    "test_list": [
+      "assert Find_Max([['A'],['A','B'],['A','B','C']]) == ['A','B','C']",
+      "assert Find_Max([[1],[1,2],[1,2,3]]) == [1,2,3]",
+      "assert Find_Max([[1,1],[1,2,3],[1,5,6,1]]) == [1,5,6,1]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the element of a list having maximum length.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 74,
+    "dataset": "mbpp",
+    "task_id": 309,
+    "text": "Write a python function to find the maximum of two numbers.",
+    "test_list": [
+      "assert maximum(5,10) == 10",
+      "assert maximum(-1,-2) == -1",
+      "assert maximum(9,7) == 9"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the maximum of two numbers.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 75,
+    "dataset": "mbpp",
+    "task_id": 115,
+    "text": "Write a function to check whether all dictionaries in a list are empty or not.",
+    "test_list": [
+      "assert empty_dit([{},{},{}])==True",
+      "assert empty_dit([{1,2},{},{}])==False",
+      "assert empty_dit({})==True"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to check whether all dictionaries in a list are empty or not.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 76,
+    "dataset": "mbpp",
+    "task_id": 133,
+    "text": "Write a function to calculate the sum of the negative numbers of a given list of numbers.",
+    "test_list": [
+      "assert sum_negativenum([2, 4, -6, -9, 11, -12, 14, -5, 17])==-32",
+      "assert sum_negativenum([10,15,-14,13,-18,12,-20])==-52",
+      "assert sum_negativenum([19, -65, 57, 39, 152,-639, 121, 44, 90, -190])==-894"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to calculate the sum of the negative numbers of a given list of numbers.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 77,
+    "dataset": "mbpp",
+    "task_id": 438,
+    "text": "Write a function to count bidirectional tuple pairs.",
+    "test_list": [
+      "assert count_bidirectional([(5, 6), (1, 2), (6, 5), (9, 1), (6, 5), (2, 1)] ) == 3",
+      "assert count_bidirectional([(5, 6), (1, 3), (6, 5), (9, 1), (6, 5), (2, 1)] ) == 2",
+      "assert count_bidirectional([(5, 6), (1, 2), (6, 5), (9, 2), (6, 5), (2, 1)] ) == 4"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to count bidirectional tuple pairs.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 78,
+    "dataset": "mbpp",
+    "task_id": 456,
+    "text": "Write a function to reverse each string in a given list of string values.",
+    "test_list": [
+      "assert reverse_string_list(['Red', 'Green', 'Blue', 'White', 'Black'])==['deR', 'neerG', 'eulB', 'etihW', 'kcalB']",
+      "assert reverse_string_list(['john','amal','joel','george'])==['nhoj','lama','leoj','egroeg']",
+      "assert reverse_string_list(['jack','john','mary'])==['kcaj','nhoj','yram']"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to reverse each string in a given list of string values.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 79,
+    "dataset": "mbpp",
+    "task_id": 75,
+    "text": "Write a function to find tuples which have all elements divisible by k from the given list of tuples.",
+    "test_list": [
+      "assert find_tuples([(6, 24, 12), (7, 9, 6), (12, 18, 21)], 6) == [(6, 24, 12)]",
+      "assert find_tuples([(5, 25, 30), (4, 2, 3), (7, 8, 9)], 5) == [(5, 25, 30)]",
+      "assert find_tuples([(7, 9, 16), (8, 16, 4), (19, 17, 18)], 4) == [(8, 16, 4)]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find tuples which have all elements divisible by k from the given list of tuples.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 80,
+    "dataset": "mbpp",
+    "task_id": 437,
+    "text": "Write a function to remove odd characters in a string.",
+    "test_list": [
+      "assert remove_odd(\"python\")==(\"yhn\")",
+      "assert remove_odd(\"program\")==(\"rga\")",
+      "assert remove_odd(\"language\")==(\"agae\")"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to remove odd characters in a string.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 81,
+    "dataset": "mbpp",
+    "task_id": 432,
+    "text": "Write a function to find the median length of a trapezium.",
+    "test_list": [
+      "assert median_trapezium(15,25,35)==20",
+      "assert median_trapezium(10,20,30)==15",
+      "assert median_trapezium(6,9,4)==7.5"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the median length of a trapezium.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 82,
+    "dataset": "mbpp",
+    "task_id": 247,
+    "text": "Write a function to find the length of the longest palindromic subsequence in the given string.",
+    "test_list": [
+      "assert lps(\"TENS FOR TENS\") == 5",
+      "assert lps(\"CARDIO FOR CARDS\") == 7",
+      "assert lps(\"PART OF THE JOURNEY IS PART\") == 9"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the length of the longest palindromic subsequence in the given string.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 83,
+    "dataset": "mbpp",
+    "task_id": 300,
+    "text": "Write a function to find the count of all binary sequences of length 2n such that sum of first n bits is same as sum of last n bits.",
+    "test_list": [
+      "assert math.isclose(count_binary_seq(1), 2.0, rel_tol=0.001)",
+      "assert math.isclose(count_binary_seq(2), 6.0, rel_tol=0.001)",
+      "assert math.isclose(count_binary_seq(3), 20.0, rel_tol=0.001)"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the count of all binary sequences of length 2n such that sum of first n bits is same as sum of last n bits.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 84,
+    "dataset": "mbpp",
+    "task_id": 170,
+    "text": "Write a function to find the sum of numbers in a list within a range specified by two indices.",
+    "test_list": [
+      "assert sum_range_list([2,1,5,6,8,3,4,9,10,11,8,12], 8, 10) == 29",
+      "assert sum_range_list([2,1,5,6,8,3,4,9,10,11,8,12], 5, 7) == 16",
+      "assert sum_range_list([2,1,5,6,8,3,4,9,10,11,8,12], 7, 10) == 38"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the sum of numbers in a list within a range specified by two indices.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 85,
+    "dataset": "mbpp",
+    "task_id": 94,
+    "text": "Given a list of tuples, write a function that returns the first value of the tuple with the smallest second value.",
+    "test_list": [
+      "assert index_minimum([('Rash', 143), ('Manjeet', 200), ('Varsha', 100)]) == 'Varsha'",
+      "assert index_minimum([('Yash', 185), ('Dawood', 125), ('Sanya', 175)]) == 'Dawood'",
+      "assert index_minimum([('Sai', 345), ('Salman', 145), ('Ayesha', 96)]) == 'Ayesha'"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nGiven a list of tuples, write a function that returns the first value of the tuple with the smallest second value.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 86,
+    "dataset": "mbpp",
+    "task_id": 171,
+    "text": "Write a function to find the perimeter of a regular pentagon from the length of its sides.",
+    "test_list": [
+      "assert perimeter_pentagon(5) == 25",
+      "assert perimeter_pentagon(10) == 50",
+      "assert perimeter_pentagon(15) == 75"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the perimeter of a regular pentagon from the length of its sides.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 87,
+    "dataset": "mbpp",
+    "task_id": 166,
+    "text": "Write a function that counts the number of pairs of integers in a list that xor to an even number.",
+    "test_list": [
+      "assert find_even_pair([5, 4, 7, 2, 1]) == 4",
+      "assert find_even_pair([7, 2, 8, 1, 0, 5, 11]) == 9",
+      "assert find_even_pair([1, 2, 3]) == 1"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function that counts the number of pairs of integers in a list that xor to an even number.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 88,
+    "dataset": "mbpp",
+    "task_id": 106,
+    "text": "Write a function to append the given list to the given tuples.",
+    "test_list": [
+      "assert add_lists([5, 6, 7], (9, 10)) == (9, 10, 5, 6, 7)",
+      "assert add_lists([6, 7, 8], (10, 11)) == (10, 11, 6, 7, 8)",
+      "assert add_lists([7, 8, 9], (11, 12)) == (11, 12, 7, 8, 9)"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to append the given list to the given tuples.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 89,
+    "dataset": "mbpp",
+    "task_id": 127,
+    "text": "Write a function to multiply two integers.",
+    "test_list": [
+      "assert multiply_int(10,20)==200",
+      "assert multiply_int(5,10)==50",
+      "assert multiply_int(4,8)==32"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to multiply two integers.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 90,
+    "dataset": "mbpp",
+    "task_id": 305,
+    "text": "Write a function to return two words from a list of words starting with letter 'p'.",
+    "test_list": [
+      "assert start_withp([\"Python PHP\", \"Java JavaScript\", \"c c++\"])==('Python', 'PHP')",
+      "assert start_withp([\"Python Programming\",\"Java Programming\"])==('Python','Programming')",
+      "assert start_withp([\"Pqrst Pqr\",\"qrstuv\"])==('Pqrst','Pqr')"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to return two words from a list of words starting with letter 'p'.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 91,
+    "dataset": "mbpp",
+    "task_id": 67,
+    "text": "Write a function to find the number of ways to partition a set of Bell numbers.",
+    "test_list": [
+      "assert bell_number(2)==2",
+      "assert bell_number(10)==115975",
+      "assert bell_number(56)==6775685320645824322581483068371419745979053216268760300"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the number of ways to partition a set of Bell numbers.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 92,
+    "dataset": "mbpp",
+    "task_id": 292,
+    "text": "Write a python function to find quotient of two numbers (rounded down to the nearest integer).",
+    "test_list": [
+      "assert find(10,3) == 3",
+      "assert find(4,2) == 2",
+      "assert find(20,5) == 4"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find quotient of two numbers (rounded down to the nearest integer).\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 93,
+    "dataset": "mbpp",
+    "task_id": 389,
+    "text": "Write a function to find the n'th lucas number.",
+    "test_list": [
+      "assert find_lucas(9) == 76",
+      "assert find_lucas(4) == 7",
+      "assert find_lucas(3) == 4"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the n'th lucas number.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 94,
+    "dataset": "mbpp",
+    "task_id": 96,
+    "text": "Write a python function to find the number of divisors of a given integer.",
+    "test_list": [
+      "assert divisor(15) == 4",
+      "assert divisor(12) == 6",
+      "assert divisor(9) == 3"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the number of divisors of a given integer.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 95,
+    "dataset": "mbpp",
+    "task_id": 270,
+    "text": "Write a python function to find the sum of even numbers at even positions of a list.",
+    "test_list": [
+      "assert sum_even_and_even_index([5, 6, 12, 1, 18, 8]) == 30",
+      "assert sum_even_and_even_index([3, 20, 17, 9, 2, 10, 18, 13, 6, 18]) == 26",
+      "assert sum_even_and_even_index([5, 6, 12, 1]) == 12"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a python function to find the sum of even numbers at even positions of a list.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 96,
+    "dataset": "mbpp",
+    "task_id": 475,
+    "text": "Write a function to sort a dictionary by value.",
+    "test_list": [
+      "assert sort_counter({'Math':81, 'Physics':83, 'Chemistry':87})==[('Chemistry', 87), ('Physics', 83), ('Math', 81)]",
+      "assert sort_counter({'Math':400, 'Physics':300, 'Chemistry':250})==[('Math', 400), ('Physics', 300), ('Chemistry', 250)]",
+      "assert sort_counter({'Math':900, 'Physics':1000, 'Chemistry':1250})==[('Chemistry', 1250), ('Physics', 1000), ('Math', 900)]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to sort a dictionary by value.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 97,
+    "dataset": "mbpp",
+    "task_id": 312,
+    "text": "Write a function to find the volume of a cone.",
+    "test_list": [
+      "assert math.isclose(volume_cone(5,12), 314.15926535897927, rel_tol=0.001)",
+      "assert math.isclose(volume_cone(10,15), 1570.7963267948965, rel_tol=0.001)",
+      "assert math.isclose(volume_cone(19,17), 6426.651371693521, rel_tol=0.001)"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the volume of a cone.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 98,
+    "dataset": "mbpp",
+    "task_id": 249,
+    "text": "Write a function to find the intersection of two arrays.",
+    "test_list": [
+      "assert intersection_array([1, 2, 3, 5, 7, 8, 9, 10],[1, 2, 4, 8, 9])==[1, 2, 8, 9]",
+      "assert intersection_array([1, 2, 3, 5, 7, 8, 9, 10],[3,5,7,9])==[3,5,7,9]",
+      "assert intersection_array([1, 2, 3, 5, 7, 8, 9, 10],[10,20,30,40])==[10]"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the intersection of two arrays.\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 99,
+    "dataset": "mbpp",
+    "task_id": 392,
+    "text": "Write a function to find the maximum sum possible by using the given equation f(n) = max( (f(n/2) + f(n/3) + f(n/4) + f(n/5)), n).",
+    "test_list": [
+      "assert get_max_sum(60) == 106",
+      "assert get_max_sum(10) == 12",
+      "assert get_max_sum(2) == 2"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find the maximum sum possible by using the given equation f(n) = max( (f(n/2) + f(n/3) + f(n/4) + f(n/5)), n).\n\nReturn only the Python code, no explanation."
+  },
+  {
+    "query_id": 100,
+    "dataset": "mbpp",
+    "task_id": 128,
+    "text": "Write a function to find words that are longer than n characters from a given list of words.",
+    "test_list": [
+      "assert long_words(3,\"python is a programming language\")==['python','programming','language']",
+      "assert long_words(2,\"writing a program\")==['writing','program']",
+      "assert long_words(5,\"sorting list\")==['sorting']"
+    ],
+    "prompt": "Write a Python function for the following task:\n\nWrite a function to find words that are longer than n characters from a given list of words.\n\nReturn only the Python code, no explanation."
+  }
+]

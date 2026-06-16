@@ -1,0 +1,32 @@
+name: CI
+on:
+  push:
+    branches: [dev, "release/**", "feature/**"]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --frozen --extra dev --extra anthropic --extra langchain 2>/dev/null || uv sync --extra dev --extra anthropic --extra langchain
+      - run: uv run ruff check src/ tests/
+      - run: uv run mypy src/ --strict || true  # Don't fail CI on mypy strict yet
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --extra dev --extra anthropic --extra langchain
+      - run: uv run pytest tests/ -x -q --tb=short -m "not requires_api"
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --frozen 2>/dev/null || uv sync
+      - run: uv run pip-audit || true  # Don't fail CI on pip-audit warnings

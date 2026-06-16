@@ -80,6 +80,7 @@ class EmbeddingPredictor(BasePredictor):
         messages: list[dict[str, str]],
         model_id: str,
         actual_quality: float,
+        reward_override: float | None = None,
     ) -> None:
         """
         Update quality priors with observed feedback.
@@ -87,6 +88,7 @@ class EmbeddingPredictor(BasePredictor):
         Full implementation would update matrix factorization model.
         """
         # Simple exponential moving average update
+        target = reward_override if reward_override is not None else actual_quality
         alpha = 0.1
         current = self.model_quality_priors.get(model_id, 0.5)
-        self.model_quality_priors[model_id] = alpha * actual_quality + (1 - alpha) * current
+        self.model_quality_priors[model_id] = alpha * target + (1 - alpha) * current

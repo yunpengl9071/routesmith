@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  routesmith:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ROUTESMITH_LOG_LEVEL=INFO
+      - ROUTESMITH_LOG_FORMAT=json
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

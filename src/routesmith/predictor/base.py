@@ -49,6 +49,7 @@ class BasePredictor(ABC):
         messages: list[dict[str, str]],
         model_id: str,
         actual_quality: float,
+        reward_override: float | None = None,
     ) -> None:
         """
         Update predictor with observed quality feedback.
@@ -57,6 +58,9 @@ class BasePredictor(ABC):
             messages: Input messages that were used.
             model_id: Model that generated the response.
             actual_quality: Observed quality score 0-1.
+            reward_override: If provided, use this value as the reward signal
+                instead of the default computed reward. Useful for custom
+                reward functions.
         """
         pass
 

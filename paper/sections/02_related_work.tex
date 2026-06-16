@@ -1,0 +1,37 @@
+% paper/sections/02_related_work.tex
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Supervised LLM Routing}
+
+\citet{ong2024routellm} propose RouteLLM, which trains a classifier on 55K Chatbot Arena human preference labels. Their Similarity-Weighted (SW) router retrieves nearest neighbors from the arena embedding space and uses Elo-weighted win rates as routing scores. While effective when pretraining data aligns with deployment distribution, SW requires retraining when model capabilities change and is architecturally binary.
+
+\citet{chen2023frugalgpt} propose FrugalGPT, a cascade system that queries a sequence of models in increasing cost order, stopping when the response quality exceeds a threshold. This avoids pretraining but requires a quality estimator and performs poorly when the distribution of ``hard'' queries shifts.
+
+\citet{shnitzer2023large} study mixture-of-experts routing for LLMs but focus on fine-tuned specialist models rather than black-box API routing. \citet{lu2023routing} use embedding similarity to route queries to domain-specialist models.
+
+\subsection{Online Learning for LLM Serving}
+
+LinUCB \citep{li2010contextual} is the canonical contextual bandit algorithm for recommendation and routing. \citet{russo2018tutorial} provide a tutorial on Thompson Sampling, showing it matches LinUCB's regret while requiring less tuning. \citet{abeille2017linear} prove $O(d\sqrt{T\log T})$ regret for Linear Thompson Sampling.
+
+\subsection{Multi-Model LLM Systems}
+
+\citet{aggarwal2024automix} propose AutoMix, which uses a POMDP to decide when to escalate from a weak to a strong model. LLM-Blender \citep{jiang2023llmblender} ensembles outputs from multiple models using pairwise ranking, but requires all models to respond to each query.
+
+\textbf{Comparison to RouteSmith:}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Method & Online & N-arm & No labels & Interpretable \\
+\midrule
+RouteLLM-SW & \xmark & \xmark & \xmark & \xmark \\
+FrugalGPT & \cmark & \cmark & \xmark & \xmark \\
+TS-Cat & \cmark & \cmark & \cmark & \xmark \\
+LinUCB-27d & \cmark & \cmark & \cmark & \cmark \\
+\textbf{LinTS-27d (Ours)} & \cmark & \cmark & \cmark & \cmark \\
+\bottomrule
+\end{tabular}
+\caption{RouteSmith vs. prior work on four dimensions.}
+\end{table}
