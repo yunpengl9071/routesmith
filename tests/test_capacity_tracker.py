@@ -1,6 +1,4 @@
 """Tests for CapacityTracker."""
-import time
-import pytest
 from routesmith.strategy.capacity_tracker import CapacityTracker
 
 
@@ -70,3 +68,24 @@ class TestCapacityTracker:
         for t in threads:
             t.join()
         assert tracker.total_requests == 1000
+
+    def test_mark_overflow_increments_count(self):
+        """mark_overflow() explicitly records overflow events."""
+        tracker = CapacityTracker(max_rpm=5)
+        assert tracker.overflow_count == 0
+        tracker.mark_overflow()
+        assert tracker.overflow_count == 1
+        tracker.mark_overflow()
+        tracker.mark_overflow()
+        assert tracker.overflow_count == 3
+
+    def test_available_does_not_side_effect_overflow(self):
+        """available() is a pure query — no overflow side effects."""
+        tracker = CapacityTracker(max_rpm=3)
+        for _ in range(3):
+            tracker.record_request()
+        assert not tracker.available()
+        assert tracker.overflow_count == 0  # Not incremented
+        tracker.available()
+        tracker.available()
+        assert tracker.overflow_count == 0  # Still not incremented

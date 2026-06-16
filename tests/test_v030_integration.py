@@ -1,6 +1,7 @@
 """Integration tests combining all v0.3.0 enterprise features."""
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from routesmith import RouteSmith, RouteSmithConfig
 from routesmith.config import BudgetBehavior, CostModel, RoutingStrategy

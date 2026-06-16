@@ -434,9 +434,12 @@ class Router:
         provisioned.sort(key=lambda m: m.provisioned_hourly_cost)
         for model in provisioned:
             tracker = self.registry.get_capacity_tracker(model.model_id)
-            if tracker is not None and tracker.available():
-                tracker.record_request()
-                return model.model_id
+            if tracker is not None:
+                if tracker.available():
+                    tracker.record_request()
+                    return model.model_id
+                else:
+                    tracker.mark_overflow()
 
         # All provisioned capacity exhausted — fall through to on-demand
         if not on_demand:

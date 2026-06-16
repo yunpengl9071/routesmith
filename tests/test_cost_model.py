@@ -1,5 +1,4 @@
 """Tests for CostModel enum and related config."""
-import pytest
 from routesmith.config import BudgetBehavior, CostModel
 
 
@@ -49,8 +48,8 @@ class TestBudgetBehaviorEnum:
 
 class TestRegistryFiltersByCostModel:
     def test_filter_by_cost_model_returns_only_matching(self):
-        from routesmith.registry.models import ModelRegistry
         from routesmith.config import CostModel
+        from routesmith.registry.models import ModelRegistry
 
         reg = ModelRegistry()
         reg.register("on-demand-model", 0.001, 0.002, cost_model=CostModel.ON_DEMAND)
@@ -66,8 +65,8 @@ class TestRegistryFiltersByCostModel:
         assert provisioned[0].model_id == "provisioned-model"
 
     def test_filter_by_cost_model_returns_empty_if_none_match(self):
-        from routesmith.registry.models import ModelRegistry
         from routesmith.config import CostModel
+        from routesmith.registry.models import ModelRegistry
 
         reg = ModelRegistry()
         reg.register("on-demand-model", 0.001, 0.002, cost_model=CostModel.ON_DEMAND)

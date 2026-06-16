@@ -29,7 +29,7 @@ class ModelConfig:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     # Cost model and provisioned throughput fields
-    cost_model: "CostModel" = field(default_factory=lambda: CostModel.ON_DEMAND)
+    cost_model: CostModel = field(default_factory=lambda: CostModel.ON_DEMAND)
     capacity_requests_per_min: int = 0
     provisioned_hourly_cost: float = 0.0
     provisioned_units: int = 0

@@ -19,12 +19,12 @@ from routesmith.config import (
     RouteSmithConfig,
     RoutingStrategy,
 )
+from routesmith.exceptions import BudgetExceededError
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry
 from routesmith.strategy.circuit_breaker import CircuitBreaker
 from routesmith.strategy.router import Router
 from routesmith.utils.logging import RouteSmithLogger, setup_logger
-from routesmith.exceptions import BudgetExceededError, CircuitOpenError
 from routesmith.utils.retry import RetryExhaustedError, retry_with_backoff
 
 logger = logging.getLogger(__name__)
@@ -94,6 +94,7 @@ class RouteSmith:
             "fallbacks": 0,
             "queued": 0,
         }
+        self._cost_model_counts: dict[str, dict[str, float]] = {}
 
         # Resilience: circuit breakers per model, structured logging
         self._circuit_breakers: dict[str, CircuitBreaker] = {}
@@ -399,6 +400,13 @@ class RouteSmith:
                 )
                 self._total_cost += actual_cost
 
+                # Track per-cost-model usage
+                cm = model_config.cost_model.value
+                if cm not in self._cost_model_counts:
+                    self._cost_model_counts[cm] = {"request_count": 0.0, "total_cost": 0.0}
+                self._cost_model_counts[cm]["request_count"] += 1
+                self._cost_model_counts[cm]["total_cost"] += actual_cost
+
             # Calculate counterfactual cost (what would most expensive model cost?)
             most_expensive = self.registry.get_best_quality()
             if most_expensive and most_expensive.model_id != selected_model:
@@ -622,6 +630,13 @@ class RouteSmith:
                 )
                 self._total_cost += actual_cost
 
+                # Track per-cost-model usage
+                cm = model_config.cost_model.value
+                if cm not in self._cost_model_counts:
+                    self._cost_model_counts[cm] = {"request_count": 0.0, "total_cost": 0.0}
+                self._cost_model_counts[cm]["request_count"] += 1
+                self._cost_model_counts[cm]["total_cost"] += actual_cost
+
             # Calculate counterfactual cost
             most_expensive = self.registry.get_best_quality()
             if most_expensive and most_expensive.model_id != selected_model:
@@ -802,13 +817,8 @@ class RouteSmith:
         return self._last_routing_metadata
 
     def _by_cost_model_stats(self) -> dict[str, dict[str, float]]:
-        """Aggregate request counts by cost model type."""
-        result: dict[str, dict[str, float]] = {}
-        for model in self.registry.list_models():
-            cm = model.cost_model.value
-            if cm not in result:
-                result[cm] = {"request_count": 0.0, "total_cost": 0.0}
-        return result
+        """Aggregate per-cost-model request counts and costs."""
+        return dict(self._cost_model_counts)
 
     def _provisioned_utilization_stats(self) -> dict[str, float]:
         """Get utilization per provisioned model."""
@@ -979,4 +989,5 @@ class RouteSmith:
         self._request_count = 0
         self._total_cost = 0.0
         self._counterfactual_cost = 0.0
+        self._cost_model_counts = {}
         self._last_routing_metadata = None

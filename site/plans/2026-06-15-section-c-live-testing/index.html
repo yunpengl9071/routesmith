@@ -1,0 +1,1619 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Adaptive LLM Execution Engine — intelligent routing, cascading, caching, and budget management">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Section C: Live Testing & Benchmarking — Implementation Plan - RouteSmith</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#section-c-live-testing-benchmarking-implementation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="RouteSmith" class="md-header__button md-logo" aria-label="RouteSmith" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            RouteSmith
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Section C: Live Testing &amp; Benchmarking — Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/routesmith/routesmith" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="RouteSmith" class="md-nav__button md-logo" aria-label="RouteSmith" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    RouteSmith
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/routesmith/routesmith" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Routing Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/budget/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cost Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/adaptive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/cache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/standalone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standalone
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/langchain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LangChain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/dspy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSPy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/crewai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CrewAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/autogen/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AutoGen
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migration/litellm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cost Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../multi-project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../budget-enforcement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Budget Enforcement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../best-practices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Best Practices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#task-c1-performance-benchmark-routing-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task C1: Performance Benchmark (Routing Latency)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task C1: Performance Benchmark (Routing Latency)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-write-failing-test-will-fail-without-api-key-in-ci-but-documents-the-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Write failing test (will fail without API key in CI, but documents the benchmark)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-c2-memory-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task C2: Memory Profiling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task C2: Memory Profiling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-write-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Write test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-commit_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-c3-multi-model-eval-script-100-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task C3: Multi-Model Eval Script (100 Queries)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task C3: Multi-Model Eval Script (100 Queries)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-write-eval-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Write eval script
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-test-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Test locally
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-c4-extend-nightly-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task C4: Extend Nightly Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task C4: Extend Nightly Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-update-nightlyyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Update nightly.yml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-commit_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uat-validation-real-use-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UAT Validation (Real Use Case)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="section-c-live-testing-benchmarking-implementation-plan">Section C: Live Testing &amp; Benchmarking — Implementation Plan<a class="headerlink" href="#section-c-live-testing-benchmarking-implementation-plan" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>REQUIRED SUB-SKILL:</strong> Use subagent-driven-development to execute.
+<strong>Branch:</strong> feature/v0.2.0-live-testing (from dev)
+<strong>CRITICAL:</strong> All tests use real Groq API, not mocks.</p>
+</blockquote>
+<p><strong>Goal:</strong> Add automated live API testing, RouterBench reproduction, and performance benchmarks.</p>
+<p><strong>Architecture:</strong> New <code>tests/perf/</code> for perf tests, <code>scripts/</code> for eval scripts, extended nightly workflow.</p>
+<p><strong>Tech Stack:</strong> pytest, Groq free tier API, timeit, memory_profiler</p>
+<hr />
+<h2 id="task-c1-performance-benchmark-routing-latency">Task C1: Performance Benchmark (Routing Latency)<a class="headerlink" href="#task-c1-performance-benchmark-routing-latency" title="Permanent link">&para;</a></h2>
+<p><strong>Files:</strong>
+- Create: <code>tests/perf/__init__.py</code>
+- Create: <code>tests/perf/test_routing_latency.py</code></p>
+<h3 id="step-1-write-failing-test-will-fail-without-api-key-in-ci-but-documents-the-benchmark">Step 1: Write failing test (will fail without API key in CI, but documents the benchmark)<a class="headerlink" href="#step-1-write-failing-test-will-fail-without-api-key-in-ci-but-documents-the-benchmark" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/perf/test_routing_latency.py</span>
+<span class="sd">&quot;&quot;&quot;Real use case: P99 routing latency &lt;5ms under real routing load.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">routesmith</span><span class="w"> </span><span class="kn">import</span> <span class="n">RouteSmith</span>
+
+<span class="n">pytestmark</span> <span class="o">=</span> <span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skipif</span><span class="p">(</span>
+    <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;GROQ_API_KEY&quot;</span><span class="p">),</span>
+    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Requires GROQ_API_KEY. Export it to run performance tests.&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_client</span><span class="p">():</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">RouteSmith</span><span class="p">()</span>
+    <span class="n">rs</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="s2">&quot;groq/llama-3.3-70b-versatile&quot;</span><span class="p">,</span> 
+                      <span class="n">cost_per_1k_input</span><span class="o">=</span><span class="mf">0.00059</span><span class="p">,</span> <span class="n">cost_per_1k_output</span><span class="o">=</span><span class="mf">0.00079</span><span class="p">,</span>
+                      <span class="n">quality_score</span><span class="o">=</span><span class="mf">0.90</span><span class="p">)</span>
+    <span class="n">rs</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="s2">&quot;groq/llama-3.1-8b-instant&quot;</span><span class="p">,</span>
+                      <span class="n">cost_per_1k_input</span><span class="o">=</span><span class="mf">0.00005</span><span class="p">,</span> <span class="n">cost_per_1k_output</span><span class="o">=</span><span class="mf">0.00008</span><span class="p">,</span>
+                      <span class="n">quality_score</span><span class="o">=</span><span class="mf">0.60</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rs</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestRoutingLatency</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;P99 routing latency must be &lt;5ms.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_routing_decision_latency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Measure pure routing decision time (not LLM call time).&quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">make_client</span><span class="p">()</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the capital of France?&quot;</span><span class="p">}]</span>
+
+        <span class="n">latencies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+            <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+            <span class="c1"># Route only (don&#39;t execute LLM call)</span>
+            <span class="n">candidate</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+            <span class="n">elapsed</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>  <span class="c1"># ms</span>
+            <span class="n">latencies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elapsed</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">candidate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">latencies</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">p50</span> <span class="o">=</span> <span class="n">latencies</span><span class="p">[</span><span class="mi">50</span><span class="p">]</span>
+        <span class="n">p99</span> <span class="o">=</span> <span class="n">latencies</span><span class="p">[</span><span class="mi">99</span><span class="p">]</span>
+        <span class="n">avg</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Routing Latency (100 samples):&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  P50: </span><span class="si">{</span><span class="n">p50</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  P99: </span><span class="si">{</span><span class="n">p99</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>  
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Avg: </span><span class="si">{</span><span class="n">avg</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Max: </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">p99</span> <span class="o">&lt;</span> <span class="mf">5.0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;P99 latency </span><span class="si">{</span><span class="n">p99</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms exceeds 5ms threshold&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_end_to_end_latency_under_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Measure end-to-end routing + LLM call latency for 20 real queries.&quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">make_client</span><span class="p">()</span>
+        <span class="n">queries</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;What is 2+2?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Capital of Japan?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Explain gravity in one sentence.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Write &#39;hello&#39; in French.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;What year was Python created?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Name three primary colors.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;What is the speed of light?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Define photosynthesis briefly.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Who wrote Romeo and Juliet?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;What is H2O?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Count from 1 to 10.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;What does CPU stand for?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Largest planet in solar system?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Boiling point of water in Celsius?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;What is JSON?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Name a Shakespeare play.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;What is an API?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Square root of 144?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;What language is spoken in Brazil?&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;How many continents are there?&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">latencies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
+            <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">completion</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">q</span><span class="p">}],</span>
+                                <span class="n">min_quality</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">elapsed</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>
+            <span class="n">latencies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elapsed</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">resp</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">latencies</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">p50</span> <span class="o">=</span> <span class="n">latencies</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+        <span class="n">p99</span> <span class="o">=</span> <span class="n">latencies</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="n">avg</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">End-to-End Latency (20 queries):&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  P50: </span><span class="si">{</span><span class="n">p50</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  P99: </span><span class="si">{</span><span class="n">p99</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Avg: </span><span class="si">{</span><span class="n">avg</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+
+        <span class="c1"># End-to-end with Groq should be fast (&lt;2s per query)</span>
+        <span class="k">assert</span> <span class="n">p99</span> <span class="o">&lt;</span> <span class="mi">5000</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;P99 e2e latency </span><span class="si">{</span><span class="n">p99</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">ms exceeds 5s&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_route_output_contains_model_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verify route() output carries enough metadata for observability.&quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">make_client</span><span class="p">()</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">}]</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">candidate</span><span class="o">.</span><span class="n">model_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">candidate</span><span class="o">.</span><span class="n">quality_score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</code></pre></div>
+<p>Run: <code>GROQ_API_KEY=... .venv/bin/pytest tests/perf/test_routing_latency.py -v -s</code>
+Expected: P99 &lt;5ms</p>
+<h3 id="step-2-commit">Step 2: Commit<a class="headerlink" href="#step-2-commit" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/perf/__init__.py<span class="w"> </span>tests/perf/test_routing_latency.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(perf): add routing latency benchmark with P99 &lt;5ms gate&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-c2-memory-profiling">Task C2: Memory Profiling<a class="headerlink" href="#task-c2-memory-profiling" title="Permanent link">&para;</a></h2>
+<p><strong>Files:</strong>
+- Create: <code>tests/perf/test_memory.py</code></p>
+<h3 id="step-1-write-test">Step 1: Write test<a class="headerlink" href="#step-1-write-test" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/perf/test_memory.py</span>
+<span class="sd">&quot;&quot;&quot;Real use case: no memory leaks under sustained routing load.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">routesmith</span><span class="w"> </span><span class="kn">import</span> <span class="n">RouteSmith</span>
+
+<span class="n">pytestmark</span> <span class="o">=</span> <span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skipif</span><span class="p">(</span>
+    <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;GROQ_API_KEY&quot;</span><span class="p">),</span>
+    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Requires GROQ_API_KEY.&quot;</span>
+<span class="p">)</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">slow</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_memory_leak_over_sustained_load</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Route 100 queries and verify memory doesn&#39;t grow unbounded.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tracemalloc</span>
+
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">RouteSmith</span><span class="p">()</span>
+    <span class="n">rs</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="s2">&quot;groq/llama-3.3-70b-versatile&quot;</span><span class="p">,</span>
+                      <span class="n">cost_per_1k_input</span><span class="o">=</span><span class="mf">0.00059</span><span class="p">,</span> <span class="n">cost_per_1k_output</span><span class="o">=</span><span class="mf">0.00079</span><span class="p">,</span>
+                      <span class="n">quality_score</span><span class="o">=</span><span class="mf">0.90</span><span class="p">)</span>
+    <span class="n">rs</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="s2">&quot;groq/llama-3.1-8b-instant&quot;</span><span class="p">,</span>
+                      <span class="n">cost_per_1k_input</span><span class="o">=</span><span class="mf">0.00005</span><span class="p">,</span> <span class="n">cost_per_1k_output</span><span class="o">=</span><span class="mf">0.00008</span><span class="p">,</span>
+                      <span class="n">quality_score</span><span class="o">=</span><span class="mf">0.60</span><span class="p">)</span>
+
+    <span class="n">tracemalloc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">snapshot_before</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">take_snapshot</span><span class="p">()</span>
+
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, how are you?&quot;</span><span class="p">}]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+        <span class="n">rs</span><span class="o">.</span><span class="n">completion</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="n">min_quality</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Completed </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> queries...&quot;</span><span class="p">)</span>
+
+    <span class="n">snapshot_after</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">take_snapshot</span><span class="p">()</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">snapshot_after</span><span class="o">.</span><span class="n">compare_to</span><span class="p">(</span><span class="n">snapshot_before</span><span class="p">,</span> <span class="s2">&quot;lineno&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Top memory diffs</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Top 5 memory diffs:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># RouteSmith&#39;s own memory should be reasonable</span>
+    <span class="n">current</span><span class="p">,</span> <span class="n">peak</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">get_traced_memory</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Current: </span><span class="si">{</span><span class="n">current</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">KB, Peak: </span><span class="si">{</span><span class="n">peak</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">KB&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">current</span> <span class="o">&lt;</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># &lt;100MB</span>
+    <span class="n">tracemalloc</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="step-2-commit_1">Step 2: Commit<a class="headerlink" href="#step-2-commit_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/perf/test_memory.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(perf): add memory profiling test (&lt;100MB gate)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-c3-multi-model-eval-script-100-queries">Task C3: Multi-Model Eval Script (100 Queries)<a class="headerlink" href="#task-c3-multi-model-eval-script-100-queries" title="Permanent link">&para;</a></h2>
+<p><strong>Files:</strong>
+- Create: <code>scripts/run_multi_model_eval.py</code></p>
+<h3 id="step-1-write-eval-script">Step 1: Write eval script<a class="headerlink" href="#step-1-write-eval-script" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Real use case: route 100 diverse queries across difficulty levels.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">routesmith</span><span class="w"> </span><span class="kn">import</span> <span class="n">RouteSmith</span>
+
+<span class="n">GROQ_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;GROQ_API_KEY&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">GROQ_KEY</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Set GROQ_API_KEY&quot;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Real queries at different difficulty levels</span>
+<span class="n">QUERIES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;trivial&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;What is 2+2?&quot;</span><span class="p">,</span> <span class="s2">&quot;What color is the sky?&quot;</span><span class="p">,</span> <span class="s2">&quot;What day comes after Monday?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Capital of France?&quot;</span><span class="p">,</span> <span class="s2">&quot;How many legs does a cat have?&quot;</span><span class="p">,</span> <span class="s2">&quot;What is water?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Who is Mickey Mouse?&quot;</span><span class="p">,</span> <span class="s2">&quot;What sound does a dog make?&quot;</span><span class="p">,</span> <span class="s2">&quot;1+1=?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;What is the opposite of hot?&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;simple&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Explain what a computer is in one sentence.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;What is the capital of Japan?&quot;</span><span class="p">,</span> <span class="s2">&quot;Name three fruits.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;How many hours in a day?&quot;</span><span class="p">,</span> <span class="s2">&quot;What does CPU stand for?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;List primary colors.&quot;</span><span class="p">,</span> <span class="s2">&quot;What year is it?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Define photosynthesis briefly.&quot;</span><span class="p">,</span> <span class="s2">&quot;What is JSON?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;What is the speed of light?&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;moderate&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Explain the difference between HTTP and HTTPS.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Write a haiku about programming.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Summarize the water cycle in 3 sentences.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;What is the difference between Python lists and tuples?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Explain what an API is to a non-technical person.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Compare and contrast REST and GraphQL.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Write a SQL query to find duplicate emails.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Explain how garbage collection works in Python.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;What is the CAP theorem?&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Explain OAuth 2.0 flow in simple terms.&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;complex&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Explain the transformer architecture and why it revolutionized NLP.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Compare BFS and DFS with real-world examples.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Explain how Docker containers differ from VMs at the OS level.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Write a detailed explanation of the blockchain consensus mechanism.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Explain the double-slit experiment and its implications.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Describe how TCP congestion control works.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Explain monads in functional programming with examples.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Compare ACID vs BASE database properties with use cases.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Explain how Kubernetes orchestrates containers at scale.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Describe the PageRank algorithm and its mathematical foundation.&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">MATH_QUERIES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Solve: If x = 5 and y = 3, what is x^2 + y^2?&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;What is 15</span><span class="si">% o</span><span class="s2">f 200?&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Find the derivative of x^3 + 2x^2 - 5x + 1.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;If a train travels at 60 mph for 2.5 hours, how far does it go?&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Calculate the area of a circle with radius 7.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;What is the probability of rolling a sum of 7 with two dice?&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Solve for x: 3x + 7 = 22.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;What is the median of [3, 7, 1, 9, 4, 6, 8]?&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Convert 0.75 to a fraction.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;What is the factorial of 5?&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">RouteSmith</span><span class="p">()</span>
+    <span class="n">rs</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="s2">&quot;groq/llama-3.3-70b-versatile&quot;</span><span class="p">,</span>
+                      <span class="n">cost_per_1k_input</span><span class="o">=</span><span class="mf">0.00059</span><span class="p">,</span> <span class="n">cost_per_1k_output</span><span class="o">=</span><span class="mf">0.00079</span><span class="p">,</span>
+                      <span class="n">quality_score</span><span class="o">=</span><span class="mf">0.90</span><span class="p">)</span>
+    <span class="n">rs</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="s2">&quot;groq/llama-3.1-8b-instant&quot;</span><span class="p">,</span>
+                      <span class="n">cost_per_1k_input</span><span class="o">=</span><span class="mf">0.00005</span><span class="p">,</span> <span class="n">cost_per_1k_output</span><span class="o">=</span><span class="mf">0.00008</span><span class="p">,</span>
+                      <span class="n">quality_score</span><span class="o">=</span><span class="mf">0.60</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">model_usage</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">difficulties</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">QUERIES</span><span class="p">}</span>
+    <span class="n">difficulties</span><span class="p">[</span><span class="s2">&quot;math&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">all_queries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">diff</span><span class="p">,</span> <span class="n">qs</span> <span class="ow">in</span> <span class="n">QUERIES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">:</span>
+            <span class="n">all_queries</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">diff</span><span class="p">,</span> <span class="n">q</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">MATH_QUERIES</span><span class="p">:</span>
+        <span class="n">all_queries</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="n">q</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_queries</span><span class="p">)</span><span class="si">}</span><span class="s2"> queries across </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">difficulties</span><span class="p">)</span><span class="si">}</span><span class="s2"> difficulty levels...&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">difficulty</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_queries</span><span class="p">):</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">completion</span><span class="p">(</span>
+                <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">}],</span>
+                <span class="n">min_quality</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                <span class="n">include_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">routesmith_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_selected&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+            <span class="n">cost</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">routesmith_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;estimated_cost_usd&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">model_usage</span><span class="p">[</span><span class="n">model</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">difficulties</span><span class="p">[</span><span class="n">difficulty</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">[:</span><span class="mi">50</span><span class="p">],</span>
+                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+                <span class="s2">&quot;latency_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">elapsed</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;cost_usd&quot;</span><span class="p">:</span> <span class="n">cost</span><span class="p">,</span>
+                <span class="s2">&quot;preview&quot;</span><span class="p">:</span> <span class="n">content</span><span class="p">,</span>
+            <span class="p">})</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  [</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_queries</span><span class="p">)</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">difficulty</span><span class="si">:</span><span class="s2">8s</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="n">model</span><span class="si">:</span><span class="s2">30s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s $</span><span class="si">{</span><span class="n">cost</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  [</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_queries</span><span class="p">)</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">difficulty</span><span class="si">:</span><span class="s2">8s</span><span class="si">}</span><span class="s2"> → ERROR: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">difficulties</span><span class="p">[</span><span class="n">difficulty</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">[:</span><span class="mi">50</span><span class="p">],</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)})</span>
+
+    <span class="c1"># Summary</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MULTI-MODEL ROUTING EVAL RESULTS&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Model Usage:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">model_usage</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> queries (</span><span class="si">{</span><span class="n">count</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">all_queries</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Difficulty Breakdown:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">diff</span><span class="p">,</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">difficulties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">models_used</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">success</span><span class="p">:</span>
+            <span class="n">models_used</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">avg_latency</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;latency_s&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">success</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">success</span><span class="p">)</span> <span class="k">if</span> <span class="n">success</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">diff</span><span class="si">:</span><span class="s2">8s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">success</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span><span class="si">}</span><span class="s2"> ok, avg latency </span><span class="si">{</span><span class="n">avg_latency</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;            models: </span><span class="si">{</span><span class="nb">dict</span><span class="p">(</span><span class="n">models_used</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">stats</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Cost Summary:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Total requests: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;request_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Total cost: $</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;total_cost_usd&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  By model: </span><span class="si">{</span><span class="n">stats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;by_model&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{})</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save results</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;benchmark&quot;</span><span class="p">,</span> <span class="s2">&quot;results&quot;</span><span class="p">,</span> 
+                               <span class="s2">&quot;multi_model_eval_results.json&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span>
+            <span class="s2">&quot;model_usage&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">model_usage</span><span class="p">),</span>
+            <span class="s2">&quot;difficulties&quot;</span><span class="p">:</span> <span class="n">difficulties</span><span class="p">,</span>
+            <span class="s2">&quot;stats&quot;</span><span class="p">:</span> <span class="n">stats</span><span class="p">,</span>
+        <span class="p">},</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Results saved to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="step-2-test-locally">Step 2: Test locally<a class="headerlink" href="#step-2-test-locally" title="Permanent link">&para;</a></h3>
+<p><div class="highlight"><pre><span></span><code><span class="nv">GROQ_API_KEY</span><span class="o">=</span>...<span class="w"> </span>.venv/bin/python<span class="w"> </span>scripts/run_multi_model_eval.py
+</code></pre></div>
+Expected: 110 queries pass, output shows model distribution across difficulties.</p>
+<h3 id="step-3-commit">Step 3: Commit<a class="headerlink" href="#step-3-commit" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>scripts/run_multi_model_eval.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(eval): add multi-model routing eval script with 100+ diverse queries&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-c4-extend-nightly-workflow">Task C4: Extend Nightly Workflow<a class="headerlink" href="#task-c4-extend-nightly-workflow" title="Permanent link">&para;</a></h2>
+<p><strong>Files:</strong>
+- Modify: <code>.github/workflows/nightly.yml</code></p>
+<h3 id="step-1-update-nightlyyml">Step 1: Update nightly.yml<a class="headerlink" href="#step-1-update-nightlyyml" title="Permanent link">&para;</a></h3>
+<p>Add these jobs to <code>.github/workflows/nightly.yml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">perf-test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">live-test</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra dev --extra anthropic --extra langchain</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">GROQ_API_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GROQ_API_KEY }}</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest tests/perf/ -v -s --timeout=300</span>
+
+<span class="w">  </span><span class="nt">multi-model-eval</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">live-test</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --extra dev --extra anthropic --extra langchain</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">GROQ_API_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GROQ_API_KEY }}</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python scripts/run_multi_model_eval.py</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v4</span>
+<span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always()</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">multi-model-eval-results</span>
+<span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">benchmark/results/multi_model_eval_results.json</span>
+</code></pre></div>
+<h3 id="step-2-commit_2">Step 2: Commit<a class="headerlink" href="#step-2-commit_2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/nightly.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(ci): add perf tests and multi-model eval to nightly workflow&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="uat-validation-real-use-case">UAT Validation (Real Use Case)<a class="headerlink" href="#uat-validation-real-use-case" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run against Groq</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">GROQ_API_KEY</span><span class="o">=</span>gsk_...
+
+<span class="c1"># 1. Routing latency benchmark</span>
+.venv/bin/pytest<span class="w"> </span>tests/perf/test_routing_latency.py<span class="w"> </span>-v<span class="w"> </span>-s
+<span class="c1"># Expected: P99 &lt;5ms</span>
+
+<span class="c1"># 2. Memory profiling  </span>
+.venv/bin/pytest<span class="w"> </span>tests/perf/test_memory.py<span class="w"> </span>-v<span class="w"> </span>-s
+<span class="c1"># Expected: Current memory &lt;100MB</span>
+
+<span class="c1"># 3. Multi-model eval (110 queries)</span>
+.venv/bin/python<span class="w"> </span>scripts/run_multi_model_eval.py
+<span class="c1"># Expected: Results show model distribution, no errors</span>
+
+<span class="c1"># 4. Full live tests</span>
+.venv/bin/pytest<span class="w"> </span>tests/manual/test_real_api.py<span class="w"> </span>-v
+.venv/bin/pytest<span class="w"> </span>tests/manual/test_langchain_live.py<span class="w"> </span>-v
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -42,10 +42,7 @@ class CapacityTracker:
             return True
         with self._lock:
             self._prune(time.monotonic())
-            if len(self._timestamps) >= self.max_rpm:
-                self._overflow_count += 1
-                return False
-            return True
+            return len(self._timestamps) < self.max_rpm
 
     @property
     def current_utilization(self) -> float:
@@ -73,6 +70,11 @@ class CapacityTracker:
             "utilization": self.current_utilization,
             "current_window_count": len(self._timestamps),
         }
+
+    def mark_overflow(self) -> None:
+        """Record that a request overflowed past capacity."""
+        with self._lock:
+            self._overflow_count += 1
 
     def _prune(self, now: float) -> None:
         """Remove timestamps outside the rolling window."""
