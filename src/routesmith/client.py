@@ -16,7 +16,10 @@ from litellm import ModelResponse
 from routesmith.config import RouteContext, RouteSmithConfig, RoutingStrategy
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry
+from routesmith.strategy.circuit_breaker import CircuitBreaker
 from routesmith.strategy.router import Router
+from routesmith.utils.logging import RouteSmithLogger, setup_logger
+from routesmith.utils.retry import RetryExhaustedError, retry_with_backoff
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +80,12 @@ class RouteSmith:
         self._total_cost = 0.0
         self._counterfactual_cost = 0.0  # Cost if always used most expensive model
         self._last_routing_metadata: RoutingMetadata | None = None
+
+        # Resilience: circuit breakers per model, structured logging
+        self._circuit_breakers: dict[str, CircuitBreaker] = {}
+        self._log: RouteSmithLogger = RouteSmithLogger(
+            setup_logger("routesmith", json_format=True)
+        )
 
         # Resolve reward_fn from config (fail fast on bad expressions).
         self._reward_fn: Callable[..., float] | None = None
@@ -274,14 +283,53 @@ class RouteSmith:
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
 
-        # Execute completion via LiteLLM
-        try:
-            response = litellm.completion(
-                model=selected_model,
-                messages=messages,
-                **{**self.config.litellm_params, **kwargs},
+        # Execute completion via LiteLLM with circuit breaker and retry
+        breaker = self._circuit_breakers.get(selected_model)
+        if breaker is None:
+            breaker = CircuitBreaker(selected_model)
+            self._circuit_breakers[selected_model] = breaker
+
+        if not breaker.allow_request():
+            from routesmith.exceptions import CircuitOpenError
+            self._log.warning(
+                "circuit_open", model_id=selected_model,
+                request_id=request_id,
             )
+            raise CircuitOpenError(
+                selected_model, retry_after=breaker.retry_after_seconds()
+            )
+
+        try:
+            response = retry_with_backoff(
+                lambda: litellm.completion(
+                    model=selected_model,
+                    messages=messages,
+                    **{**self.config.litellm_params, **kwargs},
+                ),
+                max_retries=2,
+                base_delay=1.0,
+            )
+            breaker.record_success()
+            self._log.info(
+                "llm_call_success", model_id=selected_model,
+                request_id=request_id,
+            )
+        except RetryExhaustedError as e:
+            breaker.record_failure()
+            self._log.error(
+                "llm_call_exhausted", model_id=selected_model,
+                request_id=request_id,
+            )
+            self.feedback.record_outcome(
+                request_id=request_id, success=False, feedback=str(e)
+            )
+            raise
         except Exception as e:
+            breaker.record_failure()
+            self._log.error(
+                "llm_call_failed", model_id=selected_model,
+                request_id=request_id,
+            )
             self.feedback.record_outcome(
                 request_id=request_id, success=False, feedback=str(e)
             )
