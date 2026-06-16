@@ -298,3 +298,20 @@ class RequestHandler:
             "status": "healthy",
             "registered_models": len(self.routesmith.registry),
         }
+
+    async def handle_liveness(self) -> dict[str, Any]:
+        """
+        Return liveness probe response.
+        Returns status 'alive' if the process is running.
+        """
+        return {"status": "alive"}
+
+    async def handle_readiness(self) -> dict[str, Any]:
+        """
+        Return readiness probe response.
+        Returns status 'ready' only when models are registered.
+        """
+        models = self.routesmith.registry.list_models()
+        if not models:
+            return {"status": "not_ready", "reason": "no models registered"}
+        return {"status": "ready", "models": len(models)}
