@@ -67,9 +67,8 @@ routesmith_stats.db
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-logs/
+# Documentation build output
+site/
 
 # Worktree directories
 .worktrees/
