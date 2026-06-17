@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+
 from benchmark.config import RESULTS_DIR
 
 

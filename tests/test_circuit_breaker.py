@@ -1,6 +1,6 @@
 """Real use case: circuit breakers protect against cascading failures."""
 import time
-import pytest
+
 from routesmith.strategy.circuit_breaker import CircuitBreaker, CircuitState
 
 

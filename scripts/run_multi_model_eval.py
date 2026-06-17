@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Real use case: route 110 diverse queries across difficulty levels with Groq."""
+import json
 import os
 import sys
-import json
 import time
 from collections import defaultdict
+
 from routesmith import RouteSmith
 
 GROQ_KEY = os.getenv("GROQ_API_KEY")
@@ -118,11 +119,11 @@ def main():
     print("\n" + "=" * 70)
     print("MULTI-MODEL ROUTING EVAL RESULTS")
     print("=" * 70)
-    print(f"\nModel Usage:")
+    print("\nModel Usage:")
     for model, count in sorted(model_usage.items(), key=lambda x: -x[1]):
         print(f"  {model}: {count} queries ({count/len(all_queries)*100:.1f}%)")
 
-    print(f"\nDifficulty Breakdown:")
+    print("\nDifficulty Breakdown:")
     for diff, items in difficulties.items():
         success = [i for i in items if "error" not in i]
         models_used = defaultdict(int)
@@ -133,7 +134,7 @@ def main():
         print(f"            models: {dict(models_used)}")
 
     stats = rs.stats
-    print(f"\nCost Summary:")
+    print("\nCost Summary:")
     print(f"  Total requests: {stats['request_count']}")
     print(f"  Total cost: ${stats['total_cost_usd']:.6f}")
     print(f"  By model: {stats.get('by_model', {})}")

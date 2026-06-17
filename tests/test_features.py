@@ -6,7 +6,7 @@ import time
 import pytest
 
 from routesmith.config import RouteContext
-from routesmith.predictor.features import FeatureExtractor, FeatureVector
+from routesmith.predictor.features import FeatureExtractor
 from routesmith.registry.models import ModelRegistry
 
 

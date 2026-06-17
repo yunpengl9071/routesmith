@@ -7,10 +7,8 @@ Two arms: arm 0 = weak model, arm 1 = strong model.
 """
 from __future__ import annotations
 
-import sys
 import pathlib
-
-import numpy as np
+import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent / "src"))
 

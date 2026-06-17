@@ -1,8 +1,8 @@
 # tests/test_dataset.py
 """Tests for dataset loading (uses cached data or mocks HF)."""
 from __future__ import annotations
+
 import json
-import pytest
 
 
 def test_extract_answer_direct():

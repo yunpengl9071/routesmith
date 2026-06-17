@@ -1,18 +1,22 @@
 """Tests for proxy server components."""
 
 import json
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
 
 from routesmith import RouteSmith
-from routesmith.config import RouteContext
-from routesmith.proxy.handler import RequestHandler, ChatCompletionRequest, extract_route_context_from_headers
+from routesmith.proxy.handler import (
+    ChatCompletionRequest,
+    RequestHandler,
+    extract_route_context_from_headers,
+)
 from routesmith.proxy.responses import (
     format_chat_completion,
-    format_stream_chunk,
-    format_stream_done,
     format_error,
     format_models_list,
+    format_stream_chunk,
+    format_stream_done,
 )
 
 
@@ -212,7 +216,7 @@ class TestRequestHandler:
             model="gpt-4o",  # Explicit model
             messages=[{"role": "user", "content": "Hello"}],
         )
-        result = await handler.handle_completion(request)
+        await handler.handle_completion(request)
 
         # Explicit model should be used
         call_args = mock_litellm.acompletion.call_args

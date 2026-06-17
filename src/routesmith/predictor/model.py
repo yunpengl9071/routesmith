@@ -33,8 +33,8 @@ class QualityModel:
             features: List of feature vectors (each a list of floats).
             targets: Continuous quality targets in [0, 1].
         """
-        RFR = self._get_rf_class()
-        self._model = RFR(
+        rf_cls = self._get_rf_class()
+        self._model = rf_cls(
             n_estimators=self._n_estimators,
             max_depth=8,
             min_samples_leaf=5,
@@ -62,10 +62,10 @@ class QualityModel:
 
         import numpy as np
 
-        X = np.array([feature_vector.features])
+        x_arr = np.array([feature_vector.features])
         # Get individual tree predictions for confidence
         tree_preds = np.array([
-            tree.predict(X)[0] for tree in self._model.estimators_
+            tree.predict(x_arr)[0] for tree in self._model.estimators_
         ])
         predicted = float(np.mean(tree_preds))
         std = float(np.std(tree_preds))

@@ -1,9 +1,10 @@
 """Tests for RouteSmith client, cost tracking, and metadata."""
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
-from routesmith import RouteSmith, RouteSmithConfig, RoutingStrategy, RoutingMetadata
-from routesmith.config import RouteSmithConfig
+
+from routesmith import RouteSmith, RouteSmithConfig, RoutingMetadata, RoutingStrategy
 
 
 class TestRoutingMetadata:

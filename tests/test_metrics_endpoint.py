@@ -1,5 +1,6 @@
 """Real use case: Prometheus metrics expose all routing data."""
 from prometheus_client import CollectorRegistry
+
 from routesmith.proxy.metrics import init_metrics
 
 
@@ -31,5 +32,5 @@ class TestMetricsRegistration:
 
     def test_metrics_registry_is_singleton(self):
         reg1 = init_metrics()
-        reg2 = init_metrics()
+        assert init_metrics() is not None
         assert reg1 is not None

@@ -223,7 +223,7 @@ class SemanticCache:
         """
         query_hash = self._hash_messages(messages)
         if query_hash in self._exact_cache:
-            entry = self._exact_cache.pop(query_hash)
+            self._exact_cache.pop(query_hash)
             self._semantic_entries = [
                 e for e in self._semantic_entries if e.query_hash != query_hash
             ]

@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import sys
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from routesmith import RouteSmith, RouteSmithConfig
 from routesmith.integrations.dspy import RouteSmithLM
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -45,8 +44,9 @@ def _make_rs_with_mock(text="Mocked answer"):
 class TestRoutesmithLmFactory:
     def test_raises_import_error_when_dspy_missing(self):
         with patch.dict(sys.modules, {"dspy": None}):
-            from routesmith.integrations import dspy as rs_dspy
             import importlib
+
+            from routesmith.integrations import dspy as rs_dspy
             importlib.reload(rs_dspy)
 
             with pytest.raises(ImportError, match="dspy-ai"):
@@ -142,7 +142,7 @@ class TestRouteSmithLMCallPrompt:
         rs = _make_rs_with_mock("4")
         lm = RouteSmithLM(routesmith=rs)
 
-        result = lm("What is 2+2?")
+        lm("What is 2+2?")
 
         call_kwargs = rs.completion.call_args[1]
         assert call_kwargs["messages"] == [{"role": "user", "content": "What is 2+2?"}]

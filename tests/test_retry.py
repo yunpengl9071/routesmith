@@ -1,7 +1,9 @@
 """Real use case: retry with backoff handles transient failures."""
 import time
+
 import pytest
-from routesmith.utils.retry import retry_with_backoff, RetryExhaustedError
+
+from routesmith.utils.retry import RetryExhaustedError, retry_with_backoff
 
 
 class TestRetryWithBackoff:

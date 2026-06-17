@@ -1,6 +1,6 @@
 """Prometheus metrics for RouteSmith."""
-from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry, REGISTRY
-from typing import Optional
+
+from prometheus_client import REGISTRY, CollectorRegistry, Counter, Gauge, Histogram
 
 ROUTING_REQUESTS: Counter
 ROUTING_LATENCY: Histogram
@@ -8,7 +8,7 @@ COST_USD: Counter
 CACHE_HITS: Counter
 ACTIVE_CIRCUITS: Gauge
 
-def init_metrics(registry: Optional[CollectorRegistry] = None) -> CollectorRegistry:
+def init_metrics(registry: CollectorRegistry | None = None) -> CollectorRegistry:
     global ROUTING_REQUESTS, ROUTING_LATENCY, COST_USD, CACHE_HITS, ACTIVE_CIRCUITS
     if registry is None:
         registry = REGISTRY

@@ -7,17 +7,20 @@ Each phase can run independently — results save incrementally.
 from __future__ import annotations
 
 import json
-from benchmark.config import (
-    MMLU_CACHE, GSM8K_CACHE, RESULTS_DIR, SEEDS, STRONG_MODEL
-)
-from benchmark.dataset import load_mmlu_sample, load_gsm8k_sample
+
+from benchmark.config import GSM8K_CACHE, MMLU_CACHE, RESULTS_DIR, SEEDS, STRONG_MODEL
+from benchmark.dataset import load_gsm8k_sample, load_mmlu_sample
 from benchmark.harness import run_experiment
-from benchmark.metrics import accuracy, total_cost, performance_gap_recovery, strong_usage_pct
-from benchmark.strategies.static import StaticStrongStrategy, StaticWeakStrategy, RandomRouterStrategy
-from benchmark.strategies.routellm_sw import RouteLLMSWStrategy
-from benchmark.strategies.ts_cat import TSCatStrategy
-from benchmark.strategies.linucb import LinUCBStrategy
+from benchmark.metrics import accuracy, performance_gap_recovery, strong_usage_pct, total_cost
 from benchmark.strategies.lints import LinTSStrategy
+from benchmark.strategies.linucb import LinUCBStrategy
+from benchmark.strategies.routellm_sw import RouteLLMSWStrategy
+from benchmark.strategies.static import (
+    RandomRouterStrategy,
+    StaticStrongStrategy,
+    StaticWeakStrategy,
+)
+from benchmark.strategies.ts_cat import TSCatStrategy
 
 THRESHOLDS_SW = [0.3, 0.5, 0.7]
 

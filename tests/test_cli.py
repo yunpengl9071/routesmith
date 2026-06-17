@@ -1,7 +1,8 @@
 """Tests for CLI commands."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from routesmith.cli.main import main
 from routesmith.cli.stats import print_stats_table
@@ -76,8 +77,9 @@ class TestStatsCommand:
         }
         mock_httpx.get.return_value = mock_response
 
-        from routesmith.cli.stats import run_stats
         from argparse import Namespace
+
+        from routesmith.cli.stats import run_stats
 
         args = Namespace(server="http://localhost:9119", json=True)
         result = run_stats(args)
@@ -101,8 +103,9 @@ class TestStatsCommand:
         }
         mock_httpx.get.return_value = mock_response
 
-        from routesmith.cli.stats import run_stats
         from argparse import Namespace
+
+        from routesmith.cli.stats import run_stats
 
         args = Namespace(server="http://localhost:9119", json=False)
         result = run_stats(args)
@@ -121,8 +124,9 @@ class TestStatsCommand:
         mock_httpx.ConnectError = httpx.ConnectError
         mock_httpx.HTTPError = httpx.HTTPError
 
-        from routesmith.cli.stats import run_stats
         from argparse import Namespace
+
+        from routesmith.cli.stats import run_stats
 
         args = Namespace(server="http://localhost:9119", json=False)
         result = run_stats(args)

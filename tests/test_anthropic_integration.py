@@ -4,17 +4,16 @@ from __future__ import annotations
 
 import json
 from argparse import Namespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
+from routesmith import RouteSmith
 from routesmith.integrations.anthropic import (
     RouteSmithAnthropic,
     _anthropic_to_openai_messages,
     _litellm_to_anthropic_message,
 )
-from routesmith import RouteSmith, RouteSmithConfig
-
 
 # ---------------------------------------------------------------------------
 # _anthropic_to_openai_messages

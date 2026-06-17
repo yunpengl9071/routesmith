@@ -3,16 +3,15 @@
 from __future__ import annotations
 
 import sys
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from routesmith.integrations.autogen import (
-    routesmith_config_list,
-    routesmith_autogen_llm_config,
     routesmith_autogen_agents,
+    routesmith_autogen_llm_config,
+    routesmith_config_list,
 )
-
 
 # ---------------------------------------------------------------------------
 # routesmith_config_list
@@ -253,7 +252,7 @@ class TestRoutesmithAutogenAgents:
 
     def test_fallback_to_autogen_agentchat(self):
         """When 'autogen' is missing, should try autogen_agentchat.agents."""
-        mock_ag = _make_mock_autogen()
+        _make_mock_autogen()
         mock_agents_module = MagicMock()
         mock_agents_module.AssistantAgent.side_effect = lambda **kw: _FakeAssistantAgent(**kw)
         mock_agents_module.UserProxyAgent.side_effect = lambda **kw: _FakeUserProxyAgent(**kw)

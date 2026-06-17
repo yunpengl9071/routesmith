@@ -13,7 +13,13 @@ from typing import Any
 import litellm
 from litellm import ModelResponse
 
-from routesmith.config import RouteContext, RouteSmithConfig, RoutingStrategy
+from routesmith.config import (
+    BudgetBehavior,
+    RouteContext,
+    RouteSmithConfig,
+    RoutingStrategy,
+)
+from routesmith.exceptions import BudgetExceededError
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry
 from routesmith.strategy.circuit_breaker import CircuitBreaker
@@ -62,6 +68,7 @@ class RouteSmith:
         self,
         config: RouteSmithConfig | None = None,
         registry: ModelRegistry | None = None,
+        project: str | None = None,
     ) -> None:
         """
         Initialize RouteSmith.
@@ -69,9 +76,11 @@ class RouteSmith:
         Args:
             config: Configuration for routing behavior, caching, and budget.
             registry: Pre-configured model registry. If None, creates empty registry.
+            project: Project name for per-project cost isolation and stats.
         """
         self.config = config or RouteSmithConfig()
         self.registry = registry or ModelRegistry()
+        self.project = project
         self.feedback = FeedbackCollector(self.config, registry=self.registry)
         self.router = Router(
             self.config, self.registry, storage=self.feedback._storage
@@ -80,6 +89,12 @@ class RouteSmith:
         self._total_cost = 0.0
         self._counterfactual_cost = 0.0  # Cost if always used most expensive model
         self._last_routing_metadata: RoutingMetadata | None = None
+        self._budget_events: dict[str, int] = {
+            "failures": 0,
+            "fallbacks": 0,
+            "queued": 0,
+        }
+        self._cost_model_counts: dict[str, dict[str, float]] = {}
 
         # Resilience: circuit breakers per model, structured logging
         self._circuit_breakers: dict[str, CircuitBreaker] = {}
@@ -111,6 +126,41 @@ class RouteSmith:
                     predictor.load_state(blob)
                 except Exception:
                     pass  # corrupt or incompatible state; cold start
+
+    @classmethod
+    def with_free_models(cls) -> RouteSmith:
+        """Create a RouteSmith instance pre-configured with the best free models.
+
+        Designed for the "get paid-model quality from free models" use case.
+        Registers free-tier models from OpenRouter with zero cost and
+        quality scores estimated from public benchmarks.
+        """
+        rs = cls()
+
+        # Best free models available on OpenRouter (as of June 2026).
+        # Quality scores are rough estimates from public benchmarks.
+        free_models: list[tuple[str, float]] = [
+            ("google/gemini-2.5-flash", 0.82),
+            ("meta-llama/llama-3.3-70b-instruct:free", 0.78),
+            ("qwen/qwen3-coder:free", 0.76),
+            ("google/gemma-4-26b-a4b-it:free", 0.72),
+            ("google/gemma-4-31b-it:free", 0.74),
+            ("mistralai/ministral-3b-2512", 0.55),
+            ("mistralai/ministral-8b-2512", 0.62),
+            ("nvidia/nemotron-3-nano-30b-a3b:free", 0.68),
+            ("nvidia/nemotron-3-super-120b-a12b:free", 0.80),
+            ("openai/gpt-oss-20b:free", 0.70),
+        ]
+
+        for model_id, quality in free_models:
+            rs.register_model(
+                model_id,
+                cost_per_1k_input=0.0,
+                cost_per_1k_output=0.0,
+                quality_score=quality,
+            )
+
+        return rs
 
     @staticmethod
     def _has_image_content(message: dict[str, Any]) -> bool:
@@ -214,6 +264,7 @@ class RouteSmith:
         min_quality: float | None = None,
         include_metadata: bool = False,
         context: RouteContext | None = None,
+        required_compliance: set[str] | None = None,
         **kwargs: Any,
     ) -> ModelResponse:
         """
@@ -226,6 +277,7 @@ class RouteSmith:
             max_cost: Maximum cost constraint for this request (USD).
             min_quality: Minimum quality threshold for this request (0-1).
             include_metadata: If True, attach routesmith_metadata to response.
+            required_compliance: Required compliance tags (e.g., {"hipaa", "soc2"}).
             **kwargs: Additional arguments passed to litellm.completion().
 
         Returns:
@@ -263,10 +315,44 @@ class RouteSmith:
         # Auto-detect required capabilities
         required_capabilities = self._detect_required_capabilities(messages, kwargs)
 
+        # Budget enforcement
+        budget = self.config.budget
+        over_budget = (budget.max_cost_per_day is not None and self._total_cost >= budget.max_cost_per_day)
+
+        if over_budget:
+            if self.config.budget_behavior == BudgetBehavior.FAIL:
+                self._budget_events["failures"] += 1
+                raise BudgetExceededError(
+                    "Budget exceeded.",
+                    current_spend=self._total_cost,
+                    limit=budget.max_cost_per_day or 0.0,
+                )
+            elif self.config.budget_behavior == BudgetBehavior.QUEUE:
+                self._budget_events["queued"] += 1
+                raise BudgetExceededError(
+                    "Budget exceeded. Use acompletion() with QUEUE behavior for async queueing.",
+                    current_spend=self._total_cost,
+                    limit=budget.max_cost_per_day or 0.0,
+                )
+            # FALLBACK: handled below — select cheapest model
+
         # If specific model requested, skip routing
         if model:
             selected_model = model
             routing_reason = "explicit model specified"
+        elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
+            # FALLBACK: use cheapest model regardless of quality
+            self._budget_events["fallbacks"] += 1
+            cheapest = self.registry.get_cheapest()
+            if cheapest:
+                selected_model = cheapest.model_id
+                routing_reason = f"budget exhausted, fallback to {cheapest.model_id}"
+            else:
+                raise BudgetExceededError(
+                    "Budget exceeded and no fallback model available.",
+                    current_spend=self._total_cost,
+                    limit=budget.max_cost_per_day or 0.0,
+                )
         else:
             # Route to optimal model
             selected_model = self.router.route(
@@ -275,6 +361,7 @@ class RouteSmith:
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
                 required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
                 context=context,
             )
             routing_reason = self._get_routing_reason(
@@ -347,6 +434,13 @@ class RouteSmith:
                     + (response.usage.completion_tokens / 1000) * model_config.cost_per_1k_output
                 )
                 self._total_cost += actual_cost
+
+                # Track per-cost-model usage
+                cm = model_config.cost_model.value
+                if cm not in self._cost_model_counts:
+                    self._cost_model_counts[cm] = {"request_count": 0.0, "total_cost": 0.0}
+                self._cost_model_counts[cm]["request_count"] += 1
+                self._cost_model_counts[cm]["total_cost"] += actual_cost
 
             # Calculate counterfactual cost (what would most expensive model cost?)
             most_expensive = self.registry.get_best_quality()
@@ -439,6 +533,7 @@ class RouteSmith:
         min_quality: float | None = None,
         include_metadata: bool = False,
         context: RouteContext | None = None,
+        required_compliance: set[str] | None = None,
         **kwargs: Any,
     ) -> ModelResponse:
         """
@@ -452,6 +547,7 @@ class RouteSmith:
             min_quality: Minimum quality threshold for this request (0-1).
             include_metadata: If True, attach routesmith_metadata to response.
             context: Optional routing context (agent_id, agent_role, etc.).
+            required_compliance: Required compliance tags (e.g., {"hipaa", "soc2"}).
             **kwargs: Additional arguments passed to litellm.acompletion().
 
         Returns:
@@ -484,6 +580,27 @@ class RouteSmith:
         # Auto-detect required capabilities
         required_capabilities = self._detect_required_capabilities(messages, kwargs)
 
+        # Budget enforcement
+        budget = self.config.budget
+        over_budget = (budget.max_cost_per_day is not None and self._total_cost >= budget.max_cost_per_day)
+
+        if over_budget:
+            if self.config.budget_behavior == BudgetBehavior.FAIL:
+                self._budget_events["failures"] += 1
+                raise BudgetExceededError(
+                    "Budget exceeded.",
+                    current_spend=self._total_cost,
+                    limit=budget.max_cost_per_day or 0.0,
+                )
+            elif self.config.budget_behavior == BudgetBehavior.QUEUE:
+                self._budget_events["queued"] += 1
+                raise BudgetExceededError(
+                    "Budget exceeded. Use acompletion() with QUEUE behavior for async queueing.",
+                    current_spend=self._total_cost,
+                    limit=budget.max_cost_per_day or 0.0,
+                )
+            # FALLBACK: handled below
+
         # Determine routing strategy
         effective_strategy = strategy or self.config.default_strategy
         routing_reason = ""
@@ -493,6 +610,18 @@ class RouteSmith:
         if model:
             selected_model = model
             routing_reason = "explicit model specified"
+        elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
+            self._budget_events["fallbacks"] += 1
+            cheapest = self.registry.get_cheapest()
+            if cheapest:
+                selected_model = cheapest.model_id
+                routing_reason = f"budget exhausted, fallback to {cheapest.model_id}"
+            else:
+                raise BudgetExceededError(
+                    "Budget exceeded and no fallback model available.",
+                    current_spend=self._total_cost,
+                    limit=budget.max_cost_per_day or 0.0,
+                )
         else:
             # Route to optimal model
             selected_model = self.router.route(
@@ -501,6 +630,7 @@ class RouteSmith:
                 max_cost=max_cost,
                 min_quality=min_quality or self.config.budget.quality_threshold,
                 required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
                 context=context,
             )
             routing_reason = self._get_routing_reason(
@@ -534,6 +664,13 @@ class RouteSmith:
                     + (response.usage.completion_tokens / 1000) * model_config.cost_per_1k_output
                 )
                 self._total_cost += actual_cost
+
+                # Track per-cost-model usage
+                cm = model_config.cost_model.value
+                if cm not in self._cost_model_counts:
+                    self._cost_model_counts[cm] = {"request_count": 0.0, "total_cost": 0.0}
+                self._cost_model_counts[cm]["request_count"] += 1
+                self._cost_model_counts[cm]["total_cost"] += actual_cost
 
             # Calculate counterfactual cost
             most_expensive = self.registry.get_best_quality()
@@ -595,6 +732,7 @@ class RouteSmith:
         messages: list[dict[str, str]],
         model: str | None = None,
         strategy: RoutingStrategy | None = None,
+        required_compliance: set[str] | None = None,
         **kwargs: Any,
     ) -> Iterator[Any]:
         """
@@ -604,6 +742,7 @@ class RouteSmith:
             messages: List of message dicts.
             model: Specific model to use.
             strategy: Override default routing strategy.
+            required_compliance: Required compliance tags.
             **kwargs: Additional arguments passed to litellm.completion().
 
         Yields:
@@ -616,6 +755,7 @@ class RouteSmith:
             selected_model = self.router.route(
                 messages=messages,
                 strategy=effective_strategy,
+                required_compliance=required_compliance,
             )
 
         yield from litellm.completion(
@@ -630,6 +770,7 @@ class RouteSmith:
         messages: list[dict[str, str]],
         model: str | None = None,
         strategy: RoutingStrategy | None = None,
+        required_compliance: set[str] | None = None,
         **kwargs: Any,
     ) -> AsyncIterator[Any]:
         """
@@ -639,6 +780,7 @@ class RouteSmith:
             messages: List of message dicts.
             model: Specific model to use.
             strategy: Override default routing strategy.
+            required_compliance: Required compliance tags.
             **kwargs: Additional arguments passed to litellm.acompletion().
 
         Yields:
@@ -651,6 +793,7 @@ class RouteSmith:
             selected_model = self.router.route(
                 messages=messages,
                 strategy=effective_strategy,
+                required_compliance=required_compliance,
             )
 
         async for chunk in await litellm.acompletion(
@@ -692,6 +835,10 @@ class RouteSmith:
             "savings_percent": round(savings_percent, 1),
             "registered_models": len(self.registry),
             "feedback_samples": len(self.feedback),
+            "project": self.project,
+            "budget_events": dict(self._budget_events),
+            "by_cost_model": self._by_cost_model_stats(),
+            "provisioned_utilization": self._provisioned_utilization_stats(),
         }
 
         if self._last_routing_metadata:
@@ -703,6 +850,20 @@ class RouteSmith:
     def last_routing_metadata(self) -> RoutingMetadata | None:
         """Get metadata from the last routing decision."""
         return self._last_routing_metadata
+
+    def _by_cost_model_stats(self) -> dict[str, dict[str, float]]:
+        """Aggregate per-cost-model request counts and costs."""
+        return dict(self._cost_model_counts)
+
+    def _provisioned_utilization_stats(self) -> dict[str, float]:
+        """Get utilization per provisioned model."""
+        result: dict[str, float] = {}
+        for model in self.registry.list_models():
+            if model.cost_model.value == "provisioned":
+                tracker = self.registry.get_capacity_tracker(model.model_id)
+                if tracker:
+                    result[model.model_id] = tracker.current_utilization
+        return result
 
     def record_outcome(
         self,
@@ -863,4 +1024,5 @@ class RouteSmith:
         self._request_count = 0
         self._total_cost = 0.0
         self._counterfactual_cost = 0.0
+        self._cost_model_counts = {}
         self._last_routing_metadata = None

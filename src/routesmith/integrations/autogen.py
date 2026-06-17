@@ -121,7 +121,10 @@ def routesmith_autogen_agents(
         from autogen import AssistantAgent, UserProxyAgent
     except ImportError:
         try:
-            from autogen_agentchat.agents import AssistantAgent, UserProxyAgent  # type: ignore[no-redef]
+            from autogen_agentchat.agents import (  # type: ignore[no-redef]
+                AssistantAgent,
+                UserProxyAgent,
+            )
         except ImportError as e:
             raise ImportError(
                 "AutoGen integration requires pyautogen or autogen-agentchat. "

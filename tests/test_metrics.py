@@ -1,5 +1,6 @@
 """Unit tests for metrics computation — no API calls needed."""
 from __future__ import annotations
+
 import pytest
 
 

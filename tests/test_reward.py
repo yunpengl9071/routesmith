@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
@@ -207,7 +207,10 @@ class TestRouteSmithConfigRewardFields:
 
     def test_reward_fn_accepts_callable(self):
         from routesmith import RouteSmithConfig
-        fn = lambda ctx: ctx["quality"]
+
+        def fn(ctx):
+            return ctx["quality"]
+
         assert RouteSmithConfig(reward_fn=fn).reward_fn is fn
 
     def test_reward_expr_accepts_string(self):
@@ -217,7 +220,10 @@ class TestRouteSmithConfigRewardFields:
 
     def test_with_cache_preserves_reward_fn(self):
         from routesmith import RouteSmithConfig
-        fn = lambda ctx: ctx["quality"]
+
+        def fn(ctx):
+            return ctx["quality"]
+
         assert RouteSmithConfig(reward_fn=fn).with_cache(enabled=True).reward_fn is fn
 
     def test_with_budget_preserves_reward_expr(self):
@@ -397,9 +403,6 @@ class TestYamlLoaderReward:
             os.unlink(path)
 
 
-from unittest.mock import patch
-
-
 def _make_client(config=None):
     from routesmith import RouteSmith, RouteSmithConfig
     cfg = config or RouteSmithConfig()
@@ -413,8 +416,9 @@ def _make_client(config=None):
 
 
 def _insert_record(rs, request_id="req-001"):
-    from routesmith.feedback.collector import FeedbackRecord
     import time
+
+    from routesmith.feedback.collector import FeedbackRecord
     fake_response = MagicMock()
     fake_response.usage.prompt_tokens = 100
     fake_response.usage.completion_tokens = 50
@@ -437,7 +441,10 @@ class TestClientRewardFn:
 
     def test_reward_fn_callable_stored(self):
         from routesmith import RouteSmith, RouteSmithConfig
-        fn = lambda ctx: ctx["quality"]
+
+        def fn(ctx):
+            return ctx["quality"]
+
         rs = RouteSmith(config=RouteSmithConfig(reward_fn=fn))
         assert rs._reward_fn is fn
 

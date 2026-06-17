@@ -7,20 +7,24 @@ RouteLLM-SW is excluded (binary-only architecture).
 from __future__ import annotations
 
 import json
+import pathlib
+import sys
 import time
 from pathlib import Path
 
-import numpy as np
-
 from benchmark.config import (
-    MULTI_ARMS, OPENROUTER_API_KEY, OPENROUTER_BASE_URL,
-    RESULTS_DIR, RATE_LIMIT_S, MAX_TOKENS_MCQ, cost_usd, MMLU_CACHE
+    MAX_TOKENS_MCQ,
+    MMLU_CACHE,
+    MULTI_ARMS,
+    OPENROUTER_API_KEY,
+    OPENROUTER_BASE_URL,
+    RATE_LIMIT_S,
+    RESULTS_DIR,
+    cost_usd,
 )
-from benchmark.dataset import load_mmlu_sample, extract_answer
+from benchmark.dataset import extract_answer, load_mmlu_sample
 from benchmark.strategies.linucb import _build_feature_vector
 
-import sys
-import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent / "src"))
 from routesmith.predictor.lints import LinTSRouter
 
