@@ -22,7 +22,7 @@ config file. Then start the proxy:
 routesmith serve --config routesmith.yaml
 ```
 
-The proxy starts at `http://localhost:8787/v1` and speaks the OpenAI-compatible
+The proxy starts at `http://localhost:9119/v1` and speaks the OpenAI-compatible
 format that OpenClaw already understands.
 
 ## Configure OpenClaw
@@ -60,11 +60,11 @@ Check that everything is connected:
 
 ```bash
 # Proxy health
-curl http://localhost:8787/health
+curl http://localhost:9119/health
 # → {"status": "ok"}
 
 # Test a completion through the proxy
-curl http://localhost:8787/v1/chat/completions \
+curl http://localhost:9119/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "auto",
@@ -95,7 +95,7 @@ Monitor spending after a session:
 routesmith stats
 ```
 
-The proxy also exposes live stats at `GET http://localhost:8787/v1/stats`
+The proxy also exposes live stats at `GET http://localhost:9119/v1/stats`
 and tracks cost per model, savings percentage, and budget events.
 
 ### Semantic Cache
