@@ -34,6 +34,11 @@ nav:
       - DSPy: integrations/dspy.md
       - CrewAI: integrations/crewai.md
       - AutoGen: integrations/autogen.md
+      - OpenClaw: integrations/openclaw.md
+      - Claude Code: integrations/claude-code.md
+      - Codex: integrations/codex.md
+      - pi: integrations/pi.md
+      - OpenCode: integrations/opencode.md
   - Deployment:
       - Docker: deployment/docker.md
   - Migration: migration/litellm.md
