@@ -127,6 +127,41 @@ class RouteSmith:
                 except Exception:
                     pass  # corrupt or incompatible state; cold start
 
+    @classmethod
+    def with_free_models(cls) -> "RouteSmith":
+        """Create a RouteSmith instance pre-configured with the best free models.
+
+        Designed for the "get paid-model quality from free models" use case.
+        Registers free-tier models from OpenRouter with zero cost and
+        quality scores estimated from public benchmarks.
+        """
+        rs = cls()
+
+        # Best free models available on OpenRouter (as of June 2026).
+        # Quality scores are rough estimates from public benchmarks.
+        free_models: list[tuple[str, float]] = [
+            ("google/gemini-2.5-flash", 0.82),
+            ("meta-llama/llama-3.3-70b-instruct:free", 0.78),
+            ("qwen/qwen3-coder:free", 0.76),
+            ("google/gemma-4-26b-a4b-it:free", 0.72),
+            ("google/gemma-4-31b-it:free", 0.74),
+            ("mistralai/ministral-3b-2512", 0.55),
+            ("mistralai/ministral-8b-2512", 0.62),
+            ("nvidia/nemotron-3-nano-30b-a3b:free", 0.68),
+            ("nvidia/nemotron-3-super-120b-a12b:free", 0.80),
+            ("openai/gpt-oss-20b:free", 0.70),
+        ]
+
+        for model_id, quality in free_models:
+            rs.register_model(
+                model_id,
+                cost_per_1k_input=0.0,
+                cost_per_1k_output=0.0,
+                quality_score=quality,
+            )
+
+        return rs
+
     @staticmethod
     def _has_image_content(message: dict[str, Any]) -> bool:
         """Check if a message contains image content."""
