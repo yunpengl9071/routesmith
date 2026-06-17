@@ -1,6 +1,5 @@
 """Tests for RouteSmith.with_free_models() factory preset."""
 
-import pytest
 
 from routesmith import RouteSmith
 

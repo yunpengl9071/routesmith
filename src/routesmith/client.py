@@ -128,7 +128,7 @@ class RouteSmith:
                     pass  # corrupt or incompatible state; cold start
 
     @classmethod
-    def with_free_models(cls) -> "RouteSmith":
+    def with_free_models(cls) -> RouteSmith:
         """Create a RouteSmith instance pre-configured with the best free models.
 
         Designed for the "get paid-model quality from free models" use case.

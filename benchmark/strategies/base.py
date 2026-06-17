@@ -7,8 +7,9 @@ import time
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from benchmark.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, RATE_LIMIT_S
 from openai import OpenAI
+
+from benchmark.config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, RATE_LIMIT_S
 
 _client: OpenAI | None = None
 

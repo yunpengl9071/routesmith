@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import random
 
-from benchmark.config import STRONG_MODEL, WEAK_MODEL, cost_usd, MAX_TOKENS_MCQ, MAX_TOKENS_MATH
-from benchmark.dataset import extract_answer, extract_gsm8k_answer, evaluate_mbpp_code
+from benchmark.config import MAX_TOKENS_MATH, MAX_TOKENS_MCQ, STRONG_MODEL, WEAK_MODEL, cost_usd
+from benchmark.dataset import evaluate_mbpp_code, extract_answer, extract_gsm8k_answer
 from benchmark.strategies.base import BaseStrategy, call_llm
 
 
