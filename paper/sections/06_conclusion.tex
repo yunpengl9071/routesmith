@@ -2,10 +2,19 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We presented RouteSmith, an online contextual bandit routing system for multi-LLM deployment. Our key contribution, LinTS-27d, achieves competitive routing without pretraining data, scales to $K$ arms naturally, and requires no $\beta$ hyperparameter tuning unlike LinUCB.
+We presented the online contextual bandit component of RouteSmith, a multi-strategy LLM routing system. LinTS-27d, adapted from well-established Linear Thompson Sampling \citep{abeille2017linear}, achieves competitive routing without pretraining data, scales to $K$ arms naturally, and eliminates the $\beta$ hyperparameter that LinUCB requires. The full RouteSmith product additionally includes a random forest quality predictor and semantic caching for deployment scenarios where offline calibration data is available.
 
-\textbf{RL Moat.} RouteLLM-SW provides a strong baseline when the pretraining distribution matches deployment, but (M1) requires 55K labels before routing any query, (M2) is architecturally binary, (M3) never explores under-represented model-query pairs, and (M4) provides no feature-level interpretability. LinTS addresses all four.
+\textbf{Structural advantages of online bandit routing.} Compared to static supervised routers, online bandit methods (1) require zero pretraining labels before routing queries, (2) extend naturally to $K > 2$ arms without $O(K^2)$ retraining, (3) continue learning from production feedback, and (4) provide per-feature interpretability through learned weight vectors. These properties make bandit routing attractive for zero-shot multi-model deployments, though supervised routers remain strong options when pretraining data aligns with the target distribution (e.g., RouteLLM-SW, Not Diamond).
 
-\textbf{Limitations.} Our experiments use at most 600 MMLU and 300 GSM8K questions --- a subset of full benchmarks, reported explicitly throughout. MBPP evaluation is limited to 100 sanitized problems. RouteLLM-SW comparisons may be affected by the arena embedding dimension mismatch when using our sentence-transformers fallback. LinTS's regret bound applies to stochastic linear bandits; real deployment introduces non-stationarity when new models or query distributions arrive.
+\textbf{Limitations.}
+\begin{itemize}
+    \item \textbf{Evaluation scope:} Our experiments use 600 MMLU questions (4.3\% of the full 14,042-question benchmark), 300 GSM8K problems (22.7\% of 1,319), and 100 MBPP coding problems. No evaluation covers conversational tasks, code generation, or real-world assistant workloads, despite RouteSmith targeting AI coding assistants. Results should be interpreted as proof-of-concept on structured benchmarks, not production readiness.
+    \item \textbf{Statistical significance:} We report $\pm$ 95\% confidence intervals from 5 seeds descriptively but do not perform formal significance tests (paired bootstrap, McNemar). Where CIs overlap (e.g., LinTS at 75.8\% vs. Random Router at 75.8\% on MMLU), the methods are not distinguishable at 5 seeds.
+    \item \textbf{RouteLLM-SW comparison:} We use \texttt{all-MiniLM-L6-v2} (384-dim) fallback embeddings rather than the original \texttt{text-embedding-3-small} arena embeddings. This degraded baseline prevents drawing strong comparative conclusions about performance in RouteLLM's native setting.
+    \item \textbf{No comparison to Not Diamond or cascades:} We do not benchmark against Not Diamond's open-source RoRF classifier or Dekoninck et al.'s cascade-based approach. These are important baselines for future work.
+    \item \textbf{No latency measurement:} The research system targets $<$5ms routing overhead but this paper does not measure end-to-end latency or feature extraction cost.
+    \item \textbf{27d vs.\ 35d gap:} The benchmark uses 27-dimensional features while the production \texttt{LinTSPredictor} defaults to 35 dimensions. Results may not transfer directly to the production configuration.
+    \item \textbf{Non-stationarity:} LinTS's regret bound assumes stochastic linear bandits; real deployments face non-stationarity from model updates and shifting query distributions.
+\end{itemize}
 
-\textbf{Future work.} NeuralUCB (implemented but not benchmarked --- insufficient queries for stable neural training), production deployment with real user traffic, and multi-turn conversation routing.
+\textbf{Future work.} NeuralUCB (implemented but not yet benchmarked---insufficient queries for stable neural network training), comparisons against Not Diamond's RoRF and Dekoninck et al.'s cascade framework, latency benchmarking, evaluation on conversational and code-generation tasks, multi-turn conversation routing, and production deployment with real user traffic.

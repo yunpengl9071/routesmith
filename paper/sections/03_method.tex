@@ -40,10 +40,10 @@ p_a(x_t) = \hat{\theta}_a^\top \tilde{\phi}(x_t) + \beta \sqrt{\tilde{\phi}(x_t)
 \end{align}
 The UCB score $p_a(x_t)$ trades off estimated quality (first term) with uncertainty (second term, controlled by $\beta$).
 
-\subsection{LinTS-27d (New Contribution)}
+\subsection{LinTS-27d (Adapted from Abeille \& Lazaric, 2017)}
 \label{sec:lints}
 
-We propose \textbf{LinTS-27d}, Linear Thompson Sampling adapted for LLM routing. For each arm $a$, LinTS maintains a Gaussian posterior over the weight vector $\theta_a$:
+We adapt Linear Thompson Sampling \citep{abeille2017linear} for LLM routing. While Thompson Sampling for linear bandits is well-established\mbox{---}dating to \citet{agrawal2013thompson} and formalized by \citet{abeille2017linear}\mbox{---}its application to LLM routing with a 27-dimensional linguistic feature space is novel. For each arm $a$, LinTS maintains a Gaussian posterior over the weight vector $\theta_a$, given the observed data $\mathcal{D}_a = \{(\tilde{\phi}(x_i), r_i) : a_i = a, i \leq t\}$:
 \begin{equation}
 p(\theta_a \mid \mathcal{D}_a) = \mathcal{N}(\mu_a, v^2 \Sigma_a)
 \end{equation}
@@ -56,6 +56,18 @@ and select $a^* = \arg\max_{a} \tilde{\phi}(x_t)^\top \tilde{\theta}_a$.
 \textbf{Key advantage over LinUCB:} LinTS has no $\beta$ hyperparameter. Exploration is proportional to posterior variance, which decays naturally as data accumulates. We show in \S\ref{sec:ablations} that LinUCB's performance is sensitive to $\beta$, while LinTS requires no tuning.
 
 \textbf{Regret bound:} LinTS achieves $O(d\sqrt{T \log T})$ cumulative regret with high probability \citep{abeille2017linear}, the same order as LinUCB.
+
+\subsection{Relation to Full RouteSmith System}
+\label{sec:product}
+
+This paper focuses on RouteSmith's online contextual bandit router. The full RouteSmith product \citep{routesmith2025system} includes additional components not evaluated here:
+\begin{itemize}
+    \item \textbf{Random forest quality predictor:} A supervised router using RoRF-style features, following a cold-start $\rightarrow$ warm-up $\rightarrow$ learned phase progression. This serves as the default routing strategy in production when offline calibration data is available.
+    \item \textbf{35-dimensional production features:} The production LinTS predictor (\texttt{LinTSPredictor}) defaults to 35 dimensions, extending the 27-dim benchmark features with additional model-metadata dimensions. The 27-dim features used in this paper represent a controlled subset for reproducible benchmarking.
+    \item \textbf{Semantic cache:} Embedding-based response caching for semantically similar queries, orthogonal to the routing component.
+    \item \textbf{Feedback collection:} Production telemetry for continuous routing improvement.
+\end{itemize}
+The LinTS bandit router described in this paper is one of multiple routing strategies available in the RouteSmith system, suitable for zero-shot deployment scenarios where pretraining data is unavailable.
 
 \subsection{TS-Cat Baseline}
 \label{sec:tscat}
