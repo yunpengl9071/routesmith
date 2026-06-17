@@ -1,77 +1,64 @@
-# RouteSmith v0.2.0 → v0.3.0 — Resumption Checkpoint
+# RESUME.md — RouteSmith Session Checkpoint
 
-**Date:** 2026-06-15
-**v0.2.0:** Released (PRs #23-27 merged, tag v0.2.0 pushed)
-**Next:** v0.3.0 Enterprise Features
+**Updated**: 2026-06-17 06:39 UTC  
+**Branch**: `dev` (up to date with origin)  
+**Tag**: `v0.3.0`
 
-## Quick Resume
+## CI/CD Pipeline: COMPLETE ✅
 
-```bash
-cd /Users/yliulupo/Apps/routesmith/.worktrees/v0.2.0-stable
-git checkout uat/v0.2.0  # or: dev
-.venv/bin/pytest tests/ -q  # 595 passed, 16 skipped
+```
+feature/* → CI gate ✅ → dev ✅ → UAT ✅ → smoke test ✅ → tag v0.3.0 ✅
+                                              ALL COMPLETE
 ```
 
-## v0.2.0 Status (COMPLETE)
+## v0.3.0 Summary
 
-## Test Verification
+| Artifact | Status |
+|----------|--------|
+| PR #28 v0.3.0 Enterprise Features | ✅ Merged to dev |
+| PR #29 OpenClaw smoke test | ✅ Merged to dev |
+| UAT branch `uat/v0.3.0` | ✅ Created & smoke tested |
+| test_real_api.py | 4/4 passed |
+| test_langchain_live.py | 10/10 passed |
+| test_openclaw_live.py | 11/11 passed |
+| UAT fix (model_quality_priors → _ema_priors) | ✅ Applied & merged |
+| Merged uat/v0.3.0 → dev | ✅ |
+| Tagged v0.3.0 | ✅ |
+| Full unit test suite | 639 passed, 2 skipped |
+
+## Exact commands to resume
 
 ```bash
-# Unit tests (no API keys needed)
-.venv/bin/pytest tests/ -q
-# Expected: 584 passed, 14 skipped
-
-# Live tests (needs Groq key in env)
-export GROQ_API_KEY=<key>
-.venv/bin/python tests/manual/test_real_api.py
-.venv/bin/python tests/manual/test_langchain_live.py
-
-# Multi-model eval (needs Groq key)
-.venv/bin/python scripts/run_multi_model_eval.py
-
-# Build docs
-mkdocs build --strict
+cd /Users/yliulupo/Apps/routesmith
+git checkout dev
+git pull origin dev
+.venv/bin/pytest tests/ --ignore=tests/manual -q
+# Expected: 639 passed, 2 skipped
 ```
 
-## v0.3.0 — Next Phase: Enterprise Features (Planned)
+## Remaining for v0.3.1+
 
-Phase 3 from design.md — not yet started:
+### Documentation
+- v0.3.0 guides already on dev: cost-models.md, compliance.md, multi-project.md, budget-enforcement.md
+- New nav items added to mkdocs.yml
 
-- CostModel enum (ON_DEMAND, PROVISIONED, SELF_HOSTED)
-- Capacity/utilization tracking for provisioned throughput
-- PROVISIONED_FIRST routing strategy
-- Overflow routing (provisioned → on-demand)
-- Tag-based model filtering for compliance (HIPAA, SOC2, region)
-- Per-project cost allocation / multi-tenant support
-- Budget enforcement behaviors (FAIL/FALLBACK/QUEUE/THROTTLE)
+### LangChain live tests
+- Groq tool_call flakiness — there's already a `_retry_on_groq_tool_error()` helper
+- Needs manual run with both Groq and OpenAI keys to identify which tests fail
 
-Plan docs to reference:
-- docs/plans/2026-06-15-v0.2.0-stable-release.md
-- design.md (Persona 7: Priya - Enterprise Architect)
+### Housekeeping
+- The `site/` directory (mkdocs built output) is in the repo — may want to add to `.gitignore`
 
-## Plan Documents
+## PRs merged
 
-- Master: docs/plans/2026-06-15-v0.2.0-stable-release.md
-- Section A: docs/plans/2026-06-15-section-a-core-stability.md
-- Section B: docs/plans/2026-06-15-section-b-production-hardening.md
-- Section C: docs/plans/2026-06-15-section-c-live-testing.md
-- Section D: docs/plans/2026-06-15-section-d-documentation.md
+| PR | Branch | Description |
+|----|--------|-------------|
+| #28 | feature/v0.3.0-enterprise | v0.3.0 Enterprise Features |
+| #29 | feature/openclaw-smoke-test | OpenClaw smoke test |
 
-## Key Files Changed (10 new modules, 40+ new tests)
+## API keys
 
-- src/routesmith/exceptions.py
-- src/routesmith/utils/logging.py
-- src/routesmith/utils/retry.py
-- src/routesmith/strategy/circuit_breaker.py
-- src/routesmith/proxy/metrics.py
-- src/routesmith/client.py (modified - circuit breaker + retry + logging wired)
-- src/routesmith/proxy/handler.py (modified - health endpoints)
-- Dockerfile
-- docker-compose.yml
-- .github/workflows/ci.yml
-- .github/workflows/nightly.yml
-- tests/perf/test_routing_latency.py
-- tests/perf/test_memory.py
-- scripts/run_multi_model_eval.py
-- mkdocs.yml
-- docs/ (20+ documentation files)
+Located in `.env` (gitignored):
+- `GROQ_API_KEY` — present, free tier
+- `OPENAI_API_KEY` — present
+- `ANTHROPIC_API_KEY` — not set
