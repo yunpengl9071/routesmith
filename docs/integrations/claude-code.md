@@ -3,20 +3,21 @@
 RouteSmith optimizes your Claude Code sessions — route each request through
 intelligent model selection for 40-60% cost savings with zero quality loss.
 
-Claude Code connects through OpenRouter to reach any model provider. RouteSmith
-sits between them, analyzing every query and picking the best model for each
-task: cheap models for simple edits, frontier models for architecture decisions.
-
 ## How It Works
 
-```
-Claude Code  →  OpenRouter  →  RouteSmith  →  Models
-                                  │
-                            analyzes query
-                            picks best model
-                            cascades if needed
-                            caches repeats
-```
+RouteSmith runs as a local OpenAI-compatible proxy. Claude Code doesn't speak
+OpenAI format natively, so you need a bridge. There are two paths:
+
+**Recommended: Claude Code → Codex → RouteSmith.** Codex is Claude Code's
+OpenAI-native plugin. It speaks the OpenAI format directly, so you point it
+at RouteSmith and everything just works. This is the simplest path — no
+OpenRouter account, no admin panel, no custom provider config.
+
+**Alternative: Claude Code → OpenRouter → RouteSmith.** If you're already
+using OpenRouter, you can add RouteSmith as a custom provider in the
+OpenRouter admin panel. This requires manual provider setup and is more
+complex, but works for users who prefer to stay within the OpenRouter
+workflow.
 
 ## Setup
 
@@ -33,29 +34,12 @@ routesmith serve --config routesmith.yaml
 ```
 
 RouteSmith runs at `http://localhost:9119/v1` and speaks the OpenAI-compatible
-format that OpenRouter already translates for Claude Code.
+format.
 
-### 2. Configure Claude Code
+### 2. Configure Claude Code (Recommended: Codex path)
 
-Edit `~/.claude/settings.json` or your project's `.claude/settings.json`:
-
-```json
-{
-  "model": "anthropic/open_router/openai/gpt-4o-mini"
-}
-```
-
-Replace `anthropic/open_router/openai/gpt-4o-mini` with any model in your
-RouteSmith catalog. Claude Code sends every request through OpenRouter, and
-RouteSmith intercepts to route it intelligently.
-
-> **Tip:** Use `routesmith models` to list available models. Pick the model ID
-> that matches your RouteSmith catalog.
-
-### 3. Or use Codex (OpenAI-native path)
-
-Claude Code's Codex plugin speaks OpenAI format directly — point it at
-RouteSmith:
+Enable Codex in Claude Code's settings (`~/.claude/settings.json` or your
+project's `.claude/settings.json`):
 
 ```json
 {
@@ -65,7 +49,17 @@ RouteSmith:
 }
 ```
 
-Then set Codex to use RouteSmith's proxy (see the [Codex integration guide](codex.md)).
+Then point Codex at RouteSmith's proxy. See the [Codex integration guide](codex.md)
+for the full setup.
+
+> **Tip:** Run `curl http://localhost:9119/v1/models` to list available models and pick one from your RouteSmith catalog.
+
+### 3. Alternative: OpenRouter custom provider
+
+If you prefer to stay within the OpenRouter workflow, add RouteSmith as a
+custom provider in the [OpenRouter admin panel](https://openrouter.ai/settings/integrations).
+Once configured, Claude Code sends requests through OpenRouter, which forwards
+to RouteSmith's local proxy for intelligent routing.
 
 ## What Happens
 
