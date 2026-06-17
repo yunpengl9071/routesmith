@@ -9,16 +9,19 @@ from __future__ import annotations
 
 import json
 import statistics
-from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from benchmark.config import RESULTS_DIR, FIGURES_DIR, STRONG_MODEL, SEEDS, MULTI_ARMS
+from benchmark.config import FIGURES_DIR, MULTI_ARMS, RESULTS_DIR, SEEDS
 from benchmark.metrics import (
-    accuracy, total_cost, performance_gap_recovery, cumulative_regret,
+    accuracy,
+    cumulative_regret,
+    performance_gap_recovery,
+    total_cost,
 )
 
 # ── Style ──────────────────────────────────────────────────────────────────────

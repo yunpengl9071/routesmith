@@ -1,6 +1,6 @@
 """Basic usage example for RouteSmith."""
 
-from routesmith import RouteSmith, RouteSmithConfig
+from routesmith import RouteSmith
 from routesmith.config import RoutingStrategy
 
 # Initialize RouteSmith with default config

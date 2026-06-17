@@ -7,13 +7,11 @@
 """
 from __future__ import annotations
 
-import numpy as np
-
-from benchmark.config import MMLU_CACHE, SEEDS
+from benchmark.config import MMLU_CACHE
 from benchmark.dataset import load_mmlu_sample
 from benchmark.harness import run_experiment
-from benchmark.strategies.linucb import LinUCBStrategy, _build_feature_vector
 from benchmark.strategies.lints import LinTSStrategy
+from benchmark.strategies.linucb import LinUCBStrategy, _build_feature_vector
 
 
 def _truncated_lints(d_actual: int, seed: int) -> LinTSStrategy:
@@ -72,7 +70,7 @@ def ablation_beta_sensitivity(queries: list[dict], seed: int = 42) -> None:
         print(f"\n--- LinUCB alpha={alpha} ---")
         strat = LinUCBStrategy(alpha=alpha, seed=seed)
         run_experiment(strat, queries, tag="beta_ablation")
-    print(f"\n--- LinTS (no beta) ---")
+    print("\n--- LinTS (no beta) ---")
     run_experiment(LinTSStrategy(seed=seed), queries, tag="beta_ablation")
 
 
