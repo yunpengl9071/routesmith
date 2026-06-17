@@ -217,9 +217,9 @@ def test_feedback_system():
     print(f"  Implicit signals: {[(s['signal_name'], s['signal_value']) for s in signals]}")
 
     # 4. Record outcome and verify predictor update
-    old_prior = rs.router.predictor.model_quality_priors.get("gpt-4o-mini")
+    old_prior = rs.router.predictor._ema_priors.get("gpt-4o-mini")
     rs.record_outcome(rid, score=0.95, feedback="correct answer")
-    new_prior = rs.router.predictor.model_quality_priors.get("gpt-4o-mini")
+    new_prior = rs.router.predictor._ema_priors.get("gpt-4o-mini")
     assert new_prior != old_prior, "Predictor was not updated"
     print(f"  Predictor updated: {old_prior:.4f} -> {new_prior:.4f}")
 
