@@ -4,7 +4,7 @@
 
 \subsection{Setup}
 
-We evaluate all methods on 600 MMLU questions (5 categories $\times$ 120) and 300 GSM8K math word problems. Models: strong = \texttt{openai/gpt-4o}, weak = \texttt{openai/gpt-4o-mini} (via OpenRouter). Bandit methods run with 5 independent random seeds; mean $\pm$ 95\% CI reported. RouteLLM-SW is deterministic per threshold --- point estimate with embedding fallback noted if applicable.
+We evaluate all methods on 600 MMLU questions (5 categories $\times$ 120) and 300 GSM8K math word problems. Models: strong = \texttt{openai/gpt-4o}, weak = \texttt{openai/gpt-4o-mini} (via OpenRouter). Bandit methods run with 5 independent random seeds; mean $\pm$ 95\% CI reported. RouteLLM-SW is deterministic per threshold\mbox{---}point estimate with embedding fallback noted. We do not perform formal significance tests (e.g., paired bootstrap, McNemar) given the limited number of seeds; CIs are reported for descriptive purposes only.
 
 Reward: $R_t = 0.85 \cdot \text{acc}(a_t, x_t) - 0.15 \cdot c_{a_t}/c_{\max}$, matching RouteLLM's cost-quality trade-off benchmark setting.
 
@@ -12,7 +12,7 @@ Reward: $R_t = 0.85 \cdot \text{acc}(a_t, x_t) - 0.15 \cdot c_{a_t}/c_{\max}$, m
 
 \begin{table}[h]
 \centering
-\caption{Experiment 1: Binary routing comparison on MMLU (600 questions) and GSM8K (300 questions). All results from real API calls. $\dagger$ = reported by Ong et al.\ (2025) if SW router fails to load.}
+\caption{Experiment 1: Binary routing comparison on MMLU (600 questions) and GSM8K (300 questions). All results from real API calls.}
 \begin{tabular}{lcccccc}
 \toprule
 Method & MMLU Acc & MMLU Cost & GSM8K Acc & GSM8K Cost & APGR (MMLU) \\
@@ -48,13 +48,10 @@ LinUCB-27d (5 seeds)      & 78.2$\pm$0.2\%  & \$0.196  & 91.7$\pm$0.5\%  & \$0.1
 \textbf{LinUCB vs LinTS.}
 LinUCB-27d achieves the highest MMLU accuracy (78.2\%) and APGR (1.126), exceeding Static-Strong by routing 87.6\% of queries to the strong model — choosing strong-arm selectively on queries where the cost-quality reward favors it.
 LinTS-27d matches Random Router on MMLU (75.8\%, APGR=0.593) while achieving higher accuracy on GSM8K (92.5\% vs 94.0\% random), reflecting better uncertainty quantification on math problems with only 50\% strong-arm usage.
-The key distinction: LinUCB requires no $\beta$ tuning (exploration governed by feature covariance geometry), while LinTS requires no hyperparameter at all — Thompson sampling naturally balances exploration via posterior sampling.
+The key distinction: LinUCB requires $\beta$ tuning (its APGR varies from 0.407 to 0.741 across $\beta \in \{0.5, 1.5, 3.0\}$, see \S\ref{sec:ablations}), while LinTS requires no hyperparameter at all\mbox{---}Thompson sampling naturally balances exploration via posterior sampling.
 
-\textbf{RouteLLM-SW.}
-RouteLLM-SW routes 0\% of MMLU and GSM8K queries to the strong model across all three thresholds ($\tau \in \{0.3, 0.5, 0.7\}$).
-Win-rate scores cluster at 0.218--0.233, below all thresholds.
-This is a \emph{domain transferability failure}: RouteLLM-SW's Chatbot Arena embeddings were calibrated for conversational model comparisons, not structured MMLU/GSM8K question answering.
-The router defaults to always-weak behavior, making it equivalent to or worse than Static-Weak.
+\textbf{RouteLLM-SW (domain-transfer stress test).}
+We evaluate RouteLLM-SW with \texttt{all-MiniLM-L6-v2} (384-dim) fallback embeddings, since OpenRouter does not expose the original \texttt{text-embedding-3-small} arena embeddings. RouteLLM-SW routes 0\% of queries to the strong model across all three thresholds ($\tau \in \{0.3, 0.5, 0.7\}$); win-rate scores cluster at 0.218--0.233, below all thresholds. This reflects a domain mismatch between Chatbot Arena conversational embeddings and structured MMLU/GSM8K benchmarks, exacerbated by the degraded embedding model. We emphasize this comparison uses a different embedding model and should not be interpreted as a claim about RouteLLM-SW's performance in its native configuration. Rather, it demonstrates that online bandit methods learn task-specific routing signals without relying on pre-calibrated domain embeddings.
 
 \textbf{TS-Cat.}
 TS-Cat performs below Static-Weak on MMLU (APGR$=-0.163$) because the per-category binary bandit converges slowly when categories are heterogeneous — it cannot leverage query-level features and explores unnecessarily.
