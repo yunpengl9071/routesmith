@@ -702,6 +702,29 @@ class TestWithAuto:
         rs = RouteSmith.with_auto(cache=True)
         assert rs._cache is not None
 
+    def test_full_with_auto_flow(self):
+        """Integration: with_auto() + completion + tradeoff works end-to-end."""
+        from unittest.mock import MagicMock, patch
+
+        rs = RouteSmith.with_auto(tradeoff=7)
+
+        assert len(rs.registry) >= 3  # at least a few models registered
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="response"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = rs.completion(
+                messages=[{"role": "user", "content": "Hello world"}],
+                tradeoff=5,
+                include_metadata=True,
+            )
+
+        assert resp.routesmith_metadata["model_selected"] is not None
+        assert resp.routesmith_metadata["cache_hit"] is False
+        assert "model_selected" in resp.routesmith_metadata
+
 
 class TestTradeoff:
     def _make_client(self):
