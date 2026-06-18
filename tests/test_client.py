@@ -670,3 +670,34 @@ class TestRegisterRewardFn:
         rs = RouteSmith(config=RouteSmithConfig(reward_fns={"research": _fn1}))
         rs.register_reward_fn("research", _fn2)
         assert rs.config.reward_fns["research"] is _fn2
+
+
+class TestWithAuto:
+    def test_with_auto_returns_client(self):
+        """with_auto() returns a RouteSmith with models registered."""
+        rs = RouteSmith.with_auto()
+        assert len(rs.registry) > 0
+        assert rs.config.cache.enabled is False  # no cache by default
+
+    def test_with_auto_registers_known_model(self):
+        """with_auto() registers gpt-4o-mini."""
+        rs = RouteSmith.with_auto()
+        model = rs.registry.get("openai/gpt-4o-mini")
+        assert model is not None
+        assert model.cost_per_1k_input == pytest.approx(0.00015)
+
+    def test_with_auto_accepts_tradeoff(self):
+        """with_auto() accepts a default tradeoff."""
+        rs = RouteSmith.with_auto(tradeoff=3)
+        assert rs.config._auto_tradeoff == 3
+
+    def test_with_auto_accepts_provider_filter(self):
+        """with_auto() filters by provider."""
+        rs = RouteSmith.with_auto(providers=["anthropic"])
+        for m in rs.registry.list_models():
+            assert m.model_id.startswith("anthropic/")
+
+    def test_with_auto_accepts_cache_config(self):
+        """with_auto() can enable caching."""
+        rs = RouteSmith.with_auto(cache=True)
+        assert rs._cache is not None

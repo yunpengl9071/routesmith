@@ -140,6 +140,69 @@ class RouteSmith:
                     pass  # corrupt or incompatible state; cold start
 
     @classmethod
+    def with_auto(
+        cls,
+        tradeoff: int = 7,
+        providers: list[str] | None = None,
+        include_all: bool = False,
+        cache: bool = False,
+        seed_quality: dict[str, float] | None = None,
+        openrouter_api_key: str | None = None,
+    ) -> RouteSmith:
+        """Create a RouteSmith with auto-discovered models.
+
+        Zero-config entry point. Automatically registers models from
+        OpenRouter (if API key available) or a curated fallback list.
+        The bandit refines cold-start quality scores from actual usage.
+
+        Args:
+            tradeoff: Default cost-quality tradeoff 0-10 (0=quality, 10=cost).
+            providers: Filter to specific providers.
+            include_all: Register all OpenRouter models, not just curated.
+            cache: Enable semantic caching.
+            seed_quality: Override initial quality scores per model.
+            openrouter_api_key: OpenRouter API key for live pricing/catalog.
+        """
+        import os
+
+        from routesmith.config import CacheConfig
+        from routesmith.registry.discovery import discover_models
+
+        config = RouteSmithConfig(
+            cache=CacheConfig(enabled=cache),
+        )
+
+        # Store tradeoff for context injection
+        config._auto_tradeoff = tradeoff  # type: ignore[attr-defined]
+
+        # Resolve API key from env if not provided
+        api_key = openrouter_api_key or os.environ.get("OPENROUTER_API_KEY")
+
+        # Discover models
+        models = discover_models(
+            api_key=api_key,
+            providers=providers,
+            include_all=include_all,
+        )
+
+        rs = cls(config=config)
+
+        for m in models:
+            # Override quality seed if user provided
+            quality = seed_quality.get(m["model_id"], m["quality_score"]) if seed_quality else m["quality_score"]
+
+            rs.register_model(
+                m["model_id"],
+                cost_per_1k_input=m["cost_per_1k_input"],
+                cost_per_1k_output=m["cost_per_1k_output"],
+                quality_score=quality,
+                context_window=m["context_window"],
+                **{"supports_vision": m.get("supports_vision", False)},
+            )
+
+        return rs
+
+    @classmethod
     def with_free_models(cls) -> RouteSmith:
         """Create a RouteSmith instance pre-configured with the best free models.
 
