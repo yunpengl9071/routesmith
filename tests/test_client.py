@@ -730,6 +730,7 @@ class TestConversationScopedRouting:
     def test_same_conversation_reuses_model(self):
         """Same conversation_id reuses the first-turn model."""
         from unittest.mock import MagicMock, patch
+
         from routesmith.config import RouteContext
 
         rs = RouteSmith()
@@ -765,6 +766,7 @@ class TestConversationScopedRouting:
     def test_different_conversations_explore_models(self):
         """Different conversation_ids get fresh exploration."""
         from unittest.mock import MagicMock, patch
+
         from routesmith.config import RouteContext
 
         rs = RouteSmith()

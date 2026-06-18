@@ -1,7 +1,7 @@
 """Tests for routing explanation formatting."""
 
-from routesmith.explanation import format_explanation
 from routesmith.client import RoutingMetadata
+from routesmith.explanation import format_explanation
 
 
 class TestFormatExplanation:

@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from routesmith.cache.semantic import SemanticCache
-from routesmith.config import RouteSmithConfig
 from routesmith.client import RouteSmith
+from routesmith.config import RouteSmithConfig
 
 
 class TestSemanticCacheModelAware:
@@ -191,7 +191,7 @@ class TestSemanticCacheIntegration:
 
     def test_route_then_cache_check_flow(self):
         """The cache check must happen AFTER routing to know model_id.
-        
+
         This is the chicken-and-egg resolution: route first (cheap, <5ms),
         then check cache. The cache check is a simple dict lookup, even faster.
         """
@@ -241,7 +241,7 @@ class TestSemanticCacheIntegration:
 
     def test_similar_messages_different_models_separate_entries(self):
         """Semantically similar messages to different models are separate cache entries.
-        
+
         When model_id matches, the semantic cache returns the right model's response.
         When model_id differs, exact cache will miss (separate composite keys).
         Semantic matching may find cross-model entries if content is similar enough
@@ -317,7 +317,7 @@ class TestClientCacheIntegration:
         messages = [{"role": "user", "content": "Hello world"}]
 
         # First call: cache miss → LLM called
-        response1 = client_with_cache.completion(
+        client_with_cache.completion(
             messages=messages, model="gpt-4o-mini"
         )
         assert mock_completion.call_count == 1

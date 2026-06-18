@@ -442,7 +442,7 @@ class RouteSmith:
         elif context.conversation_id and context.conversation_id in self._conversation_models:
             # Conversation stickiness: reuse the model from the first turn
             selected_model = self._conversation_models[context.conversation_id]
-            routing_reason = f"conversation stickiness (reusing model from turn 1)"
+            routing_reason = "conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
             # FALLBACK: use cheapest model regardless of quality
             self._budget_events["fallbacks"] += 1
@@ -770,7 +770,7 @@ class RouteSmith:
         elif context.conversation_id and context.conversation_id in self._conversation_models:
             # Conversation stickiness: reuse the model from the first turn
             selected_model = self._conversation_models[context.conversation_id]
-            routing_reason = f"conversation stickiness (reusing model from turn 1)"
+            routing_reason = "conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
             self._budget_events["fallbacks"] += 1
             cheapest = self.registry.get_cheapest()
