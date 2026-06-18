@@ -33,8 +33,8 @@ def _parse_openrouter_response(
     for m in data.get("data", []):
         model_id = m["id"]
         pricing = m.get("pricing", {})
-        cost_input = float(pricing.get("prompt", 0)) * 1000 or 0.001
-        cost_output = float(pricing.get("completion", 0)) * 1000 or 0.001
+        cost_input = float(pricing.get("prompt", 0)) * 1000
+        cost_output = float(pricing.get("completion", 0)) * 1000
 
         if providers and not any(
             model_id.startswith(f"{p}/") for p in providers
