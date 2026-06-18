@@ -13,13 +13,13 @@ from typing import Any
 import litellm
 from litellm import ModelResponse
 
+from routesmith.cache.semantic import SemanticCache
 from routesmith.config import (
     BudgetBehavior,
     RouteContext,
     RouteSmithConfig,
     RoutingStrategy,
 )
-from routesmith.cache.semantic import SemanticCache
 from routesmith.exceptions import BudgetExceededError
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry

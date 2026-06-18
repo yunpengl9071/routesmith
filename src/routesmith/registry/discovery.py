@@ -26,7 +26,7 @@ def discover_models(
 
 
 def _parse_openrouter_response(
-    data: dict, providers: list[str] | None
+    data: dict[str, Any], providers: list[str] | None
 ) -> list[dict[str, Any]]:
     """Parse OpenRouter models endpoint response."""
     models = []
