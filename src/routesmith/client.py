@@ -105,6 +105,9 @@ class RouteSmith:
             setup_logger("routesmith", json_format=True)
         )
 
+        # Conversation-scoped model stickiness
+        self._conversation_models: dict[str, str] = {}
+
         # Semantic cache (lazy-instantiated when enabled)
         self._cache: SemanticCache | None = None
         if self.config.cache.enabled:
@@ -436,6 +439,10 @@ class RouteSmith:
         if model:
             selected_model = model
             routing_reason = "explicit model specified"
+        elif context.conversation_id and context.conversation_id in self._conversation_models:
+            # Conversation stickiness: reuse the model from the first turn
+            selected_model = self._conversation_models[context.conversation_id]
+            routing_reason = f"conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
             # FALLBACK: use cheapest model regardless of quality
             self._budget_events["fallbacks"] += 1
@@ -465,6 +472,9 @@ class RouteSmith:
             )
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
+        # Record conversation model for session stickiness
+        if context and context.conversation_id and context.conversation_id not in self._conversation_models:
+            self._conversation_models[context.conversation_id] = selected_model
 
         # Cache check: after routing (to know model_id), before LLM call
         cache_hit = False
@@ -757,6 +767,10 @@ class RouteSmith:
         if model:
             selected_model = model
             routing_reason = "explicit model specified"
+        elif context.conversation_id and context.conversation_id in self._conversation_models:
+            # Conversation stickiness: reuse the model from the first turn
+            selected_model = self._conversation_models[context.conversation_id]
+            routing_reason = f"conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
             self._budget_events["fallbacks"] += 1
             cheapest = self.registry.get_cheapest()
@@ -785,6 +799,9 @@ class RouteSmith:
             )
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
+        # Record conversation model for session stickiness
+        if context and context.conversation_id and context.conversation_id not in self._conversation_models:
+            self._conversation_models[context.conversation_id] = selected_model
 
         # Cache check: after routing (to know model_id), before LLM call
         cache_hit = False

@@ -726,6 +726,80 @@ class TestWithAuto:
         assert "model_selected" in resp.routesmith_metadata
 
 
+class TestConversationScopedRouting:
+    def test_same_conversation_reuses_model(self):
+        """Same conversation_id reuses the first-turn model."""
+        from unittest.mock import MagicMock, patch
+        from routesmith.config import RouteContext
+
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+
+            # First turn: picks a model
+            ctx1 = RouteContext(conversation_id="conv-001", turn_index=1)
+            resp1 = rs.completion(
+                messages=[{"role": "user", "content": "Hello"}],
+                context=ctx1,
+                include_metadata=True,
+            )
+            first_model = resp1.routesmith_metadata["model_selected"]
+
+            # Second turn: should reuse the same model
+            ctx2 = RouteContext(conversation_id="conv-001", turn_index=2)
+            resp2 = rs.completion(
+                messages=[{"role": "user", "content": "Continue"}],
+                context=ctx2,
+                include_metadata=True,
+            )
+
+            assert resp2.routesmith_metadata["model_selected"] == first_model
+            assert "stickiness" in resp2.routesmith_metadata.get("routing_reason", "")
+
+    def test_different_conversations_explore_models(self):
+        """Different conversation_ids get fresh exploration."""
+        from unittest.mock import MagicMock, patch
+        from routesmith.config import RouteContext
+
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+
+            # Conversation A
+            ctx_a = RouteContext(conversation_id="conv-a", turn_index=1)
+            resp_a = rs.completion(
+                messages=[{"role": "user", "content": "Hi"}],
+                context=ctx_a,
+                include_metadata=True,
+            )
+
+            # Conversation B — fresh, should explore
+            ctx_b = RouteContext(conversation_id="conv-b", turn_index=1)
+            resp_b = rs.completion(
+                messages=[{"role": "user", "content": "Hi"}],
+                context=ctx_b,
+                include_metadata=True,
+            )
+
+            # Both should get a model (not crash)
+            assert resp_a.routesmith_metadata["model_selected"] is not None
+            assert resp_b.routesmith_metadata["model_selected"] is not None
+            # Models might differ (fresh exploration), or be same (no strong signal yet)
+            # Either is acceptable
+
+
 class TestTradeoff:
     def _make_client(self):
         """Create a RouteSmith client with test models."""
