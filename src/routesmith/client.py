@@ -21,6 +21,7 @@ from routesmith.config import (
     RoutingStrategy,
 )
 from routesmith.exceptions import BudgetExceededError
+from routesmith.explanation import format_explanation
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry
 from routesmith.strategy.circuit_breaker import CircuitBreaker
@@ -594,6 +595,15 @@ class RouteSmith:
         if include_metadata:
             response.routesmith_metadata = metadata.to_dict()  # type: ignore[attr-defined]
 
+        # Attach human-readable explanation to every response
+        response.routesmith_explanation = format_explanation(  # type: ignore[attr-defined]
+            metadata,
+            qualifying=0,
+            rejected=0,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
+        )
+
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]
 
@@ -864,6 +874,15 @@ class RouteSmith:
         # Attach metadata to response if requested
         if include_metadata:
             response.routesmith_metadata = metadata.to_dict()  # type: ignore[attr-defined]
+
+        # Attach human-readable explanation to every response
+        response.routesmith_explanation = format_explanation(  # type: ignore[attr-defined]
+            metadata,
+            qualifying=0,
+            rejected=0,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
+        )
 
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]
