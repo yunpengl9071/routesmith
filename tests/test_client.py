@@ -701,3 +701,78 @@ class TestWithAuto:
         """with_auto() can enable caching."""
         rs = RouteSmith.with_auto(cache=True)
         assert rs._cache is not None
+
+
+class TestTradeoff:
+    def _make_client(self):
+        """Create a RouteSmith client with test models."""
+        rs = RouteSmith()
+        rs.register_model(
+            "gpt-4o",
+            cost_per_1k_input=0.005,
+            cost_per_1k_output=0.015,
+            quality_score=0.95,
+        )
+        rs.register_model(
+            "gpt-4o-mini",
+            cost_per_1k_input=0.00015,
+            cost_per_1k_output=0.0006,
+            quality_score=0.85,
+        )
+        return rs
+
+    def test_tradeoff_passed_to_route(self):
+        """tradeoff parameter is accepted and affects routing."""
+        from unittest.mock import MagicMock, patch
+
+        client = self._make_client()
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = client.completion(
+                messages=[{"role": "user", "content": "hello"}],
+                tradeoff=3,
+                include_metadata=True,
+            )
+            # tradeoff=3 should still pick a model (not crash)
+            assert resp.routesmith_metadata["model_selected"] is not None
+
+    def test_tradeoff_0_prefers_quality(self):
+        """tradeoff=0 prefers highest quality model regardless of cost."""
+        from unittest.mock import MagicMock, patch
+
+        # Register two models with different quality
+        client = RouteSmith()
+        client.register_model("cheap-model", 0.0001, 0.0001, quality_score=0.70)
+        client.register_model("expensive-model", 0.01, 0.01, quality_score=0.95)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = client.completion(
+                messages=[{"role": "user", "content": "hello"}],
+                tradeoff=0,
+                include_metadata=True,
+            )
+            assert resp.routesmith_metadata["model_selected"] == "expensive-model"
+
+    def test_tradeoff_10_prefers_cost(self):
+        """tradeoff=10 prefers cheapest model above min quality."""
+        from unittest.mock import MagicMock, patch
+
+        client = self._make_client()
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = client.completion(
+                messages=[{"role": "user", "content": "hello"}],
+                tradeoff=10,
+                include_metadata=True,
+            )
+            assert resp.routesmith_metadata["model_selected"] == "gpt-4o-mini"

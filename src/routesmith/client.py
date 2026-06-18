@@ -296,7 +296,13 @@ class RouteSmith:
         )
         predictor = self.router.predictor
         if hasattr(predictor, "add_arm"):
-            predictor.add_arm(model_id)
+            # Pass quality_score to predictors that support it
+            import inspect
+            sig = inspect.signature(predictor.add_arm)
+            if "quality_score" in sig.parameters:
+                predictor.add_arm(model_id, quality_score=quality_score)
+            else:
+                predictor.add_arm(model_id)
 
     def deregister_model(self, model_id: str) -> None:
         """Remove a model from routing.
@@ -337,6 +343,7 @@ class RouteSmith:
         strategy: RoutingStrategy | None = None,
         max_cost: float | None = None,
         min_quality: float | None = None,
+        tradeoff: int | None = None,
         include_metadata: bool = False,
         context: RouteContext | None = None,
         required_compliance: set[str] | None = None,
@@ -386,6 +393,19 @@ class RouteSmith:
         effective_strategy = strategy or self.config.default_strategy
         routing_reason = ""
         models_considered = [m.model_id for m in self.registry.list_models()]
+
+        # Resolve tradeoff: explicit parameter > auto_tradeoff > default 7
+        if tradeoff is not None:
+            effective_tradeoff = tradeoff
+        elif hasattr(self.config, '_auto_tradeoff'):
+            effective_tradeoff = self.config._auto_tradeoff
+        else:
+            effective_tradeoff = 7
+
+        # Inject tradeoff into routing context for bandit predictors
+        if context is None:
+            context = RouteContext()
+        context.metadata["tradeoff"] = effective_tradeoff
 
         # Auto-detect required capabilities
         required_capabilities = self._detect_required_capabilities(messages, kwargs)
@@ -634,6 +654,7 @@ class RouteSmith:
         strategy: RoutingStrategy | None = None,
         max_cost: float | None = None,
         min_quality: float | None = None,
+        tradeoff: int | None = None,
         include_metadata: bool = False,
         context: RouteContext | None = None,
         required_compliance: set[str] | None = None,
@@ -708,6 +729,19 @@ class RouteSmith:
         effective_strategy = strategy or self.config.default_strategy
         routing_reason = ""
         models_considered = [m.model_id for m in self.registry.list_models()]
+
+        # Resolve tradeoff: explicit parameter > auto_tradeoff > default 7
+        if tradeoff is not None:
+            effective_tradeoff = tradeoff
+        elif hasattr(self.config, '_auto_tradeoff'):
+            effective_tradeoff = self.config._auto_tradeoff
+        else:
+            effective_tradeoff = 7
+
+        # Inject tradeoff into routing context for bandit predictors
+        if context is None:
+            context = RouteContext()
+        context.metadata["tradeoff"] = effective_tradeoff
 
         # If specific model requested, skip routing
         if model:
