@@ -46,6 +46,7 @@ class SemanticCache:
         ttl_seconds: int = 3600,
         max_entries: int = 10000,
         embedding_model: str = "all-MiniLM-L6-v2",
+        lock: bool = False,
     ) -> None:
         """
         Initialize semantic cache.
@@ -64,6 +65,10 @@ class SemanticCache:
         self._exact_cache: dict[str, CacheEntry] = {}
         self._semantic_entries: list[CacheEntry] = []
         self._encoder: Any = None
+        self._lock: Any = None
+        if lock:
+            import threading
+            self._lock = threading.Lock()
 
     def _get_encoder(self) -> Any:
         """Lazy load sentence transformer."""
@@ -84,6 +89,10 @@ class SemanticCache:
         content = str(messages)
         return hashlib.sha256(content.encode()).hexdigest()
 
+    def _composite_key(self, messages: list[dict[str, str]], model_id: str) -> str:
+        """Create a composite cache key from messages and model_id."""
+        return self._hash_messages(messages) + "|" + model_id
+
     def _compute_embedding(self, messages: list[dict[str, str]]) -> list[float]:
         """Compute embedding for messages."""
         encoder = self._get_encoder()
@@ -103,6 +112,7 @@ class SemanticCache:
     def get(
         self,
         messages: list[dict[str, str]],
+        model_id: str | None = None,
         semantic: bool = True,
     ) -> CacheEntry | None:
         """
@@ -110,43 +120,66 @@ class SemanticCache:
 
         Args:
             messages: Query messages.
+            model_id: If provided, only return entries from this model.
+                      Prevents model-mismatch cache returns that would
+                      poison predictor feedback.
             semantic: Whether to try semantic matching.
 
         Returns:
             CacheEntry if found, None otherwise.
         """
-        # Try exact match first
-        query_hash = self._hash_messages(messages)
-        if query_hash in self._exact_cache:
-            entry = self._exact_cache[query_hash]
-            if not entry.is_expired:
-                entry.hit_count += 1
-                return entry
+        def _lookup() -> CacheEntry | None:
+            # Try exact match first
+            query_hash = self._hash_messages(messages)
+            if model_id is not None:
+                composite_key = self._composite_key(messages, model_id)
+                if composite_key in self._exact_cache:
+                    entry = self._exact_cache[composite_key]
+                    if not entry.is_expired:
+                        entry.hit_count += 1
+                        return entry
+                    else:
+                        del self._exact_cache[composite_key]
             else:
-                del self._exact_cache[query_hash]
+                # Backward-compatible: model-unaware exact match.
+                # Iterate composite keys to find any entry for this query hash.
+                for key, entry in list(self._exact_cache.items()):
+                    if key.startswith(query_hash + "|"):
+                        if not entry.is_expired:
+                            entry.hit_count += 1
+                            return entry
+                        else:
+                            del self._exact_cache[key]
 
-        # Try semantic match
-        if semantic and self._semantic_entries:
-            query_embedding = self._compute_embedding(messages)
-            best_match: CacheEntry | None = None
-            best_similarity = 0.0
+            # Try semantic match
+            if semantic and self._semantic_entries:
+                query_embedding = self._compute_embedding(messages)
+                best_match: CacheEntry | None = None
+                best_similarity = 0.0
 
-            for entry in self._semantic_entries:
-                if entry.is_expired:
-                    continue
-                if entry.query_embedding is None:
-                    continue
+                for entry in self._semantic_entries:
+                    if entry.is_expired:
+                        continue
+                    if entry.query_embedding is None:
+                        continue
+                    if model_id is not None and entry.model_id != model_id:
+                        continue
 
-                similarity = self._cosine_similarity(query_embedding, entry.query_embedding)
-                if similarity > best_similarity and similarity >= self.similarity_threshold:
-                    best_similarity = similarity
-                    best_match = entry
+                    similarity = self._cosine_similarity(query_embedding, entry.query_embedding)
+                    if similarity > best_similarity and similarity >= self.similarity_threshold:
+                        best_similarity = similarity
+                        best_match = entry
 
-            if best_match:
-                best_match.hit_count += 1
-                return best_match
+                if best_match:
+                    best_match.hit_count += 1
+                    return best_match
 
-        return None
+            return None
+
+        if self._lock is not None:
+            with self._lock:
+                return _lookup()
+        return _lookup()
 
     def put(
         self,
@@ -170,6 +203,7 @@ class SemanticCache:
             The created cache entry.
         """
         query_hash = self._hash_messages(messages)
+        composite_key = self._composite_key(messages, model_id)
         query_embedding = self._compute_embedding(messages) if semantic else None
 
         entry = CacheEntry(
@@ -182,15 +216,22 @@ class SemanticCache:
             metadata=metadata or {},
         )
 
-        # Store in exact cache
-        self._exact_cache[query_hash] = entry
+        def _store() -> None:
+            # Store in exact cache with model-aware composite key
+            self._exact_cache[composite_key] = entry
 
-        # Store in semantic index if enabled
-        if semantic and query_embedding:
-            self._semantic_entries.append(entry)
+            # Store in semantic index if enabled
+            if semantic and query_embedding:
+                self._semantic_entries.append(entry)
 
-        # Evict if over capacity
-        self._evict_if_needed()
+            # Evict if over capacity
+            self._evict_if_needed()
+
+        if self._lock is not None:
+            with self._lock:
+                _store()
+        else:
+            _store()
 
         return entry
 
@@ -214,21 +255,43 @@ class SemanticCache:
             )
             self._semantic_entries.pop(oldest_idx)
 
-    def invalidate(self, messages: list[dict[str, str]]) -> bool:
+    def invalidate(self, messages: list[dict[str, str]], model_id: str | None = None) -> bool:
         """
         Invalidate cache entry for messages.
+
+        Args:
+            messages: Query messages to invalidate.
+            model_id: If provided, only invalidate entries for this model.
 
         Returns:
             True if entry was found and removed.
         """
         query_hash = self._hash_messages(messages)
-        if query_hash in self._exact_cache:
-            self._exact_cache.pop(query_hash)
+        found = False
+
+        if model_id is not None:
+            composite_key = self._composite_key(messages, model_id)
+            if composite_key in self._exact_cache:
+                del self._exact_cache[composite_key]
+                found = True
             self._semantic_entries = [
-                e for e in self._semantic_entries if e.query_hash != query_hash
+                e for e in self._semantic_entries
+                if not (e.query_hash == query_hash and e.model_id == model_id)
             ]
-            return True
-        return False
+        else:
+            # Invalidate all entries for this query hash
+            keys_to_remove = [
+                k for k in self._exact_cache if k.startswith(query_hash + "|")
+            ]
+            for k in keys_to_remove:
+                del self._exact_cache[k]
+                found = True
+            self._semantic_entries = [
+                e for e in self._semantic_entries
+                if e.query_hash != query_hash
+            ]
+
+        return found
 
     def clear(self) -> None:
         """Clear all cache entries."""

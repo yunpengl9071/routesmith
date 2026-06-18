@@ -19,6 +19,7 @@ from routesmith.config import (
     RouteSmithConfig,
     RoutingStrategy,
 )
+from routesmith.cache.semantic import SemanticCache
 from routesmith.exceptions import BudgetExceededError
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry
@@ -43,6 +44,7 @@ class RoutingMetadata:
     counterfactual_cost_usd: float  # What it would have cost with most expensive model
     cost_savings_usd: float
     models_considered: list[str]
+    cache_hit: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for response attachment."""
@@ -101,6 +103,16 @@ class RouteSmith:
         self._log: RouteSmithLogger = RouteSmithLogger(
             setup_logger("routesmith", json_format=True)
         )
+
+        # Semantic cache (lazy-instantiated when enabled)
+        self._cache: SemanticCache | None = None
+        if self.config.cache.enabled:
+            self._cache = SemanticCache(
+                similarity_threshold=config.cache.similarity_threshold,
+                ttl_seconds=config.cache.ttl_seconds,
+                max_entries=config.cache.max_entries,
+                embedding_model=config.cache.embedding_model,
+            )
 
         # Resolve reward_fn from config (fail fast on bad expressions).
         self._reward_fn: Callable[..., float] | None = None
@@ -370,57 +382,84 @@ class RouteSmith:
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
 
-        # Execute completion via LiteLLM with circuit breaker and retry
-        breaker = self._circuit_breakers.get(selected_model)
-        if breaker is None:
-            breaker = CircuitBreaker(selected_model)
-            self._circuit_breakers[selected_model] = breaker
+        # Cache check: after routing (to know model_id), before LLM call
+        cache_hit = False
+        cached_response: ModelResponse | None = None
+        if self._cache is not None:
+            cached_entry = self._cache.get(messages, model_id=selected_model)
+            if cached_entry is not None:
+                cache_hit = True
+                cached_response = cached_entry.response
 
-        if not breaker.allow_request():
-            from routesmith.exceptions import CircuitOpenError
-            self._log.warning(
-                "circuit_open", model_id=selected_model,
-                request_id=request_id,
-            )
-            raise CircuitOpenError(
-                selected_model, retry_after=breaker.retry_after_seconds()
-            )
-
-        try:
-            response = retry_with_backoff(
-                lambda: litellm.completion(
-                    model=selected_model,
-                    messages=messages,
-                    **{**self.config.litellm_params, **kwargs},
-                ),
-                max_retries=2,
-                base_delay=1.0,
-            )
-            breaker.record_success()
+        if cache_hit and cached_response is not None:
+            response = cached_response
+            # Attach request_id so feedback tracking can find this record
+            response._routesmith_request_id = request_id  # type: ignore[attr-defined]
             self._log.info(
-                "llm_call_success", model_id=selected_model,
+                "cache_hit", model_id=selected_model,
                 request_id=request_id,
             )
-        except RetryExhaustedError as e:
-            breaker.record_failure()
-            self._log.error(
-                "llm_call_exhausted", model_id=selected_model,
-                request_id=request_id,
-            )
-            self.feedback.record_outcome(
-                request_id=request_id, success=False, feedback=str(e)
-            )
-            raise
-        except Exception as e:
-            breaker.record_failure()
-            self._log.error(
-                "llm_call_failed", model_id=selected_model,
-                request_id=request_id,
-            )
-            self.feedback.record_outcome(
-                request_id=request_id, success=False, feedback=str(e)
-            )
-            raise
+        else:
+            # Execute completion via LiteLLM with circuit breaker and retry
+            breaker = self._circuit_breakers.get(selected_model)
+            if breaker is None:
+                breaker = CircuitBreaker(selected_model)
+                self._circuit_breakers[selected_model] = breaker
+
+            if not breaker.allow_request():
+                from routesmith.exceptions import CircuitOpenError
+                self._log.warning(
+                    "circuit_open", model_id=selected_model,
+                    request_id=request_id,
+                )
+                raise CircuitOpenError(
+                    selected_model, retry_after=breaker.retry_after_seconds()
+                )
+
+            try:
+                response = retry_with_backoff(
+                    lambda: litellm.completion(
+                        model=selected_model,
+                        messages=messages,
+                        **{**self.config.litellm_params, **kwargs},
+                    ),
+                    max_retries=2,
+                    base_delay=1.0,
+                )
+                breaker.record_success()
+                self._log.info(
+                    "llm_call_success", model_id=selected_model,
+                    request_id=request_id,
+                )
+
+                # Store in cache after successful LLM call
+                if self._cache is not None:
+                    try:
+                        self._cache.put(
+                            messages, response, model_id=selected_model
+                        )
+                    except Exception:
+                        pass  # cache store failure is non-fatal
+            except RetryExhaustedError as e:
+                breaker.record_failure()
+                self._log.error(
+                    "llm_call_exhausted", model_id=selected_model,
+                    request_id=request_id,
+                )
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=str(e)
+                )
+                raise
+            except Exception as e:
+                breaker.record_failure()
+                self._log.error(
+                    "llm_call_failed", model_id=selected_model,
+                    request_id=request_id,
+                )
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=str(e)
+                )
+                raise
 
         # Track costs and calculate counterfactual
         actual_cost = 0.0
@@ -464,6 +503,7 @@ class RouteSmith:
             counterfactual_cost_usd=round(counterfactual_cost, 6),
             cost_savings_usd=round(counterfactual_cost - actual_cost, 6),
             models_considered=models_considered,
+            cache_hit=cache_hit,
         )
         self._last_routing_metadata = metadata
 
@@ -639,18 +679,44 @@ class RouteSmith:
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
 
-        # Execute completion via LiteLLM
-        try:
-            response = await litellm.acompletion(
-                model=selected_model,
-                messages=messages,
-                **{**self.config.litellm_params, **kwargs},
+        # Cache check: after routing (to know model_id), before LLM call
+        cache_hit = False
+        cached_response: ModelResponse | None = None
+        if self._cache is not None:
+            cached_entry = self._cache.get(messages, model_id=selected_model)
+            if cached_entry is not None:
+                cache_hit = True
+                cached_response = cached_entry.response
+
+        if cache_hit and cached_response is not None:
+            response = cached_response
+            response._routesmith_request_id = request_id  # type: ignore[attr-defined]
+            self._log.info(
+                "cache_hit", model_id=selected_model,
+                request_id=request_id,
             )
-        except Exception as e:
-            self.feedback.record_outcome(
-                request_id=request_id, success=False, feedback=str(e)
-            )
-            raise
+        else:
+            # Execute completion via LiteLLM
+            try:
+                response = await litellm.acompletion(
+                    model=selected_model,
+                    messages=messages,
+                    **{**self.config.litellm_params, **kwargs},
+                )
+            except Exception as e:
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=str(e)
+                )
+                raise
+
+            # Store in cache after successful async LLM call
+            if self._cache is not None:
+                try:
+                    self._cache.put(
+                        messages, response, model_id=selected_model
+                    )
+                except Exception:
+                    pass  # cache store failure is non-fatal
 
         # Track costs and calculate counterfactual
         actual_cost = 0.0
@@ -694,6 +760,7 @@ class RouteSmith:
             counterfactual_cost_usd=round(counterfactual_cost, 6),
             cost_savings_usd=round(counterfactual_cost - actual_cost, 6),
             models_considered=models_considered,
+            cache_hit=cache_hit,
         )
         self._last_routing_metadata = metadata
 
