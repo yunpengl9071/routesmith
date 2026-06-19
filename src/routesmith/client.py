@@ -13,6 +13,7 @@ from typing import Any
 import litellm
 from litellm import ModelResponse
 
+from routesmith.cache.semantic import SemanticCache
 from routesmith.config import (
     BudgetBehavior,
     RouteContext,
@@ -20,6 +21,7 @@ from routesmith.config import (
     RoutingStrategy,
 )
 from routesmith.exceptions import BudgetExceededError
+from routesmith.explanation import format_explanation
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.registry.models import ModelRegistry
 from routesmith.strategy.circuit_breaker import CircuitBreaker
@@ -43,6 +45,7 @@ class RoutingMetadata:
     counterfactual_cost_usd: float  # What it would have cost with most expensive model
     cost_savings_usd: float
     models_considered: list[str]
+    cache_hit: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for response attachment."""
@@ -102,6 +105,19 @@ class RouteSmith:
             setup_logger("routesmith", json_format=True)
         )
 
+        # Conversation-scoped model stickiness
+        self._conversation_models: dict[str, str] = {}
+
+        # Semantic cache (lazy-instantiated when enabled)
+        self._cache: SemanticCache | None = None
+        if self.config.cache.enabled:
+            self._cache = SemanticCache(
+                similarity_threshold=config.cache.similarity_threshold,
+                ttl_seconds=config.cache.ttl_seconds,
+                max_entries=config.cache.max_entries,
+                embedding_model=config.cache.embedding_model,
+            )
+
         # Resolve reward_fn from config (fail fast on bad expressions).
         self._reward_fn: Callable[..., float] | None = None
         if self.config.reward_fn is not None:
@@ -126,6 +142,69 @@ class RouteSmith:
                     predictor.load_state(blob)
                 except Exception:
                     pass  # corrupt or incompatible state; cold start
+
+    @classmethod
+    def with_auto(
+        cls,
+        tradeoff: int = 7,
+        providers: list[str] | None = None,
+        include_all: bool = False,
+        cache: bool = False,
+        seed_quality: dict[str, float] | None = None,
+        openrouter_api_key: str | None = None,
+    ) -> RouteSmith:
+        """Create a RouteSmith with auto-discovered models.
+
+        Zero-config entry point. Automatically registers models from
+        OpenRouter (if API key available) or a curated fallback list.
+        The bandit refines cold-start quality scores from actual usage.
+
+        Args:
+            tradeoff: Default cost-quality tradeoff 0-10 (0=quality, 10=cost).
+            providers: Filter to specific providers.
+            include_all: Register all OpenRouter models, not just curated.
+            cache: Enable semantic caching.
+            seed_quality: Override initial quality scores per model.
+            openrouter_api_key: OpenRouter API key for live pricing/catalog.
+        """
+        import os
+
+        from routesmith.config import CacheConfig
+        from routesmith.registry.discovery import discover_models
+
+        config = RouteSmithConfig(
+            cache=CacheConfig(enabled=cache),
+        )
+
+        # Store tradeoff for context injection
+        config._auto_tradeoff = tradeoff  # type: ignore[attr-defined]
+
+        # Resolve API key from env if not provided
+        api_key = openrouter_api_key or os.environ.get("OPENROUTER_API_KEY")
+
+        # Discover models
+        models = discover_models(
+            api_key=api_key,
+            providers=providers,
+            include_all=include_all,
+        )
+
+        rs = cls(config=config)
+
+        for m in models:
+            # Override quality seed if user provided
+            quality = seed_quality.get(m["model_id"], m["quality_score"]) if seed_quality else m["quality_score"]
+
+            rs.register_model(
+                m["model_id"],
+                cost_per_1k_input=m["cost_per_1k_input"],
+                cost_per_1k_output=m["cost_per_1k_output"],
+                quality_score=quality,
+                context_window=m["context_window"],
+                **{"supports_vision": m.get("supports_vision", False)},
+            )
+
+        return rs
 
     @classmethod
     def with_free_models(cls) -> RouteSmith:
@@ -221,7 +300,13 @@ class RouteSmith:
         )
         predictor = self.router.predictor
         if hasattr(predictor, "add_arm"):
-            predictor.add_arm(model_id)
+            # Pass quality_score to predictors that support it
+            import inspect
+            sig = inspect.signature(predictor.add_arm)
+            if "quality_score" in sig.parameters:
+                predictor.add_arm(model_id, quality_score=quality_score)
+            else:
+                predictor.add_arm(model_id)
 
     def deregister_model(self, model_id: str) -> None:
         """Remove a model from routing.
@@ -262,6 +347,7 @@ class RouteSmith:
         strategy: RoutingStrategy | None = None,
         max_cost: float | None = None,
         min_quality: float | None = None,
+        tradeoff: int | None = None,
         include_metadata: bool = False,
         context: RouteContext | None = None,
         required_compliance: set[str] | None = None,
@@ -312,6 +398,19 @@ class RouteSmith:
         routing_reason = ""
         models_considered = [m.model_id for m in self.registry.list_models()]
 
+        # Resolve tradeoff: explicit parameter > auto_tradeoff > default 7
+        if tradeoff is not None:
+            effective_tradeoff = tradeoff
+        elif hasattr(self.config, '_auto_tradeoff'):
+            effective_tradeoff = self.config._auto_tradeoff
+        else:
+            effective_tradeoff = 7
+
+        # Inject tradeoff into routing context for bandit predictors
+        if context is None:
+            context = RouteContext()
+        context.metadata["tradeoff"] = effective_tradeoff
+
         # Auto-detect required capabilities
         required_capabilities = self._detect_required_capabilities(messages, kwargs)
 
@@ -340,6 +439,10 @@ class RouteSmith:
         if model:
             selected_model = model
             routing_reason = "explicit model specified"
+        elif context.conversation_id and context.conversation_id in self._conversation_models:
+            # Conversation stickiness: reuse the model from the first turn
+            selected_model = self._conversation_models[context.conversation_id]
+            routing_reason = "conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
             # FALLBACK: use cheapest model regardless of quality
             self._budget_events["fallbacks"] += 1
@@ -369,58 +472,88 @@ class RouteSmith:
             )
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
+        # Record conversation model for session stickiness
+        if context and context.conversation_id and context.conversation_id not in self._conversation_models:
+            self._conversation_models[context.conversation_id] = selected_model
 
-        # Execute completion via LiteLLM with circuit breaker and retry
-        breaker = self._circuit_breakers.get(selected_model)
-        if breaker is None:
-            breaker = CircuitBreaker(selected_model)
-            self._circuit_breakers[selected_model] = breaker
+        # Cache check: after routing (to know model_id), before LLM call
+        cache_hit = False
+        cached_response: ModelResponse | None = None
+        if self._cache is not None:
+            cached_entry = self._cache.get(messages, model_id=selected_model)
+            if cached_entry is not None:
+                cache_hit = True
+                cached_response = cached_entry.response
 
-        if not breaker.allow_request():
-            from routesmith.exceptions import CircuitOpenError
-            self._log.warning(
-                "circuit_open", model_id=selected_model,
-                request_id=request_id,
-            )
-            raise CircuitOpenError(
-                selected_model, retry_after=breaker.retry_after_seconds()
-            )
-
-        try:
-            response = retry_with_backoff(
-                lambda: litellm.completion(
-                    model=selected_model,
-                    messages=messages,
-                    **{**self.config.litellm_params, **kwargs},
-                ),
-                max_retries=2,
-                base_delay=1.0,
-            )
-            breaker.record_success()
+        if cache_hit and cached_response is not None:
+            response = cached_response
+            # Attach request_id so feedback tracking can find this record
+            response._routesmith_request_id = request_id  # type: ignore[attr-defined]
             self._log.info(
-                "llm_call_success", model_id=selected_model,
+                "cache_hit", model_id=selected_model,
                 request_id=request_id,
             )
-        except RetryExhaustedError as e:
-            breaker.record_failure()
-            self._log.error(
-                "llm_call_exhausted", model_id=selected_model,
-                request_id=request_id,
-            )
-            self.feedback.record_outcome(
-                request_id=request_id, success=False, feedback=str(e)
-            )
-            raise
-        except Exception as e:
-            breaker.record_failure()
-            self._log.error(
-                "llm_call_failed", model_id=selected_model,
-                request_id=request_id,
-            )
-            self.feedback.record_outcome(
-                request_id=request_id, success=False, feedback=str(e)
-            )
-            raise
+        else:
+            # Execute completion via LiteLLM with circuit breaker and retry
+            breaker = self._circuit_breakers.get(selected_model)
+            if breaker is None:
+                breaker = CircuitBreaker(selected_model)
+                self._circuit_breakers[selected_model] = breaker
+
+            if not breaker.allow_request():
+                from routesmith.exceptions import CircuitOpenError
+                self._log.warning(
+                    "circuit_open", model_id=selected_model,
+                    request_id=request_id,
+                )
+                raise CircuitOpenError(
+                    selected_model, retry_after=breaker.retry_after_seconds()
+                )
+
+            try:
+                response = retry_with_backoff(
+                    lambda: litellm.completion(
+                        model=selected_model,
+                        messages=messages,
+                        **{**self.config.litellm_params, **kwargs},
+                    ),
+                    max_retries=2,
+                    base_delay=1.0,
+                )
+                breaker.record_success()
+                self._log.info(
+                    "llm_call_success", model_id=selected_model,
+                    request_id=request_id,
+                )
+
+                # Store in cache after successful LLM call
+                if self._cache is not None:
+                    try:
+                        self._cache.put(
+                            messages, response, model_id=selected_model
+                        )
+                    except Exception:
+                        pass  # cache store failure is non-fatal
+            except RetryExhaustedError as e:
+                breaker.record_failure()
+                self._log.error(
+                    "llm_call_exhausted", model_id=selected_model,
+                    request_id=request_id,
+                )
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=str(e)
+                )
+                raise
+            except Exception as e:
+                breaker.record_failure()
+                self._log.error(
+                    "llm_call_failed", model_id=selected_model,
+                    request_id=request_id,
+                )
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=str(e)
+                )
+                raise
 
         # Track costs and calculate counterfactual
         actual_cost = 0.0
@@ -464,12 +597,22 @@ class RouteSmith:
             counterfactual_cost_usd=round(counterfactual_cost, 6),
             cost_savings_usd=round(counterfactual_cost - actual_cost, 6),
             models_considered=models_considered,
+            cache_hit=cache_hit,
         )
         self._last_routing_metadata = metadata
 
         # Attach metadata to response if requested
         if include_metadata:
             response.routesmith_metadata = metadata.to_dict()  # type: ignore[attr-defined]
+
+        # Attach human-readable explanation to every response
+        response.routesmith_explanation = format_explanation(  # type: ignore[attr-defined]
+            metadata,
+            qualifying=0,
+            rejected=0,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
+        )
 
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]
@@ -531,6 +674,7 @@ class RouteSmith:
         strategy: RoutingStrategy | None = None,
         max_cost: float | None = None,
         min_quality: float | None = None,
+        tradeoff: int | None = None,
         include_metadata: bool = False,
         context: RouteContext | None = None,
         required_compliance: set[str] | None = None,
@@ -606,10 +750,27 @@ class RouteSmith:
         routing_reason = ""
         models_considered = [m.model_id for m in self.registry.list_models()]
 
+        # Resolve tradeoff: explicit parameter > auto_tradeoff > default 7
+        if tradeoff is not None:
+            effective_tradeoff = tradeoff
+        elif hasattr(self.config, '_auto_tradeoff'):
+            effective_tradeoff = self.config._auto_tradeoff
+        else:
+            effective_tradeoff = 7
+
+        # Inject tradeoff into routing context for bandit predictors
+        if context is None:
+            context = RouteContext()
+        context.metadata["tradeoff"] = effective_tradeoff
+
         # If specific model requested, skip routing
         if model:
             selected_model = model
             routing_reason = "explicit model specified"
+        elif context.conversation_id and context.conversation_id in self._conversation_models:
+            # Conversation stickiness: reuse the model from the first turn
+            selected_model = self._conversation_models[context.conversation_id]
+            routing_reason = "conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
             self._budget_events["fallbacks"] += 1
             cheapest = self.registry.get_cheapest()
@@ -638,19 +799,48 @@ class RouteSmith:
             )
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
+        # Record conversation model for session stickiness
+        if context and context.conversation_id and context.conversation_id not in self._conversation_models:
+            self._conversation_models[context.conversation_id] = selected_model
 
-        # Execute completion via LiteLLM
-        try:
-            response = await litellm.acompletion(
-                model=selected_model,
-                messages=messages,
-                **{**self.config.litellm_params, **kwargs},
+        # Cache check: after routing (to know model_id), before LLM call
+        cache_hit = False
+        cached_response: ModelResponse | None = None
+        if self._cache is not None:
+            cached_entry = self._cache.get(messages, model_id=selected_model)
+            if cached_entry is not None:
+                cache_hit = True
+                cached_response = cached_entry.response
+
+        if cache_hit and cached_response is not None:
+            response = cached_response
+            response._routesmith_request_id = request_id  # type: ignore[attr-defined]
+            self._log.info(
+                "cache_hit", model_id=selected_model,
+                request_id=request_id,
             )
-        except Exception as e:
-            self.feedback.record_outcome(
-                request_id=request_id, success=False, feedback=str(e)
-            )
-            raise
+        else:
+            # Execute completion via LiteLLM
+            try:
+                response = await litellm.acompletion(
+                    model=selected_model,
+                    messages=messages,
+                    **{**self.config.litellm_params, **kwargs},
+                )
+            except Exception as e:
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=str(e)
+                )
+                raise
+
+            # Store in cache after successful async LLM call
+            if self._cache is not None:
+                try:
+                    self._cache.put(
+                        messages, response, model_id=selected_model
+                    )
+                except Exception:
+                    pass  # cache store failure is non-fatal
 
         # Track costs and calculate counterfactual
         actual_cost = 0.0
@@ -694,12 +884,22 @@ class RouteSmith:
             counterfactual_cost_usd=round(counterfactual_cost, 6),
             cost_savings_usd=round(counterfactual_cost - actual_cost, 6),
             models_considered=models_considered,
+            cache_hit=cache_hit,
         )
         self._last_routing_metadata = metadata
 
         # Attach metadata to response if requested
         if include_metadata:
             response.routesmith_metadata = metadata.to_dict()  # type: ignore[attr-defined]
+
+        # Attach human-readable explanation to every response
+        response.routesmith_explanation = format_explanation(  # type: ignore[attr-defined]
+            metadata,
+            qualifying=0,
+            rejected=0,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
+        )
 
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]

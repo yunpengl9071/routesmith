@@ -131,6 +131,18 @@ class LinUCBPredictor(BasePredictor):
             x = x / norm
         return x
 
+    def _effective_cost_lambda(self, context=None) -> float:
+        """Compute cost_lambda scaled by tradeoff from context.
+
+        tradeoff=7 (default) → no scaling (1.0x).
+        tradeoff=0 → quality-only (0.0x cost_lambda).
+        tradeoff=10 → max cost sensitivity (1.43x cost_lambda).
+        """
+        tradeoff = 7
+        if context is not None and hasattr(context, 'metadata'):
+            tradeoff = context.metadata.get("tradeoff", 7)
+        return self._cost_lambda * (tradeoff / 7.0)
+
     def predict(
         self,
         messages: list[dict[str, str]],
@@ -145,6 +157,8 @@ class LinUCBPredictor(BasePredictor):
         """
         results: list[PredictionResult] = []
         msg_features, ctx_features = self._extractor.extract_message_and_context(messages, context)
+        effective_cost_lambda = self._effective_cost_lambda(context)
+        cost_lambda_delta = effective_cost_lambda - self._cost_lambda
 
         for model_id in model_ids:
             x = self._get_context_from_parts(msg_features, ctx_features, model_id)
@@ -171,6 +185,15 @@ class LinUCBPredictor(BasePredictor):
             # During warmup, give unexplored arms a large bonus
             if arm["count"] < self._warmup_rounds:
                 ucb_score = 2.0 + (self._warmup_rounds - arm["count"])
+
+            # Apply tradeoff-driven cost penalty to final score
+            if cost_lambda_delta != 0.0:
+                model_cfg = self._registry.get(model_id)
+                if model_cfg is not None and self._max_cost > 0:
+                    normalized_cost = model_cfg.cost_per_1k_total / self._max_cost
+                else:
+                    normalized_cost = 0.0
+                ucb_score = ucb_score - cost_lambda_delta * normalized_cost
 
             # Clamp to reasonable range for compatibility with router
             # (router expects quality in ~[0, 1] but UCB can exceed 1)
@@ -231,7 +254,8 @@ class LinUCBPredictor(BasePredictor):
         if reward_override is not None:
             reward = reward_override
         else:
-            reward = actual_quality - self._cost_lambda * normalized_cost
+            effective_lambda = self._effective_cost_lambda(context)
+            reward = actual_quality - effective_lambda * normalized_cost
 
         # Sherman-Morrison rank-1 update for A_inv
         # A_new = A + x x^T
