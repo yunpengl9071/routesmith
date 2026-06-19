@@ -108,6 +108,12 @@ class RouteSmith:
         # Conversation-scoped model stickiness
         self._conversation_models: dict[str, str] = {}
 
+        # Quality poll sampler
+        from routesmith.feedback.polls import PollSampler
+        self._poll_sampler = PollSampler(
+            base_rate=self.config.poll_sample_rate
+        )
+
         # Semantic cache (lazy-instantiated when enabled)
         self._cache: SemanticCache | None = None
         if self.config.cache.enabled:
@@ -614,6 +620,23 @@ class RouteSmith:
             turn_index=context.turn_index if context else None,
         )
 
+        # Quality poll injection (adaptive sampling)
+        convergence = context.metadata.get("convergence", 0.0) if context else 0.0
+        if self._poll_sampler.should_sample(
+            agent_id=context.agent_id if context else None,
+            convergence=convergence,
+        ):
+            from routesmith.feedback.polls import generate_poll
+            poll = generate_poll(
+                request_id=request_id,
+                model_id=selected_model,
+                cost_usd=actual_cost,
+            )
+            poll_dict = poll.to_dict()
+            response.routesmith_poll = poll_dict  # type: ignore[attr-defined]
+            if self.config.on_poll is not None:
+                self.config.on_poll(poll_dict)
+
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]
 
@@ -900,6 +923,23 @@ class RouteSmith:
             conversation_id=context.conversation_id if context else None,
             turn_index=context.turn_index if context else None,
         )
+
+        # Quality poll injection (adaptive sampling)
+        convergence = context.metadata.get("convergence", 0.0) if context else 0.0
+        if self._poll_sampler.should_sample(
+            agent_id=context.agent_id if context else None,
+            convergence=convergence,
+        ):
+            from routesmith.feedback.polls import generate_poll
+            poll = generate_poll(
+                request_id=request_id,
+                model_id=selected_model,
+                cost_usd=actual_cost,
+            )
+            poll_dict = poll.to_dict()
+            response.routesmith_poll = poll_dict  # type: ignore[attr-defined]
+            if self.config.on_poll is not None:
+                self.config.on_poll(poll_dict)
 
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]

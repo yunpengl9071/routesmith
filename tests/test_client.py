@@ -875,3 +875,69 @@ class TestTradeoff:
                 include_metadata=True,
             )
             assert resp.routesmith_metadata["model_selected"] == "gpt-4o-mini"
+
+
+class TestPollInjection:
+    def test_poll_attached_to_response(self):
+        """Poll metadata is attached to response when sampled."""
+        from unittest.mock import MagicMock, patch
+        from routesmith.config import RouteSmithConfig
+
+        config = RouteSmithConfig(poll_sample_rate=1.0)
+        rs = RouteSmith(config=config)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = rs.completion(
+                messages=[{"role": "user", "content": "hi"}],
+            )
+
+        assert hasattr(resp, "routesmith_poll")
+        poll = resp.routesmith_poll
+        assert poll["type"] == "numbered"
+        assert len(poll["options"]) == 5
+
+    def test_poll_not_attached_when_rate_zero(self):
+        """Poll is not attached when sample rate is 0."""
+        from unittest.mock import MagicMock, patch
+        from routesmith.config import RouteSmithConfig
+
+        config = RouteSmithConfig(poll_sample_rate=0.0)
+        rs = RouteSmith(config=config)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = rs.completion(
+                messages=[{"role": "user", "content": "hi"}],
+            )
+
+        assert not isinstance(getattr(resp, "routesmith_poll", None), dict)
+
+    def test_on_poll_callback_invoked(self):
+        """on_poll callback is invoked when poll is sampled."""
+        from unittest.mock import MagicMock, patch
+        from routesmith.config import RouteSmithConfig
+
+        callback = MagicMock()
+        config = RouteSmithConfig(poll_sample_rate=1.0, on_poll=callback)
+        rs = RouteSmith(config=config)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            rs.completion(messages=[{"role": "user", "content": "hi"}])
+
+        callback.assert_called_once()
+        poll_dict = callback.call_args[0][0]
+        assert poll_dict["type"] == "numbered"
