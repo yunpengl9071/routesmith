@@ -113,6 +113,7 @@ class RouteSmith:
         self._poll_sampler = PollSampler(
             base_rate=self.config.poll_sample_rate
         )
+        self._polls: dict[str, Any] = {}  # poll_id -> Poll
 
         # Semantic cache (lazy-instantiated when enabled)
         self._cache: SemanticCache | None = None
@@ -634,6 +635,7 @@ class RouteSmith:
             )
             poll_dict = poll.to_dict()
             response.routesmith_poll = poll_dict  # type: ignore[attr-defined]
+            self._polls[request_id] = poll
             if self.config.on_poll is not None:
                 self.config.on_poll(poll_dict)
 
@@ -938,6 +940,7 @@ class RouteSmith:
             )
             poll_dict = poll.to_dict()
             response.routesmith_poll = poll_dict  # type: ignore[attr-defined]
+            self._polls[request_id] = poll
             if self.config.on_poll is not None:
                 self.config.on_poll(poll_dict)
 
@@ -1104,6 +1107,42 @@ class RouteSmith:
                 if tracker:
                     result[model.model_id] = tracker.current_utilization
         return result
+
+    def answer_poll(self, poll_id: str, option: int) -> bool:
+        """Answer a quality poll with the selected option.
+
+        Maps the option to a quality signal and feeds it to the
+        bandit predictor for per-agent quality fine-tuning.
+
+        Args:
+            poll_id: The poll ID (matches the request_id).
+            option: Selected option number (1-5).
+
+        Returns:
+            True if the poll was found and processed, False otherwise.
+        """
+        from routesmith.feedback.polls import PollSignalMapper
+
+        poll = self._polls.get(poll_id)
+        if poll is None:
+            return False
+
+        signal = PollSignalMapper.map(option)
+        if signal is None:
+            return False
+
+        # Feed back to predictor via record_outcome
+        try:
+            self.record_outcome(
+                request_id=poll_id,
+                score=signal["quality"],
+                feedback=signal["reason"],
+            )
+        finally:
+            # Clean up poll storage
+            self._polls.pop(poll_id, None)
+
+        return True
 
     def record_outcome(
         self,
