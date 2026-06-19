@@ -8,7 +8,6 @@ new agents get polled more, converged agents less.
 from __future__ import annotations
 
 import random
-import uuid
 from dataclasses import asdict, dataclass, field
 from typing import Any
 

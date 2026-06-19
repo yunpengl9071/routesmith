@@ -881,6 +881,7 @@ class TestPollInjection:
     def test_poll_attached_to_response(self):
         """Poll metadata is attached to response when sampled."""
         from unittest.mock import MagicMock, patch
+
         from routesmith.config import RouteSmithConfig
 
         config = RouteSmithConfig(poll_sample_rate=1.0)
@@ -904,6 +905,7 @@ class TestPollInjection:
     def test_poll_not_attached_when_rate_zero(self):
         """Poll is not attached when sample rate is 0."""
         from unittest.mock import MagicMock, patch
+
         from routesmith.config import RouteSmithConfig
 
         config = RouteSmithConfig(poll_sample_rate=0.0)
@@ -924,6 +926,7 @@ class TestPollInjection:
     def test_on_poll_callback_invoked(self):
         """on_poll callback is invoked when poll is sampled."""
         from unittest.mock import MagicMock, patch
+
         from routesmith.config import RouteSmithConfig
 
         callback = MagicMock()
@@ -999,6 +1002,7 @@ class TestAnswerPoll:
     def test_answer_poll_maps_option_to_signal(self):
         """answer_poll maps option to quality signal and feeds predictor."""
         from unittest.mock import MagicMock, patch
+
         from routesmith.config import RouteSmithConfig
 
         config = RouteSmithConfig(poll_sample_rate=1.0)

@@ -1,14 +1,10 @@
 """Tests for quality poll generation and sampling."""
 
-import random
 from unittest.mock import patch
 
 import pytest
 
 from routesmith.feedback.polls import (
-    Poll,
-    PollOption,
-    PollAnswer,
     PollSampler,
     PollSignalMapper,
     generate_poll,
