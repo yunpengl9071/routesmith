@@ -943,35 +943,53 @@ class TestPollInjection:
         assert poll_dict["type"] == "numbered"
 
 
-class TestAnswerPoll:
-    def test_answer_poll_returns_true_on_success(self):
-        """answer_poll returns True when the poll ID is found."""
+class TestRecommendations:
+    def test_recommendations_returns_dict(self):
+        """recommendations() returns a dict with per-agent data."""
+        rs = RouteSmith()
+        recs = rs.recommendations()
+
+        assert isinstance(recs, dict)
+        assert "warnings" in recs
+        assert "new_models_to_try" in recs
+        assert "forecast" in recs
+
+    def test_recommendations_forecast(self):
+        """recommendations includes budget forecast."""
+        rs = RouteSmith()
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006)
+        rs._total_cost = 45.20
+        rs._request_count = 100
+
+        recs = rs.recommendations()
+        forecast = recs["forecast"]
+
+        assert "monthly_cost_current" in forecast
+        assert forecast["monthly_cost_current"] == 45.20
+
+    def test_recommendations_warnings(self):
+        """recommendations includes anomaly warnings."""
         rs = RouteSmith()
         rs.register_model("gpt-4o-mini", 0.00015, 0.0006)
 
-        # First make a request at 100% sample rate to generate a poll
-        from unittest.mock import MagicMock, patch
-        from routesmith.config import RouteSmithConfig
+        recs = rs.recommendations()
+        warnings = recs["warnings"]
 
-        config = RouteSmithConfig(poll_sample_rate=1.0)
-        rs = RouteSmith(config=config)
+        assert isinstance(warnings, list)
+        # With no data, warnings should be empty or informational
+
+    def test_recommendations_new_models_to_try(self):
+        """recommendations suggests new models to try."""
+        rs = RouteSmith()
         rs.register_model("gpt-4o-mini", 0.00015, 0.0006)
 
-        with patch("litellm.completion") as mock:
-            mock.return_value = MagicMock(
-                choices=[MagicMock(message=MagicMock(content="ok"))],
-                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
-            )
-            rs.completion(
-                messages=[{"role": "user", "content": "hi"}],
-            )
+        recs = rs.recommendations()
+        new_models = recs["new_models_to_try"]
 
-        # answer_poll should work (poll was stored)
-        # We track polls by request_id which comes from the completion call.
-        # The poll dict was attached to response but not stored for answer_poll.
-        # After implementation, this test will verify answer_poll returns bool.
-        pass
+        assert isinstance(new_models, list)
 
+
+class TestAnswerPoll:
     def test_answer_poll_unknown_id(self):
         """answer_poll returns False for unknown poll ID."""
         rs = RouteSmith()

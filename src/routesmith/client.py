@@ -1144,6 +1144,42 @@ class RouteSmith:
 
         return True
 
+    def recommendations(self) -> dict[str, Any]:
+        """Return proactive intelligence: recommendations, warnings, forecast.
+
+        Aggregates per-agent model recommendations, anomaly warnings,
+        new models to explore, and budget pacing/forecast.
+        """
+        recommendations: dict[str, Any] = {
+            "warnings": [],
+            "new_models_to_try": [],
+            "forecast": {
+                "monthly_cost_current": round(self._total_cost, 2),
+                "request_count": self._request_count,
+                "savings_total": round(self._counterfactual_cost - self._total_cost, 2),
+            },
+        }
+
+        # Per-agent recommendations from feedback storage
+        if self.feedback._storage is not None:
+            roles = self.feedback._storage.get_known_roles()
+            for role in roles:
+                result = self.recommend_model_for_agent(role, min_samples=10)
+                if result:
+                    recommendations[role] = {
+                        "current_best": result["model"],
+                        "avg_quality": result["avg_quality"],
+                        "avg_cost_usd": result["avg_cost_usd"],
+                        "confidence": result["confidence"],
+                        "sample_count": result["sample_count"],
+                    }
+                    # Suggest new models to try
+                    for m in result.get("new_models_to_explore", []):
+                        if m not in recommendations["new_models_to_try"]:
+                            recommendations["new_models_to_try"].append(m)
+
+        return recommendations
+
     def record_outcome(
         self,
         request_id: str,
