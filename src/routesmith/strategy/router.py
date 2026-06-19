@@ -67,6 +67,7 @@ class Router:
             return LinTSPredictor(
                 registry=registry,
                 v_sq=config.predictor.lints_v_sq,
+                cost_lambda=config.predictor.linucb_cost_lambda,
                 seed=config.predictor.seed,
             )
 
@@ -248,11 +249,18 @@ class Router:
         ]
 
         if qualifying:
-            # Return cheapest model meeting quality threshold
-            cheapest_qualifying = min(
-                qualifying, key=lambda p: cost_map.get(p.model_id, float("inf"))
-            )
-            return cheapest_qualifying.model_id
+            # Determine selection criterion based on tradeoff
+            tradeoff = context.metadata.get("tradeoff", 7) if context and hasattr(context, 'metadata') else 7
+            if tradeoff <= 2:
+                # Low tradeoff: pick highest quality model
+                best = max(qualifying, key=lambda p: p.predicted_quality)
+            elif tradeoff >= 8:
+                # High tradeoff: pick cheapest model
+                best = min(qualifying, key=lambda p: cost_map.get(p.model_id, float("inf")))
+            else:
+                # Mid tradeoff: cheapest above quality threshold (default)
+                best = min(qualifying, key=lambda p: cost_map.get(p.model_id, float("inf")))
+            return best.model_id
 
         # No model meets quality threshold - fall back to highest predicted quality
         if predictions:

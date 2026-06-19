@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv sync --extra dev --extra anthropic --extra langchain
+      - run: uv sync --extra dev --extra anthropic --extra langchain --extra cache
       - run: uv run pytest tests/ -x -q --tb=short -m "not requires_api"
 
   security:

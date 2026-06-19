@@ -192,3 +192,57 @@ class TestPerformance:
         elapsed = (time.perf_counter() - start) / 100
         # Should be well under 1ms per extraction
         assert elapsed < 0.001, f"Feature extraction took {elapsed*1000:.2f}ms"
+
+
+class TestConversationFeatures:
+    def test_turn_index_normalized(self, registry):
+        """Feature extractor includes conversation depth and turn index."""
+        from routesmith.config import RouteContext
+
+        extractor = FeatureExtractor(registry)
+        messages = [{"role": "user", "content": "Hello"}]
+        context = RouteContext(
+            conversation_id="chat-001",
+            turn_index=5,
+        )
+        fv = extractor.extract(messages, "gpt-4o", context=context)
+        # turn_index_norm at index 27, normalized to 0-1
+        assert 0.0 <= fv.features[27] <= 1.0
+        # With turn_index=5 and max=20, expected: 5/20 = 0.25
+        assert fv.features[27] == pytest.approx(0.25)
+
+    def test_conversation_depth_features(self, registry):
+        """Conversation depth increases with longer conversations."""
+        from routesmith.config import RouteContext
+
+        extractor = FeatureExtractor(registry)
+        short_ctx = RouteContext(
+            conversation_id="chat-001",
+            turn_index=1,
+        )
+        long_ctx = RouteContext(
+            conversation_id="chat-001",
+            turn_index=10,
+        )
+
+        fv_short = extractor.extract(
+            [{"role": "user", "content": "Hi"}], "gpt-4o", context=short_ctx
+        )
+        fv_long = extractor.extract(
+            [{"role": "user", "content": "Hi"}], "gpt-4o", context=long_ctx
+        )
+
+        # Turn index increases with conversation length
+        assert fv_long.features[27] > fv_short.features[27]
+        # has_agent_context is 1.0 when context present
+        assert fv_long.features[34] == 1.0
+
+    def test_context_features_zero_when_none(self, registry):
+        """Context features are all 0.0 when context is None."""
+        extractor = FeatureExtractor(registry)
+        fv = extractor.extract(
+            [{"role": "user", "content": "Hi"}], "gpt-4o", context=None
+        )
+        # All 8 context features should be 0.0
+        for i in range(27, 35):
+            assert fv.features[i] == 0.0, f"Feature {i} should be 0.0 but got {fv.features[i]}"

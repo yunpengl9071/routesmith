@@ -149,6 +149,7 @@ class LinTSPredictor:
         self,
         registry: Any,
         v_sq: float = 1.0,
+        cost_lambda: float = 0.3,
         seed: int = 42,
     ) -> None:
         from routesmith.predictor.base import PredictionResult
@@ -157,6 +158,7 @@ class LinTSPredictor:
         self._registry = registry
         self._extractor = FeatureExtractor(registry)
         self._PredictionResult = PredictionResult
+        self._cost_lambda = cost_lambda
 
         models = registry.list_models()
         self._arm_index: dict[str, int] = {m.model_id: i for i, m in enumerate(models)}
@@ -166,6 +168,17 @@ class LinTSPredictor:
 
         self._router = LinTSRouter(n_arms=n_arms, d=d, v_sq=v_sq, seed=seed)
         self._total_updates = 0
+
+        # Cost normalization: max cost across registered models
+        costs = [m.cost_per_1k_total for m in registry.list_models()]
+        self._max_cost = max(costs) if costs else 1.0
+
+    def _effective_cost_lambda(self, context=None) -> float:
+        """Compute cost_lambda scaled by tradeoff from context."""
+        tradeoff = 7
+        if context is not None and hasattr(context, 'metadata'):
+            tradeoff = context.metadata.get("tradeoff", 7)
+        return self._cost_lambda * (tradeoff / 7.0)
 
     def _features(self, messages: list[dict], model_id: str, context=None) -> np.ndarray:
         fv = self._extractor.extract(messages, model_id, context=context)
@@ -194,6 +207,8 @@ class LinTSPredictor:
     ) -> list:
         """Sample from each arm's posterior and return ranked predictions."""
         msg_features, ctx_features = self._extractor.extract_message_and_context(messages, context)
+        effective_cost_lambda = self._effective_cost_lambda(context)
+        cost_lambda_delta = effective_cost_lambda - self._cost_lambda
         results = []
         for model_id in model_ids:
             arm_idx = self._arm_index.get(model_id)
@@ -211,6 +226,15 @@ class LinTSPredictor:
             arm = self._router.arms[arm_idx]
             theta_sample = arm.sample(self._router._rng, self._router.v_sq)
             score = float(theta_sample @ x_norm)
+
+            # Adjust by tradeoff-driven cost penalty (delta from baseline)
+            if cost_lambda_delta != 0.0:
+                model_cfg = self._registry.get(model_id)
+                if model_cfg is not None and self._max_cost > 0:
+                    normalized_cost = model_cfg.cost_per_1k_total / self._max_cost
+                else:
+                    normalized_cost = 0.0
+                score = score - cost_lambda_delta * normalized_cost
 
             update_count = int(np.sum(arm.A) - arm.A.shape[0])  # rank-1 updates applied
             results.append(self._PredictionResult(
@@ -239,7 +263,16 @@ class LinTSPredictor:
         if arm_idx is None:
             return
         x = self._features(messages, model_id, context=context)
-        reward = reward_override if reward_override is not None else actual_quality
+        if reward_override is not None:
+            reward = reward_override
+        else:
+            effective_lambda = self._effective_cost_lambda(context)
+            model_cfg = self._registry.get(model_id)
+            if model_cfg is not None and self._max_cost > 0:
+                normalized_cost = model_cfg.cost_per_1k_total / self._max_cost
+            else:
+                normalized_cost = 0.0
+            reward = actual_quality - effective_lambda * normalized_cost
         self._router.update(arm=arm_idx, x=x, reward=reward)
         self._total_updates += 1
 

@@ -670,3 +670,208 @@ class TestRegisterRewardFn:
         rs = RouteSmith(config=RouteSmithConfig(reward_fns={"research": _fn1}))
         rs.register_reward_fn("research", _fn2)
         assert rs.config.reward_fns["research"] is _fn2
+
+
+class TestWithAuto:
+    def test_with_auto_returns_client(self):
+        """with_auto() returns a RouteSmith with models registered."""
+        rs = RouteSmith.with_auto()
+        assert len(rs.registry) > 0
+        assert rs.config.cache.enabled is False  # no cache by default
+
+    def test_with_auto_registers_known_model(self):
+        """with_auto() registers gpt-4o-mini."""
+        rs = RouteSmith.with_auto()
+        model = rs.registry.get("openai/gpt-4o-mini")
+        assert model is not None
+        assert model.cost_per_1k_input == pytest.approx(0.00015)
+
+    def test_with_auto_accepts_tradeoff(self):
+        """with_auto() accepts a default tradeoff."""
+        rs = RouteSmith.with_auto(tradeoff=3)
+        assert rs.config._auto_tradeoff == 3
+
+    def test_with_auto_accepts_provider_filter(self):
+        """with_auto() filters by provider."""
+        rs = RouteSmith.with_auto(providers=["anthropic"])
+        for m in rs.registry.list_models():
+            assert m.model_id.startswith("anthropic/")
+
+    def test_with_auto_accepts_cache_config(self):
+        """with_auto() can enable caching."""
+        rs = RouteSmith.with_auto(cache=True)
+        assert rs._cache is not None
+
+    def test_full_with_auto_flow(self):
+        """Integration: with_auto() + completion + tradeoff works end-to-end."""
+        from unittest.mock import MagicMock, patch
+
+        rs = RouteSmith.with_auto(tradeoff=7)
+
+        assert len(rs.registry) >= 3  # at least a few models registered
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="response"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = rs.completion(
+                messages=[{"role": "user", "content": "Hello world"}],
+                tradeoff=5,
+                include_metadata=True,
+            )
+
+        assert resp.routesmith_metadata["model_selected"] is not None
+        assert resp.routesmith_metadata["cache_hit"] is False
+        assert "model_selected" in resp.routesmith_metadata
+
+
+class TestConversationScopedRouting:
+    def test_same_conversation_reuses_model(self):
+        """Same conversation_id reuses the first-turn model."""
+        from unittest.mock import MagicMock, patch
+
+        from routesmith.config import RouteContext
+
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+
+            # First turn: picks a model
+            ctx1 = RouteContext(conversation_id="conv-001", turn_index=1)
+            resp1 = rs.completion(
+                messages=[{"role": "user", "content": "Hello"}],
+                context=ctx1,
+                include_metadata=True,
+            )
+            first_model = resp1.routesmith_metadata["model_selected"]
+
+            # Second turn: should reuse the same model
+            ctx2 = RouteContext(conversation_id="conv-001", turn_index=2)
+            resp2 = rs.completion(
+                messages=[{"role": "user", "content": "Continue"}],
+                context=ctx2,
+                include_metadata=True,
+            )
+
+            assert resp2.routesmith_metadata["model_selected"] == first_model
+            assert "stickiness" in resp2.routesmith_metadata.get("routing_reason", "")
+
+    def test_different_conversations_explore_models(self):
+        """Different conversation_ids get fresh exploration."""
+        from unittest.mock import MagicMock, patch
+
+        from routesmith.config import RouteContext
+
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+
+            # Conversation A
+            ctx_a = RouteContext(conversation_id="conv-a", turn_index=1)
+            resp_a = rs.completion(
+                messages=[{"role": "user", "content": "Hi"}],
+                context=ctx_a,
+                include_metadata=True,
+            )
+
+            # Conversation B — fresh, should explore
+            ctx_b = RouteContext(conversation_id="conv-b", turn_index=1)
+            resp_b = rs.completion(
+                messages=[{"role": "user", "content": "Hi"}],
+                context=ctx_b,
+                include_metadata=True,
+            )
+
+            # Both should get a model (not crash)
+            assert resp_a.routesmith_metadata["model_selected"] is not None
+            assert resp_b.routesmith_metadata["model_selected"] is not None
+            # Models might differ (fresh exploration), or be same (no strong signal yet)
+            # Either is acceptable
+
+
+class TestTradeoff:
+    def _make_client(self):
+        """Create a RouteSmith client with test models."""
+        rs = RouteSmith()
+        rs.register_model(
+            "gpt-4o",
+            cost_per_1k_input=0.005,
+            cost_per_1k_output=0.015,
+            quality_score=0.95,
+        )
+        rs.register_model(
+            "gpt-4o-mini",
+            cost_per_1k_input=0.00015,
+            cost_per_1k_output=0.0006,
+            quality_score=0.85,
+        )
+        return rs
+
+    def test_tradeoff_passed_to_route(self):
+        """tradeoff parameter is accepted and affects routing."""
+        from unittest.mock import MagicMock, patch
+
+        client = self._make_client()
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = client.completion(
+                messages=[{"role": "user", "content": "hello"}],
+                tradeoff=3,
+                include_metadata=True,
+            )
+            # tradeoff=3 should still pick a model (not crash)
+            assert resp.routesmith_metadata["model_selected"] is not None
+
+    def test_tradeoff_0_prefers_quality(self):
+        """tradeoff=0 prefers highest quality model regardless of cost."""
+        from unittest.mock import MagicMock, patch
+
+        # Register two models with different quality
+        client = RouteSmith()
+        client.register_model("cheap-model", 0.0001, 0.0001, quality_score=0.70)
+        client.register_model("expensive-model", 0.01, 0.01, quality_score=0.95)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = client.completion(
+                messages=[{"role": "user", "content": "hello"}],
+                tradeoff=0,
+                include_metadata=True,
+            )
+            assert resp.routesmith_metadata["model_selected"] == "expensive-model"
+
+    def test_tradeoff_10_prefers_cost(self):
+        """tradeoff=10 prefers cheapest model above min quality."""
+        from unittest.mock import MagicMock, patch
+
+        client = self._make_client()
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            resp = client.completion(
+                messages=[{"role": "user", "content": "hello"}],
+                tradeoff=10,
+                include_metadata=True,
+            )
+            assert resp.routesmith_metadata["model_selected"] == "gpt-4o-mini"
