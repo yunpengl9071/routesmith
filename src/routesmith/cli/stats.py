@@ -23,6 +23,9 @@ def run_stats(args: Namespace) -> int:
     Returns:
         Exit code.
     """
+    if getattr(args, 'local', False):
+        return _run_local_stats(args)
+
     if not HAS_HTTPX:
         print("Error: httpx is required for stats command", file=sys.stderr)
         print("Install with: pip install httpx", file=sys.stderr)
@@ -44,6 +47,45 @@ def run_stats(args: Namespace) -> int:
         print(json.dumps(stats, indent=2))
     else:
         print_stats_table(stats)
+
+    return 0
+
+
+def _run_local_stats(args: Namespace) -> int:
+    """Run stats from local SQLite storage."""
+    import time
+
+    db_path = args.db or "routesmith_feedback.db"
+
+    def _fetch_local_stats() -> dict:
+        from routesmith.feedback.storage import FeedbackStorage
+        storage = FeedbackStorage(db_path)
+        records = storage.get_all_records(limit=10000)
+        total_cost = 0.0
+        request_count = len(records)
+        by_model: dict[str, int] = {}
+        for r in records:
+            total_cost += float(r.get("estimated_cost_usd", 0) or 0)
+            model = r.get("model_id", "unknown")
+            by_model[model] = by_model.get(model, 0) + 1
+        return {
+            "request_count": request_count,
+            "total_cost_usd": round(total_cost, 6),
+            "registered_models": len(by_model),
+            "feedback_samples": request_count,
+            "project": "local",
+        }
+
+    while True:
+        stats = _fetch_local_stats()
+        if args.json:
+            print(json.dumps(stats, indent=2))
+        else:
+            print_stats_table(stats)
+        if not args.watch:
+            break
+        time.sleep(2)
+        print("\033[2J\033[H")  # clear screen
 
     return 0
 

@@ -438,3 +438,47 @@ class TestStatsFormatting:
         captured = capsys.readouterr()
         # Should not crash, should show 0 for missing values
         assert "RouteSmith Cost Report" in captured.out
+
+
+class TestDashboard:
+    def test_dashboard_help(self, capsys):
+        """dashboard --help shows help."""
+        with pytest.raises(SystemExit) as exc_info:
+            main(["dashboard", "--help"])
+        assert exc_info.value.code == 0
+        captured = capsys.readouterr()
+        assert "dashboard" in captured.out
+
+    @patch("routesmith.cli_dashboard.run_dashboard", return_value=0)
+    def test_dashboard_command(self, mock_run, capsys):
+        """dashboard command dispatches to run_dashboard."""
+        result = main(["dashboard", "--db", ":memory:"])
+        assert result == 0
+
+
+class TestLocalStats:
+    def test_local_stats_json_output(self, capsys):
+        """--local --json returns valid JSON stats."""
+        import json
+        from argparse import Namespace
+
+        from routesmith.cli.stats import run_stats
+
+        args = Namespace(local=True, json=True, watch=False, db=":memory:")
+        result = run_stats(args)
+        assert result == 0
+        captured = capsys.readouterr()
+        data = json.loads(captured.out.strip())
+        assert "request_count" in data
+
+    def test_local_stats_table_output(self, capsys):
+        """--local without --json shows table."""
+        from argparse import Namespace
+
+        from routesmith.cli.stats import run_stats
+
+        args = Namespace(local=True, json=False, watch=False, db=":memory:")
+        result = run_stats(args)
+        assert result == 0
+        captured = capsys.readouterr()
+        assert "RouteSmith Cost Report" in captured.out

@@ -134,6 +134,7 @@ class RouteSmithConfig:
     # Quality poll settings
     poll_sample_rate: float = 0.1  # Fraction of responses to attach a poll
     on_poll: Callable[..., None] | None = None  # Callback(dict) invoked on poll generation
+    verify_rate: float = 0.0  # Fraction of requests to shadow-execute for trust-but-verify
 
     # Pre-routing filter callables.
     # Signature: (models: list[ModelConfig], context: RouteContext | None) -> list[ModelConfig]
