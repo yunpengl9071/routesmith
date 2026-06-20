@@ -234,6 +234,15 @@ class FeedbackStorage:
         rows = conn.execute(query, params).fetchall()
         return [self._row_to_dict(r) for r in rows]
 
+    def get_all_records(self, limit: int = 10000) -> list[dict[str, Any]]:
+        """Fetch all feedback records for local stats aggregation."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT * FROM feedback_records ORDER BY created_at DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+        return [self._row_to_dict(r) for r in rows]
+
     def get_model_stats(self) -> dict[str, dict[str, Any]]:
         """Get aggregated statistics per model from stored records."""
         conn = self._get_conn()

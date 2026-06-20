@@ -101,7 +101,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     stats_parser = subparsers.add_parser(
         "stats",
         help="Show cost savings statistics",
-        description="Fetch and display statistics from a running RouteSmith server.",
+        description="Fetch and display statistics from a running RouteSmith server or local storage.",
     )
     stats_parser.add_argument(
         "--server", "-s",
@@ -113,6 +113,34 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--json",
         action="store_true",
         help="Output as JSON instead of formatted table",
+    )
+    stats_parser.add_argument(
+        "--local",
+        action="store_true",
+        help="Read stats from local SQLite storage instead of server",
+    )
+    stats_parser.add_argument(
+        "--db",
+        type=str,
+        help="SQLite database path (with --local, default: routesmith_feedback.db)",
+    )
+    stats_parser.add_argument(
+        "--watch", "-w",
+        action="store_true",
+        help="Live refresh stats every 2 seconds (--local only)",
+    )
+
+    # dashboard command
+    dashboard_parser = subparsers.add_parser(
+        "dashboard",
+        help="Launch interactive TUI dashboard",
+        description="Launch a live-refreshing terminal dashboard showing RouteSmith stats.",
+    )
+    dashboard_parser.add_argument(
+        "--db",
+        type=str,
+        default="routesmith_feedback.db",
+        help="SQLite database path (default: routesmith_feedback.db)",
     )
 
     # version command
@@ -136,6 +164,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "openclaw-config":
         from routesmith.cli.openclaw import run_openclaw_config
         return run_openclaw_config(args)
+    elif args.command == "dashboard":
+        from routesmith.cli_dashboard import run_dashboard
+        return run_dashboard(db_path=args.db)
     else:
         parser.print_help()
         return 0

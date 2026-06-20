@@ -1,13 +1,12 @@
 """Tests for shadow execution trust-but-verify."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from routesmith.verification import (
     VerificationTracker,
     compare_responses,
-    shadow_execute,
 )
 
 
