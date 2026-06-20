@@ -115,6 +115,10 @@ class RouteSmith:
         )
         self._polls: dict[str, Any] = {}  # poll_id -> Poll
 
+        # Trust-but-verify shadow execution tracker
+        from routesmith.verification import VerificationTracker
+        self._verification = VerificationTracker()
+
         # Semantic cache (lazy-instantiated when enabled)
         self._cache: SemanticCache | None = None
         if self.config.cache.enabled:
@@ -639,6 +643,41 @@ class RouteSmith:
             if self.config.on_poll is not None:
                 self.config.on_poll(poll_dict)
 
+        # Trust-but-verify shadow execution
+        if self.config.verify_rate > 0.0 and random.random() < self.config.verify_rate:
+            expensive = self.registry.get_best_quality()
+            if expensive and expensive.model_id != selected_model:
+                try:
+                    from routesmith.verification import shadow_execute
+                    # Run shadow call to most expensive model
+                    shadow_resp = litellm.completion(
+                        model=expensive.model_id,
+                        messages=messages,
+                        **{**self.config.litellm_params, **{k: v for k, v in kwargs.items() if k != 'model'}},
+                    )
+                    cheap_cost = actual_cost
+                    shadow_tokens = shadow_resp.usage.prompt_tokens + shadow_resp.usage.completion_tokens if hasattr(shadow_resp, 'usage') and shadow_resp.usage else 0
+                    expensive_cost = (shadow_tokens / 1000) * expensive.cost_per_1k_total
+                    result = shadow_execute(
+                        cheap_response=response,
+                        cheap_model=selected_model,
+                        expensive_response=shadow_resp,
+                        expensive_model=expensive.model_id,
+                        cheap_cost=cheap_cost,
+                        expensive_cost=expensive_cost,
+                    )
+                    response.routesmith_verification = result  # type: ignore[attr-defined]
+                    self._verification.record(
+                        agent_role=context.agent_role if context else None,
+                        cheap_model=selected_model,
+                        expensive_model=expensive.model_id,
+                        equivalent=result['equivalent'],
+                        summary=result['summary'],
+                        savings=result['savings'],
+                    )
+                except Exception:
+                    pass  # shadow execution failure is non-fatal
+
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]
 
@@ -944,6 +983,41 @@ class RouteSmith:
             if self.config.on_poll is not None:
                 self.config.on_poll(poll_dict)
 
+        # Trust-but-verify shadow execution
+        if self.config.verify_rate > 0.0 and random.random() < self.config.verify_rate:
+            expensive = self.registry.get_best_quality()
+            if expensive and expensive.model_id != selected_model:
+                try:
+                    from routesmith.verification import shadow_execute
+                    # Run shadow call to most expensive model
+                    shadow_resp = litellm.completion(
+                        model=expensive.model_id,
+                        messages=messages,
+                        **{**self.config.litellm_params, **{k: v for k, v in kwargs.items() if k != 'model'}},
+                    )
+                    cheap_cost = actual_cost
+                    shadow_tokens = shadow_resp.usage.prompt_tokens + shadow_resp.usage.completion_tokens if hasattr(shadow_resp, 'usage') and shadow_resp.usage else 0
+                    expensive_cost = (shadow_tokens / 1000) * expensive.cost_per_1k_total
+                    result = shadow_execute(
+                        cheap_response=response,
+                        cheap_model=selected_model,
+                        expensive_response=shadow_resp,
+                        expensive_model=expensive.model_id,
+                        cheap_cost=cheap_cost,
+                        expensive_cost=expensive_cost,
+                    )
+                    response.routesmith_verification = result  # type: ignore[attr-defined]
+                    self._verification.record(
+                        agent_role=context.agent_role if context else None,
+                        cheap_model=selected_model,
+                        expensive_model=expensive.model_id,
+                        equivalent=result['equivalent'],
+                        summary=result['summary'],
+                        savings=result['savings'],
+                    )
+                except Exception:
+                    pass  # shadow execution failure is non-fatal
+
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]
 
@@ -1082,6 +1156,7 @@ class RouteSmith:
             "budget_events": dict(self._budget_events),
             "by_cost_model": self._by_cost_model_stats(),
             "provisioned_utilization": self._provisioned_utilization_stats(),
+            "verification": self._verification.stats(),
         }
 
         if self._last_routing_metadata:
