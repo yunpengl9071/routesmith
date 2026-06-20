@@ -257,6 +257,14 @@ class FeedbackStorage:
             for row in rows
         }
 
+    def get_known_roles(self) -> list[str]:
+        """Return distinct agent roles that have feedback records."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT DISTINCT agent_role FROM feedback_records WHERE agent_role IS NOT NULL"
+        ).fetchall()
+        return [r[0] for r in rows]
+
     def get_records_by_agent_role(
         self,
         agent_role: str,
