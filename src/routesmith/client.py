@@ -108,6 +108,13 @@ class RouteSmith:
         # Conversation-scoped model stickiness
         self._conversation_models: dict[str, str] = {}
 
+        # Quality poll sampler
+        from routesmith.feedback.polls import PollSampler
+        self._poll_sampler = PollSampler(
+            base_rate=self.config.poll_sample_rate
+        )
+        self._polls: dict[str, Any] = {}  # poll_id -> Poll
+
         # Semantic cache (lazy-instantiated when enabled)
         self._cache: SemanticCache | None = None
         if self.config.cache.enabled:
@@ -614,6 +621,24 @@ class RouteSmith:
             turn_index=context.turn_index if context else None,
         )
 
+        # Quality poll injection (adaptive sampling)
+        convergence = context.metadata.get("convergence", 0.0) if context else 0.0
+        if self._poll_sampler.should_sample(
+            agent_id=context.agent_id if context else None,
+            convergence=convergence,
+        ):
+            from routesmith.feedback.polls import generate_poll
+            poll = generate_poll(
+                request_id=request_id,
+                model_id=selected_model,
+                cost_usd=actual_cost,
+            )
+            poll_dict = poll.to_dict()
+            response.routesmith_poll = poll_dict  # type: ignore[attr-defined]
+            self._polls[request_id] = poll
+            if self.config.on_poll is not None:
+                self.config.on_poll(poll_dict)
+
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]
 
@@ -901,6 +926,24 @@ class RouteSmith:
             turn_index=context.turn_index if context else None,
         )
 
+        # Quality poll injection (adaptive sampling)
+        convergence = context.metadata.get("convergence", 0.0) if context else 0.0
+        if self._poll_sampler.should_sample(
+            agent_id=context.agent_id if context else None,
+            convergence=convergence,
+        ):
+            from routesmith.feedback.polls import generate_poll
+            poll = generate_poll(
+                request_id=request_id,
+                model_id=selected_model,
+                cost_usd=actual_cost,
+            )
+            poll_dict = poll.to_dict()
+            response.routesmith_poll = poll_dict  # type: ignore[attr-defined]
+            self._polls[request_id] = poll
+            if self.config.on_poll is not None:
+                self.config.on_poll(poll_dict)
+
         # Attach request_id to response for outcome tracking
         response._routesmith_request_id = request_id  # type: ignore[attr-defined]
 
@@ -1064,6 +1107,78 @@ class RouteSmith:
                 if tracker:
                     result[model.model_id] = tracker.current_utilization
         return result
+
+    def answer_poll(self, poll_id: str, option: int) -> bool:
+        """Answer a quality poll with the selected option.
+
+        Maps the option to a quality signal and feeds it to the
+        bandit predictor for per-agent quality fine-tuning.
+
+        Args:
+            poll_id: The poll ID (matches the request_id).
+            option: Selected option number (1-5).
+
+        Returns:
+            True if the poll was found and processed, False otherwise.
+        """
+        from routesmith.feedback.polls import PollSignalMapper
+
+        poll = self._polls.get(poll_id)
+        if poll is None:
+            return False
+
+        signal = PollSignalMapper.map(option)
+        if signal is None:
+            return False
+
+        # Feed back to predictor via record_outcome
+        try:
+            self.record_outcome(
+                request_id=poll_id,
+                score=signal["quality"],
+                feedback=signal["reason"],
+            )
+        finally:
+            # Clean up poll storage
+            self._polls.pop(poll_id, None)
+
+        return True
+
+    def recommendations(self) -> dict[str, Any]:
+        """Return proactive intelligence: recommendations, warnings, forecast.
+
+        Aggregates per-agent model recommendations, anomaly warnings,
+        new models to explore, and budget pacing/forecast.
+        """
+        recommendations: dict[str, Any] = {
+            "warnings": [],
+            "new_models_to_try": [],
+            "forecast": {
+                "monthly_cost_current": round(self._total_cost, 2),
+                "request_count": self._request_count,
+                "savings_total": round(self._counterfactual_cost - self._total_cost, 2),
+            },
+        }
+
+        # Per-agent recommendations from feedback storage
+        if self.feedback._storage is not None:
+            roles = self.feedback._storage.get_known_roles()
+            for role in roles:
+                result = self.recommend_model_for_agent(role, min_samples=10)
+                if result:
+                    recommendations[role] = {
+                        "current_best": result["model"],
+                        "avg_quality": result["avg_quality"],
+                        "avg_cost_usd": result["avg_cost_usd"],
+                        "confidence": result["confidence"],
+                        "sample_count": result["sample_count"],
+                    }
+                    # Suggest new models to try
+                    for m in result.get("new_models_to_explore", []):
+                        if m not in recommendations["new_models_to_try"]:
+                            recommendations["new_models_to_try"].append(m)
+
+        return recommendations
 
     def record_outcome(
         self,

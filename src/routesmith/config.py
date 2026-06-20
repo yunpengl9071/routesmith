@@ -131,6 +131,10 @@ class RouteSmithConfig:
     # reward_fns[agent_role] → reward_fn/reward_expr → predictor default.
     reward_fns: dict[str, Callable[..., float]] = field(default_factory=dict)
 
+    # Quality poll settings
+    poll_sample_rate: float = 0.1  # Fraction of responses to attach a poll
+    on_poll: Callable[..., None] | None = None  # Callback(dict) invoked on poll generation
+
     # Pre-routing filter callables.
     # Signature: (models: list[ModelConfig], context: RouteContext | None) -> list[ModelConfig]
     # Run before capability filtering; predictor only sees the filtered set.
