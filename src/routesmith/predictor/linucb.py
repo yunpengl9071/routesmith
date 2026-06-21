@@ -2,12 +2,9 @@
 
 Implements the LinUCB algorithm (Li et al., 2010) adapted for LLM routing.
 Each model (arm) maintains a linear ridge regression model over the shared
-context features. The exploration bonus is derived from the uncertainty
-in the linear prediction, scaled by alpha.
-
-Key difference from the existing UCBLearner: this predictor uses the full
-19-dim feature vector (message stats + model metadata) to make context-dependent
-routing decisions, rather than treating all queries identically.
+27-dim context features (17 message + 8 model + 2 interaction). The
+exploration bonus is derived from the uncertainty in the linear prediction,
+scaled by alpha.
 
 The predicted quality incorporates a cost penalty so that the bandit jointly
 optimizes quality and cost:
@@ -104,10 +101,9 @@ class LinUCBPredictor(BasePredictor):
         self,
         messages: list[dict[str, str]],
         model_id: str,
-        context=None,
     ) -> np.ndarray:
         """Extract and normalize feature vector as context."""
-        fv = self._extractor.extract(messages, model_id, context=context)
+        fv = self._extractor.extract(messages, model_id)
         x = np.array(fv.features, dtype=np.float64)
 
         # L2 normalize to stabilize ridge regression
@@ -117,37 +113,10 @@ class LinUCBPredictor(BasePredictor):
 
         return x
 
-    def _get_context_from_parts(
-        self,
-        msg_features: list[float],
-        context_features: list[float],
-        model_id: str,
-    ) -> np.ndarray:
-        """Assemble and normalize feature vector from pre-computed message/context parts."""
-        fv = self._extractor.extract_for_model(msg_features, context_features, model_id)
-        x = np.array(fv.features, dtype=np.float64)
-        norm = np.linalg.norm(x)
-        if norm > 0:
-            x = x / norm
-        return x
-
-    def _effective_cost_lambda(self, context=None) -> float:
-        """Compute cost_lambda scaled by tradeoff from context.
-
-        tradeoff=7 (default) → no scaling (1.0x).
-        tradeoff=0 → quality-only (0.0x cost_lambda).
-        tradeoff=10 → max cost sensitivity (1.43x cost_lambda).
-        """
-        tradeoff = 7
-        if context is not None and hasattr(context, 'metadata'):
-            tradeoff = context.metadata.get("tradeoff", 7)
-        return self._cost_lambda * (tradeoff / 7.0)
-
     def predict(
         self,
         messages: list[dict[str, str]],
         model_ids: list[str],
-        context=None,
     ) -> list[PredictionResult]:
         """Predict quality for each model using LinUCB scores.
 
@@ -156,12 +125,9 @@ class LinUCBPredictor(BasePredictor):
         to ensure all arms are tried.
         """
         results: list[PredictionResult] = []
-        msg_features, ctx_features = self._extractor.extract_message_and_context(messages, context)
-        effective_cost_lambda = self._effective_cost_lambda(context)
-        cost_lambda_delta = effective_cost_lambda - self._cost_lambda
 
         for model_id in model_ids:
-            x = self._get_context_from_parts(msg_features, ctx_features, model_id)
+            x = self._get_context(messages, model_id)
             d = len(x)
 
             if self._d is None:
@@ -185,15 +151,6 @@ class LinUCBPredictor(BasePredictor):
             # During warmup, give unexplored arms a large bonus
             if arm["count"] < self._warmup_rounds:
                 ucb_score = 2.0 + (self._warmup_rounds - arm["count"])
-
-            # Apply tradeoff-driven cost penalty to final score
-            if cost_lambda_delta != 0.0:
-                model_cfg = self._registry.get(model_id)
-                if model_cfg is not None and self._max_cost > 0:
-                    normalized_cost = model_cfg.cost_per_1k_total / self._max_cost
-                else:
-                    normalized_cost = 0.0
-                ucb_score = ucb_score - cost_lambda_delta * normalized_cost
 
             # Clamp to reasonable range for compatibility with router
             # (router expects quality in ~[0, 1] but UCB can exceed 1)
@@ -224,8 +181,6 @@ class LinUCBPredictor(BasePredictor):
         messages: list[dict[str, str]],
         model_id: str,
         actual_quality: float,
-        reward_override: float | None = None,
-        context=None,
     ) -> None:
         """Update the arm's ridge regression with observed reward.
 
@@ -236,7 +191,7 @@ class LinUCBPredictor(BasePredictor):
         is similar, while still routing to expensive models when they
         provide meaningfully higher quality.
         """
-        x = self._get_context(messages, model_id, context=context)
+        x = self._get_context(messages, model_id)
         d = len(x)
 
         if self._d is None:
@@ -251,11 +206,7 @@ class LinUCBPredictor(BasePredictor):
         else:
             normalized_cost = 0.0
 
-        if reward_override is not None:
-            reward = reward_override
-        else:
-            effective_lambda = self._effective_cost_lambda(context)
-            reward = actual_quality - effective_lambda * normalized_cost
+        reward = actual_quality - self._cost_lambda * normalized_cost
 
         # Sherman-Morrison rank-1 update for A_inv
         # A_new = A + x x^T
@@ -309,64 +260,3 @@ class LinUCBPredictor(BasePredictor):
         if len(names) != len(theta):
             return {f"f{i}": float(theta[i]) for i in range(len(theta))}
         return {name: round(float(theta[i]), 4) for i, name in enumerate(names)}
-
-    def add_arm(self, model_id: str) -> None:
-        """Signal intent to add a new arm.
-
-        LinUCBPredictor uses dict-based lazy arm init — the arm is
-        initialized automatically by _ensure_arm() on first predict/update.
-        This method is a no-op if the arm already has state.
-        """
-        pass  # arm auto-initialized on first predict via _ensure_arm
-
-    def remove_arm(self, model_id: str) -> None:
-        """Remove arm state for a deregistered model."""
-        self._arms.pop(model_id, None)
-
-    def serialize_state(self) -> bytes:
-        """Serialize arm states to JSON bytes (no pickle)."""
-        import json
-        state = {
-            "total_updates": self._total_updates,
-            "d": self._d,
-            "arms": {
-                model_id: {
-                    "A": arm["A"].tolist(),
-                    "A_inv": arm["A_inv"].tolist(),
-                    "b": arm["b"].tolist(),
-                    "count": arm["count"],
-                }
-                for model_id, arm in self._arms.items()
-            },
-        }
-        return json.dumps(state).encode()
-
-    def load_state(self, blob: bytes) -> None:
-        """Load arm states from JSON bytes.
-
-        Skips load if stored feature dimension differs (cold start on mismatch).
-        """
-        import json
-
-        import numpy as np
-        state = json.loads(blob.decode())
-        stored_d = state.get("d")
-        if stored_d is not None and self._d is not None and stored_d != self._d:
-            return  # dimension mismatch — cold start
-        self._total_updates = state.get("total_updates", 0)
-        if stored_d is not None:
-            self._d = stored_d
-        for model_id, arm_data in state.get("arms", {}).items():
-            A = np.array(arm_data["A"], dtype=np.float64)  # noqa: N806
-            # Prefer the stored A_inv for numerical identity; fall back to
-            # recomputing it for blobs serialized before this fix was applied.
-            if "A_inv" in arm_data:
-                A_inv = np.array(arm_data["A_inv"], dtype=np.float64)  # noqa: N806
-            else:
-                A_inv = np.linalg.inv(A)  # noqa: N806
-            self._arms[model_id] = {
-                "A": A,
-                "b": np.array(arm_data["b"], dtype=np.float64),
-                "A_inv": A_inv,
-                "count": arm_data["count"],
-            }
