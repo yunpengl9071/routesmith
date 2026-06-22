@@ -83,7 +83,6 @@ benchmark/results/*.json
 !benchmark/results/mbpp_100_queries.json
 
 # Paper output
-paper/*.pdf
 paper/*.aux
 paper/*.log
 paper/*.out
