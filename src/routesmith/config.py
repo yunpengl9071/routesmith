@@ -86,6 +86,29 @@ class PredictorConfig:
     # LinUCB-27d (predictor_type="linucb")
     linucb_alpha: float = 1.5         # Exploration parameter (0.5–3.0 typical)
     linucb_cost_lambda: float = 0.15  # Cost penalty weight in reward
+    linucb_warmup_rounds: int = 1     # Round-robin rounds before UCB kicks in
+
+    # NeuralUCB (predictor_type="neural_ucb")
+    neural_ucb_alpha: float = 1.5          # UCB exploration parameter
+    neural_ucb_cost_lambda: float = 0.15   # Cost penalty weight
+    neural_ucb_latency_lambda: float = 0.0 # Latency penalty weight (0 to disable)
+    neural_ucb_lr: float = 0.001           # SGD learning rate
+    neural_ucb_hidden_dim: int = 32        # Hidden layer width
+    neural_ucb_warmup_rounds: int = 1      # Round-robin rounds before UCB
+    neural_ucb_replay_size: int = 500      # Experience replay buffer size
+
+    # REINFORCE (predictor_type="reinforce")
+    reinforce_lr: float = 0.01           # Policy gradient learning rate
+    reinforce_baseline_lr: float = 0.001  # Baseline network learning rate
+    reinforce_cost_lambda: float = 0.15   # Cost penalty weight
+    reinforce_temperature: float = 1.0    # Softmax temperature
+    reinforce_entropy_bonus: float = 0.01 # Entropy regularization strength
+
+    # WarmStart LinUCB (predictor_type="warmstart_linucb")
+    warmstart_alpha: float = 1.5           # UCB exploration parameter
+    warmstart_cost_lambda: float = 0.15    # Cost penalty weight
+    warmstart_latency_lambda: float = 0.0  # Latency penalty weight
+    warmstart_warmup_rounds: int = 1       # Round-robin rounds before UCB
 
 
 @dataclass

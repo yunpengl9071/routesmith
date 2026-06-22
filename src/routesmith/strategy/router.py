@@ -56,10 +56,13 @@ class Router:
         """Create the appropriate predictor based on config.
 
         Supported predictor_type values:
-          - "lints"    : LinTS-27d (Thompson Sampling, no beta, recommended)
-          - "linucb"   : LinUCB-27d (UCB exploration, requires alpha tuning)
-          - "adaptive" : Random-forest adaptive predictor (offline training)
-          - "embedding": Embedding-based predictor (default fallback)
+          - "lints"          : LinTS-27d (Thompson Sampling, recommended)
+          - "linucb"         : LinUCB-27d (UCB exploration)
+          - "neural_ucb"     : NeuralUCB (shallow NN + UCB)
+          - "reinforce"      : Policy-gradient REINFORCE
+          - "warmstart_linucb": LinUCB with benchmark-prior warm start
+          - "adaptive"       : Random-forest adaptive predictor (offline)
+          - "embedding"      : Embedding-based predictor (default fallback)
         """
         if config.predictor_type == "lints":
             from routesmith.predictor.lints import LinTSPredictor
@@ -78,6 +81,46 @@ class Router:
                 registry=registry,
                 alpha=config.predictor.linucb_alpha,
                 cost_lambda=config.predictor.linucb_cost_lambda,
+                warmup_rounds=config.predictor.linucb_warmup_rounds,
+            )
+
+        if config.predictor_type == "neural_ucb":
+            from routesmith.predictor.neural_ucb import NeuralUCBPredictor
+
+            return NeuralUCBPredictor(
+                registry=registry,
+                alpha=config.predictor.neural_ucb_alpha,
+                cost_lambda=config.predictor.neural_ucb_cost_lambda,
+                latency_lambda=config.predictor.neural_ucb_latency_lambda,
+                learning_rate=config.predictor.neural_ucb_lr,
+                hidden_dim=config.predictor.neural_ucb_hidden_dim,
+                warmup_rounds=config.predictor.neural_ucb_warmup_rounds,
+                replay_size=config.predictor.neural_ucb_replay_size,
+            )
+
+        if config.predictor_type == "reinforce":
+            from routesmith.predictor.reinforce import ReinforcePredictor
+
+            return ReinforcePredictor(
+                registry=registry,
+                learning_rate=config.predictor.reinforce_lr,
+                baseline_lr=config.predictor.reinforce_baseline_lr,
+                cost_lambda=config.predictor.reinforce_cost_lambda,
+                temperature=config.predictor.reinforce_temperature,
+                entropy_bonus=config.predictor.reinforce_entropy_bonus,
+            )
+
+        if config.predictor_type == "warmstart_linucb":
+            from routesmith.predictor.warmstart_linucb import (
+                WarmStartLinUCBPredictor,
+            )
+
+            return WarmStartLinUCBPredictor(
+                registry=registry,
+                alpha=config.predictor.warmstart_alpha,
+                cost_lambda=config.predictor.warmstart_cost_lambda,
+                latency_lambda=config.predictor.warmstart_latency_lambda,
+                warmup_rounds=config.predictor.warmstart_warmup_rounds,
             )
 
         if config.predictor_type == "adaptive":
@@ -238,7 +281,7 @@ class Router:
 
         # Get predicted quality for all candidates
         candidate_ids = [m.model_id for m in candidates]
-        predictions = self.predictor.predict(messages, candidate_ids, context=context)
+        predictions = self.predictor.predict(messages, candidate_ids)
 
         # Build a cost lookup
         cost_map = {m.model_id: m.cost_per_1k_total for m in candidates}
@@ -305,7 +348,7 @@ class Router:
         candidates = self._filter_by_compliance(candidates, required_compliance)
 
         candidate_ids = [m.model_id for m in candidates]
-        predictions = self.predictor.predict(messages, candidate_ids, context=context)
+        predictions = self.predictor.predict(messages, candidate_ids)
 
         cost_map = {m.model_id: m.cost_per_1k_total for m in candidates}
 
@@ -461,7 +504,7 @@ class Router:
             on_demand = [m for m in on_demand if m.cost_per_1k_total <= max_cost]
 
         candidate_ids = [m.model_id for m in on_demand]
-        predictions = self.predictor.predict(messages, candidate_ids, context=context)
+        predictions = self.predictor.predict(messages, candidate_ids)
         cost_map = {m.model_id: m.cost_per_1k_total for m in on_demand}
 
         qualifying = [p for p in predictions if p.predicted_quality >= min_quality]

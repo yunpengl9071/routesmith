@@ -251,32 +251,35 @@ _MSGS = [{"role": "user", "content": "Hello"}]
 
 
 class TestPredictorRewardOverride:
-    def test_linucb_accepts_reward_override_param(self):
+    def test_linucb_update_works_without_reward_override(self):
+        """LinUCB update() works with just messages, model_id, actual_quality."""
         pred = _make_linucb()
-        pred.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=0.5)
+        pred.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+        assert "openai/gpt-4o-mini" in pred._arms
 
-    def test_linucb_reward_override_changes_b_vector(self):
-        """Two LinUCB predictors updated with same quality but different
-        reward_override should diverge in their b vectors."""
-        pred_default = _make_linucb()
-        pred_override = _make_linucb()
+    def test_linucb_cost_lambda_affects_b_vector(self):
+        """Two LinUCB predictors with different cost_lambda should diverge in b vectors."""
+        from routesmith.predictor.linucb import LinUCBPredictor
 
-        pred_default.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
-        pred_override.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8,
-                             reward_override=0.5)
+        pred_a = _make_linucb()
+        pred_b = LinUCBPredictor(registry=pred_a._registry, cost_lambda=0.9)
 
-        b_default = pred_default._arms["openai/gpt-4o-mini"]["b"]
-        b_override = pred_override._arms["openai/gpt-4o-mini"]["b"]
-        assert not np.allclose(b_default, b_override), (
-            "b vectors should differ when reward_override is used"
+        pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
+
+        b_a = pred_a._arms["openai/gpt-4o-mini"]["b"]
+        b_b = pred_b._arms["openai/gpt-4o-mini"]["b"]
+        assert not np.allclose(b_a, b_b), (
+            "b vectors should differ when cost_lambda differs"
         )
 
-    def test_linucb_none_override_identical_to_default(self):
+    def test_linucb_identical_updates_produce_identical_state(self):
+        """Two LinUCB predictors with same config produce identical state."""
         pred_a = _make_linucb()
         pred_b = _make_linucb()
 
         pred_a.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
-        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8, reward_override=None)
+        pred_b.update(_MSGS, "openai/gpt-4o-mini", actual_quality=0.8)
 
         np.testing.assert_array_almost_equal(
             pred_a._arms["openai/gpt-4o-mini"]["b"],
@@ -460,38 +463,44 @@ class TestClientRewardFn:
         with pytest.raises(ValueError):
             RouteSmith(config=RouteSmithConfig(reward_expr="quality ***"))
 
-    def test_reward_fn_passes_override_to_predictor(self):
+    def test_reward_fn_computed_but_not_passed_as_override(self):
+        """reward_fn is computed and logged, but no longer passed as kwarg
+        to LinUCBPredictor.update() (simplified API)."""
         from routesmith import RouteSmithConfig
 
         called_with = {}
-        def _spy(messages, model_id, actual_quality, reward_override=None):
-            called_with["reward_override"] = reward_override
+        def _spy(messages, model_id, actual_quality, **kwargs):
+            called_with["called"] = True
+            called_with["model_id"] = model_id
 
         rs = _make_client(RouteSmithConfig(reward_fn=lambda ctx: 0.42, feedback_sample_rate=1.0))
         rs.router.predictor.update = _spy
         _insert_record(rs, "req-001")
 
         rs.record_outcome("req-001", score=0.9)
-        assert abs(called_with["reward_override"] - 0.42) < 1e-9
+        assert called_with["called"]
+        assert called_with["model_id"] == "openai/gpt-4o-mini"
 
-    def test_no_reward_fn_passes_none_override(self):
+    def test_no_reward_fn_calls_update_normally(self):
         called_with = {}
-        def _spy(messages, model_id, actual_quality, reward_override=None):
-            called_with["reward_override"] = reward_override
+        def _spy(messages, model_id, actual_quality, **kwargs):
+            called_with["called"] = True
+            called_with["quality"] = actual_quality
 
         rs = _make_client()
         rs.router.predictor.update = _spy
         _insert_record(rs, "req-002")
 
         rs.record_outcome("req-002", score=0.9)
-        assert called_with["reward_override"] is None
+        assert called_with["called"]
+        assert abs(called_with["quality"] - 0.9) < 1e-9
 
-    def test_reward_fn_exception_logs_warning_and_uses_none(self):
+    def test_reward_fn_exception_logs_warning_and_still_updates(self):
         from routesmith import RouteSmithConfig
 
         called_with = {}
-        def _spy(messages, model_id, actual_quality, reward_override=None):
-            called_with["reward_override"] = reward_override
+        def _spy(messages, model_id, actual_quality, **kwargs):
+            called_with["called"] = True
 
         def _bad_fn(ctx):
             raise RuntimeError("boom")
@@ -504,19 +513,20 @@ class TestClientRewardFn:
             rs.record_outcome("req-003", score=0.9)
             mock_logger.warning.assert_called_once()
 
-        assert called_with["reward_override"] is None
+        assert called_with["called"]
 
     def test_reward_expr_end_to_end(self):
         from routesmith import RouteSmithConfig
 
         called_with = {}
-        def _spy(messages, model_id, actual_quality, reward_override=None):
-            called_with["reward_override"] = reward_override
+        def _spy(messages, model_id, actual_quality, **kwargs):
+            called_with["called"] = True
+            called_with["quality"] = actual_quality
 
         rs = _make_client(RouteSmithConfig(reward_expr="quality", feedback_sample_rate=1.0))
         rs.router.predictor.update = _spy
         _insert_record(rs, "req-004")
 
         rs.record_outcome("req-004", score=0.85)
-        # reward_expr="quality" -> reward_override == 0.85
-        assert abs(called_with["reward_override"] - 0.85) < 1e-9
+        assert called_with["called"]
+        assert abs(called_with["quality"] - 0.85) < 1e-9

@@ -6,6 +6,9 @@ from routesmith.predictor.learner import AdaptivePredictor
 from routesmith.predictor.lints import LinTSPredictor, LinTSRouter
 from routesmith.predictor.linucb import LinUCBPredictor
 from routesmith.predictor.model import QualityModel
+from routesmith.predictor.neural_ucb import NeuralUCBPredictor
+from routesmith.predictor.reinforce import ReinforcePredictor
+from routesmith.predictor.warmstart_linucb import WarmStartLinUCBPredictor
 
 __all__ = [
     "AdaptivePredictor",
@@ -15,6 +18,9 @@ __all__ = [
     "LinTSPredictor",
     "LinTSRouter",
     "LinUCBPredictor",
+    "NeuralUCBPredictor",
     "PredictionResult",
     "QualityModel",
+    "ReinforcePredictor",
+    "WarmStartLinUCBPredictor",
 ]

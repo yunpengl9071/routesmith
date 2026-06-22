@@ -1,63 +1,82 @@
-# RESUME.md — v0.4.0 UX Overhaul (Session: 2026-06-18)
+# RESUME.md — v0.5.0 ML Predictor Merge
 
-## Current CI/CD Pipeline Step
+## Current CI/CD Step: 1/7 — Create PR
 
-**Plan complete — ready for implementation.** Not yet in pipeline. Next: create feature branch, begin Phase 1.
+Branch: `feature/v0.5.0-ml-paper-merge`
+Worktree: `.worktrees/v0.5.0-ml-merge`
 
-## Resume Commands
+## What Was Done (Path A)
+
+Merged ML advances from `feature/contextual-bandit-routing` research branch INTO `dev`,
+preserving ALL v0.4.x enterprise features and integrations.
+
+### New Predictors
+- `src/routesmith/predictor/neural_ucb.py` — NeuralUCB (shallow NN + UCB)
+- `src/routesmith/predictor/reinforce.py` — Policy-gradient REINFORCE
+- `src/routesmith/predictor/warmstart_linucb.py` — WarmStartLinUCB
+
+### Simplified Core
+- Feature vector: 35→27 dim (removed 8 context features per paper results)
+- LinUCBPredictor: removed `context`, `reward_override`, `add_arm`, `remove_arm`, `serialize_state`, `load_state`
+- Router: added `neural_ucb`, `reinforce`, `warmstart_linucb` predictor types
+
+### Paper + Benchmarks
+- `paper/main.tex`, `paper/references.bib`, `paper/sections/`, `paper/figures/`
+- `benchmark/run_linucb_27d.py`, `benchmark/run_linucb_fast.py`
+
+### Preserved
+- All v0.4.x features: polls, explanations, verification, dashboard, conversation stickiness
+- All enterprise: compliance routing, PROVISIONED_FIRST, business rules, budget enforcement
+- All integrations: LangChain, Anthropic, DSPy, CrewAI, AutoGen
+- All existing `context` plumbing (accepted but no longer contributes to predictor features)
+
+## Exact Commands to Resume
 
 ```bash
-cd /Users/yliulupo/Apps/routesmith
-git checkout dev && git pull origin dev
-git checkout -b feature/v0.4.0-ux-overhaul
+cd /Users/yliulupo/Apps/routesmith/.worktrees/v0.5.0-ml-merge
+
+# Verify clean
+uv run ruff check src/ tests/
+uv run pytest tests/ -q
+
+# Create PR
+gh pr create --base dev --head feature/v0.5.0-ml-paper-merge \
+  --title "feat: v0.5.0 - ML predictor merge (NeuralUCB, REINFORCE, WarmStart LinUCB)" \
+  --body "Merges ML advances from paper branch while keeping all v0.4.x features.
+  
+  New: NeuralUCB, REINFORCE, WarmStartLinUCB predictors
+  Simplified: 27-dim features, cleaner LinUCB API
+  Preserved: All enterprise features, integrations, v0.4.x UX
+  
+  721 tests pass, ruff clean."
 ```
 
-## What's Done
-
-1. ✅ Cache stress test analysis (`cache_stress_test.md`)
-2. ✅ Model-aware semantic cache implemented (25 tests pass)
-3. ✅ Cache wired into `completion()` + `acompletion()` (667 total tests pass)
-4. ✅ OpenRouter auto-router competitive analysis
-5. ✅ Full UX overhaul design spec (`docs/plans/2026-06-18-v0.4.0-ux-overhaul-design.md`)
-6. ✅ Full implementation plan with TDD tasks (`docs/plans/2026-06-18-v0.4.0-implementation-plan.md`)
-
-## What's Next
-
-Implement Phase 1 of the UX overhaul:
-
-**Phase 1: Auto-Registration + Tradeoff**
-- Task 1.1: Model discovery (`routesmith/registry/discovery.py`)
-- Task 1.2: `RouteSmith.with_auto()` classmethod
-- Task 1.3: `tradeoff` parameter in completion flow
-- Task 1.4: Phase 1 integration test
-
-## Key Design Decisions
-
-- Session-level stickiness + cross-session exploration (KV cache aware)
-- `tradeoff` = bandit cost_lambda multiplier, exposed to custom reward functions
-- Quality polls: callback-based injection, framework adapters render natively
-- Auto-registration: OpenRouter API → curated fallback, benchmark-seeded quality
-- No UI dependency — always metadata-based, callback for progressive enhancement
-
-## Files Changed (Session)
-
-| File | Status |
-|------|--------|
-| `src/routesmith/cache/semantic.py` | Modified (model-aware get/put/invalidate) |
-| `src/routesmith/client.py` | Modified (cache wiring + _cache attr) |
-| `tests/test_cache.py` | Created (25 tests) |
-| `docs/plans/2026-06-18-v0.4.0-ux-overhaul-design.md` | Created |
-| `docs/plans/2026-06-18-v0.4.0-implementation-plan.md` | Created |
-| `cache_stress_test.md` | Created |
-
 ## Test Count
+- 721 passed, 28 skipped
+- ruff: All checks passed
 
-- Cache tests: 25
-- Total passing: 667
-- `pytest tests/ --ignore=tests/manual --ignore=tests/perf --ignore=tests/integration -q`
+## Key Files Changed
+| File | Change |
+|------|--------|
+| `src/routesmith/predictor/neural_ucb.py` | NEW |
+| `src/routesmith/predictor/reinforce.py` | NEW |
+| `src/routesmith/predictor/warmstart_linucb.py` | NEW |
+| `src/routesmith/predictor/features.py` | 35→27 dim, removed context features |
+| `src/routesmith/predictor/linucb.py` | Simplified API |
+| `src/routesmith/predictor/__init__.py` | New exports |
+| `src/routesmith/strategy/router.py` | New predictor types |
+| `src/routesmith/config.py` | New PredictorConfig fields |
+| `src/routesmith/client.py` | Removed reward_override from update() |
+| `tests/test_features.py` | Updated for 27-dim |
+| `tests/test_linucb.py` | Updated for simplified API |
+| `tests/test_reward.py` | Updated for simplified API |
+| `benchmark/run_linucb_27d.py` | NEW |
+| `benchmark/run_linucb_fast.py` | NEW |
+| `paper/` | Updated from paper branch |
 
-## Links
-
-- Design doc: `docs/plans/2026-06-18-v0.4.0-ux-overhaul-design.md`
-- Implementation plan: `docs/plans/2026-06-18-v0.4.0-implementation-plan.md`
-- Cache stress test: `cache_stress_test.md`
+## Next in Pipeline
+1. CI gate passes on PR
+2. Merge to dev
+3. UAT branch + smoke tests
+4. Tag v0.5.0
+5. Publish PyPI + arXiv
