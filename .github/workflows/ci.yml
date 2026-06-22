@@ -13,14 +13,14 @@ jobs:
       - uses: astral-sh/setup-uv@v3
       - run: uv sync --frozen --extra dev --extra anthropic --extra langchain 2>/dev/null || uv sync --extra dev --extra anthropic --extra langchain
       - run: uv run ruff check src/ tests/
-      - run: uv run mypy src/  # Strict typing enforced; see [tool.mypy] in pyproject.toml
+      - run: uv run mypy src/
 
   bandit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv sync --extra dev 2>/dev/null || uv sync
+      - run: uv sync --extra dev
       - run: uv run bandit -r src/ -ll 2>&1 || true  # Security audit (informational, not blocking)
 
   test:
@@ -36,5 +36,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv sync --frozen 2>/dev/null || uv sync
-      - run: uv run pip-audit  # Fail on known vulnerabilities
+      - run: uv sync --extra dev
+      - run: uv run pip-audit
