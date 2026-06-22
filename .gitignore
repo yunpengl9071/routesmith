@@ -88,4 +88,14 @@ paper/*.aux
 paper/*.log
 paper/*.out
 paper/*.toc
-uv.lock
+# Dev artifacts (never commit)
+.remember/
+.serena/
+benchmark/logs/
+benchmark/results_gpt4o/
+nanobanana-output/
+cache_stress_test.md
+progress.md
+routesmith.yaml
+docs/plans/
+docs/superpowers/
