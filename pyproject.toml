@@ -55,6 +55,7 @@ dev = [
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
+    "pip-audit>=2.0.0",
     "scikit-learn>=1.3.0",
     "prometheus-client>=0.16.0",
 ]
@@ -122,10 +123,14 @@ warn_return_any = true
 warn_unused_ignores = true
 ignore_missing_imports = true
 
-# Pre-existing type issues in proxy/server and integrations.
-# These are production code paths with known, non-critical type gaps
-# (bytes vs str in HTTP handlers, untyped framework adapters).
-# TODO: fix in v0.5.1
+[[tool.mypy.overrides]]
+module = [
+    "numpy",
+    "numpy.*",
+]
+ignore_errors = true
+
+# Pre-existing type issues (see above)
 [[tool.mypy.overrides]]
 module = [
     "routesmith.proxy.server",
