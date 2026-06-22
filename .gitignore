@@ -88,3 +88,4 @@ paper/*.aux
 paper/*.log
 paper/*.out
 paper/*.toc
+uv.lock

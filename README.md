@@ -1,6 +1,6 @@
 # RouteSmith
 
-**The smart router for AI coding tools.** 40-60% cost savings. Zero quality loss.
+**The smart router for AI coding tools.** 40-60% cost savings. Zero quality loss. Backed by contextual bandit research.
 
 ```bash
 pip install "routesmith[proxy]"
@@ -12,6 +12,8 @@ routesmith serve
 RouteSmith sits between your AI coding tool and the LLM. It routes every request
 to the best model for that specific task — cheap models for simple edits, frontier
 models for complex refactors. You never think about model IDs again.
+
+**New in v0.5.0-beta**: NeuralUCB, REINFORCE, and WarmStart LinUCB predictors. Research paper with benchmark results included.
 
 ## Who it's for
 
@@ -63,17 +65,40 @@ Point any AI coding tool at `http://localhost:9119/v1`:
 | Tracks costs per model | ✅ | ❌ | ✅ |
 | Works with 100+ models | ✅ | ❌ | ✅ |
 | Zero-config start | ✅ | ❌ | ✅ |
+| Learns from feedback | ❌ | ❌ | ✅ |
 
 ## Features
 
-- **Intelligent routing** — 19 features per query, adaptive learning from feedback
-- **Cascade execution** — try cheap first, escalate on low confidence
-- **Semantic cache** — embedding-based dedup, configurable similarity
-- **Budget enforcement** — daily caps, fallback to cheaper models
-- **Framework adapters** — LangChain, DSPy, CrewAI, AutoGen, Anthropic, OpenClaw
-- **OpenAI-compatible proxy** — works with any tool, zero code changes
-- **Observability** — Prometheus metrics, structured logging, cost tracking
-- **Production-ready** — circuit breakers, retry, health checks, Docker
+### Intelligent Routing
+- **7 predictor types**: LinUCB, LinTS, NeuralUCB, REINFORCE, WarmStart LinUCB, Adaptive (random forest), Embedding
+- **27-dimensional feature space**: query type classification, difficulty estimation, model metadata
+- **Online learning**: bandits improve from the first query onward — no pretraining labels needed
+- **Multi-model routing**: scales to $K$ arms naturally (validated on 5-model deployments)
+
+### Enterprise
+- **Provisioned throughput support**: prioritize pre-paid capacity, overflow to on-demand
+- **Compliance routing**: tag-based filtering (HIPAA, SOC2, PCI)
+- **Budget enforcement**: FAIL, FALLBACK, QUEUE behaviors
+- **Multi-project isolation**: per-project cost allocation and stats
+
+### Production
+- **Semantic cache**: embedding-based dedup, configurable similarity
+- **Framework adapters**: LangChain, DSPy, CrewAI, AutoGen, Anthropic, OpenClaw
+- **OpenAI-compatible proxy**: works with any tool, zero code changes
+- **Observability**: Prometheus metrics, structured logging, cost tracking, dashboard TUI
+- **Resilience**: circuit breakers, retry with backoff, health checks, Docker
+
+## Research
+
+RouteSmith is backed by a research paper evaluating contextual bandit routing:
+
+- **LinTS-27d** achieves 46% cost reduction with APGR=0.593 on MMLU
+- **LinUCB-27d** achieves APGR=1.126 by selective strong-arm routing
+- **5-arm routing**: 45% cost savings across GPT-4o, Claude-Sonnet-4.5, Qwen-Plus, MiniMax-M1, DeepSeek-V3
+- **Zero pretraining labels** — learns from ~100 queries vs. 55K+ required by supervised routers
+- Sub-millisecond routing latency (<0.5ms P99)
+
+Paper: [`paper/main.pdf`](paper/main.pdf) | Compile with: `cd paper && tectonic main.tex`
 
 ## Framework integrations
 
@@ -126,7 +151,8 @@ rs.record_outcome(response._routesmith_request_id, score=0.9)
 
 ## Documentation
 
-- [Tutorial](docs/tutorial.md)
+- [CHANGELOG.md](CHANGELOG.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
 - [Integration guides](docs/integrations/)
 - [CLI reference](docs/cli.md)
 - [Concepts](docs/concepts/)
@@ -134,12 +160,21 @@ rs.record_outcome(response._routesmith_request_id, score=0.9)
 ## Installation
 
 ```bash
-pip install "routesmith[proxy]"    # proxy + interactive setup (recommended)
-pip install routesmith             # core Python API only
+# Proxy + interactive setup (recommended)
+pip install "routesmith[proxy]"
+
+# Core Python API only
+pip install routesmith
+
+# With specific integrations
+pip install "routesmith[langchain]"
+pip install "routesmith[anthropic]"
+pip install "routesmith[cache]"
+pip install "routesmith[all]"
 ```
 
 Requires Python 3.10+. Set `OPENROUTER_API_KEY` to use OpenRouter models.
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE)

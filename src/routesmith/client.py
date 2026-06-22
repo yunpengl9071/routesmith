@@ -1293,7 +1293,6 @@ class RouteSmith:
         if quality is not None:
             record = self.feedback.get_record_by_id(request_id)
             if record is not None:
-                reward_override = None
                 # Resolve per-role reward function, falling back to global reward_fn.
                 effective_reward_fn = self.feedback.resolve_reward_fn(
                     agent_role=record.agent_role
@@ -1308,7 +1307,7 @@ class RouteSmith:
                         registry=self.registry,
                     )
                     try:
-                        reward_override = float(effective_reward_fn(ctx))
+                        _reward_val = float(effective_reward_fn(ctx))  # noqa: F841 — computed for logging; no longer passed as kwarg
                     except Exception as e:
                         logger.warning(
                             "reward_fn raised an error, skipping reward override: %s", e
@@ -1317,7 +1316,6 @@ class RouteSmith:
                     messages=record.messages,
                     model_id=record.model_id,
                     actual_quality=quality,
-                    reward_override=reward_override,
                 )
 
         return found

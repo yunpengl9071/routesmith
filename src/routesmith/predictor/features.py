@@ -1,15 +1,15 @@
 """Feature extraction for quality prediction.
 
-Produces a 35-dimensional feature vector per (query, model) pair:
-  17 message features + 8 model features + 2 interaction features
-  + 8 context features (appended; all 0.0 when context=None).
+Produces a 27-dimensional feature vector per (query, model) pair:
+  17 message features + 8 model features + 2 interaction features.
 
 The original 11 message features are preserved for backward compatibility.
 New features (indices 11-16) add query type classification, difficulty
-estimation, and vocabulary richness signals that improve context-dependent
-routing in the bandit predictors.
-Context features (indices 27-34) encode agent/conversation state when a
-RouteContext is provided.
+estimation, and vocabulary richness signals that improve routing in
+bandit predictors.
+
+The context parameter is accepted for backward compatibility but does
+not contribute to the feature vector (paper-validated simplification).
 """
 
 from __future__ import annotations
@@ -20,7 +20,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from routesmith.config import RouteContext
     from routesmith.registry.models import ModelRegistry
 
 
@@ -74,14 +73,12 @@ class FeatureExtractor:
     """
     Extracts numeric features from messages and model metadata.
 
-    Produces a 35-dimensional feature vector:
-      17 message features + 8 model features + 2 interaction features
-      + 8 context features (indices 27-34; all 0.0 when context=None).
+    Produces a 27-dimensional feature vector:
+      17 message features + 8 model features + 2 interaction features.
 
     Original 11 message features are at indices 0-10 (backward compatible).
     New features at indices 11-16 add query type and difficulty signals.
     Interaction features at indices 25-26 combine query and model info.
-    Context features at indices 27-34 encode agent/conversation state.
     """
 
     MESSAGE_FEATURE_NAMES = [
@@ -122,22 +119,8 @@ class FeatureExtractor:
         "difficulty_x_quality_prior",
     ]
 
-    CONTEXT_FEATURE_NAMES = [
-        "turn_index_norm",           # 27
-        "conv_token_density",        # 28
-        "correction_rate",           # 29
-        "topic_drift",               # 30
-        "agent_role_type",           # 31
-        "agent_role_confidence",     # 32
-        "messages_in_context_norm",  # 33
-        "has_agent_context",         # 34
-    ]
-
     ALL_FEATURE_NAMES = (
-        MESSAGE_FEATURE_NAMES
-        + MODEL_FEATURE_NAMES
-        + INTERACTION_FEATURE_NAMES
-        + CONTEXT_FEATURE_NAMES
+        MESSAGE_FEATURE_NAMES + MODEL_FEATURE_NAMES + INTERACTION_FEATURE_NAMES
     )
 
     def __init__(self, registry: ModelRegistry) -> None:
@@ -147,7 +130,7 @@ class FeatureExtractor:
         self,
         messages: list[dict[str, str]],
         model_id: str,
-        context: RouteContext | None = None,
+        context: object = None,
     ) -> FeatureVector:
         """
         Extract features from messages and model metadata.
@@ -155,36 +138,39 @@ class FeatureExtractor:
         Args:
             messages: Input messages for the query.
             model_id: Model to extract metadata features for.
-            context: Optional RouteContext with agent/conversation state.
-                     When None, the 8 context features are all 0.0.
+            context: Accepted for backward compatibility; does not contribute
+                     to the feature vector.
 
         Returns:
-            FeatureVector with 35 features (27 base + 8 context).
+            FeatureVector with 27 features.
         """
         msg_features = self._extract_message_features(messages)
         model_features = self._extract_model_features(model_id)
         interaction_features = self._extract_interaction_features(
             msg_features, model_features
         )
-        context_features = self._extract_context_features(messages, context)
         return FeatureVector(
-            features=msg_features + model_features + interaction_features + context_features,
+            features=msg_features + model_features + interaction_features,
             feature_names=list(self.ALL_FEATURE_NAMES),
         )
 
     def extract_message_and_context(
         self,
         messages: list[dict[str, str]],
-        context: RouteContext | None = None,
+        context: object = None,
     ) -> tuple[list[float], list[float]]:
         """Extract model-independent features once for reuse across multiple models.
 
+        The context parameter is accepted for backward compatibility.
+        The second element of the returned tuple is always an empty list (no
+        context features are used in the paper-validated 27-dim model).
+
         Returns:
-            Tuple of (msg_features, context_features) to pass into extract_for_model.
+            Tuple of (msg_features, empty_list) to pass into extract_for_model.
         """
         return (
             self._extract_message_features(messages),
-            self._extract_context_features(messages, context),
+            [],
         )
 
     def extract_for_model(
@@ -193,7 +179,7 @@ class FeatureExtractor:
         context_features: list[float],
         model_id: str,
     ) -> FeatureVector:
-        """Assemble a full feature vector given pre-computed message/context features.
+        """Assemble a full feature vector given pre-computed message features.
 
         Use with extract_message_and_context to avoid recomputing message features
         for every candidate model in a predict() loop.
@@ -201,7 +187,7 @@ class FeatureExtractor:
         model_features = self._extract_model_features(model_id)
         interaction_features = self._extract_interaction_features(msg_features, model_features)
         return FeatureVector(
-            features=msg_features + model_features + interaction_features + context_features,
+            features=msg_features + model_features + interaction_features,
             feature_names=list(self.ALL_FEATURE_NAMES),
         )
 
@@ -354,47 +340,4 @@ class FeatureExtractor:
 
         return [estimated_response_tokens, difficulty_x_quality]
 
-    def _extract_context_features(
-        self,
-        messages: list[dict[str, str]],
-        context: RouteContext | None,
-    ) -> list[float]:
-        """Extract 8 context features. All 0.0 when context is None."""
-        from routesmith.predictor.agent_inferencer import AgentInferencer
 
-        if context is None:
-            return [0.0] * 8
-
-        turn = context.turn_index or 0
-        turn_index_norm = min(1.0, turn / 20.0)
-
-        total_chars = sum(len(str(m.get("content", ""))) for m in messages)
-        token_estimate = total_chars / 4.0
-        conv_token_density = token_estimate / max(turn + 1, 1) / 1000.0
-
-        correction_count = float(context.metadata.get("correction_count", 0))
-        correction_rate = correction_count / max(turn + 1, 1)
-
-        topic_drift = float(context.metadata.get("topic_drift", 0.0))
-
-        role = context.agent_role
-        agent_role_type = float(AgentInferencer.role_ordinal(role))
-
-        if role is not None and not context.metadata.get("role_inferred"):
-            agent_role_confidence = 1.0
-        else:
-            agent_role_confidence = float(context.metadata.get("role_confidence", 0.0))
-
-        messages_in_context_norm = min(1.0, len(messages) / 50.0)
-        has_agent_context = 1.0
-
-        return [
-            turn_index_norm,
-            conv_token_density,
-            correction_rate,
-            topic_drift,
-            agent_role_type,
-            agent_role_confidence,
-            messages_in_context_norm,
-            has_agent_context,
-        ]
