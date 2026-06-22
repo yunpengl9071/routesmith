@@ -261,6 +261,21 @@ LinUCB-27d (5 seeds)      & 78.2$\pm$0.2\%  & \$0.196  & 91.7$\pm$0.5\%  & \$0.1
 \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\linewidth]{figures/fig1_cost_quality_pareto.png}
+\includegraphics[width=0.48\linewidth]{figures/fig2_learning_curves.png}
+\caption{Left: Cost--quality Pareto frontier. Right: Cold-start learning curves (5 seeds, $\pm1\sigma$).}
+\label{fig:exp1}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\linewidth]{figures/fig3_cumulative_regret.png}
+\caption{Cumulative regret on MMLU. Lower is better.}
+\label{fig:regret}
+\end{figure}
+
 \paragraph{Discussion.} \textbf{LinUCB vs LinTS.}
 LinUCB-27d achieves the highest MMLU accuracy (78.2\%) and APGR (1.126), exceeding Static-Strong by routing selectively---choosing strong-arm on queries where cost-quality reward favors it.
 LinTS-27d matches Random Router on MMLU (75.8\%, APGR=0.593) while achieving higher accuracy on GSM8K (92.5\% vs 94.0\% random), reflecting better uncertainty quantification on math problems. The key distinction: LinUCB requires $\beta$ tuning (APGR varies 0.407--0.741 across $\beta \in \{0.5, 1.5, 3.0\}$, see \S\ref{sec:ablations}), while LinTS requires no hyperparameter.
@@ -299,6 +314,14 @@ Five model arms via OpenRouter: GPT-4o (\$2.50/\$10.00 per 1M), Claude-Sonnet-4.
 \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\linewidth]{figures/fig4_routing_heatmap.png}
+\includegraphics[width=0.48\linewidth]{figures/fig5_feature_importance.png}
+\caption{Left: Routing distribution by category (Exp 2, LinTS-5arm). Right: LinUCB feature importance.}
+\label{fig:exp2}
+\end{figure}
+
 \paragraph{Discussion.} The 5-arm router concentrates routing on GPT-4o ($\approx$40\%) and Qwen-Plus ($\approx$40\%), with DeepSeek-V3 ($\approx$11\%) capturing knowledge-heavy MMLU categories. Claude-Sonnet-4.5 and MiniMax-M1 each receive $\approx$4--5\%. The average accuracy (71.0\%) is below Static-Strong (77.7\%) because the 5-arm reward function balances cost: at \$0.117 total cost vs \$0.214 for always-strong, the router achieves \textbf{45\% cost reduction}.
 
 The routing distribution is stable across seeds (coefficient of variation $<$10\% for each arm), confirming LinTS-27d converges to a consistent routing policy in the multi-arm setting. Routing patterns vary meaningfully by subject category, validating that the 27-dim feature vector provides discriminative routing signal beyond random allocation.
@@ -308,6 +331,15 @@ The routing distribution is stable across seeds (coefficient of variation $<$10\
 % ============================================================================
 \section{Analysis and Ablations}
 \label{sec:ablations}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.32\linewidth]{figures/fig6_feature_dim_ablation.png}
+\includegraphics[width=0.32\linewidth]{figures/fig7_warm_start_ablation.png}
+\includegraphics[width=0.32\linewidth]{figures/fig8_beta_sensitivity.png}
+\caption{Left: Feature dimensionality ablation. Center: Warm-start labels vs APGR. Right: LinUCB $\beta$ sensitivity vs LinTS.}
+\label{fig:ablations}
+\end{figure}
 
 \subsection{Feature Dimensionality}
 
