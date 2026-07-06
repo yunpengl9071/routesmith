@@ -36,7 +36,9 @@ A full gap audit was performed on 2026-07-06 (anchor commit `a1e5e5c`). Summary:
 | Implicit signals → predictor updates | ❌ **Extracted but never fed to learning** |
 | Proxy feedback endpoint | ❌ **Does not exist** — proxy users cannot close the loop |
 | Embedding-based query features | ❌ `EmbeddingPredictor` is a TODO stub |
+| Feature scaling (context sensitivity) | ❌ **Raw-scale features drown context signals — bandit is nearly context-blind** (measured 2026-07-06; fixed by Task P1.0) |
 | Metrics export / auth / multi-replica state | ❌ None |
+| CI | ❌ **No workflows exist** (added by Task P0.0) |
 
 ---
 
@@ -49,13 +51,32 @@ Every goal has a concrete measurement procedure. A goal is MET only when its com
 | G1 | Time-to-first-value | Fresh venv → first routed request in ≤ 6 shell commands | `bash scripts/verify_quickstart.sh` exits 0 |
 | G2 | Zero dead claims | Every documented feature has runtime behavior | `bash scripts/check_claims.sh` exits 0 |
 | G3 | Routing overhead | p50 < 5 ms, p99 < 15 ms per routing decision, 5 candidate models | `pytest tests/test_perf_routing.py -m perf` passes |
-| G4 | Learning convergence | ≥ 80% optimal-arm selection within 150 feedback events (synthetic 2-arm workload, seeded) | `pytest tests/test_convergence.py` passes |
+| G4 | Learning convergence | ≥ 80% optimal-arm selection within 150 feedback events (synthetic 2-arm workload, seeded) — **requires Task P1.0**; see Validation notes | `pytest tests/test_convergence.py` passes |
 | G5 | Product-code benchmark | APGR ≥ 0.55 on MMLU-600 using the REAL `Router` (not research strategies) | `make bench-product` report |
 | G6 | E2E loop via HTTP | completion → feedback → posterior update, proven over the proxy | `pytest tests/test_proxy_feedback_e2e.py` passes |
 | G7 | Cache effectiveness | Cache-hit path < 10 ms, cost recorded as $0 | `pytest tests/test_cache_wiring.py` passes |
 | G8 | Budget safety | Over-limit request rejected before any provider call; proxy returns 429 | `pytest tests/test_budget.py tests/test_proxy_budget.py` passes |
 | G9 | Integration coverage | 8 agentic platforms with runnable examples + CI import-smoke tests | `pytest tests/test_examples_smoke.py` passes |
 | G10 | Proxy hardening | Bearer auth + `/metrics` endpoint, `/health` open | `pytest tests/test_proxy_auth.py tests/test_proxy_metrics.py` passes |
+
+---
+
+## Validation notes (2026-07-06, commit `a1e5e5c`)
+
+The quantitative targets were validated empirically before being baked into tests —
+executors should treat these as ground truth, not aspirations:
+
+- **G3 (routing overhead):** measured `router.route()` with LinTS + 5 models over 200
+  iterations: **p50 = 0.97 ms, p99 = 1.67 ms**. The 5 ms / 15 ms thresholds have ~5×
+  headroom; a failure indicates a real regression.
+- **G4 (convergence):** the exact G4 harness was prototyped against the real
+  `LinTSPredictor`. On CURRENT code: 45–59/100 across seeds {42, 0, 1, 7, 123} — the
+  bandit is nearly context-blind because raw-scale features (latency_p50 = 500, char counts
+  in the hundreds) dominate the L2-normalized vector and drown the [0,1]-scale
+  keyword/context signals; it degenerates to per-arm average reward (≈ always pick the
+  on-average-best model). With Task P1.0's per-feature scale vector applied: **88–95/100
+  on the same seeds**. `log1p` squashing alone was tested and is NOT sufficient (57–73/100).
+  Conclusion: P1.0 is a hard prerequisite for G4 and for the "contextual" claim generally.
 
 ---
 
@@ -67,7 +88,7 @@ done in any order. Each task in the phase plans has files, specs, tests, and acc
 | Phase | Plan | Theme | Goals unlocked |
 |-------|------|-------|----------------|
 | 0 | [docs/plans/phase-0-credibility.md](docs/plans/phase-0-credibility.md) | Stop shipping falsehoods: docs drift, fallback, budgets, cache wiring | G1, G2, G7, G8 |
-| 1 | [docs/plans/phase-1-learning-loop.md](docs/plans/phase-1-learning-loop.md) | Close the learning loop: proxy feedback, implicit signals, LLM judge | G4, G6 |
+| 1 | [docs/plans/phase-1-learning-loop.md](docs/plans/phase-1-learning-loop.md) | Close the learning loop: feature normalization (P1.0), proxy feedback, implicit signals, LLM judge | G4, G6 |
 | 2 | [docs/plans/phase-2-routing-quality.md](docs/plans/phase-2-routing-quality.md) | Beat NotDiamond on quality: warm-start priors, embeddings, real cascade, product benchmarks | G3, G5 |
 | 3 | [docs/plans/phase-3-differentiation.md](docs/plans/phase-3-differentiation.md) | Moats: conversation stickiness, per-role policies, decision audit log | — |
 | 4 | [docs/plans/phase-4-production-proxy.md](docs/plans/phase-4-production-proxy.md) | Production proxy: auth, metrics, shared state, real HTTP server | G10 |
@@ -103,6 +124,9 @@ Suggested release mapping: v0.2 = Phase 0 · v0.3 = Phase 1 · v0.4 = Phase 2 ·
 5. **Mock `litellm` in unit tests.** Never make real API calls in tests. Pattern:
    `monkeypatch.setattr("routesmith.client.litellm.completion", fake_completion)`.
    Build fake responses with the helper specified in Task P0.0.
+   If `import litellm` itself fails in your environment (native cffi/cryptography deps),
+   export `RS_TEST_MOCK_LITELLM=1` — Task P0.0 adds a conftest shim that stubs the module
+   before `routesmith` imports it. CI does not set this variable.
 6. **Scope discipline.** Do not refactor beyond the task spec. Do not rename public APIs.
    Do not change a test to make it pass unless the task explicitly says the test is wrong.
 7. **Docs move with code.** If a task changes behavior described in README.md or

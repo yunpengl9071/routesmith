@@ -9,7 +9,67 @@ explicit feedback. This phase makes the thesis true.
 
 **Exit criteria:** G4 (`tests/test_convergence.py`) and G6 (`tests/test_proxy_feedback_e2e.py`) green.
 
-Task order: P1.1 → P1.2 → P1.3 → P1.4 → P1.5. (P1.3 is independent of P1.2.)
+Task order: **P1.0 (prerequisite for G4)** → P1.1 → P1.2 → P1.3 → P1.4 → P1.5.
+(P1.3 is independent of P1.2.)
+
+---
+
+## Task P1.0 — Per-feature normalization (fixes context-blind routing)  (size: M)
+
+**Empirically validated finding (2026-07-06, see ROADMAP "Validation notes"):** on current
+code, the bandit is nearly context-blind. Raw-scale features (latency_p50 = 500,
+char lengths in the hundreds–thousands) dominate the L2-normalized feature vector, drowning
+the [0,1]-scale keyword/context signals. On the G4 synthetic workload the current predictor
+scores ~45–59/100 (≈ "always pick the on-average-best model"). With the per-feature scale
+vector below, the SAME test scores **88–95/100 across 5 seeds**. This task is what makes
+"contextual" routing actually contextual — do it before any learning-loop work is judged.
+
+**Files:** `src/routesmith/predictor/features.py`, `src/routesmith/predictor/lints.py`,
+`src/routesmith/predictor/linucb.py`, `tests/test_feature_normalization.py` (new)
+
+**Spec — `features.py`:** add module-level constants (values validated by prototype;
+aligned index-by-index with `ALL_FEATURE_NAMES`):
+
+```python
+FEATURE_VERSION = 2  # bump whenever FEATURE_SCALES or the feature set changes
+
+# Per-feature scale divisors. normalized = clip(raw / scale, 0.0, 1.5).
+FEATURE_SCALES = [
+    20, 8000, 2000, 4000, 10, 1, 2000, 5, 400, 12, 1,   # message features 0-10
+    1, 1, 1, 1, 1, 1,                                    # type/difficulty 11-16 (already 0-1)
+    0.05, 0.10, 1, 3000, 12, 1, 1, 1,                    # model features 17-24
+    1, 1,                                                # interactions 25-26 (already 0-1)
+    1, 5, 1, 1, 6, 1, 1, 1,                              # context features 27-34
+]
+```
+
+`FeatureExtractor.__init__` gains `normalize: bool = True`. When True, `extract()` (and
+`extract_for_model()` if PR #22 is merged) applies, as the final step:
+`features = [min(max(f / s, 0.0), 1.5) for f, s in zip(features, FEATURE_SCALES)]`.
+
+**Spec — predictor state versioning:** normalization silently changes feature meaning while
+keeping d=35, so stale serialized state would corrupt learning. In BOTH `lints.py` and
+`linucb.py`: `serialize_state()` adds `"feature_version": FEATURE_VERSION` (import from
+features.py); `load_state()` returns early (cold start, same pattern as the existing
+dimension-mismatch guard in `lints.py load_state`) when
+`state.get("feature_version", 1) != FEATURE_VERSION`.
+
+**Tests** (`tests/test_feature_normalization.py`):
+- `test_all_features_bounded` — adversarial input (8000-char message, 30 messages, 10 "?")
+  → every normalized feature in [0, 1.5].
+- `test_scales_length_matches_feature_names` — `len(FEATURE_SCALES) == len(ALL_FEATURE_NAMES) == 35`.
+- `test_normalize_can_be_disabled` — `normalize=False` reproduces the old raw values.
+- `test_type_scores_unchanged_by_normalization` — indices 11–16 identical either way for a
+  short message (scale 1, values already < 1).
+- `test_state_cold_start_on_feature_version_mismatch` — serialize with
+  `feature_version` forced to 1 → `load_state` leaves the fresh predictor untouched
+  (mirror the existing `test_load_state_dimension_mismatch_cold_starts` in `test_lints.py`).
+- Same versioning test for LinUCB.
+
+**Acceptance:** all tests pass; existing predictor tests still green (they assert behavior,
+not raw feature values — if one asserts raw scales, per ROADMAP protocol that test may be
+updated, noting it in the commit). Perf unaffected (G3 baseline measured at ~1 ms p50; a
+35-element divide/clip is noise).
 
 ---
 
@@ -24,12 +84,10 @@ who dutifully calls `record_outcome` loses 90% of their feedback.
 
 **Spec:**
 1. In `config.py`, change `feedback_sample_rate: float = 0.1` → `1.0`. Update comment:
-   `# Fraction of requests to record (1.0 = all; evaluation is sampled separately)`.
-2. Add a new field directly below it: `judge_sample_rate: float = 0.05`
-   `# Fraction of recorded requests scored by the LLM judge (see JudgeConfig)`.
-   (Consumed in P1.4.)
-3. `yaml_loader.py`: parse `feedback.judge_sample_rate` if present (follow the existing
-   pattern for `feedback_sample_rate` — grep `sample_rate` in that file).
+   `# Fraction of requests to record (1.0 = all; judge evaluation is sampled separately
+   # via JudgeConfig.sample_rate — see P1.4)`.
+2. No other config changes in this task (judge sampling config is owned entirely by P1.4's
+   `JudgeConfig` — do NOT add a `judge_sample_rate` field here).
 
 **Tests:**
 - `test_feedback.py::test_default_sample_rate_records_all` (new) — 20 completions with
@@ -88,10 +146,10 @@ async def handle_feedback(self, body: bytes) -> tuple[dict, int]:
     return {"status": "ok", "request_id": request_id}, 200
 ```
 
-First **verify `record_outcome`'s actual signature** (client.py, `def record_outcome(`, line
-~659) and its return value (the audit found `found = self.feedback.record_outcome(...)` —
-confirm the client method returns that bool; if it currently returns `None`, change it to
-return the bool as part of this task).
+API facts (verified): `RouteSmith.record_outcome(request_id: str, success: bool | None = None,
+score: float | None = None, feedback: str | None = None) -> bool` — it already returns
+`True` iff the request was found, and it already feeds the score to the predictor. No client
+changes needed; call it with keywords exactly as shown above.
 
 **Spec — server (`server.py`):** in `_route_request`, before the 404 fallthrough:
 
@@ -136,38 +194,55 @@ positive rewards from silence, or the bandit self-congratulates on unverified ou
 **Files:** `src/routesmith/config.py`, `src/routesmith/feedback/signals.py`,
 `src/routesmith/client.py`, `tests/test_implicit_learning.py` (new)
 
+**API facts (verified against `signals.py` / `collector.py`):**
+- Signals are `QualitySignal(signal_type, signal_name, signal_value, raw_value, timestamp)`
+  where `signal_value` is normalized 0–1 with **1 = good quality** (a triggered refusal has a
+  LOW value). Do not treat `signal_value` as a "triggered" boolean.
+- The implicit signal names emitted by `SignalExtractor` are exactly:
+  `error_detected`, `refusal_detected`, `empty_response`, `truncated_response`,
+  `response_length_anomaly`, `latency_anomaly`.
+- `FeedbackCollector.record(...)` already returns `FeedbackRecord | None` (None when feedback
+  disabled or not sampled — with P1.1's rate of 1.0 it returns the record). But
+  `FeedbackRecord` has **no `signals` field** — extraction happens inside `record()`
+  (`signals = self._signal_extractor.extract(response, model, latency_ms)`) and the list is
+  only persisted, not attached.
+
 **Spec:**
 1. `config.py`: add to `RouteSmithConfig` (near `feedback_enabled`):
    `implicit_feedback_enabled: bool = True`
    `# Feed negative implicit signals (refusal/empty/error/truncation) to the predictor`.
-2. `signals.py`: add a module-level pure function (read the file first; use the real signal
-   name constants it defines):
+2. `collector.py`: add `signals: list = field(default_factory=list)` to `FeedbackRecord`, and
+   in `record()`, where signals are extracted, also do `record.signals = signals` before
+   returning.
+3. `signals.py`: add a module-level pure function:
 
    ```python
    # Quality ascribed to a response exhibiting each implicit failure signal.
+   # Keys are SignalExtractor's signal_name values; a signal is "triggered"
+   # when its signal_value < 0.5 (values are 0-1 with 1 = good quality).
    IMPLICIT_QUALITY = {
-       "error": 0.05,
-       "refusal": 0.05,
-       "empty": 0.05,
-       "truncation": 0.40,
+       "error_detected": 0.05,
+       "refusal_detected": 0.05,
+       "empty_response": 0.05,
+       "truncated_response": 0.40,
    }
 
-   def implicit_quality(signals) -> float | None:
-       """Worst implied quality across triggered signals; None if no negative signal."""
-       triggered = [IMPLICIT_QUALITY[s.name] for s in signals
-                    if s.name in IMPLICIT_QUALITY and s.value >= 0.5]
+   def implicit_quality(signals: list[QualitySignal]) -> float | None:
+       """Worst implied quality across triggered negative signals; None when clean."""
+       triggered = [q for s in signals
+                    for name, q in IMPLICIT_QUALITY.items()
+                    if s.signal_name == name and s.signal_value < 0.5]
        return min(triggered) if triggered else None
    ```
-   Adapt attribute access (`s.name` / `s.value`) to the actual signal dataclass in that file
-   — check how `SignalExtractor` returns signals (list of objects vs dicts) and match it.
-3. `client.py` `completion()` success path: the collector already extracts signals during
-   `self.feedback.record(...)`. Obtain the extracted signals — if `record()` does not return
-   them, extend it to return the created record (non-breaking: currently callers ignore the
-   return value; verify with `grep -rn "feedback.record(" src/`). Then:
+   (`response_length_anomaly` and `latency_anomaly` are deliberately EXCLUDED — too noisy to
+   train on; they remain diagnostic-only.)
+4. `client.py` `completion()` success path — the call site already looks like
+   `self.feedback.record(...)`; capture its return value:
 
    ```python
-   if self.config.implicit_feedback_enabled:
-       iq = implicit_quality(record.signals)   # adapt to the record's real field name
+   record = self.feedback.record(...)
+   if record is not None and self.config.implicit_feedback_enabled:
+       iq = implicit_quality(record.signals)
        if iq is not None:
            self.router.predictor.update(
                messages, selected_model, actual_quality=iq, context=context
@@ -218,8 +293,7 @@ class JudgeConfig:
 ```
 
 Add `judge: JudgeConfig = field(default_factory=JudgeConfig)` to `RouteSmithConfig`.
-(`judge_sample_rate` from P1.1 is superseded: keep the config field for YAML compat but have
-it populate `judge.sample_rate`; note this in the field comment.)
+`JudgeConfig` is the sole owner of judge sampling configuration.
 
 **Spec — `src/routesmith/feedback/judge.py`:**
 
@@ -323,6 +397,12 @@ sample_rate per request).
 ## Task P1.5 — Convergence + E2E proof tests (the measurable goals)  (size: M)
 
 These tests ARE goals G4 and G6. They pin the product promise in CI.
+
+**Depends on P1.0.** The convergence thresholds were empirically validated on 2026-07-06:
+WITH P1.0's normalization the harness below scores 88–95/100 across seeds {42, 0, 1, 7, 123}
+(threshold 80 has real margin); WITHOUT P1.0 it scores 45–59/100 and the test correctly
+fails. If this test fails after P1.0 is merged, the regression is real — do not raise the
+threshold or swap seeds to pass.
 
 **Files:** `tests/test_convergence.py` (new), `tests/test_proxy_feedback_e2e.py` (new)
 

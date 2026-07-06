@@ -152,6 +152,9 @@ cherry-pick `02e7e02` if absent.
    `d = self._extractor.dim` and `[:d]`. `load_state` already cold-starts on dimension
    mismatch (`if stored_d != self._router.d: return`) — verify and keep; document that
    enabling embeddings resets learned state.
+   P1.0 interaction: extend `FEATURE_SCALES` with eight `1`s for the `sem_*` dims when
+   embeddings are enabled (the projected embeddings are already ~unit-scale because inputs
+   are L2-normalized), and keep `FEATURE_VERSION` bumps in mind if scales change.
 4. `pyproject.toml`: add extra `embeddings = ["sentence-transformers>=2.2.0"]` (dedupe with
    the existing `predictor` extra if it already pins it — inspect and reuse if identical).
 
@@ -182,15 +185,25 @@ don't validate shipped code. Add an adapter so experiments exercise `routesmith.
 **Files:** `benchmark/strategies/product_router.py` (new), `Makefile` (add `bench-product`),
 `tests/test_benchmark_product.py` (new)
 
+**Interface facts (verified):** the harness entry point is
+`benchmark/harness.py::run_experiment(strategy: BaseStrategy, queries: list[dict], tag: str)`.
+Strategies subclass `benchmark/strategies/base.py::BaseStrategy` and provide a `name`
+property plus `route(query: dict) -> dict` (per-query result with at least `correct` and
+`cost_usd` keys — `run()` in the base class drives the loop and aggregates). The existing
+`benchmark/strategies/lints.py::LinTSStrategy` wraps `LinTSRouter` directly with its OWN
+27-dim `_build_feature_vector` — that is exactly the product/research divergence this task
+eliminates.
+
 **Spec:**
-1. Read `benchmark/harness.py` and one existing strategy (e.g. `benchmark/strategies/lints.py`)
-   to learn the exact Strategy interface (constructor, `select(question) -> model_id`,
-   `update(question, model_id, reward)` or equivalent — mirror precisely).
-2. Implement `ProductRouterStrategy` satisfying that interface by delegating to REAL product
-   classes: build `ModelRegistry` + `RouteSmithConfig(predictor_type="lints")` + `Router`;
-   `select()` calls `router.route(messages=[{"role":"user","content":question}],
-   strategy=RoutingStrategy.DIRECT, min_quality=0.0)`; `update()` calls
-   `router.predictor.update(...)`. No reimplementation of any math.
+1. Read `benchmark/strategies/base.py` and `lints.py::route()` in full first; mirror
+   `route()`'s result-dict shape and its `call_llm` usage exactly.
+2. Implement `ProductRouterStrategy(BaseStrategy)` delegating to REAL product classes: build
+   `ModelRegistry` + `RouteSmithConfig(predictor_type="lints")` + `Router` in the
+   constructor; inside `route(query)`: model selection via
+   `router.route(messages=[{"role":"user","content":query["question"]}]` (match the actual
+   query-dict key used by `lints.py`) `, strategy=RoutingStrategy.DIRECT, min_quality=0.0)`;
+   after grading, learning via `router.predictor.update(...)` with the same reward the
+   research strategy computes. No reimplementation of any math or features.
 3. `Makefile` target `bench-product`: runs the existing exp1 entry point with
    `--strategy product_router --dataset mmlu --n 600` (match the real CLI of
    `benchmark/experiments/exp1_binary.py` — read it first) and prints the APGR line.

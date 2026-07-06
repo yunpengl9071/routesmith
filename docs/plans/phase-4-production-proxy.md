@@ -168,7 +168,10 @@ class StateBackend(Protocol):
      documented model — do NOT attempt per-update synchronization.
    - Day-window budget (`max_cost_per_day`) reads `get_spend(today_utc)` from the backend
      when one is configured, so replicas share the cap; minute/hour windows remain local
-     (documented limitation).
+     (documented limitation). Integration seam: `BudgetTracker.__init__` (from P0.4) gains an
+     optional `backend: StateBackend | None = None`; when set, `check()` consults
+     `backend.get_spend(day_bucket)` for the day window and `record()` also calls
+     `backend.incr_spend(...)`. Local deque behavior is unchanged otherwise.
 
 **Tests** (`tests/test_state_backend.py`):
 - `test_sqlite_backend_roundtrip` — save blob v1, load → same blob+version;

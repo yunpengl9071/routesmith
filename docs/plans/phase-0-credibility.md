@@ -12,11 +12,34 @@ of each other.)
 
 ---
 
-## Task P0.0 — Shared test fixture for fake LiteLLM responses  (size: S)
+## Task P0.0 — Test infrastructure: fixtures, litellm shim, CI  (size: M)
 
-Every later task mocks `litellm`. Build the helper once.
+Every later task mocks `litellm` and every goal says "green in CI" — but **no CI workflow
+exists today** (`.github/workflows/` is absent). Build all three pieces once.
 
-**Files:** `tests/helpers.py` (new), `tests/conftest.py` (edit)
+**Files:** `tests/helpers.py` (new), `tests/conftest.py` (edit),
+`.github/workflows/test.yml` (new)
+
+**Spec — conftest litellm shim:** some sandboxes cannot import `litellm` at all (its
+`cryptography`/cffi native deps fail), and `routesmith/__init__.py` imports it at module
+level. Add to `tests/conftest.py`, BEFORE the src-path insertion:
+
+```python
+import os
+if os.environ.get("RS_TEST_MOCK_LITELLM") == "1":
+    import sys
+    from unittest.mock import MagicMock
+    sys.modules.setdefault("litellm", MagicMock())
+```
+
+Unit tests must pass BOTH with the shim on and off (they mock litellm call-sites explicitly
+anyway); set `RS_TEST_MOCK_LITELLM=1` only when the import itself fails in your environment.
+
+**Spec — CI (`.github/workflows/test.yml`):** on push + PR; ubuntu-latest; Python 3.11 and
+3.12 matrix; steps: checkout, setup-python, `pip install -e ".[dev,proxy]"`, then the full
+suite command from the ROADMAP execution protocol, then `bash scripts/check_claims.sh` if the
+file exists (`test -f scripts/check_claims.sh && bash ...`). Add a `perf` job variant later
+(P2.5) — not in this task.
 
 **Spec:** Create `tests/helpers.py`:
 
@@ -320,35 +343,48 @@ opt-in, so default behavior is unchanged.
 **Files:** `src/routesmith/client.py`, `src/routesmith/cache/semantic.py`,
 `tests/test_cache_wiring.py` (new)
 
-**Spec:**
-1. **Read `cache/semantic.py` first.** If its constructor cannot operate without
-   `sentence-transformers` installed, add a degraded mode: constructor param
-   `embedding_fn: Callable[[str], "np.ndarray"] | None = None`; when
-   sentence-transformers is unavailable AND no `embedding_fn` is injected, the cache runs
-   **exact-match only** (hash lookup; semantic search skipped) and logs one warning. It must
-   never raise ImportError at construction.
-2. In `RouteSmith.__init__`: when `self.config.cache.enabled` is true, build
-   `self._cache = SemanticCache(similarity_threshold=..., ttl_seconds=..., max_entries=...,
-   embedding_model=...)` from `CacheConfig` fields; else `self._cache = None`.
-3. In `completion()` (sync; skip `acompletion` in this task, mirror later) — BEFORE routing:
+**Spec (API facts, verified against `semantic.py` — no cache-module changes needed):**
+`SemanticCache(similarity_threshold, ttl_seconds, max_entries, embedding_model)` maps 1:1 to
+`CacheConfig` fields. `get(messages, semantic=True) -> CacheEntry | None` — it returns the
+**entry**, the response is `entry.response`. `put(messages, response, model_id, semantic=True)`
+— `model_id` is **required**. The sentence-transformers import happens lazily inside the
+semantic path only; passing `semantic=False` to both calls gives exact-match-only mode with
+no optional dependency. Constructor never imports it.
+
+1. In `RouteSmith.__init__`: when `self.config.cache.enabled`:
+   ```python
+   from routesmith.cache import SemanticCache
+   import importlib.util
+   self._cache = SemanticCache(
+       similarity_threshold=self.config.cache.similarity_threshold,
+       ttl_seconds=self.config.cache.ttl_seconds,
+       max_entries=self.config.cache.max_entries,
+       embedding_model=self.config.cache.embedding_model,
+   )
+   self._cache_semantic = importlib.util.find_spec("sentence_transformers") is not None
+   if not self._cache_semantic:
+       logger.warning("sentence-transformers not installed; cache runs exact-match only "
+                      "(pip install routesmith[cache] for semantic matching)")
+   self._cache_hits = 0
+   ```
+   else `self._cache = None`.
+2. In `completion()` (sync; skip `acompletion` in this task, mirror later) — BEFORE routing:
    ```python
    if self._cache is not None and not kwargs.get("tools") and not kwargs.get("stream"):
-       hit = self._cache.get(messages)
-       if hit is not None:
+       entry = self._cache.get(messages, semantic=self._cache_semantic)
+       if entry is not None:
            self._cache_hits += 1
-           return copy.deepcopy(hit)   # never hand out a mutable shared object
+           return copy.deepcopy(entry.response)  # never hand out a shared mutable object
    ```
-   (`self._cache_hits = 0` initialized in `__init__`.)
-4. AFTER a successful completion (same guard conditions): `self._cache.put(messages, response)`.
-   Match the actual method names in `semantic.py` — if they differ (`lookup`/`store`), use the
-   existing names; do not rename the cache's public API.
+3. AFTER a successful completion (same guard conditions):
+   `self._cache.put(messages, response, model_id=selected_model, semantic=self._cache_semantic)`.
 5. Add `"cache_hits": self._cache_hits` to the `stats` property dict.
 6. Restore the README/tutorial cache claims removed in P0.2, now truthful, documenting:
    opt-in via `CacheConfig(enabled=True)`, exact-match works without extras, semantic
    matching requires `pip install routesmith[cache]`.
 
-**Tests** (`tests/test_cache_wiring.py`, litellm mocked; force exact-match mode by injecting
-`embedding_fn=None` and no sentence-transformers):
+**Tests** (`tests/test_cache_wiring.py`, litellm mocked; force exact-match mode by setting
+`rs._cache_semantic = False` after construction so no test ever loads an encoder):
 - `test_cache_disabled_by_default` — `make_rs()`; two identical completions → litellm called twice.
 - `test_cache_hit_skips_model_call` — cache enabled; two identical requests → litellm called
   ONCE; second response content equals first; `rs.stats["cache_hits"] == 1`.
