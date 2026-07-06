@@ -134,7 +134,7 @@ class RouteSmithConfig:
 
     # Feedback loop
     feedback_enabled: bool = True
-    feedback_sample_rate: float = 0.1  # Fraction of requests to evaluate
+    feedback_sample_rate: float = 1.0  # Fraction of requests to record (1.0 = all; judge evaluation sampled separately via JudgeConfig.sample_rate)
     feedback_storage_path: str | None = None  # SQLite path; None = in-memory only
 
     # Performance

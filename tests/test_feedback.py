@@ -613,3 +613,39 @@ class TestPredictorStatePersistence:
         storage.save_predictor_state("lints", b"v1")
         storage.save_predictor_state("lints", b"v2")
         assert storage.load_predictor_state("lints") == b"v2"
+
+
+# ---------------------------------------------------------------------------
+# Sample rate — P1.1
+# ---------------------------------------------------------------------------
+
+class TestSampleRate:
+    def test_default_sample_rate_records_all(self):
+        """Default config records all completions."""
+        from tests.helpers import fake_response
+        from routesmith.config import RouteSmithConfig
+        rs = RouteSmith(config=RouteSmithConfig(feedback_storage_path=":memory:"))
+        rs.register_model("test-model", 0.001, 0.002, quality_score=0.85)
+        with patch("litellm.completion", return_value=fake_response()):
+            for _ in range(20):
+                rs.completion(messages=[{"role": "user", "content": "hi"}])
+        records = rs.feedback._storage.get_all_records()
+        assert len(records) == 20
+
+    def test_record_outcome_always_persists_signal(self):
+        """record_outcome always persists even when sample_rate=1.0."""
+        from tests.helpers import fake_response
+        from routesmith.config import RouteSmithConfig
+        rs = RouteSmith(config=RouteSmithConfig(feedback_storage_path=":memory:"))
+        rs.register_model("test-model", 0.001, 0.002, quality_score=0.85)
+        request_ids = []
+        with patch("litellm.completion", return_value=fake_response()):
+            for _ in range(10):
+                resp = rs.completion(messages=[{"role": "user", "content": "hi"}], include_metadata=True)
+                request_ids.append(resp.routesmith_metadata["request_id"])
+        for rid in request_ids:
+            rs.record_outcome(rid, score=0.9)
+        for rid in request_ids:
+            stored = rs.feedback._storage.get_record(rid)
+            assert stored is not None
+            assert stored["quality_score"] == 0.9
