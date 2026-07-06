@@ -112,6 +112,16 @@ class PredictorConfig:
 
 
 @dataclass
+class JudgeConfig:
+    """LLM-as-judge sampling evaluator. Off by default (costs money)."""
+
+    enabled: bool = False
+    judge_model: str = "openai/gpt-4o-mini"  # any litellm model id; keep it cheap
+    sample_rate: float = 0.05                # fraction of requests scored
+    timeout_s: float = 20.0
+
+
+@dataclass
 class RouteSmithConfig:
     """Main configuration for RouteSmith."""
 
@@ -132,8 +142,15 @@ class RouteSmithConfig:
     # Budget constraints
     budget: BudgetConfig = field(default_factory=BudgetConfig)
 
+    # LLM-as-judge evaluator
+    judge: JudgeConfig = field(default_factory=JudgeConfig)
+
     # Feedback loop
     feedback_enabled: bool = True
+    # Feed negative implicit signals (refusal/empty/error/truncation) to the predictor.
+    # If the user later calls record_outcome() explicitly for the same request, that is a
+    # second (better-informed) update — acceptable for bandits; no dedup is built in.
+    implicit_feedback_enabled: bool = True
     feedback_sample_rate: float = 1.0  # Fraction of requests to record (1.0 = all; judge evaluation sampled separately via JudgeConfig.sample_rate)
     feedback_storage_path: str | None = None  # SQLite path; None = in-memory only
 
@@ -187,6 +204,7 @@ class RouteSmithConfig:
             cache=new_cache,
             budget=self.budget,
             feedback_enabled=self.feedback_enabled,
+            implicit_feedback_enabled=self.implicit_feedback_enabled,
             feedback_sample_rate=self.feedback_sample_rate,
             feedback_storage_path=self.feedback_storage_path,
             routing_timeout_ms=self.routing_timeout_ms,
@@ -197,6 +215,7 @@ class RouteSmithConfig:
             reward_fns=self.reward_fns,
             business_rules=self.business_rules,
             budget_behavior=self.budget_behavior,
+            judge=self.judge,
         )
 
     def with_budget(self, **kwargs: Any) -> RouteSmithConfig:
@@ -221,6 +240,7 @@ class RouteSmithConfig:
             cache=self.cache,
             budget=new_budget,
             feedback_enabled=self.feedback_enabled,
+            implicit_feedback_enabled=self.implicit_feedback_enabled,
             feedback_sample_rate=self.feedback_sample_rate,
             feedback_storage_path=self.feedback_storage_path,
             routing_timeout_ms=self.routing_timeout_ms,
@@ -231,4 +251,6 @@ class RouteSmithConfig:
             reward_fns=self.reward_fns,
             business_rules=self.business_rules,
             budget_behavior=self.budget_behavior,
+            judge=self.judge,
         )
+

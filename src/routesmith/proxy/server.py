@@ -214,6 +214,12 @@ class RouteSmithProxyServer:
             await self._handle_completion(writer, body)
             return
 
+        # Feedback endpoint
+        if path == "/v1/feedback" and method == "POST":
+            result, status = await self.handler.handle_feedback(body)
+            await self._send_json(writer, result, status)
+            return
+
         # 404 for unknown paths
         await self._send_error(writer, f"Not found: {path}", 404)
 

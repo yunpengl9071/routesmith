@@ -29,6 +29,7 @@ class FeedbackRecord:
     quality_score: float | None = None
     user_feedback: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    signals: list = field(default_factory=list)
     agent_id: str | None = None
     agent_role: str | None = None
     conversation_id: str | None = None
@@ -165,6 +166,7 @@ class FeedbackCollector:
         # Extract implicit signals
         if self._signal_extractor is not None:
             signals = self._signal_extractor.extract(response, model, latency_ms)
+            record.signals = signals
             if self._storage is not None:
                 for sig in signals:
                     self._storage.store_signal(

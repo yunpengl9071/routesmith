@@ -299,6 +299,39 @@ class RequestHandler:
             "registered_models": len(self.routesmith.registry),
         }
 
+    async def handle_feedback(self, body: bytes) -> tuple[dict, int]:
+        """Process an outcome report. Returns (response_dict, http_status).
+
+        Request JSON:
+          request_id  str, required — from routesmith_metadata.request_id
+          score       float in [0,1], optional
+          success     bool, optional (exactly one of score/success required)
+        """
+        import json
+        try:
+            data = json.loads(body.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return {"error": {"message": "Invalid JSON", "type": "invalid_request_error"}}, 400
+
+        request_id = data.get("request_id")
+        score = data.get("score")
+        success = data.get("success")
+        if not isinstance(request_id, str) or not request_id:
+            return {"error": {"message": "'request_id' (string) is required",
+                              "type": "invalid_request_error"}}, 400
+        if (score is None) == (success is None):
+            return {"error": {"message": "Provide exactly one of 'score' or 'success'",
+                              "type": "invalid_request_error"}}, 400
+        if score is not None and not (isinstance(score, (int, float)) and 0.0 <= score <= 1.0):
+            return {"error": {"message": "'score' must be a number in [0, 1]",
+                              "type": "invalid_request_error"}}, 400
+
+        found = self.routesmith.record_outcome(request_id=request_id, score=score, success=success)
+        if not found:
+            return {"error": {"message": f"Unknown request_id: {request_id}",
+                              "type": "not_found"}}, 404
+        return {"status": "ok", "request_id": request_id}, 200
+
     async def handle_liveness(self) -> dict[str, Any]:
         """
         Return liveness probe response.

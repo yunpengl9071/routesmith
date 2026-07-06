@@ -25,6 +25,7 @@ from routesmith.config import (
 from routesmith.exceptions import BudgetExceededError
 from routesmith.explanation import format_explanation
 from routesmith.feedback.collector import FeedbackCollector
+from routesmith.feedback.signals import implicit_quality
 from routesmith.registry.models import ModelRegistry
 from routesmith.strategy.circuit_breaker import CircuitBreaker
 from routesmith.strategy.router import Router
@@ -122,6 +123,16 @@ class RouteSmith:
         # Trust-but-verify shadow execution tracker
         from routesmith.verification import VerificationTracker
         self._verification = VerificationTracker()
+
+        # LLM-as-judge evaluator (sampled, off by default)
+        self._judge: Any = None
+        if self.config.judge.enabled:
+            from routesmith.feedback.judge import LLMJudge
+            self._judge = LLMJudge(
+                model=self.config.judge.judge_model,
+                timeout_s=self.config.judge.timeout_s,
+            )
+            self._judge_rng = random.Random(self.config.predictor.seed)
 
         # Semantic cache (lazy-instantiated when enabled)
         self._cache: SemanticCache | None = None
@@ -822,7 +833,7 @@ class RouteSmith:
 
         # Collect feedback sample
         total_latency_ms = (time.perf_counter() - routing_start) * 1000
-        self.feedback.record(
+        record = self.feedback.record(
             request_id=request_id,
             messages=messages,
             model=selected_model,
@@ -834,12 +845,27 @@ class RouteSmith:
             turn_index=context.turn_index if context else None,
         )
 
+        # Feed negative implicit signals to the predictor
+        if record is not None and self.config.implicit_feedback_enabled:
+            iq = implicit_quality(record.signals)
+            if iq is not None:
+                self.router.predictor.update(
+                    messages, selected_model, actual_quality=iq
+                )
+
         # Periodic predictor state persistence every 50 updates
         updates = getattr(self.router.predictor, "_total_updates", None)
         if updates is None:
             updates = getattr(self.router.predictor, "_update_count", 0)
         if updates > 0 and updates % 50 == 0:
             self._persist_predictor_state()
+
+        # LLM-as-judge evaluation (sampled, synchronous)
+        if self._judge is not None and self._judge_rng.random() < self.config.judge.sample_rate:
+            text = response.choices[0].message.content or ""
+            jscore = self._judge.score(messages, text)
+            if jscore is not None:
+                self.record_outcome(request_id, score=jscore)
 
         return response
 
@@ -1197,7 +1223,7 @@ class RouteSmith:
 
         # Collect feedback sample
         total_latency_ms = (time.perf_counter() - routing_start) * 1000
-        self.feedback.record(
+        record = self.feedback.record(
             request_id=request_id,
             messages=messages,
             model=selected_model,
@@ -1209,12 +1235,27 @@ class RouteSmith:
             turn_index=context.turn_index if context else None,
         )
 
+        # Feed negative implicit signals to the predictor
+        if record is not None and self.config.implicit_feedback_enabled:
+            iq = implicit_quality(record.signals)
+            if iq is not None:
+                self.router.predictor.update(
+                    messages, selected_model, actual_quality=iq
+                )
+
         # Periodic predictor state persistence every 50 updates
         updates = getattr(self.router.predictor, "_total_updates", None)
         if updates is None:
             updates = getattr(self.router.predictor, "_update_count", 0)
         if updates > 0 and updates % 50 == 0:
             self._persist_predictor_state()
+
+        # LLM-as-judge evaluation (sampled, synchronous)
+        if self._judge is not None and self._judge_rng.random() < self.config.judge.sample_rate:
+            text = response.choices[0].message.content or ""
+            jscore = self._judge.score(messages, text)
+            if jscore is not None:
+                self.record_outcome(request_id, score=jscore)
 
         return response
 

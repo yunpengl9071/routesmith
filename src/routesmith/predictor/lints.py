@@ -301,6 +301,7 @@ class LinTSPredictor:
     def serialize_state(self) -> bytes:
         """Serialize predictor state to JSON bytes."""
         import json
+
         from routesmith.predictor.features import FEATURE_VERSION
         state = {
             "router_state": self._router.get_state(),
@@ -317,6 +318,7 @@ class LinTSPredictor:
         If stored feature dimension or version differs, skips load (cold start).
         """
         import json
+
         from routesmith.predictor.features import FEATURE_VERSION
         state = json.loads(blob.decode())
         if state.get("feature_version", 1) != FEATURE_VERSION:

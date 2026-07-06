@@ -85,6 +85,13 @@ def load_config_file(path: Path) -> tuple[RouteSmithConfig, list[dict[str, Any]]
             ttl_seconds=c.get("ttl_seconds", 3600),
         )
 
+    # ── Judge ──────────────────────────────────────────────────────────────────
+    if "judge" in data:
+        j = data["judge"]
+        config.judge.enabled = j.get("enabled", False)
+        config.judge.judge_model = j.get("model", "openai/gpt-4o-mini")
+        config.judge.sample_rate = j.get("sample_rate", 0.05)
+
     # ── Feedback ──────────────────────────────────────────────────────────────
     if "feedback" in data:
         fb = data["feedback"]
