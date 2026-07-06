@@ -1,0 +1,117 @@
+[22:50:19] === RouteSmith Experiment Runner ===
+[22:50:19] Phase: all
+[22:50:19] Log: benchmark/logs/run_all_20260406_225019.log
+[22:50:19] Recovery: experiments resume from last saved query automatically
+[22:50:19] 
+[22:50:19] Running ALL experiments in sequence.
+[22:50:19] Estimated time: 3-6 hours. Kill and re-run to resume from any point.
+[22:50:19] 
+[22:50:19] Starting phase: static
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: STATIC
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== static_strong (tag=mmlu, 600 queries) ===
+  Resuming static_strong: 297/600 done
+  [ 298/600] static_strong                       | ✓ | acc=64.8% | cost=$0.1118
+  [ 299/600] static_strong                       | ✓ | acc=64.9% | cost=$0.1121
+  [ 300/600] static_strong                       | ✓ | acc=65.0% | cost=$0.1123
+  [ 301/600] static_strong                       | ✓ | acc=65.1% | cost=$0.1132
+  [ 302/600] static_strong                       | ✓ | acc=65.2% | cost=$0.1135
+  [ 303/600] static_strong                       | ✓ | acc=65.3% | cost=$0.1138
+  [ 304/600] static_strong                       | ✓ | acc=65.5% | cost=$0.1146
+  [ 305/600] static_strong                       | ✓ | acc=65.6% | cost=$0.1156
+  [ 306/600] static_strong                       | ✓ | acc=65.7% | cost=$0.1162
+  [ 307/600] static_strong                       | ✓ | acc=65.8% | cost=$0.1164
+  [ 308/600] static_strong                       | ✓ | acc=65.9% | cost=$0.1172
+  [ 309/600] static_strong                       | ✓ | acc=66.0% | cost=$0.1175
+  [ 310/600] static_strong                       | ✗ | acc=65.8% | cost=$0.1181
+  [ 311/600] static_strong                       | ✓ | acc=65.9% | cost=$0.1187
+  [ 312/600] static_strong                       | ✓ | acc=66.0% | cost=$0.1194
+  [ 313/600] static_strong                       | ✓ | acc=66.1% | cost=$0.1196
+  [ 314/600] static_strong                       | ✓ | acc=66.2% | cost=$0.1204
+  [ 315/600] static_strong                       | ✗ | acc=66.0% | cost=$0.1206
+  [ 316/600] static_strong                       | ✓ | acc=66.1% | cost=$0.1208
+  [ 317/600] static_strong                       | ✓ | acc=66.2% | cost=$0.1220
+  [ 318/600] static_strong                       | ✓ | acc=66.4% | cost=$0.1222
+  [ 319/600] static_strong                       | ✓ | acc=66.5% | cost=$0.1228
+  [ 320/600] static_strong                       | ✓ | acc=66.6% | cost=$0.1238
+  [ 321/600] static_strong                       | ✓ | acc=66.7% | cost=$0.1240
+  [ 322/600] static_strong                       | ✓ | acc=66.8% | cost=$0.1242
+  [ 323/600] static_strong                       | ✓ | acc=66.9% | cost=$0.1244
+  [ 324/600] static_strong                       | ✓ | acc=67.0% | cost=$0.1246
+  [ 325/600] static_strong                       | ✓ | acc=67.1% | cost=$0.1256
+  [ 326/600] static_strong                       | ✓ | acc=67.2% | cost=$0.1268
+  [ 327/600] static_strong                       | ✓ | acc=67.3% | cost=$0.1278
+  [ 328/600] static_strong                       | ✗ | acc=67.1% | cost=$0.1280
+  [ 329/600] static_strong                       | ✓ | acc=67.2% | cost=$0.1282
+  [ 330/600] static_strong                       | ✓ | acc=67.3% | cost=$0.1286
+  [ 331/600] static_strong                       | ✓ | acc=67.4% | cost=$0.1295
+  [ 332/600] static_strong                       | ✓ | acc=67.5% | cost=$0.1298
+  [ 333/600] static_strong                       | ✓ | acc=67.6% | cost=$0.1303
+  [ 334/600] static_strong                       | ✓ | acc=67.7% | cost=$0.1313
+  [ 335/600] static_strong                       | ✓ | acc=67.8% | cost=$0.1315
+  [ 336/600] static_strong                       | ✓ | acc=67.9% | cost=$0.1318
+  [ 337/600] static_strong                       | ✓ | acc=68.0% | cost=$0.1329
+  [ 338/600] static_strong                       | ✓ | acc=68.0% | cost=$0.1334
+  [ 339/600] static_strong                       | ✓ | acc=68.1% | cost=$0.1337
+  [ 340/600] static_strong                       | ✓ | acc=68.2% | cost=$0.1346
+  [ 341/600] static_strong                       | ✓ | acc=68.3% | cost=$0.1356
+  [ 342/600] static_strong                       | ✓ | acc=68.4% | cost=$0.1360
+  [ 343/600] static_strong                       | ✓ | acc=68.5% | cost=$0.1363
+  [ 344/600] static_strong                       | ✓ | acc=68.6% | cost=$0.1368
+  [ 345/600] static_strong                       | ✓ | acc=68.7% | cost=$0.1376
+  [ 346/600] static_strong                       | ✓ | acc=68.8% | cost=$0.1382
+  [ 347/600] static_strong                       | ✓ | acc=68.9% | cost=$0.1385
+  [ 348/600] static_strong                       | ✓ | acc=69.0% | cost=$0.1388
+  [ 349/600] static_strong                       | ✓ | acc=69.1% | cost=$0.1390
+  [ 350/600] static_strong                       | ✓ | acc=69.1% | cost=$0.1394
+  [ 351/600] static_strong                       | ✗ | acc=68.9% | cost=$0.1400
+  [ 352/600] static_strong                       | ✓ | acc=69.0% | cost=$0.1406
+  [ 353/600] static_strong                       | ✓ | acc=69.1% | cost=$0.1408
+  [ 354/600] static_strong                       | ✓ | acc=69.2% | cost=$0.1420
+  [ 355/600] static_strong                       | ✓ | acc=69.3% | cost=$0.1433
+  [ 356/600] static_strong                       | ✓ | acc=69.4% | cost=$0.1443
+  [ 357/600] static_strong                       | ✓ | acc=69.5% | cost=$0.1446
+  [ 358/600] static_strong                       | ✓ | acc=69.6% | cost=$0.1449
+  [ 359/600] static_strong                       | ✗ | acc=69.4% | cost=$0.1452
+  [ 360/600] static_strong                       | ✓ | acc=69.4% | cost=$0.1454
+  [ 361/600] static_strong                       | ✓ | acc=69.5% | cost=$0.1457
+  [ 362/600] static_strong                       | ✓ | acc=69.6% | cost=$0.1461
+  [ 363/600] static_strong                       | ✓ | acc=69.7% | cost=$0.1464
+  [ 364/600] static_strong                       | ✓ | acc=69.8% | cost=$0.1467
+  [ 365/600] static_strong                       | ✓ | acc=69.9% | cost=$0.1471
+  [ 366/600] static_strong                       | ✓ | acc=69.9% | cost=$0.1473
+  [ 367/600] static_strong                       | ✓ | acc=70.0% | cost=$0.1476
+  [ 368/600] static_strong                       | ✓ | acc=70.1% | cost=$0.1479
+  [ 369/600] static_strong                       | ✓ | acc=70.2% | cost=$0.1482
+  [ 370/600] static_strong                       | ✓ | acc=70.3% | cost=$0.1484
+  [ 371/600] static_strong                       | ✓ | acc=70.4% | cost=$0.1487
+  [ 372/600] static_strong                       | ✓ | acc=70.4% | cost=$0.1491
+  [ 373/600] static_strong                       | ✓ | acc=70.5% | cost=$0.1493
+  [ 374/600] static_strong                       | ✓ | acc=70.6% | cost=$0.1496
+  [ 375/600] static_strong                       | ✓ | acc=70.7% | cost=$0.1498
+  [ 376/600] static_strong                       | ✓ | acc=70.7% | cost=$0.1502
+  [ 377/600] static_strong                       | ✓ | acc=70.8% | cost=$0.1505
+  [ 378/600] static_strong                       | ✓ | acc=70.9% | cost=$0.1508
+  [ 379/600] static_strong                       | ✗ | acc=70.7% | cost=$0.1511
+  [ 380/600] static_strong                       | ✓ | acc=70.8% | cost=$0.1514
+  [ 381/600] static_strong                       | ✓ | acc=70.9% | cost=$0.1516
+  [ 382/600] static_strong                       | ✓ | acc=70.9% | cost=$0.1520
+  [ 383/600] static_strong                       | ✓ | acc=71.0% | cost=$0.1523
+  [ 384/600] static_strong                       | ✓ | acc=71.1% | cost=$0.1526
+  [ 385/600] static_strong                       | ✗ | acc=70.9% | cost=$0.1529
+  [ 386/600] static_strong                       | ✓ | acc=71.0% | cost=$0.1531
+  [ 387/600] static_strong                       | ✓ | acc=71.1% | cost=$0.1535
+  [ 388/600] static_strong                       | ✓ | acc=71.1% | cost=$0.1542
+  [ 389/600] static_strong                       | ✗ | acc=71.0% | cost=$0.1545
+  [ 390/600] static_strong                       | ✓ | acc=71.0% | cost=$0.1548
+  [ 391/600] static_strong                       | ✓ | acc=71.1% | cost=$0.1550
+  [ 392/600] static_strong                       | ✓ | acc=71.2% | cost=$0.1553
+  [ 393/600] static_strong                       | ✓ | acc=71.2% | cost=$0.1555
+  [ 394/600] static_strong                       | ✓ | acc=71.3% | cost=$0.1557

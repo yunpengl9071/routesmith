@@ -1,0 +1,485 @@
+[16:15:10] === RouteSmith Experiment Runner ===
+[16:15:10] Phase: all
+[16:15:10] Log: benchmark/logs/run_all_20260409_161510.log
+[16:15:10] Recovery: experiments resume from last saved query automatically
+[16:15:10] 
+[16:15:10] Running ALL experiments in sequence.
+[16:15:10] Estimated time: 3-6 hours. Kill and re-run to resume from any point.
+[16:15:10] 
+[16:15:10] Starting phase: static
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: STATIC
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== static_strong (tag=mmlu, 600 queries) ===
+  Resuming static_strong: 600/600 done
+  DONE: n=600, acc=77.7%, cost=$0.2137
+
+=== static_weak (tag=mmlu, 600 queries) ===
+  Resuming static_weak: 600/600 done
+  DONE: n=600, acc=73.2%, cost=$0.0119
+
+=== random_router_seed42 (tag=mmlu, 600 queries) ===
+  Resuming random_router_seed42: 600/600 done
+  DONE: n=600, acc=75.8%, cost=$0.1144
+
+--- GSM8K (300 queries) ---
+
+=== static_strong (tag=gsm8k, 300 queries) ===
+  Resuming static_strong: 300/300 done
+  DONE: n=300, acc=97.3%, cost=$0.9042
+
+=== static_weak (tag=gsm8k, 300 queries) ===
+  Resuming static_weak: 300/300 done
+  DONE: n=300, acc=91.7%, cost=$0.0598
+
+=== random_router_seed42 (tag=gsm8k, 300 queries) ===
+  Resuming random_router_seed42: 300/300 done
+  DONE: n=300, acc=94.0%, cost=$0.5192
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.8%   0.593 $     0.5819    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+LinTS-27d (5 seeds avg)                        92.5%   0.153 $     0.9723    15.0%
+[16:15:13] Phase static complete.
+[16:15:13] 
+[16:15:13] Starting phase: routellm
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: ROUTELLM
+============================================================
+
+--- MMLU (600 queries) ---
+Loading RouteLLM-SW (threshold=0.3)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.30 (tag=mmlu, 600 queries) ===
+  Resuming routellm_sw_t0.30: 600/600 done
+  DONE: n=600, acc=72.7%, cost=$0.0119
+Loading RouteLLM-SW (threshold=0.5)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.50 (tag=mmlu, 600 queries) ===
+  Resuming routellm_sw_t0.50: 600/600 done
+  DONE: n=600, acc=72.7%, cost=$0.0119
+Loading RouteLLM-SW (threshold=0.7)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.70 (tag=mmlu, 600 queries) ===
+  Resuming routellm_sw_t0.70: 600/600 done
+  DONE: n=600, acc=72.2%, cost=$0.0119
+
+--- GSM8K (300 queries) ---
+Loading RouteLLM-SW (threshold=0.3)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.30 (tag=gsm8k, 300 queries) ===
+  Resuming routellm_sw_t0.30: 300/300 done
+  DONE: n=300, acc=92.3%, cost=$0.0603
+Loading RouteLLM-SW (threshold=0.5)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.50 (tag=gsm8k, 300 queries) ===
+  Resuming routellm_sw_t0.50: 300/300 done
+  DONE: n=300, acc=92.0%, cost=$0.0602
+Loading RouteLLM-SW (threshold=0.7)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.70 (tag=gsm8k, 300 queries) ===
+  Resuming routellm_sw_t0.70: 300/300 done
+  DONE: n=300, acc=90.3%, cost=$0.0601
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.8%   0.593 $     0.5819    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+LinTS-27d (5 seeds avg)                        92.5%   0.153 $     0.9723    15.0%
+[16:19:29] Phase routellm complete.
+[16:19:29] 
+[16:19:29] Starting phase: ts_cat
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: TS_CAT
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== ts_cat_seed42 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed42: 600/600 done
+  DONE: n=600, acc=72.8%, cost=$0.0530
+
+=== ts_cat_seed43 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed43: 600/600 done
+  DONE: n=600, acc=72.0%, cost=$0.0544
+
+=== ts_cat_seed44 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed44: 600/600 done
+  DONE: n=600, acc=72.8%, cost=$0.0506
+
+=== ts_cat_seed45 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed45: 600/600 done
+  DONE: n=600, acc=72.5%, cost=$0.0545
+
+=== ts_cat_seed46 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed46: 600/600 done
+  DONE: n=600, acc=72.0%, cost=$0.0518
+
+--- GSM8K (300 queries) ---
+
+=== ts_cat_seed42 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed42: 300/300 done
+  DONE: n=300, acc=90.3%, cost=$0.0675
+
+=== ts_cat_seed43 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed43: 300/300 done
+  DONE: n=300, acc=91.0%, cost=$0.0680
+
+=== ts_cat_seed44 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed44: 300/300 done
+  DONE: n=300, acc=91.3%, cost=$0.0618
+
+=== ts_cat_seed45 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed45: 300/300 done
+  DONE: n=300, acc=90.7%, cost=$0.0629
+
+=== ts_cat_seed46 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed46: 300/300 done
+  DONE: n=300, acc=92.0%, cost=$0.0733
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.8%   0.593 $     0.5819    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+LinTS-27d (5 seeds avg)                        92.5%   0.153 $     0.9723    15.0%
+[16:19:31] Phase ts_cat complete.
+[16:19:31] 
+[16:19:31] Starting phase: linucb
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: LINUCB
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== linucb_27d_alpha1.5_seed42 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed42: 600/600 done
+  DONE: n=600, acc=78.3%, cost=$0.1967
+
+=== linucb_27d_alpha1.5_seed43 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed43: 600/600 done
+  DONE: n=600, acc=78.2%, cost=$0.1962
+
+=== linucb_27d_alpha1.5_seed44 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed44: 600/600 done
+  DONE: n=600, acc=78.5%, cost=$0.1942
+
+=== linucb_27d_alpha1.5_seed45 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed45: 600/600 done
+  DONE: n=600, acc=78.0%, cost=$0.1958
+
+=== linucb_27d_alpha1.5_seed46 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed46: 600/600 done
+  DONE: n=600, acc=78.2%, cost=$0.1960
+
+--- GSM8K (300 queries) ---
+
+=== linucb_27d_alpha1.5_seed42 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed42: 300/300 done
+  DONE: n=300, acc=91.0%, cost=$0.1255
+
+=== linucb_27d_alpha1.5_seed43 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed43: 300/300 done
+  DONE: n=300, acc=91.7%, cost=$0.1273
+
+=== linucb_27d_alpha1.5_seed44 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed44: 300/300 done
+  DONE: n=300, acc=92.3%, cost=$0.1245
+
+=== linucb_27d_alpha1.5_seed45 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed45: 300/300 done
+  DONE: n=300, acc=92.0%, cost=$0.1272
+
+=== linucb_27d_alpha1.5_seed46 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed46: 300/300 done
+  DONE: n=300, acc=91.7%, cost=$0.1250
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.8%   0.593 $     0.5819    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+LinTS-27d (5 seeds avg)                        92.5%   0.153 $     0.9723    15.0%
+[16:19:32] Phase linucb complete.
+[16:19:32] 
+[16:19:32] Starting phase: lints
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: LINTS
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== lints_27d_vsq1.0_seed42 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed42: 600/600 done
+  Restored LinTS state at t=600
+  DONE: n=600, acc=75.5%, cost=$0.1167
+
+=== lints_27d_vsq1.0_seed43 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed43: 600/600 done
+  Restored LinTS state at t=600
+  DONE: n=600, acc=75.5%, cost=$0.1130
+
+=== lints_27d_vsq1.0_seed44 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed44: 600/600 done
+  Restored LinTS state at t=600
+  DONE: n=600, acc=75.8%, cost=$0.1194
+
+=== lints_27d_vsq1.0_seed45 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed45: 600/600 done
+  Restored LinTS state at t=600
+  DONE: n=600, acc=76.0%, cost=$0.1118
+
+=== lints_27d_vsq1.0_seed46 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed46: 600/600 done
+  Restored LinTS state at t=600
+  DONE: n=600, acc=76.3%, cost=$0.1210
+
+--- GSM8K (300 queries) ---
+
+=== lints_27d_vsq1.0_seed42 (tag=gsm8k, 300 queries) ===
+  Resuming lints_27d_vsq1.0_seed42: 300/300 done
+  Restored LinTS state at t=300
+  DONE: n=300, acc=92.0%, cost=$0.1279
+
+=== lints_27d_vsq1.0_seed43 (tag=gsm8k, 300 queries) ===
+  Resuming lints_27d_vsq1.0_seed43: 300/300 done
+  Restored LinTS state at t=300
+  DONE: n=300, acc=93.0%, cost=$0.2254
+
+=== lints_27d_vsq1.0_seed44 (tag=gsm8k, 300 queries) ===
+  Resuming lints_27d_vsq1.0_seed44: 300/300 done
+  Restored LinTS state at t=300
+  DONE: n=300, acc=93.0%, cost=$0.2117
+
+=== lints_27d_vsq1.0_seed45 (tag=gsm8k, 300 queries) ===
+  Resuming lints_27d_vsq1.0_seed45: 300/300 done
+  Restored LinTS state at t=300
+  DONE: n=300, acc=92.3%, cost=$0.2098
+
+=== lints_27d_vsq1.0_seed46 (tag=gsm8k, 300 queries) ===
+  Resuming lints_27d_vsq1.0_seed46: 300/300 done
+  Restored LinTS state at t=300
+  DONE: n=300, acc=92.3%, cost=$0.1975
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.8%   0.593 $     0.5819    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+LinTS-27d (5 seeds avg)                        92.5%   0.153 $     0.9723    15.0%
+[16:19:34] Phase lints complete.
+[16:19:34] 
+[16:19:34] === Exp 1 Summary ===
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: STATUS
+============================================================
+
+--- MMLU (600 queries) ---
+
+--- GSM8K (300 queries) ---
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.8%   0.593 $     0.5819    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+LinTS-27d (5 seeds avg)                        92.5%   0.153 $     0.9723    15.0%
+[16:19:36] 
+[16:19:36] Starting Experiment 2: 5-arm multi-model routing...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 146, in <module>
+    main()
+    ~~~~^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 124, in main
+    results = run_lints_5arm(queries, seed=seed, results_path=path)
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 81, in run_lints_5arm
+    correct = extract_answer(resp) == q.get("answer_letter")
+              ~~~~~~~~~~~~~~^^^^^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/dataset.py", line 96, in extract_answer
+    text = response_text.strip().upper()
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strip'
+=== Experiment 2: 5-Arm Multi-Model Quality Routing ===
+Using 600 MMLU queries, 5 arms, 3 seeds
+
+--- LinTS-5arm seed=42 ---
+  Resuming seed=42: 4/600 done, t=4
+  [   5/600] seed=42 arm=0(GPT-4o) | ✓ | acc=40.0%
+  [   6/600] seed=42 arm=1(Claude-S) | ✗ | acc=33.3%

@@ -109,6 +109,11 @@ class TestRouterBasics:
         assert router.registry is registry
         assert router.predictor is not None
 
+    def test_default_router_uses_lints(self, registry):
+        config = RouteSmithConfig()
+        router = Router(config, registry)
+        assert type(router.predictor).__name__ == "LinTSPredictor"
+
     def test_route_raises_without_models(self, config):
         """Test routing raises error with empty registry."""
         empty_registry = ModelRegistry()

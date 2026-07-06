@@ -47,6 +47,7 @@ class RoutingMetadata:
     cost_savings_usd: float
     models_considered: list[str]
     cache_hit: bool = False
+    fallback_from: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for response attachment."""
@@ -129,6 +130,13 @@ class RouteSmith:
                 max_entries=config.cache.max_entries,
                 embedding_model=config.cache.embedding_model,
             )
+
+        import importlib.util
+        self._cache_semantic = importlib.util.find_spec("sentence_transformers") is not None
+        if self.config.cache.enabled and not self._cache_semantic:
+            logger.warning("sentence-transformers not installed; cache runs exact-match only "
+                           "(pip install routesmith[cache] for semantic matching)")
+        self._cache_hits = 0
 
         # Resolve reward_fn from config (fail fast on bad expressions).
         self._reward_fn: Callable[..., float] | None = None
@@ -522,6 +530,8 @@ class RouteSmith:
                     selected_model, retry_after=breaker.retry_after_seconds()
                 )
 
+            fallback_from: str | None = None
+
             try:
                 response = retry_with_backoff(
                     lambda: litellm.completion(
@@ -553,19 +563,67 @@ class RouteSmith:
                     request_id=request_id,
                 )
                 self.feedback.record_outcome(
-                    request_id=request_id, success=False, feedback=str(e)
+                    request_id=request_id, success=False, feedback=str(e),
                 )
                 raise
             except Exception as e:
-                breaker.record_failure()
-                self._log.error(
-                    "llm_call_failed", model_id=selected_model,
-                    request_id=request_id,
-                )
-                self.feedback.record_outcome(
-                    request_id=request_id, success=False, feedback=str(e)
-                )
-                raise
+                primary_error = e
+                fb = self.config.fallback_model
+                if fb and fb != selected_model and self.registry.get(fb) is not None:
+                    logger.warning(
+                        "Primary model %s failed (%s); retrying with fallback %s",
+                        selected_model, primary_error, fb,
+                    )
+                    fallback_from = selected_model
+                    selected_model = fb
+                    breaker = self._circuit_breakers.get(selected_model)
+                    if breaker is None:
+                        breaker = CircuitBreaker(selected_model)
+                        self._circuit_breakers[selected_model] = breaker
+                    try:
+                        response = retry_with_backoff(
+                            lambda: litellm.completion(
+                                model=selected_model,
+                                messages=messages,
+                                **{**self.config.litellm_params, **kwargs},
+                            ),
+                            max_retries=2,
+                            base_delay=1.0,
+                        )
+                        breaker.record_success()
+                        self._log.info(
+                            "llm_call_success", model_id=selected_model,
+                            request_id=request_id,
+                        )
+
+                        # Store in cache after successful fallback LLM call
+                        if self._cache is not None:
+                            try:
+                                self._cache.put(
+                                    messages, response, model_id=selected_model
+                                )
+                            except Exception:
+                                pass
+                    except Exception:
+                        breaker.record_failure()
+                        self._log.error(
+                            "llm_call_failed", model_id=selected_model,
+                            request_id=request_id,
+                        )
+                        self.feedback.record_outcome(
+                            request_id=request_id, success=False, feedback=str(primary_error),
+                        )
+                        raise primary_error from None
+                else:
+                    breaker.record_failure()
+                    self._log.error(
+                        "llm_call_failed", model_id=selected_model,
+                        request_id=request_id,
+                    )
+                    self.feedback.record_outcome(
+                        request_id=request_id, success=False, feedback=str(e),
+                    )
+                    raise
 
         # Track costs and calculate counterfactual
         actual_cost = 0.0

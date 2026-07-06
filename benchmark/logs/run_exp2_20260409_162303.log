@@ -1,0 +1,28 @@
+[16:23:03] === RouteSmith Experiment Runner ===
+[16:23:03] Phase: exp2
+[16:23:03] Log: benchmark/logs/run_exp2_20260409_162303.log
+[16:23:03] Recovery: experiments resume from last saved query automatically
+[16:23:03] 
+[16:23:03] Starting Experiment 2: 5-arm multi-model routing...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 147, in <module>
+    main()
+    ~~~~^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 125, in main
+    results = run_lints_5arm(queries, seed=seed, results_path=path)
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 82, in run_lints_5arm
+    correct = extract_answer(resp) == q.get("answer_letter")
+              ~~~~~~~~~~~~~~^^^^^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/dataset.py", line 96, in extract_answer
+    text = response_text.strip().upper()
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strip'
+=== Experiment 2: 5-Arm Multi-Model Quality Routing ===
+Using 600 MMLU queries, 5 arms, 3 seeds
+
+--- LinTS-5arm seed=42 ---
+  Resuming seed=42: 7/600 done, t=7
+  [   8/600] seed=42 arm=0(GPT-4o) | ✗ | acc=25.0%
+  [   9/600] seed=42 arm=1(Claude-S) | ✗ | acc=22.2%

@@ -1,0 +1,41 @@
+[
+  {
+    "query_id": 1,
+    "dataset": "mmlu",
+    "category": "STEM",
+    "strategy": "static_weak",
+    "model": "openai/gpt-4o-mini",
+    "final_model": "openai/gpt-4o-mini",
+    "raw_response": "C",
+    "correct": true,
+    "cost_usd": 2.355e-05,
+    "prompt_tokens": 153,
+    "completion_tokens": 1
+  },
+  {
+    "query_id": 2,
+    "dataset": "mmlu",
+    "category": "STEM",
+    "strategy": "static_weak",
+    "model": "openai/gpt-4o-mini",
+    "final_model": "openai/gpt-4o-mini",
+    "raw_response": "To solve the equation \n\n",
+    "correct": false,
+    "cost_usd": 1.575e-05,
+    "prompt_tokens": 85,
+    "completion_tokens": 5
+  },
+  {
+    "query_id": 3,
+    "dataset": "mmlu",
+    "category": "STEM",
+    "strategy": "static_weak",
+    "model": "openai/gpt-4o-mini",
+    "final_model": "openai/gpt-4o-mini",
+    "raw_response": "To find the greatest odd",
+    "correct": false,
+    "cost_usd": 1.8e-05,
+    "prompt_tokens": 100,
+    "completion_tokens": 5
+  }
+]

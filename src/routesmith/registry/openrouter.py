@@ -8,10 +8,13 @@ No API key is required to list models; a key is only needed to call them.
 from __future__ import annotations
 
 import json
+import logging
 import math
 import ssl
 import urllib.request
 from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 _MODELS_URL = "https://openrouter.ai/api/v1/models"
 
@@ -39,24 +42,37 @@ class OpenRouterModel:
     quality_score: float       # Heuristic: derived from cost ranking
 
 
-def fetch_models(timeout: int = 10) -> list[OpenRouterModel]:
+def fetch_models(
+    timeout: int = 10,
+    *,
+    _response_json: dict | None = None,
+) -> list[OpenRouterModel]:
     """Fetch all available models from OpenRouter.
 
     Returns a list sorted by cost ascending (cheapest first).
     Models with zero or missing pricing are excluded.
 
+    Args:
+        timeout: HTTP request timeout in seconds.
+        _response_json: Test seam — when passed, skip the network call and
+            parse this dict directly instead.
+
     Raises:
         urllib.error.URLError: If the request fails.
         ValueError: If the response cannot be parsed.
     """
-    req = urllib.request.Request(
-        _MODELS_URL,
-        headers={"User-Agent": "routesmith/0.1.0"},
-    )
-    with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as resp:
-        raw = json.loads(resp.read().decode())
+    if _response_json is not None:
+        raw = _response_json
+    else:
+        req = urllib.request.Request(
+            _MODELS_URL,
+            headers={"User-Agent": "routesmith/0.1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as resp:
+            raw = json.loads(resp.read().decode())
 
-    models = []
+    models: list[OpenRouterModel] = []
+    n_free = 0
     for entry in raw.get("data", []):
         pricing = entry.get("pricing", {})
         try:
@@ -68,14 +84,16 @@ def fetch_models(timeout: int = 10) -> list[OpenRouterModel]:
 
         # Skip free / missing-price models
         if input_per_tok <= 0 or output_per_tok <= 0:
+            n_free += 1
             continue
 
         ctx = entry.get("context_length") or 0
         arch = entry.get("architecture", {}) or {}
-        top = entry.get("top_provider", {}) or {}
+
+        supported_params = entry.get("supported_parameters", [])
+        supports_fn = "tools" in supported_params if supported_params else True
 
         supports_vision = "image" in str(arch.get("input_modalities", []))
-        supports_fn = bool(top.get("is_supported_in_playground", True))
 
         models.append(OpenRouterModel(
             id=entry["id"],
@@ -87,6 +105,9 @@ def fetch_models(timeout: int = 10) -> list[OpenRouterModel]:
             supports_vision=supports_vision,
             quality_score=0.0,   # filled in below after sorting
         ))
+
+    if n_free:
+        logger.info("Skipped %d free models (zero pricing)", n_free)
 
     if not models:
         return models

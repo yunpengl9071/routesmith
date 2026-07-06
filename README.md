@@ -59,7 +59,7 @@ Point any AI coding tool at `http://localhost:9119/v1`:
 | | Raw OpenRouter | Manual routing | RouteSmith |
 |---|---|---|---|
 | Picks model per query | ❌ | 😓 You do it | ✅ Automatic |
-| Cascades when answer is weak | ❌ | ❌ | ✅ |
+| Cascades when answer is weak¹ | ❌ | ❌ | ✅ |
 | Caches repetitive queries | ❌ | ❌ | ✅ |
 | Enforces budget limits | ❌ | ❌ | ✅ |
 | Tracks costs per model | ✅ | ❌ | ✅ |
@@ -67,11 +67,13 @@ Point any AI coding tool at `http://localhost:9119/v1`:
 | Zero-config start | ✅ | ❌ | ✅ |
 | Learns from feedback | ❌ | ❌ | ✅ |
 
+¹ Today all strategies select a single model; cascade execution lands in Phase 2 (see [ROADMAP.md](ROADMAP.md)).
+
 ## Features
 
 ### Intelligent Routing
 - **7 predictor types**: LinUCB, LinTS, NeuralUCB, REINFORCE, WarmStart LinUCB, Adaptive (random forest), Embedding
-- **27-dimensional feature space**: query type classification, difficulty estimation, model metadata
+- **35-dimensional feature space**: query type classification, difficulty estimation, model metadata
 - **Online learning**: bandits improve from the first query onward — no pretraining labels needed
 - **Multi-model routing**: scales to $K$ arms naturally (validated on 5-model deployments)
 
@@ -92,8 +94,8 @@ Point any AI coding tool at `http://localhost:9119/v1`:
 
 RouteSmith is backed by a research paper evaluating contextual bandit routing:
 
-- **LinTS-27d** achieves 46% cost reduction with APGR=0.593 on MMLU
-- **LinUCB-27d** achieves APGR=1.126 by selective strong-arm routing
+- **LinTS-35d** achieves 46% cost reduction with APGR=0.593 on MMLU
+- **LinUCB-35d** achieves APGR=1.126 by selective strong-arm routing
 - **5-arm routing**: 45% cost savings across GPT-4o, Claude-Sonnet-4.5, Qwen-Plus, MiniMax-M1, DeepSeek-V3
 - **Zero pretraining labels** — learns from ~100 queries vs. 55K+ required by supervised routers
 - Sub-millisecond routing latency (<0.5ms P99)

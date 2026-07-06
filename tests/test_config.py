@@ -64,6 +64,10 @@ class TestRouteSmithConfigExtensions:
         config = RouteSmithConfig()
         assert config.reward_fns == {}
 
+    def test_default_predictor_is_lints(self):
+        config = RouteSmithConfig()
+        assert config.predictor_type == "lints"
+
     def test_business_rules_default_empty(self):
         config = RouteSmithConfig()
         assert config.business_rules == []
