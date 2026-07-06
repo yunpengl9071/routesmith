@@ -842,8 +842,10 @@ class TestTradeoff:
         """tradeoff=0 prefers highest quality model regardless of cost."""
         from unittest.mock import MagicMock, patch
 
-        # Register two models with different quality
-        client = RouteSmith()
+        from routesmith.config import RouteSmithConfig
+
+        # Use adaptive predictor for deterministic tradeoff behavior
+        client = RouteSmith(config=RouteSmithConfig(predictor_type="adaptive"))
         client.register_model("cheap-model", 0.0001, 0.0001, quality_score=0.70)
         client.register_model("expensive-model", 0.01, 0.01, quality_score=0.95)
 
@@ -863,7 +865,22 @@ class TestTradeoff:
         """tradeoff=10 prefers cheapest model above min quality."""
         from unittest.mock import MagicMock, patch
 
-        client = self._make_client()
+        from routesmith.config import RouteSmithConfig
+
+        # Use adaptive predictor for deterministic tradeoff behavior
+        client = RouteSmith(config=RouteSmithConfig(predictor_type="adaptive"))
+        client.register_model(
+            "gpt-4o",
+            cost_per_1k_input=0.005,
+            cost_per_1k_output=0.015,
+            quality_score=0.95,
+        )
+        client.register_model(
+            "gpt-4o-mini",
+            cost_per_1k_input=0.00015,
+            cost_per_1k_output=0.0006,
+            quality_score=0.85,
+        )
         with patch("litellm.completion") as mock:
             mock.return_value = MagicMock(
                 choices=[MagicMock(message=MagicMock(content="ok"))],

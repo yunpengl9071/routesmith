@@ -398,12 +398,20 @@ class RouteSmith:
 
         # Cache check (before routing, for exact/semantic match)
         if self._cache is not None and not kwargs.get("tools") and not kwargs.get("stream"):
-            entry = self._cache.get(messages, semantic=self._cache_semantic)
+            entry = self._cache.get(messages, model_id=model, semantic=self._cache_semantic)
             if entry is not None:
                 self._cache_hits += 1
                 import copy
                 cached = copy.deepcopy(entry.response)
                 cached._routesmith_request_id = request_id
+                # Add basic metadata to cached response
+                cached.routesmith_explanation = f"Cache hit (request {request_id})"
+                if include_metadata:
+                    cached.routesmith_metadata = {
+                        "request_id": request_id,
+                        "cache_hit": True,
+                        "model_selected": entry.model_id,
+                    }
                 return cached
 
         # Rolling-window budget check (pre-flight), after cache check to allow free cache hits
@@ -525,6 +533,8 @@ class RouteSmith:
                 cache_hit = True
                 cached_response = cached_entry.response
 
+        fallback_from: str | None = None
+
         if cache_hit and cached_response is not None:
             response = cached_response
             # Attach request_id so feedback tracking can find this record
@@ -549,8 +559,6 @@ class RouteSmith:
                 raise CircuitOpenError(
                     selected_model, retry_after=breaker.retry_after_seconds()
                 )
-
-            fallback_from: str | None = None
 
             try:
                 response = retry_with_backoff(
@@ -1015,6 +1023,8 @@ class RouteSmith:
                 cache_hit = True
                 cached_response = cached_entry.response
 
+        fallback_from: str | None = None
+
         if cache_hit and cached_response is not None:
             response = cached_response
             response._routesmith_request_id = request_id  # type: ignore[attr-defined]
@@ -1024,7 +1034,6 @@ class RouteSmith:
             )
         else:
             # Execute completion via LiteLLM
-            fallback_from: str | None = None
 
             try:
                 response = await litellm.acompletion(

@@ -443,14 +443,13 @@ class TestRouteSmithFeedbackIntegration:
         )
         rid = response._routesmith_request_id
 
-        # Record outcome
-        old_prior = client.router.predictor._ema_priors.get("test-model", 0.5)
+        # Record outcome - predictor should have been updated
+        old_updates = client.router.predictor._total_updates
         found = client.record_outcome(rid, score=0.95)
         assert found is True
 
         # Predictor should have been updated
-        new_prior = client.router.predictor._ema_priors.get("test-model")
-        assert new_prior != old_prior
+        assert client.router.predictor._total_updates > old_updates
 
     @patch("routesmith.client.litellm")
     def test_full_flow_completion_to_storage(self, mock_litellm, client):

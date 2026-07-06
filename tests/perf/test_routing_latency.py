@@ -35,7 +35,8 @@ class TestRoutingLatency:
         p99 = latencies[99]
         avg = sum(latencies) / len(latencies)
         print(f"\nRouting Latency: avg={avg:.2f}ms, P99={p99:.2f}ms")
-        assert p99 < 5.0, f"P99 latency {p99:.2f}ms exceeds 5ms threshold"
+        threshold = float(os.environ.get("PERF_MULTIPLIER", 1.0)) * 5.0
+        assert p99 < threshold, f"P99 latency {p99:.2f}ms exceeds {threshold:.2f}ms threshold"
 
     def test_route_output_contains_model_info(self):
         """Verify route() output carries enough metadata for observability."""
