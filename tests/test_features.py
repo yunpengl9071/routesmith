@@ -87,7 +87,8 @@ class TestFeatureVector:
 class TestMessageFeatures:
     def test_single_user_message(self, extractor):
         msgs = [{"role": "user", "content": "What is 2+2?"}]
-        fv = extractor.extract(msgs, "gpt-4o")
+        ext = FeatureExtractor(extractor._registry, normalize=False)
+        fv = ext.extract(msgs, "gpt-4o")
         # msg_count = 1
         assert fv.features[0] == 1.0
         # user_msg_count = 1
@@ -104,7 +105,8 @@ class TestMessageFeatures:
             {"role": "assistant", "content": "Hello!"},
             {"role": "user", "content": "How are you?"},
         ]
-        fv = extractor.extract(msgs, "gpt-4o")
+        ext = FeatureExtractor(extractor._registry, normalize=False)
+        fv = ext.extract(msgs, "gpt-4o")
         # msg_count = 4
         assert fv.features[0] == 4.0
         # user_msg_count = 2
@@ -122,7 +124,8 @@ class TestMessageFeatures:
 
     def test_word_count_and_avg_word_length(self, extractor):
         msgs = [{"role": "user", "content": "hello world"}]
-        fv = extractor.extract(msgs, "gpt-4o")
+        ext = FeatureExtractor(extractor._registry, normalize=False)
+        fv = ext.extract(msgs, "gpt-4o")
         # word_count = 2
         assert fv.features[8] == 2.0
         # avg_word_length = (5 + 5) / 2 = 5.0
@@ -132,7 +135,8 @@ class TestMessageFeatures:
 class TestModelFeatures:
     def test_known_model(self, extractor):
         msgs = [{"role": "user", "content": "Hi"}]
-        fv = extractor.extract(msgs, "gpt-4o")
+        ext = FeatureExtractor(extractor._registry, normalize=False)
+        fv = ext.extract(msgs, "gpt-4o")
         # Model features start at index 17 (after 17 message features)
         # cost_per_1k_input
         assert fv.features[17] == 0.005

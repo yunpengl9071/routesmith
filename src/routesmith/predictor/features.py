@@ -31,6 +31,22 @@ class FeatureVector:
     feature_names: list[str] = field(default_factory=list)
 
 
+FEATURE_VERSION = 2
+
+FEATURE_SCALES = [
+    20, 8000, 2000, 4000, 10, 1, 2000, 5, 400, 12, 1,
+    1, 1, 1, 1, 1, 1,
+    0.05, 0.10, 1, 3000, 12, 1, 1, 1,
+    1, 1,
+]
+
+
+def _normalize(features: list[float], scales: list[float] | None = None) -> list[float]:
+    """Apply per-feature rescaling: clip(raw / scale, 0.0, 1.5)."""
+    s = scales or FEATURE_SCALES
+    return [max(0.0, min(f / sc, 1.5)) for f, sc in zip(features, s)]
+
+
 # --- Query type keyword sets ---
 
 _MATH_WORDS = frozenset([
@@ -123,8 +139,9 @@ class FeatureExtractor:
         MESSAGE_FEATURE_NAMES + MODEL_FEATURE_NAMES + INTERACTION_FEATURE_NAMES
     )
 
-    def __init__(self, registry: ModelRegistry) -> None:
+    def __init__(self, registry: ModelRegistry, normalize: bool = True) -> None:
         self._registry = registry
+        self._normalize = normalize
 
     def extract(
         self,
@@ -149,8 +166,11 @@ class FeatureExtractor:
         interaction_features = self._extract_interaction_features(
             msg_features, model_features
         )
+        features = msg_features + model_features + interaction_features
+        if self._normalize:
+            features = _normalize(features)
         return FeatureVector(
-            features=msg_features + model_features + interaction_features,
+            features=features,
             feature_names=list(self.ALL_FEATURE_NAMES),
         )
 
@@ -186,8 +206,11 @@ class FeatureExtractor:
         """
         model_features = self._extract_model_features(model_id)
         interaction_features = self._extract_interaction_features(msg_features, model_features)
+        features = msg_features + model_features + interaction_features
+        if self._normalize:
+            features = _normalize(features)
         return FeatureVector(
-            features=msg_features + model_features + interaction_features,
+            features=features,
             feature_names=list(self.ALL_FEATURE_NAMES),
         )
 

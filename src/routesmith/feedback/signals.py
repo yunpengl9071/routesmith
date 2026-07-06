@@ -32,6 +32,28 @@ _REFUSAL_PATTERNS = [
 _REFUSAL_RE = re.compile("|".join(_REFUSAL_PATTERNS), re.IGNORECASE)
 
 
+# Quality ascribed to a response exhibiting each implicit failure signal.
+# Keys are SignalExtractor's signal_name values; a signal is "triggered"
+# when its signal_value < 0.5 (values are 0-1 with 1 = good quality).
+IMPLICIT_QUALITY = {
+    "error_detected": 0.05,
+    "refusal_detected": 0.05,
+    "empty_response": 0.05,
+    "truncated_response": 0.40,
+}
+
+
+def implicit_quality(signals: list[QualitySignal]) -> float | None:
+    """Worst implied quality across triggered negative signals; None when clean."""
+    triggered = [
+        q
+        for s in signals
+        for name, q in IMPLICIT_QUALITY.items()
+        if s.signal_name == name and s.signal_value < 0.5
+    ]
+    return min(triggered) if triggered else None
+
+
 class SignalExtractor:
     """
     Extracts implicit quality signals from LLM responses.
