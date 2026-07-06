@@ -1,0 +1,2609 @@
+[00:37:05] === RouteSmith Experiment Runner ===
+[00:37:05] Phase: all
+[00:37:05] Log: benchmark/logs/run_all_20260409_003705.log
+[00:37:05] Recovery: experiments resume from last saved query automatically
+[00:37:05] 
+[00:37:05] Running ALL experiments in sequence.
+[00:37:05] Estimated time: 3-6 hours. Kill and re-run to resume from any point.
+[00:37:05] 
+[00:37:05] Starting phase: static
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: STATIC
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== static_strong (tag=mmlu, 600 queries) ===
+  Resuming static_strong: 600/600 done
+  DONE: n=600, acc=77.7%, cost=$0.2137
+
+=== static_weak (tag=mmlu, 600 queries) ===
+  Resuming static_weak: 600/600 done
+  DONE: n=600, acc=73.2%, cost=$0.0119
+
+=== random_router_seed42 (tag=mmlu, 600 queries) ===
+  Resuming random_router_seed42: 600/600 done
+  DONE: n=600, acc=75.8%, cost=$0.1144
+
+--- GSM8K (300 queries) ---
+
+=== static_strong (tag=gsm8k, 300 queries) ===
+  Resuming static_strong: 300/300 done
+  DONE: n=300, acc=97.3%, cost=$0.9042
+
+=== static_weak (tag=gsm8k, 300 queries) ===
+  Resuming static_weak: 300/300 done
+  DONE: n=300, acc=91.7%, cost=$0.0598
+
+=== random_router_seed42 (tag=gsm8k, 300 queries) ===
+  Resuming random_router_seed42: 300/300 done
+  DONE: n=300, acc=94.0%, cost=$0.5192
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.6%   0.540 $     0.4575    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+[00:37:07] Phase static complete.
+[00:37:07] 
+[00:37:07] Starting phase: routellm
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1135: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', and C=np.inf instead of penalty=None.
+  warnings.warn(
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: ROUTELLM
+============================================================
+
+--- MMLU (600 queries) ---
+Loading RouteLLM-SW (threshold=0.3)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.30 (tag=mmlu, 600 queries) ===
+  Resuming routellm_sw_t0.30: 600/600 done
+  DONE: n=600, acc=72.7%, cost=$0.0119
+Loading RouteLLM-SW (threshold=0.5)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.50 (tag=mmlu, 600 queries) ===
+  Resuming routellm_sw_t0.50: 600/600 done
+  DONE: n=600, acc=72.7%, cost=$0.0119
+Loading RouteLLM-SW (threshold=0.7)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.70 (tag=mmlu, 600 queries) ===
+  Resuming routellm_sw_t0.70: 600/600 done
+  DONE: n=600, acc=72.2%, cost=$0.0119
+
+--- GSM8K (300 queries) ---
+Loading RouteLLM-SW (threshold=0.3)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.30 (tag=gsm8k, 300 queries) ===
+  Resuming routellm_sw_t0.30: 300/300 done
+  DONE: n=300, acc=92.3%, cost=$0.0603
+Loading RouteLLM-SW (threshold=0.5)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.50 (tag=gsm8k, 300 queries) ===
+  Resuming routellm_sw_t0.50: 300/300 done
+  DONE: n=300, acc=92.0%, cost=$0.0602
+Loading RouteLLM-SW (threshold=0.7)...
+SW router loaded successfully.
+
+=== routellm_sw_t0.70 (tag=gsm8k, 300 queries) ===
+  Resuming routellm_sw_t0.70: 300/300 done
+  DONE: n=300, acc=90.3%, cost=$0.0601
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.6%   0.540 $     0.4575    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+[00:41:26] Phase routellm complete.
+[00:41:26] 
+[00:41:26] Starting phase: ts_cat
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: TS_CAT
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== ts_cat_seed42 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed42: 600/600 done
+  DONE: n=600, acc=72.8%, cost=$0.0530
+
+=== ts_cat_seed43 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed43: 600/600 done
+  DONE: n=600, acc=72.0%, cost=$0.0544
+
+=== ts_cat_seed44 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed44: 600/600 done
+  DONE: n=600, acc=72.8%, cost=$0.0506
+
+=== ts_cat_seed45 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed45: 600/600 done
+  DONE: n=600, acc=72.5%, cost=$0.0545
+
+=== ts_cat_seed46 (tag=mmlu, 600 queries) ===
+  Resuming ts_cat_seed46: 600/600 done
+  DONE: n=600, acc=72.0%, cost=$0.0518
+
+--- GSM8K (300 queries) ---
+
+=== ts_cat_seed42 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed42: 300/300 done
+  DONE: n=300, acc=90.3%, cost=$0.0675
+
+=== ts_cat_seed43 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed43: 300/300 done
+  DONE: n=300, acc=91.0%, cost=$0.0680
+
+=== ts_cat_seed44 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed44: 300/300 done
+  DONE: n=300, acc=91.3%, cost=$0.0618
+
+=== ts_cat_seed45 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed45: 300/300 done
+  DONE: n=300, acc=90.7%, cost=$0.0629
+
+=== ts_cat_seed46 (tag=gsm8k, 300 queries) ===
+  Resuming ts_cat_seed46: 300/300 done
+  DONE: n=300, acc=92.0%, cost=$0.0733
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.6%   0.540 $     0.4575    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+[00:41:27] Phase ts_cat complete.
+[00:41:27] 
+[00:41:27] Starting phase: linucb
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: LINUCB
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== linucb_27d_alpha1.5_seed42 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed42: 600/600 done
+  DONE: n=600, acc=78.3%, cost=$0.1967
+
+=== linucb_27d_alpha1.5_seed43 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed43: 600/600 done
+  DONE: n=600, acc=78.2%, cost=$0.1962
+
+=== linucb_27d_alpha1.5_seed44 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed44: 600/600 done
+  DONE: n=600, acc=78.5%, cost=$0.1942
+
+=== linucb_27d_alpha1.5_seed45 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed45: 600/600 done
+  DONE: n=600, acc=78.0%, cost=$0.1958
+
+=== linucb_27d_alpha1.5_seed46 (tag=mmlu, 600 queries) ===
+  Resuming linucb_27d_alpha1.5_seed46: 600/600 done
+  DONE: n=600, acc=78.2%, cost=$0.1960
+
+--- GSM8K (300 queries) ---
+
+=== linucb_27d_alpha1.5_seed42 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed42: 300/300 done
+  DONE: n=300, acc=91.0%, cost=$0.1255
+
+=== linucb_27d_alpha1.5_seed43 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed43: 300/300 done
+  DONE: n=300, acc=91.7%, cost=$0.1273
+
+=== linucb_27d_alpha1.5_seed44 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed44: 300/300 done
+  DONE: n=300, acc=92.3%, cost=$0.1245
+
+=== linucb_27d_alpha1.5_seed45 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed45: 300/300 done
+  DONE: n=300, acc=92.0%, cost=$0.1272
+
+=== linucb_27d_alpha1.5_seed46 (tag=gsm8k, 300 queries) ===
+  Resuming linucb_27d_alpha1.5_seed46: 300/300 done
+  DONE: n=300, acc=91.7%, cost=$0.1250
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.6%   0.540 $     0.4575    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+[00:41:29] Phase linucb complete.
+[00:41:29] 
+[00:41:29] Starting phase: lints
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: LINTS
+============================================================
+
+--- MMLU (600 queries) ---
+
+=== lints_27d_vsq1.0_seed42 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed42: 600/600 done
+  Restored LinTS state at t=600
+  DONE: n=600, acc=75.5%, cost=$0.1167
+
+=== lints_27d_vsq1.0_seed43 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed43: 600/600 done
+  Restored LinTS state at t=600
+  DONE: n=600, acc=75.5%, cost=$0.1130
+
+=== lints_27d_vsq1.0_seed44 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed44: 600/600 done
+  Restored LinTS state at t=600
+  DONE: n=600, acc=75.8%, cost=$0.1194
+
+=== lints_27d_vsq1.0_seed45 (tag=mmlu, 600 queries) ===
+  Resuming lints_27d_vsq1.0_seed45: 581/600 done
+  Restored LinTS state at t=581
+  [ 582/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.6% | cost=$0.1087
+  [ 583/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.6% | cost=$0.1089
+  [ 584/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.7% | cost=$0.1092
+  [ 585/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.7% | cost=$0.1092
+  [ 586/600] lints_27d_vsq1.0_seed45             | ✗ | acc=75.6% | cost=$0.1092
+  [ 587/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.6% | cost=$0.1092
+  [ 588/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.7% | cost=$0.1092
+  [ 589/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.7% | cost=$0.1092
+  [ 590/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.8% | cost=$0.1093
+  [ 591/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.8% | cost=$0.1096
+  [ 592/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.8% | cost=$0.1096
+  [ 593/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.9% | cost=$0.1099
+  [ 594/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.9% | cost=$0.1103
+  [ 595/600] lints_27d_vsq1.0_seed45             | ✓ | acc=76.0% | cost=$0.1105
+  [ 596/600] lints_27d_vsq1.0_seed45             | ✓ | acc=76.0% | cost=$0.1109
+  [ 597/600] lints_27d_vsq1.0_seed45             | ✗ | acc=75.9% | cost=$0.1111
+  [ 598/600] lints_27d_vsq1.0_seed45             | ✓ | acc=75.9% | cost=$0.1115
+  [ 599/600] lints_27d_vsq1.0_seed45             | ✓ | acc=76.0% | cost=$0.1115
+  [ 600/600] lints_27d_vsq1.0_seed45             | ✓ | acc=76.0% | cost=$0.1118
+  DONE: n=600, acc=76.0%, cost=$0.1118
+
+=== lints_27d_vsq1.0_seed46 (tag=mmlu, 600 queries) ===
+  [   1/600] lints_27d_vsq1.0_seed46             | ✗ | acc=0.0% | cost=$0.0005
+  [   2/600] lints_27d_vsq1.0_seed46             | ✗ | acc=0.0% | cost=$0.0007
+  [   3/600] lints_27d_vsq1.0_seed46             | ✗ | acc=0.0% | cost=$0.0011
+  [   4/600] lints_27d_vsq1.0_seed46             | ✓ | acc=25.0% | cost=$0.0011
+  [   5/600] lints_27d_vsq1.0_seed46             | ✓ | acc=40.0% | cost=$0.0013
+  [   6/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.3% | cost=$0.0016
+  [   7/600] lints_27d_vsq1.0_seed46             | ✗ | acc=28.6% | cost=$0.0022
+  [   8/600] lints_27d_vsq1.0_seed46             | ✗ | acc=25.0% | cost=$0.0022
+  [   9/600] lints_27d_vsq1.0_seed46             | ✗ | acc=22.2% | cost=$0.0025
+  [  10/600] lints_27d_vsq1.0_seed46             | ✓ | acc=30.0% | cost=$0.0025
+  [  11/600] lints_27d_vsq1.0_seed46             | ✗ | acc=27.3% | cost=$0.0029
+  [  12/600] lints_27d_vsq1.0_seed46             | ✗ | acc=25.0% | cost=$0.0033
+  [  13/600] lints_27d_vsq1.0_seed46             | ✓ | acc=30.8% | cost=$0.0035
+  [  14/600] lints_27d_vsq1.0_seed46             | ✗ | acc=28.6% | cost=$0.0037
+  [  15/600] lints_27d_vsq1.0_seed46             | ✓ | acc=33.3% | cost=$0.0038
+  [  16/600] lints_27d_vsq1.0_seed46             | ✗ | acc=31.2% | cost=$0.0038
+  [  17/600] lints_27d_vsq1.0_seed46             | ✗ | acc=29.4% | cost=$0.0038
+  [  18/600] lints_27d_vsq1.0_seed46             | ✗ | acc=27.8% | cost=$0.0038
+  [  19/600] lints_27d_vsq1.0_seed46             | ✓ | acc=31.6% | cost=$0.0038
+  [  20/600] lints_27d_vsq1.0_seed46             | ✓ | acc=35.0% | cost=$0.0039
+  [  21/600] lints_27d_vsq1.0_seed46             | ✓ | acc=38.1% | cost=$0.0039
+  [  22/600] lints_27d_vsq1.0_seed46             | ✓ | acc=40.9% | cost=$0.0039
+  [  23/600] lints_27d_vsq1.0_seed46             | ✗ | acc=39.1% | cost=$0.0039
+  [  24/600] lints_27d_vsq1.0_seed46             | ✓ | acc=41.7% | cost=$0.0039
+  [  25/600] lints_27d_vsq1.0_seed46             | ✗ | acc=40.0% | cost=$0.0039
+  [  26/600] lints_27d_vsq1.0_seed46             | ✓ | acc=42.3% | cost=$0.0040
+  [  27/600] lints_27d_vsq1.0_seed46             | ✗ | acc=40.7% | cost=$0.0043
+  [  28/600] lints_27d_vsq1.0_seed46             | ✓ | acc=42.9% | cost=$0.0044
+  [  29/600] lints_27d_vsq1.0_seed46             | ✓ | acc=44.8% | cost=$0.0044
+  [  30/600] lints_27d_vsq1.0_seed46             | ✓ | acc=46.7% | cost=$0.0044
+  [  31/600] lints_27d_vsq1.0_seed46             | ✗ | acc=45.2% | cost=$0.0044
+  [  32/600] lints_27d_vsq1.0_seed46             | ✗ | acc=43.8% | cost=$0.0044
+  [  33/600] lints_27d_vsq1.0_seed46             | ✗ | acc=42.4% | cost=$0.0044
+  [  34/600] lints_27d_vsq1.0_seed46             | ✓ | acc=44.1% | cost=$0.0048
+  [  35/600] lints_27d_vsq1.0_seed46             | ✗ | acc=42.9% | cost=$0.0048
+  [  36/600] lints_27d_vsq1.0_seed46             | ✗ | acc=41.7% | cost=$0.0049
+  [  37/600] lints_27d_vsq1.0_seed46             | ✗ | acc=40.5% | cost=$0.0049
+  [  38/600] lints_27d_vsq1.0_seed46             | ✓ | acc=42.1% | cost=$0.0052
+  [  39/600] lints_27d_vsq1.0_seed46             | ✗ | acc=41.0% | cost=$0.0052
+  [  40/600] lints_27d_vsq1.0_seed46             | ✗ | acc=40.0% | cost=$0.0056
+  [  41/600] lints_27d_vsq1.0_seed46             | ✗ | acc=39.0% | cost=$0.0057
+  [  42/600] lints_27d_vsq1.0_seed46             | ✗ | acc=38.1% | cost=$0.0060
+  [  43/600] lints_27d_vsq1.0_seed46             | ✗ | acc=37.2% | cost=$0.0060
+  [  44/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.4% | cost=$0.0060
+  [  45/600] lints_27d_vsq1.0_seed46             | ✓ | acc=37.8% | cost=$0.0060
+  [  46/600] lints_27d_vsq1.0_seed46             | ✗ | acc=37.0% | cost=$0.0064
+  [  47/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.2% | cost=$0.0064
+  [  48/600] lints_27d_vsq1.0_seed46             | ✗ | acc=35.4% | cost=$0.0064
+  [  49/600] lints_27d_vsq1.0_seed46             | ✓ | acc=36.7% | cost=$0.0064
+  [  50/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.0% | cost=$0.0064
+  [  51/600] lints_27d_vsq1.0_seed46             | ✓ | acc=37.3% | cost=$0.0065
+  [  52/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.5% | cost=$0.0065
+  [  53/600] lints_27d_vsq1.0_seed46             | ✓ | acc=37.7% | cost=$0.0065
+  [  54/600] lints_27d_vsq1.0_seed46             | ✓ | acc=38.9% | cost=$0.0065
+  [  55/600] lints_27d_vsq1.0_seed46             | ✗ | acc=38.2% | cost=$0.0065
+  [  56/600] lints_27d_vsq1.0_seed46             | ✓ | acc=39.3% | cost=$0.0068
+  [  57/600] lints_27d_vsq1.0_seed46             | ✓ | acc=40.4% | cost=$0.0073
+  [  58/600] lints_27d_vsq1.0_seed46             | ✗ | acc=39.7% | cost=$0.0077
+  [  59/600] lints_27d_vsq1.0_seed46             | ✗ | acc=39.0% | cost=$0.0081
+  [  60/600] lints_27d_vsq1.0_seed46             | ✗ | acc=38.3% | cost=$0.0081
+  [  61/600] lints_27d_vsq1.0_seed46             | ✓ | acc=39.3% | cost=$0.0081
+  [  62/600] lints_27d_vsq1.0_seed46             | ✗ | acc=38.7% | cost=$0.0081
+  [  63/600] lints_27d_vsq1.0_seed46             | ✗ | acc=38.1% | cost=$0.0085
+  [  64/600] lints_27d_vsq1.0_seed46             | ✗ | acc=37.5% | cost=$0.0085
+  [  65/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.9% | cost=$0.0085
+  [  66/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.4% | cost=$0.0085
+  [  67/600] lints_27d_vsq1.0_seed46             | ✗ | acc=35.8% | cost=$0.0086
+  [  68/600] lints_27d_vsq1.0_seed46             | ✗ | acc=35.3% | cost=$0.0086
+  [  69/600] lints_27d_vsq1.0_seed46             | ✓ | acc=36.2% | cost=$0.0086
+  [  70/600] lints_27d_vsq1.0_seed46             | ✗ | acc=35.7% | cost=$0.0086
+  [  71/600] lints_27d_vsq1.0_seed46             | ✗ | acc=35.2% | cost=$0.0090
+  [  72/600] lints_27d_vsq1.0_seed46             | ✗ | acc=34.7% | cost=$0.0090
+  [  73/600] lints_27d_vsq1.0_seed46             | ✗ | acc=34.2% | cost=$0.0090
+  [  74/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.8% | cost=$0.0090
+  [  75/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.3% | cost=$0.0091
+  [  76/600] lints_27d_vsq1.0_seed46             | ✗ | acc=32.9% | cost=$0.0091
+  [  77/600] lints_27d_vsq1.0_seed46             | ✗ | acc=32.5% | cost=$0.0091
+  [  78/600] lints_27d_vsq1.0_seed46             | ✓ | acc=33.3% | cost=$0.0091
+  [  79/600] lints_27d_vsq1.0_seed46             | ✗ | acc=32.9% | cost=$0.0091
+  [  80/600] lints_27d_vsq1.0_seed46             | ✓ | acc=33.8% | cost=$0.0094
+  [  81/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.3% | cost=$0.0094
+  [  82/600] lints_27d_vsq1.0_seed46             | ✓ | acc=34.1% | cost=$0.0094
+  [  83/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.7% | cost=$0.0095
+  [  84/600] lints_27d_vsq1.0_seed46             | ✓ | acc=34.5% | cost=$0.0100
+  [  85/600] lints_27d_vsq1.0_seed46             | ✓ | acc=35.3% | cost=$0.0100
+  [  86/600] lints_27d_vsq1.0_seed46             | ✗ | acc=34.9% | cost=$0.0100
+  [  87/600] lints_27d_vsq1.0_seed46             | ✗ | acc=34.5% | cost=$0.0103
+  [  88/600] lints_27d_vsq1.0_seed46             | ✗ | acc=34.1% | cost=$0.0104
+  [  89/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.7% | cost=$0.0104
+  [  90/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.3% | cost=$0.0104
+  [  91/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.0% | cost=$0.0108
+  [  92/600] lints_27d_vsq1.0_seed46             | ✓ | acc=33.7% | cost=$0.0109
+  [  93/600] lints_27d_vsq1.0_seed46             | ✓ | acc=34.4% | cost=$0.0109
+  [  94/600] lints_27d_vsq1.0_seed46             | ✗ | acc=34.0% | cost=$0.0112
+  [  95/600] lints_27d_vsq1.0_seed46             | ✗ | acc=33.7% | cost=$0.0113
+  [  96/600] lints_27d_vsq1.0_seed46             | ✓ | acc=34.4% | cost=$0.0113
+  [  97/600] lints_27d_vsq1.0_seed46             | ✗ | acc=34.0% | cost=$0.0113
+  [  98/600] lints_27d_vsq1.0_seed46             | ✓ | acc=34.7% | cost=$0.0113
+  [  99/600] lints_27d_vsq1.0_seed46             | ✗ | acc=34.3% | cost=$0.0113
+  [ 100/600] lints_27d_vsq1.0_seed46             | ✓ | acc=35.0% | cost=$0.0114
+  [ 101/600] lints_27d_vsq1.0_seed46             | ✓ | acc=35.6% | cost=$0.0114
+  [ 102/600] lints_27d_vsq1.0_seed46             | ✓ | acc=36.3% | cost=$0.0114
+  [ 103/600] lints_27d_vsq1.0_seed46             | ✓ | acc=36.9% | cost=$0.0117
+  [ 104/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.5% | cost=$0.0117
+  [ 105/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.2% | cost=$0.0121
+  [ 106/600] lints_27d_vsq1.0_seed46             | ✗ | acc=35.8% | cost=$0.0121
+  [ 107/600] lints_27d_vsq1.0_seed46             | ✗ | acc=35.5% | cost=$0.0124
+  [ 108/600] lints_27d_vsq1.0_seed46             | ✓ | acc=36.1% | cost=$0.0124
+  [ 109/600] lints_27d_vsq1.0_seed46             | ✗ | acc=35.8% | cost=$0.0125
+  [ 110/600] lints_27d_vsq1.0_seed46             | ✓ | acc=36.4% | cost=$0.0127
+  [ 111/600] lints_27d_vsq1.0_seed46             | ✓ | acc=36.9% | cost=$0.0128
+  [ 112/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.6% | cost=$0.0128
+  [ 113/600] lints_27d_vsq1.0_seed46             | ✓ | acc=37.2% | cost=$0.0132
+  [ 114/600] lints_27d_vsq1.0_seed46             | ✓ | acc=37.7% | cost=$0.0132
+  [ 115/600] lints_27d_vsq1.0_seed46             | ✗ | acc=37.4% | cost=$0.0132
+  [ 116/600] lints_27d_vsq1.0_seed46             | ✗ | acc=37.1% | cost=$0.0132
+  [ 117/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.8% | cost=$0.0137
+  [ 118/600] lints_27d_vsq1.0_seed46             | ✓ | acc=37.3% | cost=$0.0142
+  [ 119/600] lints_27d_vsq1.0_seed46             | ✗ | acc=37.0% | cost=$0.0145
+  [ 120/600] lints_27d_vsq1.0_seed46             | ✗ | acc=36.7% | cost=$0.0145
+  [ 121/600] lints_27d_vsq1.0_seed46             | ✓ | acc=37.2% | cost=$0.0145
+  [ 122/600] lints_27d_vsq1.0_seed46             | ✓ | acc=37.7% | cost=$0.0149
+  [ 123/600] lints_27d_vsq1.0_seed46             | ✓ | acc=38.2% | cost=$0.0149
+  [ 124/600] lints_27d_vsq1.0_seed46             | ✓ | acc=38.7% | cost=$0.0151
+  [ 125/600] lints_27d_vsq1.0_seed46             | ✓ | acc=39.2% | cost=$0.0151
+  [ 126/600] lints_27d_vsq1.0_seed46             | ✓ | acc=39.7% | cost=$0.0154
+  [ 127/600] lints_27d_vsq1.0_seed46             | ✓ | acc=40.2% | cost=$0.0154
+  [ 128/600] lints_27d_vsq1.0_seed46             | ✓ | acc=40.6% | cost=$0.0154
+  [ 129/600] lints_27d_vsq1.0_seed46             | ✗ | acc=40.3% | cost=$0.0155
+  [ 130/600] lints_27d_vsq1.0_seed46             | ✓ | acc=40.8% | cost=$0.0155
+  [ 131/600] lints_27d_vsq1.0_seed46             | ✓ | acc=41.2% | cost=$0.0158
+  [ 132/600] lints_27d_vsq1.0_seed46             | ✓ | acc=41.7% | cost=$0.0158
+  [ 133/600] lints_27d_vsq1.0_seed46             | ✗ | acc=41.4% | cost=$0.0159
+  [ 134/600] lints_27d_vsq1.0_seed46             | ✓ | acc=41.8% | cost=$0.0185
+  [ 135/600] lints_27d_vsq1.0_seed46             | ✓ | acc=42.2% | cost=$0.0188
+  [ 136/600] lints_27d_vsq1.0_seed46             | ✓ | acc=42.6% | cost=$0.0190
+  [ 137/600] lints_27d_vsq1.0_seed46             | ✗ | acc=42.3% | cost=$0.0194
+  [ 138/600] lints_27d_vsq1.0_seed46             | ✓ | acc=42.8% | cost=$0.0194
+  [ 139/600] lints_27d_vsq1.0_seed46             | ✓ | acc=43.2% | cost=$0.0197
+  [ 140/600] lints_27d_vsq1.0_seed46             | ✗ | acc=42.9% | cost=$0.0198
+  [ 141/600] lints_27d_vsq1.0_seed46             | ✗ | acc=42.6% | cost=$0.0200
+  [ 142/600] lints_27d_vsq1.0_seed46             | ✓ | acc=43.0% | cost=$0.0200
+  [ 143/600] lints_27d_vsq1.0_seed46             | ✓ | acc=43.4% | cost=$0.0200
+  [ 144/600] lints_27d_vsq1.0_seed46             | ✓ | acc=43.8% | cost=$0.0201
+  [ 145/600] lints_27d_vsq1.0_seed46             | ✓ | acc=44.1% | cost=$0.0203
+  [ 146/600] lints_27d_vsq1.0_seed46             | ✓ | acc=44.5% | cost=$0.0203
+  [ 147/600] lints_27d_vsq1.0_seed46             | ✗ | acc=44.2% | cost=$0.0208
+  [ 148/600] lints_27d_vsq1.0_seed46             | ✓ | acc=44.6% | cost=$0.0208
+  [ 149/600] lints_27d_vsq1.0_seed46             | ✓ | acc=45.0% | cost=$0.0208
+  [ 150/600] lints_27d_vsq1.0_seed46             | ✗ | acc=44.7% | cost=$0.0208
+  [ 151/600] lints_27d_vsq1.0_seed46             | ✓ | acc=45.0% | cost=$0.0208
+  [ 152/600] lints_27d_vsq1.0_seed46             | ✓ | acc=45.4% | cost=$0.0209
+  [ 153/600] lints_27d_vsq1.0_seed46             | ✓ | acc=45.8% | cost=$0.0209
+  [ 154/600] lints_27d_vsq1.0_seed46             | ✓ | acc=46.1% | cost=$0.0212
+  [ 155/600] lints_27d_vsq1.0_seed46             | ✗ | acc=45.8% | cost=$0.0212
+  [ 156/600] lints_27d_vsq1.0_seed46             | ✓ | acc=46.2% | cost=$0.0212
+  [ 157/600] lints_27d_vsq1.0_seed46             | ✗ | acc=45.9% | cost=$0.0215
+  [ 158/600] lints_27d_vsq1.0_seed46             | ✓ | acc=46.2% | cost=$0.0219
+  [ 159/600] lints_27d_vsq1.0_seed46             | ✗ | acc=45.9% | cost=$0.0219
+  [ 160/600] lints_27d_vsq1.0_seed46             | ✓ | acc=46.2% | cost=$0.0224
+  [ 161/600] lints_27d_vsq1.0_seed46             | ✗ | acc=46.0% | cost=$0.0224
+  [ 162/600] lints_27d_vsq1.0_seed46             | ✓ | acc=46.3% | cost=$0.0224
+  [ 163/600] lints_27d_vsq1.0_seed46             | ✓ | acc=46.6% | cost=$0.0224
+  [ 164/600] lints_27d_vsq1.0_seed46             | ✓ | acc=47.0% | cost=$0.0225
+  [ 165/600] lints_27d_vsq1.0_seed46             | ✓ | acc=47.3% | cost=$0.0227
+  [ 166/600] lints_27d_vsq1.0_seed46             | ✓ | acc=47.6% | cost=$0.0231
+  [ 167/600] lints_27d_vsq1.0_seed46             | ✓ | acc=47.9% | cost=$0.0234
+  [ 168/600] lints_27d_vsq1.0_seed46             | ✗ | acc=47.6% | cost=$0.0236
+  [ 169/600] lints_27d_vsq1.0_seed46             | ✓ | acc=47.9% | cost=$0.0241
+  [ 170/600] lints_27d_vsq1.0_seed46             | ✓ | acc=48.2% | cost=$0.0241
+  [ 171/600] lints_27d_vsq1.0_seed46             | ✓ | acc=48.5% | cost=$0.0241
+  [ 172/600] lints_27d_vsq1.0_seed46             | ✗ | acc=48.3% | cost=$0.0246
+  [ 173/600] lints_27d_vsq1.0_seed46             | ✓ | acc=48.6% | cost=$0.0246
+  [ 174/600] lints_27d_vsq1.0_seed46             | ✓ | acc=48.9% | cost=$0.0246
+  [ 175/600] lints_27d_vsq1.0_seed46             | ✗ | acc=48.6% | cost=$0.0248
+  [ 176/600] lints_27d_vsq1.0_seed46             | ✓ | acc=48.9% | cost=$0.0248
+  [ 177/600] lints_27d_vsq1.0_seed46             | ✓ | acc=49.2% | cost=$0.0249
+  [ 178/600] lints_27d_vsq1.0_seed46             | ✓ | acc=49.4% | cost=$0.0251
+  [ 179/600] lints_27d_vsq1.0_seed46             | ✗ | acc=49.2% | cost=$0.0251
+  [ 180/600] lints_27d_vsq1.0_seed46             | ✓ | acc=49.4% | cost=$0.0254
+  [ 181/600] lints_27d_vsq1.0_seed46             | ✓ | acc=49.7% | cost=$0.0256
+  [ 182/600] lints_27d_vsq1.0_seed46             | ✓ | acc=50.0% | cost=$0.0260
+  [ 183/600] lints_27d_vsq1.0_seed46             | ✓ | acc=50.3% | cost=$0.0260
+  [ 184/600] lints_27d_vsq1.0_seed46             | ✗ | acc=50.0% | cost=$0.0260
+  [ 185/600] lints_27d_vsq1.0_seed46             | ✓ | acc=50.3% | cost=$0.0260
+  [ 186/600] lints_27d_vsq1.0_seed46             | ✓ | acc=50.5% | cost=$0.0260
+  [ 187/600] lints_27d_vsq1.0_seed46             | ✓ | acc=50.8% | cost=$0.0264
+  [ 188/600] lints_27d_vsq1.0_seed46             | ✓ | acc=51.1% | cost=$0.0264
+  [ 189/600] lints_27d_vsq1.0_seed46             | ✓ | acc=51.3% | cost=$0.0268
+  [ 190/600] lints_27d_vsq1.0_seed46             | ✓ | acc=51.6% | cost=$0.0268
+  [ 191/600] lints_27d_vsq1.0_seed46             | ✓ | acc=51.8% | cost=$0.0271
+  [ 192/600] lints_27d_vsq1.0_seed46             | ✓ | acc=52.1% | cost=$0.0271
+  [ 193/600] lints_27d_vsq1.0_seed46             | ✗ | acc=51.8% | cost=$0.0272
+  [ 194/600] lints_27d_vsq1.0_seed46             | ✓ | acc=52.1% | cost=$0.0272
+  [ 195/600] lints_27d_vsq1.0_seed46             | ✗ | acc=51.8% | cost=$0.0272
+  [ 196/600] lints_27d_vsq1.0_seed46             | ✓ | acc=52.0% | cost=$0.0272
+  [ 197/600] lints_27d_vsq1.0_seed46             | ✓ | acc=52.3% | cost=$0.0274
+  [ 198/600] lints_27d_vsq1.0_seed46             | ✓ | acc=52.5% | cost=$0.0277
+  [ 199/600] lints_27d_vsq1.0_seed46             | ✗ | acc=52.3% | cost=$0.0280
+  [ 200/600] lints_27d_vsq1.0_seed46             | ✓ | acc=52.5% | cost=$0.0282
+  [ 201/600] lints_27d_vsq1.0_seed46             | ✓ | acc=52.7% | cost=$0.0283
+  [ 202/600] lints_27d_vsq1.0_seed46             | ✓ | acc=53.0% | cost=$0.0283
+  [ 203/600] lints_27d_vsq1.0_seed46             | ✓ | acc=53.2% | cost=$0.0283
+  [ 204/600] lints_27d_vsq1.0_seed46             | ✓ | acc=53.4% | cost=$0.0283
+  [ 205/600] lints_27d_vsq1.0_seed46             | ✓ | acc=53.7% | cost=$0.0283
+  [ 206/600] lints_27d_vsq1.0_seed46             | ✓ | acc=53.9% | cost=$0.0286
+  [ 207/600] lints_27d_vsq1.0_seed46             | ✓ | acc=54.1% | cost=$0.0287
+  [ 208/600] lints_27d_vsq1.0_seed46             | ✓ | acc=54.3% | cost=$0.0289
+  [ 209/600] lints_27d_vsq1.0_seed46             | ✓ | acc=54.5% | cost=$0.0289
+  [ 210/600] lints_27d_vsq1.0_seed46             | ✓ | acc=54.8% | cost=$0.0290
+  [ 211/600] lints_27d_vsq1.0_seed46             | ✗ | acc=54.5% | cost=$0.0290
+  [ 212/600] lints_27d_vsq1.0_seed46             | ✗ | acc=54.2% | cost=$0.0295
+  [ 213/600] lints_27d_vsq1.0_seed46             | ✓ | acc=54.5% | cost=$0.0295
+  [ 214/600] lints_27d_vsq1.0_seed46             | ✗ | acc=54.2% | cost=$0.0295
+  [ 215/600] lints_27d_vsq1.0_seed46             | ✓ | acc=54.4% | cost=$0.0298
+  [ 216/600] lints_27d_vsq1.0_seed46             | ✓ | acc=54.6% | cost=$0.0298
+  [ 217/600] lints_27d_vsq1.0_seed46             | ✓ | acc=54.8% | cost=$0.0301
+  [ 218/600] lints_27d_vsq1.0_seed46             | ✓ | acc=55.0% | cost=$0.0301
+  [ 219/600] lints_27d_vsq1.0_seed46             | ✓ | acc=55.3% | cost=$0.0301
+  [ 220/600] lints_27d_vsq1.0_seed46             | ✓ | acc=55.5% | cost=$0.0301
+  [ 221/600] lints_27d_vsq1.0_seed46             | ✗ | acc=55.2% | cost=$0.0302
+  [ 222/600] lints_27d_vsq1.0_seed46             | ✓ | acc=55.4% | cost=$0.0304
+  [ 223/600] lints_27d_vsq1.0_seed46             | ✓ | acc=55.6% | cost=$0.0307
+  [ 224/600] lints_27d_vsq1.0_seed46             | ✓ | acc=55.8% | cost=$0.0310
+  [ 225/600] lints_27d_vsq1.0_seed46             | ✓ | acc=56.0% | cost=$0.0312
+  [ 226/600] lints_27d_vsq1.0_seed46             | ✓ | acc=56.2% | cost=$0.0315
+  [ 227/600] lints_27d_vsq1.0_seed46             | ✓ | acc=56.4% | cost=$0.0315
+  [ 228/600] lints_27d_vsq1.0_seed46             | ✓ | acc=56.6% | cost=$0.0315
+  [ 229/600] lints_27d_vsq1.0_seed46             | ✓ | acc=56.8% | cost=$0.0317
+  [ 230/600] lints_27d_vsq1.0_seed46             | ✓ | acc=57.0% | cost=$0.0318
+  [ 231/600] lints_27d_vsq1.0_seed46             | ✓ | acc=57.1% | cost=$0.0321
+  [ 232/600] lints_27d_vsq1.0_seed46             | ✓ | acc=57.3% | cost=$0.0325
+  [ 233/600] lints_27d_vsq1.0_seed46             | ✓ | acc=57.5% | cost=$0.0325
+  [ 234/600] lints_27d_vsq1.0_seed46             | ✓ | acc=57.7% | cost=$0.0328
+  [ 235/600] lints_27d_vsq1.0_seed46             | ✓ | acc=57.9% | cost=$0.0328
+  [ 236/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.1% | cost=$0.0332
+  [ 237/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.2% | cost=$0.0336
+  [ 238/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.4% | cost=$0.0338
+  [ 239/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.6% | cost=$0.0338
+  [ 240/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.8% | cost=$0.0340
+  [ 241/600] lints_27d_vsq1.0_seed46             | ✗ | acc=58.5% | cost=$0.0341
+  [ 242/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.7% | cost=$0.0341
+  [ 243/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.8% | cost=$0.0341
+  [ 244/600] lints_27d_vsq1.0_seed46             | ✗ | acc=58.6% | cost=$0.0342
+  [ 245/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.8% | cost=$0.0353
+  [ 246/600] lints_27d_vsq1.0_seed46             | ✓ | acc=58.9% | cost=$0.0356
+  [ 247/600] lints_27d_vsq1.0_seed46             | ✓ | acc=59.1% | cost=$0.0369
+  [ 248/600] lints_27d_vsq1.0_seed46             | ✓ | acc=59.3% | cost=$0.0379
+  [ 249/600] lints_27d_vsq1.0_seed46             | ✓ | acc=59.4% | cost=$0.0382
+  [ 250/600] lints_27d_vsq1.0_seed46             | ✓ | acc=59.6% | cost=$0.0382
+  [ 251/600] lints_27d_vsq1.0_seed46             | ✓ | acc=59.8% | cost=$0.0382
+  [ 252/600] lints_27d_vsq1.0_seed46             | ✓ | acc=59.9% | cost=$0.0391
+  [ 253/600] lints_27d_vsq1.0_seed46             | ✓ | acc=60.1% | cost=$0.0398
+  [ 254/600] lints_27d_vsq1.0_seed46             | ✓ | acc=60.2% | cost=$0.0401
+  [ 255/600] lints_27d_vsq1.0_seed46             | ✓ | acc=60.4% | cost=$0.0401
+  [ 256/600] lints_27d_vsq1.0_seed46             | ✓ | acc=60.5% | cost=$0.0402
+  [ 257/600] lints_27d_vsq1.0_seed46             | ✓ | acc=60.7% | cost=$0.0402
+  [ 258/600] lints_27d_vsq1.0_seed46             | ✓ | acc=60.9% | cost=$0.0405
+  [ 259/600] lints_27d_vsq1.0_seed46             | ✗ | acc=60.6% | cost=$0.0405
+  [ 260/600] lints_27d_vsq1.0_seed46             | ✓ | acc=60.8% | cost=$0.0414
+  [ 261/600] lints_27d_vsq1.0_seed46             | ✓ | acc=60.9% | cost=$0.0423
+  [ 262/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.1% | cost=$0.0423
+  [ 263/600] lints_27d_vsq1.0_seed46             | ✗ | acc=60.8% | cost=$0.0423
+  [ 264/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.0% | cost=$0.0435
+  [ 265/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.1% | cost=$0.0442
+  [ 266/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.3% | cost=$0.0443
+  [ 267/600] lints_27d_vsq1.0_seed46             | ✗ | acc=61.0% | cost=$0.0443
+  [ 268/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.2% | cost=$0.0448
+  [ 269/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.3% | cost=$0.0453
+  [ 270/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.5% | cost=$0.0454
+  [ 271/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.6% | cost=$0.0463
+  [ 272/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.8% | cost=$0.0463
+  [ 273/600] lints_27d_vsq1.0_seed46             | ✓ | acc=61.9% | cost=$0.0466
+  [ 274/600] lints_27d_vsq1.0_seed46             | ✓ | acc=62.0% | cost=$0.0466
+  [ 275/600] lints_27d_vsq1.0_seed46             | ✓ | acc=62.2% | cost=$0.0473
+  [ 276/600] lints_27d_vsq1.0_seed46             | ✓ | acc=62.3% | cost=$0.0484
+  [ 277/600] lints_27d_vsq1.0_seed46             | ✓ | acc=62.5% | cost=$0.0486
+  [ 278/600] lints_27d_vsq1.0_seed46             | ✓ | acc=62.6% | cost=$0.0487
+  [ 279/600] lints_27d_vsq1.0_seed46             | ✓ | acc=62.7% | cost=$0.0489
+  [ 280/600] lints_27d_vsq1.0_seed46             | ✓ | acc=62.9% | cost=$0.0491
+  [ 281/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.0% | cost=$0.0494
+  [ 282/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.1% | cost=$0.0494
+  [ 283/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.3% | cost=$0.0494
+  [ 284/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.4% | cost=$0.0506
+  [ 285/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.5% | cost=$0.0515
+  [ 286/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.6% | cost=$0.0516
+  [ 287/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.8% | cost=$0.0528
+  [ 288/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.9% | cost=$0.0540
+  [ 289/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.0% | cost=$0.0540
+  [ 290/600] lints_27d_vsq1.0_seed46             | ✗ | acc=63.8% | cost=$0.0543
+  [ 291/600] lints_27d_vsq1.0_seed46             | ✓ | acc=63.9% | cost=$0.0546
+  [ 292/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.0% | cost=$0.0546
+  [ 293/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.2% | cost=$0.0550
+  [ 294/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.3% | cost=$0.0550
+  [ 295/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.4% | cost=$0.0560
+  [ 296/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.5% | cost=$0.0563
+  [ 297/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.6% | cost=$0.0563
+  [ 298/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.8% | cost=$0.0563
+  [ 299/600] lints_27d_vsq1.0_seed46             | ✗ | acc=64.5% | cost=$0.0564
+  [ 300/600] lints_27d_vsq1.0_seed46             | ✗ | acc=64.3% | cost=$0.0564
+  [ 301/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.5% | cost=$0.0564
+  [ 302/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.6% | cost=$0.0564
+  [ 303/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.7% | cost=$0.0568
+  [ 304/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.8% | cost=$0.0576
+  [ 305/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.9% | cost=$0.0577
+  [ 306/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.0% | cost=$0.0584
+  [ 307/600] lints_27d_vsq1.0_seed46             | ✗ | acc=64.8% | cost=$0.0584
+  [ 308/600] lints_27d_vsq1.0_seed46             | ✓ | acc=64.9% | cost=$0.0593
+  [ 309/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.0% | cost=$0.0595
+  [ 310/600] lints_27d_vsq1.0_seed46             | ✗ | acc=64.8% | cost=$0.0601
+  [ 311/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.0% | cost=$0.0608
+  [ 312/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.1% | cost=$0.0608
+  [ 313/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.2% | cost=$0.0609
+  [ 314/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.3% | cost=$0.0609
+  [ 315/600] lints_27d_vsq1.0_seed46             | ✗ | acc=65.1% | cost=$0.0612
+  [ 316/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.2% | cost=$0.0614
+  [ 317/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.3% | cost=$0.0615
+  [ 318/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.4% | cost=$0.0617
+  [ 319/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.5% | cost=$0.0623
+  [ 320/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.6% | cost=$0.0634
+  [ 321/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.7% | cost=$0.0636
+  [ 322/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.8% | cost=$0.0636
+  [ 323/600] lints_27d_vsq1.0_seed46             | ✓ | acc=65.9% | cost=$0.0638
+  [ 324/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.0% | cost=$0.0640
+  [ 325/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.2% | cost=$0.0641
+  [ 326/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.3% | cost=$0.0654
+  [ 327/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.4% | cost=$0.0663
+  [ 328/600] lints_27d_vsq1.0_seed46             | ✗ | acc=66.2% | cost=$0.0666
+  [ 329/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.3% | cost=$0.0669
+  [ 330/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.4% | cost=$0.0669
+  [ 331/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.5% | cost=$0.0679
+  [ 332/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.6% | cost=$0.0682
+  [ 333/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.7% | cost=$0.0687
+  [ 334/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.8% | cost=$0.0697
+  [ 335/600] lints_27d_vsq1.0_seed46             | ✓ | acc=66.9% | cost=$0.0700
+  [ 336/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.0% | cost=$0.0703
+  [ 337/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.1% | cost=$0.0703
+  [ 338/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.2% | cost=$0.0708
+  [ 339/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.3% | cost=$0.0709
+  [ 340/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.4% | cost=$0.0718
+  [ 341/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.4% | cost=$0.0719
+  [ 342/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.5% | cost=$0.0723
+  [ 343/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.6% | cost=$0.0723
+  [ 344/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.7% | cost=$0.0729
+  [ 345/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.8% | cost=$0.0737
+  [ 346/600] lints_27d_vsq1.0_seed46             | ✓ | acc=67.9% | cost=$0.0744
+  [ 347/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.0% | cost=$0.0747
+  [ 348/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.1% | cost=$0.0747
+  [ 349/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.2% | cost=$0.0749
+  [ 350/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.3% | cost=$0.0749
+  [ 351/600] lints_27d_vsq1.0_seed46             | ✗ | acc=68.1% | cost=$0.0756
+  [ 352/600] lints_27d_vsq1.0_seed46             | ✗ | acc=67.9% | cost=$0.0757
+  [ 353/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.0% | cost=$0.0757
+  [ 354/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.1% | cost=$0.0757
+  [ 355/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.2% | cost=$0.0758
+  [ 356/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.3% | cost=$0.0769
+  [ 357/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.3% | cost=$0.0772
+  [ 358/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.4% | cost=$0.0775
+  [ 359/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.5% | cost=$0.0775
+  [ 360/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.6% | cost=$0.0775
+  [ 361/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.7% | cost=$0.0775
+  [ 362/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.8% | cost=$0.0780
+  [ 363/600] lints_27d_vsq1.0_seed46             | ✓ | acc=68.9% | cost=$0.0783
+  [ 364/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.0% | cost=$0.0783
+  [ 365/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.0% | cost=$0.0787
+  [ 366/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.1% | cost=$0.0789
+  [ 367/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.2% | cost=$0.0793
+  [ 368/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.3% | cost=$0.0796
+  [ 369/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.4% | cost=$0.0796
+  [ 370/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.5% | cost=$0.0796
+  [ 371/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.5% | cost=$0.0796
+  [ 372/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.6% | cost=$0.0796
+  [ 373/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.7% | cost=$0.0799
+  [ 374/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.8% | cost=$0.0799
+  [ 375/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.9% | cost=$0.0801
+  [ 376/600] lints_27d_vsq1.0_seed46             | ✓ | acc=69.9% | cost=$0.0802
+  [ 377/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.0% | cost=$0.0806
+  [ 378/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.1% | cost=$0.0806
+  [ 379/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.2% | cost=$0.0806
+  [ 380/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.3% | cost=$0.0806
+  [ 381/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.3% | cost=$0.0808
+  [ 382/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.4% | cost=$0.0812
+  [ 383/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.5% | cost=$0.0816
+  [ 384/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.6% | cost=$0.0816
+  [ 385/600] lints_27d_vsq1.0_seed46             | ✗ | acc=70.4% | cost=$0.0816
+  [ 386/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.5% | cost=$0.0816
+  [ 387/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.5% | cost=$0.0816
+  [ 388/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.6% | cost=$0.0824
+  [ 389/600] lints_27d_vsq1.0_seed46             | ✗ | acc=70.4% | cost=$0.0827
+  [ 390/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.5% | cost=$0.0827
+  [ 391/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.6% | cost=$0.0827
+  [ 392/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.7% | cost=$0.0827
+  [ 393/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.7% | cost=$0.0829
+  [ 394/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.8% | cost=$0.0832
+  [ 395/600] lints_27d_vsq1.0_seed46             | ✓ | acc=70.9% | cost=$0.0832
+  [ 396/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.0% | cost=$0.0834
+  [ 397/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.0% | cost=$0.0835
+  [ 398/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.1% | cost=$0.0835
+  [ 399/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.2% | cost=$0.0835
+  [ 400/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.2% | cost=$0.0839
+  [ 401/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.3% | cost=$0.0842
+  [ 402/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.4% | cost=$0.0844
+  [ 403/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.5% | cost=$0.0847
+  [ 404/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.5% | cost=$0.0850
+  [ 405/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.6% | cost=$0.0853
+  [ 406/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.7% | cost=$0.0853
+  [ 407/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.7% | cost=$0.0854
+  [ 408/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.8% | cost=$0.0856
+  [ 409/600] lints_27d_vsq1.0_seed46             | ✓ | acc=71.9% | cost=$0.0859
+  [ 410/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.0% | cost=$0.0859
+  [ 411/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.0% | cost=$0.0859
+  [ 412/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.1% | cost=$0.0859
+  [ 413/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.2% | cost=$0.0860
+  [ 414/600] lints_27d_vsq1.0_seed46             | ✗ | acc=72.0% | cost=$0.0862
+  [ 415/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.0% | cost=$0.0864
+  [ 416/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.1% | cost=$0.0867
+  [ 417/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.2% | cost=$0.0867
+  [ 418/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.2% | cost=$0.0867
+  [ 419/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.3% | cost=$0.0867
+  [ 420/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.4% | cost=$0.0870
+  [ 421/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.4% | cost=$0.0872
+  [ 422/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.5% | cost=$0.0872
+  [ 423/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.6% | cost=$0.0875
+  [ 424/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.6% | cost=$0.0878
+  [ 425/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.7% | cost=$0.0880
+  [ 426/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.8% | cost=$0.0883
+  [ 427/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.8% | cost=$0.0886
+  [ 428/600] lints_27d_vsq1.0_seed46             | ✓ | acc=72.9% | cost=$0.0889
+  [ 429/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.0% | cost=$0.0891
+  [ 430/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.0% | cost=$0.0895
+  [ 431/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.1% | cost=$0.0897
+  [ 432/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.1% | cost=$0.0901
+  [ 433/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.2% | cost=$0.0904
+  [ 434/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.3% | cost=$0.0904
+  [ 435/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.3% | cost=$0.0907
+  [ 436/600] lints_27d_vsq1.0_seed46             | ✗ | acc=73.2% | cost=$0.0909
+  [ 437/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.2% | cost=$0.0911
+  [ 438/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.3% | cost=$0.0914
+  [ 439/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.3% | cost=$0.0916
+  [ 440/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.4% | cost=$0.0916
+  [ 441/600] lints_27d_vsq1.0_seed46             | ✗ | acc=73.2% | cost=$0.0916
+  [ 442/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.3% | cost=$0.0919
+  [ 443/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.4% | cost=$0.0919
+  [ 444/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.4% | cost=$0.0922
+  [ 445/600] lints_27d_vsq1.0_seed46             | ✗ | acc=73.3% | cost=$0.0925
+  [ 446/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.3% | cost=$0.0928
+  [ 447/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.4% | cost=$0.0928
+  [ 448/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.4% | cost=$0.0932
+  [ 449/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.5% | cost=$0.0934
+  [ 450/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.6% | cost=$0.0939
+  [ 451/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.6% | cost=$0.0939
+  [ 452/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.7% | cost=$0.0939
+  [ 453/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.7% | cost=$0.0939
+  [ 454/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.8% | cost=$0.0942
+  [ 455/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.8% | cost=$0.0945
+  [ 456/600] lints_27d_vsq1.0_seed46             | ✓ | acc=73.9% | cost=$0.0945
+  [ 457/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.0% | cost=$0.0947
+  [ 458/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.0% | cost=$0.0952
+  [ 459/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.1% | cost=$0.0952
+  [ 460/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.1% | cost=$0.0955
+  [ 461/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.2% | cost=$0.0958
+  [ 462/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.2% | cost=$0.0958
+  [ 463/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.3% | cost=$0.0960
+  [ 464/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.4% | cost=$0.0963
+  [ 465/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.4% | cost=$0.0966
+  [ 466/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.5% | cost=$0.0968
+  [ 467/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.5% | cost=$0.0969
+  [ 468/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.6% | cost=$0.0971
+  [ 469/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.6% | cost=$0.0971
+  [ 470/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.7% | cost=$0.0971
+  [ 471/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.7% | cost=$0.0975
+  [ 472/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.8% | cost=$0.0978
+  [ 473/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.8% | cost=$0.0981
+  [ 474/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.9% | cost=$0.0983
+  [ 475/600] lints_27d_vsq1.0_seed46             | ✓ | acc=74.9% | cost=$0.0983
+  [ 476/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.0% | cost=$0.0986
+  [ 477/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.1% | cost=$0.0986
+  [ 478/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.1% | cost=$0.0992
+  [ 479/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.2% | cost=$0.0995
+  [ 480/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.2% | cost=$0.0999
+  [ 481/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.3% | cost=$0.1004
+  [ 482/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.3% | cost=$0.1004
+  [ 483/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.4% | cost=$0.1007
+  [ 484/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.4% | cost=$0.1010
+  [ 485/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.5% | cost=$0.1010
+  [ 486/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.5% | cost=$0.1013
+  [ 487/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1016
+  [ 488/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1019
+  [ 489/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1022
+  [ 490/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1025
+  [ 491/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1025
+  [ 492/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1025
+  [ 493/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.9% | cost=$0.1026
+  [ 494/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.7% | cost=$0.1029
+  [ 495/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1029
+  [ 496/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.6% | cost=$0.1030
+  [ 497/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1030
+  [ 498/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1032
+  [ 499/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1035
+  [ 500/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.6% | cost=$0.1035
+  [ 501/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.4% | cost=$0.1038
+  [ 502/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.5% | cost=$0.1041
+  [ 503/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.5% | cost=$0.1041
+  [ 504/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1044
+  [ 505/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1047
+  [ 506/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1047
+  [ 507/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1050
+  [ 508/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.6% | cost=$0.1050
+  [ 509/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1050
+  [ 510/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1050
+  [ 511/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1050
+  [ 512/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1051
+  [ 513/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1055
+  [ 514/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.7% | cost=$0.1059
+  [ 515/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1062
+  [ 516/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1065
+  [ 517/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.6% | cost=$0.1069
+  [ 518/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1069
+  [ 519/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.5% | cost=$0.1069
+  [ 520/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1069
+  [ 521/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1072
+  [ 522/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1072
+  [ 523/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.5% | cost=$0.1072
+  [ 524/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1075
+  [ 525/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.6% | cost=$0.1075
+  [ 526/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1078
+  [ 527/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.7% | cost=$0.1082
+  [ 528/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1082
+  [ 529/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1085
+  [ 530/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.8% | cost=$0.1088
+  [ 531/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.9% | cost=$0.1091
+  [ 532/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.9% | cost=$0.1093
+  [ 533/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.0% | cost=$0.1093
+  [ 534/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.0% | cost=$0.1093
+  [ 535/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.1% | cost=$0.1093
+  [ 536/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.1% | cost=$0.1094
+  [ 537/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.0% | cost=$0.1098
+  [ 538/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.0% | cost=$0.1098
+  [ 539/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.1% | cost=$0.1098
+  [ 540/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.1% | cost=$0.1101
+  [ 541/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1103
+  [ 542/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1105
+  [ 543/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1108
+  [ 544/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.1% | cost=$0.1108
+  [ 545/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.1% | cost=$0.1111
+  [ 546/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1113
+  [ 547/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1117
+  [ 548/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.3% | cost=$0.1117
+  [ 549/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.1% | cost=$0.1119
+  [ 550/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.0% | cost=$0.1119
+  [ 551/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.0% | cost=$0.1122
+  [ 552/600] lints_27d_vsq1.0_seed46             | ✗ | acc=75.9% | cost=$0.1126
+  [ 553/600] lints_27d_vsq1.0_seed46             | ✓ | acc=75.9% | cost=$0.1128
+  [ 554/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.0% | cost=$0.1131
+  [ 555/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.0% | cost=$0.1131
+  [ 556/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.1% | cost=$0.1134
+  [ 557/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.1% | cost=$0.1136
+  [ 558/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1137
+  [ 559/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1139
+  [ 560/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1139
+  [ 561/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.3% | cost=$0.1139
+  [ 562/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.3% | cost=$0.1143
+  [ 563/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.2% | cost=$0.1146
+  [ 564/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1146
+  [ 565/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.1% | cost=$0.1147
+  [ 566/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.1% | cost=$0.1147
+  [ 567/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1147
+  [ 568/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.2% | cost=$0.1149
+  [ 569/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.3% | cost=$0.1149
+  [ 570/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.3% | cost=$0.1149
+  [ 571/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.4% | cost=$0.1149
+  [ 572/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.4% | cost=$0.1152
+  [ 573/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.4% | cost=$0.1152
+  [ 574/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.5% | cost=$0.1152
+  [ 575/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.5% | cost=$0.1155
+  [ 576/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1158
+  [ 577/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1161
+  [ 578/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1163
+  [ 579/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.7% | cost=$0.1164
+  [ 580/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.6% | cost=$0.1164
+  [ 581/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.4% | cost=$0.1168
+  [ 582/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.5% | cost=$0.1170
+  [ 583/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.5% | cost=$0.1173
+  [ 584/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.5% | cost=$0.1175
+  [ 585/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1178
+  [ 586/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.5% | cost=$0.1181
+  [ 587/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.5% | cost=$0.1184
+  [ 588/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.5% | cost=$0.1184
+  [ 589/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1187
+  [ 590/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1190
+  [ 591/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1193
+  [ 592/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.7% | cost=$0.1193
+  [ 593/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.6% | cost=$0.1193
+  [ 594/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1197
+  [ 595/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1199
+  [ 596/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.7% | cost=$0.1203
+  [ 597/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.5% | cost=$0.1206
+  [ 598/600] lints_27d_vsq1.0_seed46             | ✓ | acc=76.6% | cost=$0.1206
+  [ 599/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.5% | cost=$0.1210
+  [ 600/600] lints_27d_vsq1.0_seed46             | ✗ | acc=76.3% | cost=$0.1210
+  DONE: n=600, acc=76.3%, cost=$0.1210
+
+--- GSM8K (300 queries) ---
+
+=== lints_27d_vsq1.0_seed42 (tag=gsm8k, 300 queries) ===
+  [   1/300] lints_27d_vsq1.0_seed42             | ✗ | acc=0.0% | cost=$0.0026
+  [   2/300] lints_27d_vsq1.0_seed42             | ✓ | acc=50.0% | cost=$0.0058
+  [   3/300] lints_27d_vsq1.0_seed42             | ✓ | acc=66.7% | cost=$0.0083
+  [   4/300] lints_27d_vsq1.0_seed42             | ✓ | acc=75.0% | cost=$0.0085
+  [   5/300] lints_27d_vsq1.0_seed42             | ✓ | acc=80.0% | cost=$0.0087
+  [   6/300] lints_27d_vsq1.0_seed42             | ✓ | acc=83.3% | cost=$0.0089
+  [   7/300] lints_27d_vsq1.0_seed42             | ✓ | acc=85.7% | cost=$0.0108
+  [   8/300] lints_27d_vsq1.0_seed42             | ✗ | acc=75.0% | cost=$0.0110
+  [   9/300] lints_27d_vsq1.0_seed42             | ✓ | acc=77.8% | cost=$0.0112
+  [  10/300] lints_27d_vsq1.0_seed42             | ✓ | acc=80.0% | cost=$0.0114
+  [  11/300] lints_27d_vsq1.0_seed42             | ✓ | acc=81.8% | cost=$0.0116
+  [  12/300] lints_27d_vsq1.0_seed42             | ✓ | acc=83.3% | cost=$0.0118
+  [  13/300] lints_27d_vsq1.0_seed42             | ✓ | acc=84.6% | cost=$0.0120
+  [  14/300] lints_27d_vsq1.0_seed42             | ✓ | acc=85.7% | cost=$0.0122
+  [  15/300] lints_27d_vsq1.0_seed42             | ✓ | acc=86.7% | cost=$0.0123
+  [  16/300] lints_27d_vsq1.0_seed42             | ✓ | acc=87.5% | cost=$0.0124
+  [  17/300] lints_27d_vsq1.0_seed42             | ✓ | acc=88.2% | cost=$0.0126
+  [  18/300] lints_27d_vsq1.0_seed42             | ✓ | acc=88.9% | cost=$0.0128
+  [  19/300] lints_27d_vsq1.0_seed42             | ✓ | acc=89.5% | cost=$0.0129
+  [  20/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.0% | cost=$0.0160
+  [  21/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.5% | cost=$0.0161
+  [  22/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.9% | cost=$0.0164
+  [  23/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.3% | cost=$0.0166
+  [  24/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0209
+  [  25/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0212
+  [  26/300] lints_27d_vsq1.0_seed42             | ✗ | acc=88.5% | cost=$0.0213
+  [  27/300] lints_27d_vsq1.0_seed42             | ✓ | acc=88.9% | cost=$0.0215
+  [  28/300] lints_27d_vsq1.0_seed42             | ✗ | acc=85.7% | cost=$0.0218
+  [  29/300] lints_27d_vsq1.0_seed42             | ✓ | acc=86.2% | cost=$0.0220
+  [  30/300] lints_27d_vsq1.0_seed42             | ✓ | acc=86.7% | cost=$0.0223
+  [  31/300] lints_27d_vsq1.0_seed42             | ✓ | acc=87.1% | cost=$0.0225
+  [  32/300] lints_27d_vsq1.0_seed42             | ✓ | acc=87.5% | cost=$0.0228
+  [  33/300] lints_27d_vsq1.0_seed42             | ✓ | acc=87.9% | cost=$0.0230
+  [  34/300] lints_27d_vsq1.0_seed42             | ✓ | acc=88.2% | cost=$0.0233
+  [  35/300] lints_27d_vsq1.0_seed42             | ✓ | acc=88.6% | cost=$0.0274
+  [  36/300] lints_27d_vsq1.0_seed42             | ✓ | acc=88.9% | cost=$0.0306
+  [  37/300] lints_27d_vsq1.0_seed42             | ✓ | acc=89.2% | cost=$0.0308
+  [  38/300] lints_27d_vsq1.0_seed42             | ✓ | acc=89.5% | cost=$0.0341
+  [  39/300] lints_27d_vsq1.0_seed42             | ✓ | acc=89.7% | cost=$0.0367
+  [  40/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.0% | cost=$0.0369
+  [  41/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.2% | cost=$0.0372
+  [  42/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.5% | cost=$0.0373
+  [  43/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.7% | cost=$0.0375
+  [  44/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.9% | cost=$0.0394
+  [  45/300] lints_27d_vsq1.0_seed42             | ✗ | acc=88.9% | cost=$0.0427
+  [  46/300] lints_27d_vsq1.0_seed42             | ✓ | acc=89.1% | cost=$0.0429
+  [  47/300] lints_27d_vsq1.0_seed42             | ✓ | acc=89.4% | cost=$0.0431
+  [  48/300] lints_27d_vsq1.0_seed42             | ✓ | acc=89.6% | cost=$0.0434
+  [  49/300] lints_27d_vsq1.0_seed42             | ✓ | acc=89.8% | cost=$0.0435
+  [  50/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.0% | cost=$0.0437
+  [  51/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.2% | cost=$0.0438
+  [  52/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.4% | cost=$0.0472
+  [  53/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.6% | cost=$0.0474
+  [  54/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.7% | cost=$0.0476
+  [  55/300] lints_27d_vsq1.0_seed42             | ✓ | acc=90.9% | cost=$0.0477
+  [  56/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.1% | cost=$0.0479
+  [  57/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.2% | cost=$0.0482
+  [  58/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0483
+  [  59/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0486
+  [  60/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0524
+  [  61/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0526
+  [  62/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0529
+  [  63/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0531
+  [  64/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0562
+  [  65/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.0563
+  [  66/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.0566
+  [  67/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.0568
+  [  68/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.0570
+  [  69/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.8% | cost=$0.0571
+  [  70/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.9% | cost=$0.0573
+  [  71/300] lints_27d_vsq1.0_seed42             | ✓ | acc=93.0% | cost=$0.0575
+  [  72/300] lints_27d_vsq1.0_seed42             | ✓ | acc=93.1% | cost=$0.0577
+  [  73/300] lints_27d_vsq1.0_seed42             | ✓ | acc=93.2% | cost=$0.0579
+  [  74/300] lints_27d_vsq1.0_seed42             | ✓ | acc=93.2% | cost=$0.0581
+  [  75/300] lints_27d_vsq1.0_seed42             | ✓ | acc=93.3% | cost=$0.0582
+  [  76/300] lints_27d_vsq1.0_seed42             | ✓ | acc=93.4% | cost=$0.0585
+  [  77/300] lints_27d_vsq1.0_seed42             | ✗ | acc=92.2% | cost=$0.0613
+  [  78/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.0% | cost=$0.0616
+  [  79/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.1% | cost=$0.0618
+  [  80/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.2% | cost=$0.0620
+  [  81/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0621
+  [  82/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0624
+  [  83/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.0625
+  [  84/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0628
+  [  85/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0629
+  [  86/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0631
+  [  87/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0632
+  [  88/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0634
+  [  89/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0672
+  [  90/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0673
+  [  91/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.0675
+  [  92/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.0677
+  [  93/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.0679
+  [  94/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.0681
+  [  95/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.0683
+  [  96/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.7% | cost=$0.0685
+  [  97/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.8% | cost=$0.0687
+  [  98/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.8% | cost=$0.0690
+  [  99/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0692
+  [ 100/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0694
+  [ 101/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0696
+  [ 102/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0699
+  [ 103/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0701
+  [ 104/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.0702
+  [ 105/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.0703
+  [ 106/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.0705
+  [ 107/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.0707
+  [ 108/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.0708
+  [ 109/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.7% | cost=$0.0711
+  [ 110/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0713
+  [ 111/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0716
+  [ 112/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0718
+  [ 113/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0720
+  [ 114/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0723
+  [ 115/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0724
+  [ 116/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0726
+  [ 117/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.0727
+  [ 118/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.0729
+  [ 119/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.0730
+  [ 120/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.0731
+  [ 121/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.0733
+  [ 122/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.0735
+  [ 123/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.7% | cost=$0.0737
+  [ 124/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.7% | cost=$0.0738
+  [ 125/300] lints_27d_vsq1.0_seed42             | ✗ | acc=92.0% | cost=$0.0740
+  [ 126/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0741
+  [ 127/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0743
+  [ 128/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0746
+  [ 129/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0748
+  [ 130/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.0751
+  [ 131/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.0753
+  [ 132/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.0755
+  [ 133/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.7% | cost=$0.0756
+  [ 134/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0758
+  [ 135/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0759
+  [ 136/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0761
+  [ 137/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0762
+  [ 138/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0763
+  [ 139/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.4% | cost=$0.0767
+  [ 140/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0768
+  [ 141/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0770
+  [ 142/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0772
+  [ 143/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.0773
+  [ 144/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0776
+  [ 145/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0801
+  [ 146/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0803
+  [ 147/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0805
+  [ 148/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0808
+  [ 149/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.3% | cost=$0.0811
+  [ 150/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.3% | cost=$0.0813
+  [ 151/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0815
+  [ 152/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0817
+  [ 153/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0818
+  [ 154/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.0820
+  [ 155/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.0823
+  [ 156/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.0% | cost=$0.0826
+  [ 157/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.1% | cost=$0.0828
+  [ 158/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.1% | cost=$0.0831
+  [ 159/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.2% | cost=$0.0833
+  [ 160/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.2% | cost=$0.0835
+  [ 161/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.3% | cost=$0.0836
+  [ 162/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0837
+  [ 163/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0839
+  [ 164/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0841
+  [ 165/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0843
+  [ 166/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.0845
+  [ 167/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.0847
+  [ 168/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0880
+  [ 169/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0881
+  [ 170/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0884
+  [ 171/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0886
+  [ 172/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0888
+  [ 173/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.3% | cost=$0.0889
+  [ 174/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0891
+  [ 175/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.0893
+  [ 176/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0894
+  [ 177/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.0897
+  [ 178/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.0898
+  [ 179/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.0900
+  [ 180/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0903
+  [ 181/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.0905
+  [ 182/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0907
+  [ 183/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0909
+  [ 184/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0911
+  [ 185/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0913
+  [ 186/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0915
+  [ 187/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0917
+  [ 188/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0918
+  [ 189/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0921
+  [ 190/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0924
+  [ 191/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0925
+  [ 192/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0927
+  [ 193/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.7% | cost=$0.0955
+  [ 194/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0957
+  [ 195/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0961
+  [ 196/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0963
+  [ 197/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0965
+  [ 198/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0967
+  [ 199/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0969
+  [ 200/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0972
+  [ 201/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0974
+  [ 202/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0976
+  [ 203/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.0978
+  [ 204/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0980
+  [ 205/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.0982
+  [ 206/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.7% | cost=$0.0986
+  [ 207/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0987
+  [ 208/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.0989
+  [ 209/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0990
+  [ 210/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0992
+  [ 211/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.0994
+  [ 212/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0997
+  [ 213/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.0998
+  [ 214/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.1000
+  [ 215/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.1002
+  [ 216/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.1% | cost=$0.1004
+  [ 217/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.1006
+  [ 218/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.1009
+  [ 219/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.1010
+  [ 220/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.1012
+  [ 221/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.1014
+  [ 222/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.1015
+  [ 223/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.1016
+  [ 224/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.1019
+  [ 225/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.1020
+  [ 226/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.1021
+  [ 227/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.1023
+  [ 228/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.1024
+  [ 229/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.1026
+  [ 230/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.1028
+  [ 231/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.1030
+  [ 232/300] lints_27d_vsq1.0_seed42             | ✗ | acc=92.2% | cost=$0.1033
+  [ 233/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.1034
+  [ 234/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.1036
+  [ 235/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.3% | cost=$0.1037
+  [ 236/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.1059
+  [ 237/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.1060
+  [ 238/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.1063
+  [ 239/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.1065
+  [ 240/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.1066
+  [ 241/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.1069
+  [ 242/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.1071
+  [ 243/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.1073
+  [ 244/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.6% | cost=$0.1076
+  [ 245/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.7% | cost=$0.1078
+  [ 246/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.7% | cost=$0.1080
+  [ 247/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.7% | cost=$0.1111
+  [ 248/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.7% | cost=$0.1114
+  [ 249/300] lints_27d_vsq1.0_seed42             | ✗ | acc=92.4% | cost=$0.1117
+  [ 250/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.1119
+  [ 251/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.4% | cost=$0.1122
+  [ 252/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.1125
+  [ 253/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.5% | cost=$0.1126
+  [ 254/300] lints_27d_vsq1.0_seed42             | ✗ | acc=92.1% | cost=$0.1128
+  [ 255/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.2% | cost=$0.1130
+  [ 256/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.8% | cost=$0.1133
+  [ 257/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.1135
+  [ 258/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.1137
+  [ 259/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.1140
+  [ 260/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.1142
+  [ 261/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.1145
+  [ 262/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.1147
+  [ 263/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.6% | cost=$0.1150
+  [ 264/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1152
+  [ 265/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1155
+  [ 266/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1156
+  [ 267/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.1158
+  [ 268/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.1160
+  [ 269/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.1162
+  [ 270/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.5% | cost=$0.1165
+  [ 271/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.1167
+  [ 272/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.1169
+  [ 273/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.1172
+  [ 274/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.1173
+  [ 275/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.1176
+  [ 276/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1178
+  [ 277/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1208
+  [ 278/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1210
+  [ 279/300] lints_27d_vsq1.0_seed42             | ✗ | acc=91.4% | cost=$0.1213
+  [ 280/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.4% | cost=$0.1215
+  [ 281/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.1218
+  [ 282/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.1221
+  [ 283/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.1222
+  [ 284/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.5% | cost=$0.1243
+  [ 285/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.1245
+  [ 286/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.1247
+  [ 287/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.6% | cost=$0.1250
+  [ 288/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1251
+  [ 289/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1254
+  [ 290/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.7% | cost=$0.1257
+  [ 291/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.1260
+  [ 292/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.1262
+  [ 293/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.1264
+  [ 294/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.8% | cost=$0.1267
+  [ 295/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.1269
+  [ 296/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.1271
+  [ 297/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.1272
+  [ 298/300] lints_27d_vsq1.0_seed42             | ✓ | acc=91.9% | cost=$0.1274
+  [ 299/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.1276
+  [ 300/300] lints_27d_vsq1.0_seed42             | ✓ | acc=92.0% | cost=$0.1279
+  DONE: n=300, acc=92.0%, cost=$0.1279
+
+=== lints_27d_vsq1.0_seed43 (tag=gsm8k, 300 queries) ===
+  [   1/300] lints_27d_vsq1.0_seed43             | ✗ | acc=0.0% | cost=$0.0003
+  [   2/300] lints_27d_vsq1.0_seed43             | ✓ | acc=50.0% | cost=$0.0034
+  [   3/300] lints_27d_vsq1.0_seed43             | ✓ | acc=66.7% | cost=$0.0059
+  [   4/300] lints_27d_vsq1.0_seed43             | ✓ | acc=75.0% | cost=$0.0061
+  [   5/300] lints_27d_vsq1.0_seed43             | ✓ | acc=80.0% | cost=$0.0093
+  [   6/300] lints_27d_vsq1.0_seed43             | ✓ | acc=83.3% | cost=$0.0123
+  [   7/300] lints_27d_vsq1.0_seed43             | ✓ | acc=85.7% | cost=$0.0138
+  [   8/300] lints_27d_vsq1.0_seed43             | ✗ | acc=75.0% | cost=$0.0140
+  [   9/300] lints_27d_vsq1.0_seed43             | ✓ | acc=77.8% | cost=$0.0162
+  [  10/300] lints_27d_vsq1.0_seed43             | ✓ | acc=80.0% | cost=$0.0191
+  [  11/300] lints_27d_vsq1.0_seed43             | ✓ | acc=81.8% | cost=$0.0237
+  [  12/300] lints_27d_vsq1.0_seed43             | ✓ | acc=83.3% | cost=$0.0267
+  [  13/300] lints_27d_vsq1.0_seed43             | ✓ | acc=84.6% | cost=$0.0269
+  [  14/300] lints_27d_vsq1.0_seed43             | ✓ | acc=85.7% | cost=$0.0291
+  [  15/300] lints_27d_vsq1.0_seed43             | ✓ | acc=86.7% | cost=$0.0316
+  [  16/300] lints_27d_vsq1.0_seed43             | ✓ | acc=87.5% | cost=$0.0341
+  [  17/300] lints_27d_vsq1.0_seed43             | ✓ | acc=88.2% | cost=$0.0372
+  [  18/300] lints_27d_vsq1.0_seed43             | ✓ | acc=88.9% | cost=$0.0373
+  [  19/300] lints_27d_vsq1.0_seed43             | ✓ | acc=89.5% | cost=$0.0396
+  [  20/300] lints_27d_vsq1.0_seed43             | ✓ | acc=90.0% | cost=$0.0427
+  [  21/300] lints_27d_vsq1.0_seed43             | ✓ | acc=90.5% | cost=$0.0428
+  [  22/300] lints_27d_vsq1.0_seed43             | ✓ | acc=90.9% | cost=$0.0465
+  [  23/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.3% | cost=$0.0467
+  [  24/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.7% | cost=$0.0508
+  [  25/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.0% | cost=$0.0541
+  [  26/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.3% | cost=$0.0573
+  [  27/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.6% | cost=$0.0574
+  [  28/300] lints_27d_vsq1.0_seed43             | ✗ | acc=89.3% | cost=$0.0631
+  [  29/300] lints_27d_vsq1.0_seed43             | ✓ | acc=89.7% | cost=$0.0662
+  [  30/300] lints_27d_vsq1.0_seed43             | ✓ | acc=90.0% | cost=$0.0664
+  [  31/300] lints_27d_vsq1.0_seed43             | ✓ | acc=90.3% | cost=$0.0667
+  [  32/300] lints_27d_vsq1.0_seed43             | ✓ | acc=90.6% | cost=$0.0669
+  [  33/300] lints_27d_vsq1.0_seed43             | ✓ | acc=90.9% | cost=$0.0708
+  [  34/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.2% | cost=$0.0711
+  [  35/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.4% | cost=$0.0713
+  [  36/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.7% | cost=$0.0716
+  [  37/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.9% | cost=$0.0718
+  [  38/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.1% | cost=$0.0720
+  [  39/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.3% | cost=$0.0722
+  [  40/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.5% | cost=$0.0748
+  [  41/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.7% | cost=$0.0791
+  [  42/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.0812
+  [  43/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.0813
+  [  44/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.2% | cost=$0.0815
+  [  45/300] lints_27d_vsq1.0_seed43             | ✗ | acc=91.1% | cost=$0.0816
+  [  46/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.3% | cost=$0.0818
+  [  47/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.5% | cost=$0.0855
+  [  48/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.7% | cost=$0.0858
+  [  49/300] lints_27d_vsq1.0_seed43             | ✓ | acc=91.8% | cost=$0.0859
+  [  50/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.0% | cost=$0.0886
+  [  51/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.2% | cost=$0.0887
+  [  52/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.3% | cost=$0.0921
+  [  53/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.5% | cost=$0.0923
+  [  54/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.6% | cost=$0.0925
+  [  55/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.7% | cost=$0.0926
+  [  56/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.0928
+  [  57/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.0931
+  [  58/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.0933
+  [  59/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.2% | cost=$0.0963
+  [  60/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.0964
+  [  61/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.0968
+  [  62/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.0970
+  [  63/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.0972
+  [  64/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.0974
+  [  65/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.0975
+  [  66/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.0977
+  [  67/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.0% | cost=$0.0979
+  [  68/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.1% | cost=$0.0981
+  [  69/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.2% | cost=$0.1007
+  [  70/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.3% | cost=$0.1008
+  [  71/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.4% | cost=$0.1011
+  [  72/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.4% | cost=$0.1013
+  [  73/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.5% | cost=$0.1015
+  [  74/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.6% | cost=$0.1038
+  [  75/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.7% | cost=$0.1060
+  [  76/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.7% | cost=$0.1063
+  [  77/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.8% | cost=$0.1064
+  [  78/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.9% | cost=$0.1111
+  [  79/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.9% | cost=$0.1113
+  [  80/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.0% | cost=$0.1143
+  [  81/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.1% | cost=$0.1145
+  [  82/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.1% | cost=$0.1147
+  [  83/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.2% | cost=$0.1148
+  [  84/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.2% | cost=$0.1188
+  [  85/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.3% | cost=$0.1189
+  [  86/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.3% | cost=$0.1191
+  [  87/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.4% | cost=$0.1216
+  [  88/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.5% | cost=$0.1217
+  [  89/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.5% | cost=$0.1219
+  [  90/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.6% | cost=$0.1220
+  [  91/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.6% | cost=$0.1222
+  [  92/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.7% | cost=$0.1224
+  [  93/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.7% | cost=$0.1226
+  [  94/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.7% | cost=$0.1228
+  [  95/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.8% | cost=$0.1230
+  [  96/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.8% | cost=$0.1232
+  [  97/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.9% | cost=$0.1266
+  [  98/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.9% | cost=$0.1269
+  [  99/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.0% | cost=$0.1271
+  [ 100/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.0% | cost=$0.1272
+  [ 101/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.0% | cost=$0.1275
+  [ 102/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.1% | cost=$0.1277
+  [ 103/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.1% | cost=$0.1279
+  [ 104/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.2% | cost=$0.1280
+  [ 105/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.2% | cost=$0.1282
+  [ 106/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.2% | cost=$0.1284
+  [ 107/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.3% | cost=$0.1286
+  [ 108/300] lints_27d_vsq1.0_seed43             | ✓ | acc=96.3% | cost=$0.1287
+  [ 109/300] lints_27d_vsq1.0_seed43             | ✗ | acc=95.4% | cost=$0.1291
+  [ 110/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.5% | cost=$0.1293
+  [ 111/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.5% | cost=$0.1295
+  [ 112/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.5% | cost=$0.1298
+  [ 113/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.6% | cost=$0.1299
+  [ 114/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.6% | cost=$0.1302
+  [ 115/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.7% | cost=$0.1303
+  [ 116/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.7% | cost=$0.1305
+  [ 117/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.7% | cost=$0.1307
+  [ 118/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.8% | cost=$0.1308
+  [ 119/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.8% | cost=$0.1309
+  [ 120/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.8% | cost=$0.1311
+  [ 121/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.9% | cost=$0.1312
+  [ 122/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.9% | cost=$0.1314
+  [ 123/300] lints_27d_vsq1.0_seed43             | ✗ | acc=95.1% | cost=$0.1317
+  [ 124/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.2% | cost=$0.1318
+  [ 125/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.2% | cost=$0.1360
+  [ 126/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.2% | cost=$0.1362
+  [ 127/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.3% | cost=$0.1363
+  [ 128/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.3% | cost=$0.1366
+  [ 129/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.3% | cost=$0.1368
+  [ 130/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.4% | cost=$0.1402
+  [ 131/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.4% | cost=$0.1405
+  [ 132/300] lints_27d_vsq1.0_seed43             | ✓ | acc=95.5% | cost=$0.1406
+  [ 133/300] lints_27d_vsq1.0_seed43             | ✗ | acc=94.7% | cost=$0.1434
+  [ 134/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.8% | cost=$0.1436
+  [ 135/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.8% | cost=$0.1457
+  [ 136/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.9% | cost=$0.1458
+  [ 137/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.9% | cost=$0.1460
+  [ 138/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.9% | cost=$0.1461
+  [ 139/300] lints_27d_vsq1.0_seed43             | ✗ | acc=94.2% | cost=$0.1464
+  [ 140/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.3% | cost=$0.1465
+  [ 141/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.3% | cost=$0.1467
+  [ 142/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.7% | cost=$0.1469
+  [ 143/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1470
+  [ 144/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1473
+  [ 145/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1474
+  [ 146/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1477
+  [ 147/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.1478
+  [ 148/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.1481
+  [ 149/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.3% | cost=$0.1485
+  [ 150/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.1487
+  [ 151/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1488
+  [ 152/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1491
+  [ 153/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1492
+  [ 154/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1494
+  [ 155/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1497
+  [ 156/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1500
+  [ 157/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1502
+  [ 158/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1504
+  [ 159/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1539
+  [ 160/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1541
+  [ 161/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1542
+  [ 162/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1544
+  [ 163/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.1546
+  [ 164/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.1547
+  [ 165/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.1549
+  [ 166/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.0% | cost=$0.1551
+  [ 167/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.0% | cost=$0.1594
+  [ 168/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.0% | cost=$0.1626
+  [ 169/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.1% | cost=$0.1628
+  [ 170/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.1% | cost=$0.1631
+  [ 171/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.2% | cost=$0.1633
+  [ 172/300] lints_27d_vsq1.0_seed43             | ✓ | acc=94.2% | cost=$0.1634
+  [ 173/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.6% | cost=$0.1636
+  [ 174/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1637
+  [ 175/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1640
+  [ 176/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1641
+  [ 177/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1643
+  [ 178/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1644
+  [ 179/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.3% | cost=$0.1648
+  [ 180/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.1650
+  [ 181/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1652
+  [ 182/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1654
+  [ 183/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1656
+  [ 184/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1658
+  [ 185/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1659
+  [ 186/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1662
+  [ 187/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1664
+  [ 188/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1665
+  [ 189/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1699
+  [ 190/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1702
+  [ 191/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1704
+  [ 192/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1706
+  [ 193/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1707
+  [ 194/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1744
+  [ 195/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.3% | cost=$0.1747
+  [ 196/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1749
+  [ 197/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1788
+  [ 198/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1789
+  [ 199/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1792
+  [ 200/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1794
+  [ 201/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1829
+  [ 202/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1831
+  [ 203/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1833
+  [ 204/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1835
+  [ 205/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1837
+  [ 206/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.2% | cost=$0.1840
+  [ 207/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.2% | cost=$0.1842
+  [ 208/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.1843
+  [ 209/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.1845
+  [ 210/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.1847
+  [ 211/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1850
+  [ 212/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1852
+  [ 213/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1853
+  [ 214/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1855
+  [ 215/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1857
+  [ 216/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1859
+  [ 217/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1861
+  [ 218/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1864
+  [ 219/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1865
+  [ 220/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1867
+  [ 221/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1869
+  [ 222/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1870
+  [ 223/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1871
+  [ 224/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.3% | cost=$0.1874
+  [ 225/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.1875
+  [ 226/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1877
+  [ 227/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1878
+  [ 228/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1880
+  [ 229/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.4% | cost=$0.1882
+  [ 230/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1883
+  [ 231/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1885
+  [ 232/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1923
+  [ 233/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1924
+  [ 234/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1926
+  [ 235/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1927
+  [ 236/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.6% | cost=$0.1928
+  [ 237/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1929
+  [ 238/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1932
+  [ 239/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.7% | cost=$0.1934
+  [ 240/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1935
+  [ 241/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1938
+  [ 242/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1940
+  [ 243/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.8% | cost=$0.1980
+  [ 244/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.1982
+  [ 245/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.1984
+  [ 246/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.9% | cost=$0.1986
+  [ 247/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.5% | cost=$0.1988
+  [ 248/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.5% | cost=$0.1991
+  [ 249/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.2% | cost=$0.1994
+  [ 250/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.2% | cost=$0.1996
+  [ 251/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.2% | cost=$0.1999
+  [ 252/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.2001
+  [ 253/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.2003
+  [ 254/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.2041
+  [ 255/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.3% | cost=$0.2042
+  [ 256/300] lints_27d_vsq1.0_seed43             | ✗ | acc=93.0% | cost=$0.2046
+  [ 257/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2048
+  [ 258/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2050
+  [ 259/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2086
+  [ 260/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2088
+  [ 261/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2091
+  [ 262/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2092
+  [ 263/300] lints_27d_vsq1.0_seed43             | ✗ | acc=92.8% | cost=$0.2096
+  [ 264/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.8% | cost=$0.2098
+  [ 265/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.8% | cost=$0.2100
+  [ 266/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2102
+  [ 267/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2104
+  [ 268/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2106
+  [ 269/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2107
+  [ 270/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2110
+  [ 271/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2112
+  [ 272/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2114
+  [ 273/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2117
+  [ 274/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2119
+  [ 275/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2121
+  [ 276/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2123
+  [ 277/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2125
+  [ 278/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.2% | cost=$0.2127
+  [ 279/300] lints_27d_vsq1.0_seed43             | ✗ | acc=92.8% | cost=$0.2130
+  [ 280/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2133
+  [ 281/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2135
+  [ 282/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2138
+  [ 283/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2139
+  [ 284/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2140
+  [ 285/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2142
+  [ 286/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2144
+  [ 287/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2147
+  [ 288/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.1% | cost=$0.2149
+  [ 289/300] lints_27d_vsq1.0_seed43             | ✗ | acc=92.7% | cost=$0.2205
+  [ 290/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.8% | cost=$0.2208
+  [ 291/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.8% | cost=$0.2210
+  [ 292/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.8% | cost=$0.2213
+  [ 293/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.8% | cost=$0.2215
+  [ 294/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2218
+  [ 295/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2220
+  [ 296/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2223
+  [ 297/300] lints_27d_vsq1.0_seed43             | ✓ | acc=92.9% | cost=$0.2247
+  [ 298/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2248
+  [ 299/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2251
+  [ 300/300] lints_27d_vsq1.0_seed43             | ✓ | acc=93.0% | cost=$0.2254
+  DONE: n=300, acc=93.0%, cost=$0.2254
+
+=== lints_27d_vsq1.0_seed44 (tag=gsm8k, 300 queries) ===
+  [   1/300] lints_27d_vsq1.0_seed44             | ✗ | acc=0.0% | cost=$0.0002
+  [   2/300] lints_27d_vsq1.0_seed44             | ✓ | acc=50.0% | cost=$0.0005
+  [   3/300] lints_27d_vsq1.0_seed44             | ✓ | acc=66.7% | cost=$0.0029
+  [   4/300] lints_27d_vsq1.0_seed44             | ✓ | acc=75.0% | cost=$0.0031
+  [   5/300] lints_27d_vsq1.0_seed44             | ✓ | acc=80.0% | cost=$0.0033
+  [   6/300] lints_27d_vsq1.0_seed44             | ✓ | acc=83.3% | cost=$0.0035
+  [   7/300] lints_27d_vsq1.0_seed44             | ✓ | acc=85.7% | cost=$0.0036
+  [   8/300] lints_27d_vsq1.0_seed44             | ✗ | acc=75.0% | cost=$0.0038
+  [   9/300] lints_27d_vsq1.0_seed44             | ✓ | acc=77.8% | cost=$0.0040
+  [  10/300] lints_27d_vsq1.0_seed44             | ✓ | acc=80.0% | cost=$0.0069
+  [  11/300] lints_27d_vsq1.0_seed44             | ✓ | acc=81.8% | cost=$0.0071
+  [  12/300] lints_27d_vsq1.0_seed44             | ✓ | acc=83.3% | cost=$0.0101
+  [  13/300] lints_27d_vsq1.0_seed44             | ✓ | acc=84.6% | cost=$0.0103
+  [  14/300] lints_27d_vsq1.0_seed44             | ✓ | acc=85.7% | cost=$0.0125
+  [  15/300] lints_27d_vsq1.0_seed44             | ✓ | acc=86.7% | cost=$0.0127
+  [  16/300] lints_27d_vsq1.0_seed44             | ✓ | acc=87.5% | cost=$0.0128
+  [  17/300] lints_27d_vsq1.0_seed44             | ✓ | acc=88.2% | cost=$0.0159
+  [  18/300] lints_27d_vsq1.0_seed44             | ✓ | acc=88.9% | cost=$0.0182
+  [  19/300] lints_27d_vsq1.0_seed44             | ✓ | acc=89.5% | cost=$0.0211
+  [  20/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.0% | cost=$0.0240
+  [  21/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.5% | cost=$0.0265
+  [  22/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.9% | cost=$0.0268
+  [  23/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.3% | cost=$0.0301
+  [  24/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.7% | cost=$0.0344
+  [  25/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.0% | cost=$0.0378
+  [  26/300] lints_27d_vsq1.0_seed44             | ✗ | acc=88.5% | cost=$0.0379
+  [  27/300] lints_27d_vsq1.0_seed44             | ✓ | acc=88.9% | cost=$0.0381
+  [  28/300] lints_27d_vsq1.0_seed44             | ✗ | acc=85.7% | cost=$0.0437
+  [  29/300] lints_27d_vsq1.0_seed44             | ✓ | acc=86.2% | cost=$0.0439
+  [  30/300] lints_27d_vsq1.0_seed44             | ✓ | acc=86.7% | cost=$0.0473
+  [  31/300] lints_27d_vsq1.0_seed44             | ✓ | acc=87.1% | cost=$0.0476
+  [  32/300] lints_27d_vsq1.0_seed44             | ✓ | acc=87.5% | cost=$0.0506
+  [  33/300] lints_27d_vsq1.0_seed44             | ✓ | acc=87.9% | cost=$0.0545
+  [  34/300] lints_27d_vsq1.0_seed44             | ✓ | acc=88.2% | cost=$0.0591
+  [  35/300] lints_27d_vsq1.0_seed44             | ✓ | acc=88.6% | cost=$0.0593
+  [  36/300] lints_27d_vsq1.0_seed44             | ✓ | acc=88.9% | cost=$0.0596
+  [  37/300] lints_27d_vsq1.0_seed44             | ✓ | acc=89.2% | cost=$0.0598
+  [  38/300] lints_27d_vsq1.0_seed44             | ✓ | acc=89.5% | cost=$0.0601
+  [  39/300] lints_27d_vsq1.0_seed44             | ✓ | acc=89.7% | cost=$0.0602
+  [  40/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.0% | cost=$0.0604
+  [  41/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.2% | cost=$0.0607
+  [  42/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.5% | cost=$0.0628
+  [  43/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.7% | cost=$0.0629
+  [  44/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.9% | cost=$0.0630
+  [  45/300] lints_27d_vsq1.0_seed44             | ✗ | acc=88.9% | cost=$0.0632
+  [  46/300] lints_27d_vsq1.0_seed44             | ✓ | acc=89.1% | cost=$0.0634
+  [  47/300] lints_27d_vsq1.0_seed44             | ✓ | acc=89.4% | cost=$0.0677
+  [  48/300] lints_27d_vsq1.0_seed44             | ✓ | acc=89.6% | cost=$0.0680
+  [  49/300] lints_27d_vsq1.0_seed44             | ✓ | acc=89.8% | cost=$0.0682
+  [  50/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.0% | cost=$0.0716
+  [  51/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.2% | cost=$0.0718
+  [  52/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.4% | cost=$0.0720
+  [  53/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.6% | cost=$0.0746
+  [  54/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.7% | cost=$0.0747
+  [  55/300] lints_27d_vsq1.0_seed44             | ✓ | acc=90.9% | cost=$0.0749
+  [  56/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.1% | cost=$0.0783
+  [  57/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.2% | cost=$0.0786
+  [  58/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.4% | cost=$0.0788
+  [  59/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.5% | cost=$0.0791
+  [  60/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.7% | cost=$0.0793
+  [  61/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.8% | cost=$0.0795
+  [  62/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.9% | cost=$0.0798
+  [  63/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.1% | cost=$0.0826
+  [  64/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.2% | cost=$0.0828
+  [  65/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.0848
+  [  66/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.4% | cost=$0.0850
+  [  67/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.5% | cost=$0.0852
+  [  68/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.0879
+  [  69/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.0881
+  [  70/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.0911
+  [  71/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.0913
+  [  72/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.0945
+  [  73/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.0947
+  [  74/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.0969
+  [  75/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.3% | cost=$0.0970
+  [  76/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.4% | cost=$0.0973
+  [  77/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.5% | cost=$0.1001
+  [  78/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.6% | cost=$0.1004
+  [  79/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.7% | cost=$0.1006
+  [  80/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.8% | cost=$0.1036
+  [  81/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.6% | cost=$0.1038
+  [  82/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.1040
+  [  83/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1067
+  [  84/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1070
+  [  85/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1072
+  [  86/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1073
+  [  87/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1098
+  [  88/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1100
+  [  89/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.3% | cost=$0.1102
+  [  90/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.3% | cost=$0.1103
+  [  91/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.4% | cost=$0.1104
+  [  92/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.5% | cost=$0.1106
+  [  93/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.5% | cost=$0.1108
+  [  94/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.6% | cost=$0.1110
+  [  95/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.7% | cost=$0.1112
+  [  96/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.8% | cost=$0.1114
+  [  97/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.8% | cost=$0.1116
+  [  98/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.9% | cost=$0.1119
+  [  99/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.9% | cost=$0.1121
+  [ 100/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.0% | cost=$0.1123
+  [ 101/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.1% | cost=$0.1125
+  [ 102/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.1% | cost=$0.1162
+  [ 103/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.2% | cost=$0.1165
+  [ 104/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.2% | cost=$0.1166
+  [ 105/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.3% | cost=$0.1167
+  [ 106/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.3% | cost=$0.1205
+  [ 107/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.4% | cost=$0.1206
+  [ 108/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.4% | cost=$0.1208
+  [ 109/300] lints_27d_vsq1.0_seed44             | ✗ | acc=93.6% | cost=$0.1211
+  [ 110/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.6% | cost=$0.1213
+  [ 111/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.7% | cost=$0.1215
+  [ 112/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.8% | cost=$0.1218
+  [ 113/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.8% | cost=$0.1220
+  [ 114/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.9% | cost=$0.1222
+  [ 115/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.9% | cost=$0.1224
+  [ 116/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.0% | cost=$0.1225
+  [ 117/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.0% | cost=$0.1227
+  [ 118/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.1% | cost=$0.1228
+  [ 119/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.1% | cost=$0.1229
+  [ 120/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.2% | cost=$0.1230
+  [ 121/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.2% | cost=$0.1266
+  [ 122/300] lints_27d_vsq1.0_seed44             | ✓ | acc=94.3% | cost=$0.1268
+  [ 123/300] lints_27d_vsq1.0_seed44             | ✗ | acc=93.5% | cost=$0.1271
+  [ 124/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.5% | cost=$0.1298
+  [ 125/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.8% | cost=$0.1299
+  [ 126/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1301
+  [ 127/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1302
+  [ 128/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1341
+  [ 129/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1343
+  [ 130/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1346
+  [ 131/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1348
+  [ 132/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1350
+  [ 133/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.5% | cost=$0.1351
+  [ 134/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.5% | cost=$0.1353
+  [ 135/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.1354
+  [ 136/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.1356
+  [ 137/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.1357
+  [ 138/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1358
+  [ 139/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.1% | cost=$0.1362
+  [ 140/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.1% | cost=$0.1363
+  [ 141/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.2% | cost=$0.1364
+  [ 142/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.1367
+  [ 143/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.1368
+  [ 144/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.4% | cost=$0.1371
+  [ 145/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.4% | cost=$0.1372
+  [ 146/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.5% | cost=$0.1375
+  [ 147/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.5% | cost=$0.1376
+  [ 148/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.1379
+  [ 149/300] lints_27d_vsq1.0_seed44             | ✗ | acc=91.9% | cost=$0.1383
+  [ 150/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.0% | cost=$0.1385
+  [ 151/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.1% | cost=$0.1386
+  [ 152/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.1% | cost=$0.1389
+  [ 153/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.2% | cost=$0.1390
+  [ 154/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.2% | cost=$0.1393
+  [ 155/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.1395
+  [ 156/300] lints_27d_vsq1.0_seed44             | ✗ | acc=91.7% | cost=$0.1398
+  [ 157/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.7% | cost=$0.1400
+  [ 158/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.8% | cost=$0.1402
+  [ 159/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.8% | cost=$0.1404
+  [ 160/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.9% | cost=$0.1407
+  [ 161/300] lints_27d_vsq1.0_seed44             | ✓ | acc=91.9% | cost=$0.1408
+  [ 162/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.0% | cost=$0.1409
+  [ 163/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.0% | cost=$0.1411
+  [ 164/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.1% | cost=$0.1412
+  [ 165/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.1% | cost=$0.1414
+  [ 166/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.2% | cost=$0.1416
+  [ 167/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.2% | cost=$0.1458
+  [ 168/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.1459
+  [ 169/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.1461
+  [ 170/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.4% | cost=$0.1464
+  [ 171/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.4% | cost=$0.1466
+  [ 172/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.4% | cost=$0.1467
+  [ 173/300] lints_27d_vsq1.0_seed44             | ✗ | acc=91.9% | cost=$0.1469
+  [ 174/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.0% | cost=$0.1470
+  [ 175/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.0% | cost=$0.1473
+  [ 176/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.0% | cost=$0.1474
+  [ 177/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.1% | cost=$0.1505
+  [ 178/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.1% | cost=$0.1506
+  [ 179/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.2% | cost=$0.1549
+  [ 180/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.2% | cost=$0.1552
+  [ 181/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.1553
+  [ 182/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.1555
+  [ 183/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.3% | cost=$0.1557
+  [ 184/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.4% | cost=$0.1559
+  [ 185/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.4% | cost=$0.1561
+  [ 186/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.5% | cost=$0.1563
+  [ 187/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.5% | cost=$0.1565
+  [ 188/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.1567
+  [ 189/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.1569
+  [ 190/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.1572
+  [ 191/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.1574
+  [ 192/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.1576
+  [ 193/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.1577
+  [ 194/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1614
+  [ 195/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1617
+  [ 196/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1619
+  [ 197/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1621
+  [ 198/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1623
+  [ 199/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1626
+  [ 200/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1628
+  [ 201/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1630
+  [ 202/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1656
+  [ 203/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1658
+  [ 204/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1660
+  [ 205/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1662
+  [ 206/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.7% | cost=$0.1666
+  [ 207/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1667
+  [ 208/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1669
+  [ 209/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1670
+  [ 210/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1672
+  [ 211/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1675
+  [ 212/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1677
+  [ 213/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1679
+  [ 214/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1681
+  [ 215/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1683
+  [ 216/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1707
+  [ 217/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1708
+  [ 218/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1711
+  [ 219/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1713
+  [ 220/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1715
+  [ 221/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1716
+  [ 222/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1738
+  [ 223/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.3% | cost=$0.1739
+  [ 224/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.9% | cost=$0.1743
+  [ 225/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1758
+  [ 226/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1760
+  [ 227/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1761
+  [ 228/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1763
+  [ 229/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1765
+  [ 230/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1766
+  [ 231/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1768
+  [ 232/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1770
+  [ 233/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1798
+  [ 234/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1799
+  [ 235/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1823
+  [ 236/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1824
+  [ 237/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.2% | cost=$0.1826
+  [ 238/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.3% | cost=$0.1828
+  [ 239/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.3% | cost=$0.1830
+  [ 240/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.3% | cost=$0.1852
+  [ 241/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.4% | cost=$0.1855
+  [ 242/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.4% | cost=$0.1856
+  [ 243/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.4% | cost=$0.1859
+  [ 244/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.4% | cost=$0.1861
+  [ 245/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.5% | cost=$0.1863
+  [ 246/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.5% | cost=$0.1865
+  [ 247/300] lints_27d_vsq1.0_seed44             | ✗ | acc=93.1% | cost=$0.1867
+  [ 248/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1870
+  [ 249/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.8% | cost=$0.1873
+  [ 250/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1875
+  [ 251/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1877
+  [ 252/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1880
+  [ 253/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1881
+  [ 254/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1919
+  [ 255/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1921
+  [ 256/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1975
+  [ 257/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1978
+  [ 258/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.1980
+  [ 259/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1982
+  [ 260/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1984
+  [ 261/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1987
+  [ 262/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.1% | cost=$0.1989
+  [ 263/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.8% | cost=$0.1991
+  [ 264/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1993
+  [ 265/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.1996
+  [ 266/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.1997
+  [ 267/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.2024
+  [ 268/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.2027
+  [ 269/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.2028
+  [ 270/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.2031
+  [ 271/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.2033
+  [ 272/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.2036
+  [ 273/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.7% | cost=$0.2039
+  [ 274/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.2040
+  [ 275/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.2043
+  [ 276/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.2045
+  [ 277/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.2047
+  [ 278/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.2049
+  [ 279/300] lints_27d_vsq1.0_seed44             | ✗ | acc=92.5% | cost=$0.2052
+  [ 280/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.5% | cost=$0.2055
+  [ 281/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.5% | cost=$0.2057
+  [ 282/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.2059
+  [ 283/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.2061
+  [ 284/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.2082
+  [ 285/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.6% | cost=$0.2084
+  [ 286/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.2085
+  [ 287/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.2088
+  [ 288/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.2090
+  [ 289/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.7% | cost=$0.2093
+  [ 290/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.2096
+  [ 291/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.2098
+  [ 292/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.2101
+  [ 293/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.8% | cost=$0.2103
+  [ 294/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.2106
+  [ 295/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.2108
+  [ 296/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.2110
+  [ 297/300] lints_27d_vsq1.0_seed44             | ✓ | acc=92.9% | cost=$0.2111
+  [ 298/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.2112
+  [ 299/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.2114
+  [ 300/300] lints_27d_vsq1.0_seed44             | ✓ | acc=93.0% | cost=$0.2117
+  DONE: n=300, acc=93.0%, cost=$0.2117
+
+=== lints_27d_vsq1.0_seed45 (tag=gsm8k, 300 queries) ===
+  [   1/300] lints_27d_vsq1.0_seed45             | ✗ | acc=0.0% | cost=$0.0002
+  [   2/300] lints_27d_vsq1.0_seed45             | ✓ | acc=50.0% | cost=$0.0005
+  [   3/300] lints_27d_vsq1.0_seed45             | ✓ | acc=66.7% | cost=$0.0029
+  [   4/300] lints_27d_vsq1.0_seed45             | ✓ | acc=75.0% | cost=$0.0058
+  [   5/300] lints_27d_vsq1.0_seed45             | ✓ | acc=80.0% | cost=$0.0090
+  [   6/300] lints_27d_vsq1.0_seed45             | ✓ | acc=83.3% | cost=$0.0122
+  [   7/300] lints_27d_vsq1.0_seed45             | ✓ | acc=85.7% | cost=$0.0140
+  [   8/300] lints_27d_vsq1.0_seed45             | ✓ | acc=87.5% | cost=$0.0174
+  [   9/300] lints_27d_vsq1.0_seed45             | ✓ | acc=88.9% | cost=$0.0175
+  [  10/300] lints_27d_vsq1.0_seed45             | ✓ | acc=90.0% | cost=$0.0204
+  [  11/300] lints_27d_vsq1.0_seed45             | ✓ | acc=90.9% | cost=$0.0206
+  [  12/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.7% | cost=$0.0208
+  [  13/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.0249
+  [  14/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.0251
+  [  15/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.0276
+  [  16/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.0278
+  [  17/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.1% | cost=$0.0308
+  [  18/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.4% | cost=$0.0310
+  [  19/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.7% | cost=$0.0333
+  [  20/300] lints_27d_vsq1.0_seed45             | ✓ | acc=95.0% | cost=$0.0363
+  [  21/300] lints_27d_vsq1.0_seed45             | ✓ | acc=95.2% | cost=$0.0365
+  [  22/300] lints_27d_vsq1.0_seed45             | ✓ | acc=95.5% | cost=$0.0367
+  [  23/300] lints_27d_vsq1.0_seed45             | ✓ | acc=95.7% | cost=$0.0369
+  [  24/300] lints_27d_vsq1.0_seed45             | ✓ | acc=95.8% | cost=$0.0411
+  [  25/300] lints_27d_vsq1.0_seed45             | ✓ | acc=96.0% | cost=$0.0413
+  [  26/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.3% | cost=$0.0415
+  [  27/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.6% | cost=$0.0438
+  [  28/300] lints_27d_vsq1.0_seed45             | ✗ | acc=89.3% | cost=$0.0442
+  [  29/300] lints_27d_vsq1.0_seed45             | ✓ | acc=89.7% | cost=$0.0443
+  [  30/300] lints_27d_vsq1.0_seed45             | ✓ | acc=90.0% | cost=$0.0446
+  [  31/300] lints_27d_vsq1.0_seed45             | ✓ | acc=90.3% | cost=$0.0449
+  [  32/300] lints_27d_vsq1.0_seed45             | ✓ | acc=90.6% | cost=$0.0479
+  [  33/300] lints_27d_vsq1.0_seed45             | ✓ | acc=90.9% | cost=$0.0481
+  [  34/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.2% | cost=$0.0484
+  [  35/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.4% | cost=$0.0487
+  [  36/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.7% | cost=$0.0519
+  [  37/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.9% | cost=$0.0521
+  [  38/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.1% | cost=$0.0553
+  [  39/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.0580
+  [  40/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.5% | cost=$0.0582
+  [  41/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.0585
+  [  42/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.0605
+  [  43/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.0607
+  [  44/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.0608
+  [  45/300] lints_27d_vsq1.0_seed45             | ✗ | acc=91.1% | cost=$0.0610
+  [  46/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.3% | cost=$0.0612
+  [  47/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.5% | cost=$0.0614
+  [  48/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.7% | cost=$0.0617
+  [  49/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.8% | cost=$0.0618
+  [  50/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.0% | cost=$0.0654
+  [  51/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.2% | cost=$0.0655
+  [  52/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.0695
+  [  53/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.5% | cost=$0.0697
+  [  54/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.6% | cost=$0.0735
+  [  55/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.0761
+  [  56/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.0764
+  [  57/300] lints_27d_vsq1.0_seed45             | ✗ | acc=91.2% | cost=$0.0801
+  [  58/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.4% | cost=$0.0803
+  [  59/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.5% | cost=$0.0805
+  [  60/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.7% | cost=$0.0807
+  [  61/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.8% | cost=$0.0844
+  [  62/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.9% | cost=$0.0846
+  [  63/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.1% | cost=$0.0870
+  [  64/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.2% | cost=$0.0872
+  [  65/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.0873
+  [  66/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.4% | cost=$0.0875
+  [  67/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.5% | cost=$0.0877
+  [  68/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.6% | cost=$0.0904
+  [  69/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.8% | cost=$0.0905
+  [  70/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.0907
+  [  71/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.0909
+  [  72/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.0940
+  [  73/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.0942
+  [  74/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.0944
+  [  75/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.0945
+  [  76/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.0947
+  [  77/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.0949
+  [  78/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.6% | cost=$0.0952
+  [  79/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.7% | cost=$0.0954
+  [  80/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.0956
+  [  81/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.6% | cost=$0.0958
+  [  82/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.0960
+  [  83/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.8% | cost=$0.0961
+  [  84/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.0964
+  [  85/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.0966
+  [  86/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.0967
+  [  87/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.0969
+  [  88/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.0993
+  [  89/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1032
+  [  90/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1033
+  [  91/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1034
+  [  92/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1036
+  [  93/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1074
+  [  94/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.6% | cost=$0.1076
+  [  95/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.7% | cost=$0.1101
+  [  96/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.1103
+  [  97/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.1105
+  [  98/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.9% | cost=$0.1154
+  [  99/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.9% | cost=$0.1156
+  [ 100/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.0% | cost=$0.1157
+  [ 101/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.1% | cost=$0.1160
+  [ 102/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.1% | cost=$0.1162
+  [ 103/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.2% | cost=$0.1164
+  [ 104/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.2% | cost=$0.1165
+  [ 105/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.3% | cost=$0.1166
+  [ 106/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.3% | cost=$0.1169
+  [ 107/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.4% | cost=$0.1170
+  [ 108/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.4% | cost=$0.1199
+  [ 109/300] lints_27d_vsq1.0_seed45             | ✗ | acc=93.6% | cost=$0.1202
+  [ 110/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.6% | cost=$0.1204
+  [ 111/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.7% | cost=$0.1206
+  [ 112/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.1247
+  [ 113/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.1248
+  [ 114/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.9% | cost=$0.1251
+  [ 115/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.9% | cost=$0.1252
+  [ 116/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.0% | cost=$0.1254
+  [ 117/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.0% | cost=$0.1256
+  [ 118/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.1% | cost=$0.1257
+  [ 119/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.1% | cost=$0.1258
+  [ 120/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.2% | cost=$0.1259
+  [ 121/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.2% | cost=$0.1262
+  [ 122/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.3% | cost=$0.1263
+  [ 123/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.3% | cost=$0.1266
+  [ 124/300] lints_27d_vsq1.0_seed45             | ✓ | acc=94.4% | cost=$0.1267
+  [ 125/300] lints_27d_vsq1.0_seed45             | ✗ | acc=93.6% | cost=$0.1269
+  [ 126/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.7% | cost=$0.1270
+  [ 127/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.7% | cost=$0.1272
+  [ 128/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.1274
+  [ 129/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.1276
+  [ 130/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.8% | cost=$0.1311
+  [ 131/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.9% | cost=$0.1313
+  [ 132/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.9% | cost=$0.1315
+  [ 133/300] lints_27d_vsq1.0_seed45             | ✗ | acc=93.2% | cost=$0.1339
+  [ 134/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1341
+  [ 135/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1342
+  [ 136/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1344
+  [ 137/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1345
+  [ 138/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1346
+  [ 139/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.8% | cost=$0.1350
+  [ 140/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1351
+  [ 141/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1353
+  [ 142/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1355
+  [ 143/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1356
+  [ 144/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1359
+  [ 145/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1360
+  [ 146/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1363
+  [ 147/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1365
+  [ 148/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1368
+  [ 149/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.6% | cost=$0.1371
+  [ 150/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.1373
+  [ 151/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.1375
+  [ 152/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.8% | cost=$0.1377
+  [ 153/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.8% | cost=$0.1379
+  [ 154/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1381
+  [ 155/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1384
+  [ 156/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1420
+  [ 157/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1422
+  [ 158/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1425
+  [ 159/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1427
+  [ 160/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1429
+  [ 161/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1430
+  [ 162/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1431
+  [ 163/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1433
+  [ 164/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1435
+  [ 165/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1436
+  [ 166/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1438
+  [ 167/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1441
+  [ 168/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1442
+  [ 169/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1444
+  [ 170/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1447
+  [ 171/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.6% | cost=$0.1449
+  [ 172/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.6% | cost=$0.1451
+  [ 173/300] lints_27d_vsq1.0_seed45             | ✗ | acc=93.1% | cost=$0.1452
+  [ 174/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1454
+  [ 175/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1456
+  [ 176/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1457
+  [ 177/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1488
+  [ 178/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1489
+  [ 179/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.7% | cost=$0.1492
+  [ 180/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.8% | cost=$0.1495
+  [ 181/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.8% | cost=$0.1497
+  [ 182/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1499
+  [ 183/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1501
+  [ 184/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1503
+  [ 185/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1505
+  [ 186/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1507
+  [ 187/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1509
+  [ 188/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1510
+  [ 189/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1513
+  [ 190/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1515
+  [ 191/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1517
+  [ 192/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1519
+  [ 193/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1521
+  [ 194/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1557
+  [ 195/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.8% | cost=$0.1560
+  [ 196/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1562
+  [ 197/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1565
+  [ 198/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1567
+  [ 199/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1570
+  [ 200/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1572
+  [ 201/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.0% | cost=$0.1574
+  [ 202/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1599
+  [ 203/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1601
+  [ 204/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1603
+  [ 205/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1605
+  [ 206/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1653
+  [ 207/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1655
+  [ 208/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1656
+  [ 209/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1658
+  [ 210/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1692
+  [ 211/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1695
+  [ 212/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1697
+  [ 213/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1698
+  [ 214/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1700
+  [ 215/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1702
+  [ 216/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1704
+  [ 217/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1706
+  [ 218/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.6% | cost=$0.1709
+  [ 219/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.6% | cost=$0.1710
+  [ 220/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.6% | cost=$0.1712
+  [ 221/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.7% | cost=$0.1714
+  [ 222/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.7% | cost=$0.1715
+  [ 223/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.7% | cost=$0.1716
+  [ 224/300] lints_27d_vsq1.0_seed45             | ✗ | acc=93.3% | cost=$0.1719
+  [ 225/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1720
+  [ 226/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1722
+  [ 227/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1723
+  [ 228/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1725
+  [ 229/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1727
+  [ 230/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1728
+  [ 231/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1730
+  [ 232/300] lints_27d_vsq1.0_seed45             | ✗ | acc=93.1% | cost=$0.1732
+  [ 233/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.1% | cost=$0.1734
+  [ 234/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1736
+  [ 235/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1737
+  [ 236/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1738
+  [ 237/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1739
+  [ 238/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1742
+  [ 239/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1743
+  [ 240/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1745
+  [ 241/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1795
+  [ 242/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1797
+  [ 243/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1799
+  [ 244/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.4% | cost=$0.1838
+  [ 245/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1840
+  [ 246/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1842
+  [ 247/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1873
+  [ 248/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.5% | cost=$0.1876
+  [ 249/300] lints_27d_vsq1.0_seed45             | ✗ | acc=93.2% | cost=$0.1879
+  [ 250/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1881
+  [ 251/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.2% | cost=$0.1884
+  [ 252/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1886
+  [ 253/300] lints_27d_vsq1.0_seed45             | ✓ | acc=93.3% | cost=$0.1888
+  [ 254/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.9% | cost=$0.1890
+  [ 255/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.9% | cost=$0.1892
+  [ 256/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.6% | cost=$0.1895
+  [ 257/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.6% | cost=$0.1897
+  [ 258/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.6% | cost=$0.1899
+  [ 259/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.1902
+  [ 260/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.1937
+  [ 261/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.1940
+  [ 262/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.7% | cost=$0.1942
+  [ 263/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.4% | cost=$0.1944
+  [ 264/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.4% | cost=$0.1947
+  [ 265/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.5% | cost=$0.1949
+  [ 266/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.5% | cost=$0.1951
+  [ 267/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.5% | cost=$0.1953
+  [ 268/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.5% | cost=$0.1955
+  [ 269/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.6% | cost=$0.1956
+  [ 270/300] lints_27d_vsq1.0_seed45             | ✗ | acc=92.2% | cost=$0.1960
+  [ 271/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.1961
+  [ 272/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.1963
+  [ 273/300] lints_27d_vsq1.0_seed45             | ✗ | acc=91.9% | cost=$0.1966
+  [ 274/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.0% | cost=$0.1968
+  [ 275/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.0% | cost=$0.1971
+  [ 276/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.0% | cost=$0.1972
+  [ 277/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.1% | cost=$0.1974
+  [ 278/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.1% | cost=$0.1976
+  [ 279/300] lints_27d_vsq1.0_seed45             | ✗ | acc=91.8% | cost=$0.1980
+  [ 280/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.8% | cost=$0.1982
+  [ 281/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.8% | cost=$0.1985
+  [ 282/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.8% | cost=$0.1987
+  [ 283/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.9% | cost=$0.1989
+  [ 284/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.9% | cost=$0.1990
+  [ 285/300] lints_27d_vsq1.0_seed45             | ✓ | acc=91.9% | cost=$0.1992
+  [ 286/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.0% | cost=$0.1993
+  [ 287/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.0% | cost=$0.1996
+  [ 288/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.0% | cost=$0.1998
+  [ 289/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.0% | cost=$0.2001
+  [ 290/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.1% | cost=$0.2004
+  [ 291/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.1% | cost=$0.2006
+  [ 292/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.1% | cost=$0.2009
+  [ 293/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.2% | cost=$0.2011
+  [ 294/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.2% | cost=$0.2014
+  [ 295/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.2% | cost=$0.2015
+  [ 296/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.2% | cost=$0.2017
+  [ 297/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.2042
+  [ 298/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.2043
+  [ 299/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.2046
+  [ 300/300] lints_27d_vsq1.0_seed45             | ✓ | acc=92.3% | cost=$0.2098
+  DONE: n=300, acc=92.3%, cost=$0.2098
+
+=== lints_27d_vsq1.0_seed46 (tag=gsm8k, 300 queries) ===
+  [   1/300] lints_27d_vsq1.0_seed46             | ✗ | acc=0.0% | cost=$0.0025
+  [   2/300] lints_27d_vsq1.0_seed46             | ✓ | acc=50.0% | cost=$0.0057
+  [   3/300] lints_27d_vsq1.0_seed46             | ✓ | acc=66.7% | cost=$0.0082
+  [   4/300] lints_27d_vsq1.0_seed46             | ✓ | acc=75.0% | cost=$0.0084
+  [   5/300] lints_27d_vsq1.0_seed46             | ✓ | acc=80.0% | cost=$0.0116
+  [   6/300] lints_27d_vsq1.0_seed46             | ✓ | acc=83.3% | cost=$0.0149
+  [   7/300] lints_27d_vsq1.0_seed46             | ✓ | acc=85.7% | cost=$0.0151
+  [   8/300] lints_27d_vsq1.0_seed46             | ✗ | acc=75.0% | cost=$0.0153
+  [   9/300] lints_27d_vsq1.0_seed46             | ✓ | acc=77.8% | cost=$0.0154
+  [  10/300] lints_27d_vsq1.0_seed46             | ✓ | acc=80.0% | cost=$0.0183
+  [  11/300] lints_27d_vsq1.0_seed46             | ✓ | acc=81.8% | cost=$0.0230
+  [  12/300] lints_27d_vsq1.0_seed46             | ✓ | acc=83.3% | cost=$0.0232
+  [  13/300] lints_27d_vsq1.0_seed46             | ✓ | acc=84.6% | cost=$0.0233
+  [  14/300] lints_27d_vsq1.0_seed46             | ✓ | acc=85.7% | cost=$0.0235
+  [  15/300] lints_27d_vsq1.0_seed46             | ✓ | acc=86.7% | cost=$0.0237
+  [  16/300] lints_27d_vsq1.0_seed46             | ✓ | acc=87.5% | cost=$0.0261
+  [  17/300] lints_27d_vsq1.0_seed46             | ✓ | acc=88.2% | cost=$0.0292
+  [  18/300] lints_27d_vsq1.0_seed46             | ✓ | acc=88.9% | cost=$0.0315
+  [  19/300] lints_27d_vsq1.0_seed46             | ✓ | acc=89.5% | cost=$0.0338
+  [  20/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.0% | cost=$0.0340
+  [  21/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.5% | cost=$0.0341
+  [  22/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.9% | cost=$0.0344
+  [  23/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.3% | cost=$0.0345
+  [  24/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.7% | cost=$0.0348
+  [  25/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.0350
+  [  26/300] lints_27d_vsq1.0_seed46             | ✗ | acc=88.5% | cost=$0.0351
+  [  27/300] lints_27d_vsq1.0_seed46             | ✓ | acc=88.9% | cost=$0.0353
+  [  28/300] lints_27d_vsq1.0_seed46             | ✗ | acc=85.7% | cost=$0.0356
+  [  29/300] lints_27d_vsq1.0_seed46             | ✓ | acc=86.2% | cost=$0.0358
+  [  30/300] lints_27d_vsq1.0_seed46             | ✓ | acc=86.7% | cost=$0.0360
+  [  31/300] lints_27d_vsq1.0_seed46             | ✓ | acc=87.1% | cost=$0.0363
+  [  32/300] lints_27d_vsq1.0_seed46             | ✓ | acc=87.5% | cost=$0.0365
+  [  33/300] lints_27d_vsq1.0_seed46             | ✓ | acc=87.9% | cost=$0.0367
+  [  34/300] lints_27d_vsq1.0_seed46             | ✓ | acc=88.2% | cost=$0.0370
+  [  35/300] lints_27d_vsq1.0_seed46             | ✓ | acc=88.6% | cost=$0.0372
+  [  36/300] lints_27d_vsq1.0_seed46             | ✓ | acc=88.9% | cost=$0.0374
+  [  37/300] lints_27d_vsq1.0_seed46             | ✓ | acc=89.2% | cost=$0.0412
+  [  38/300] lints_27d_vsq1.0_seed46             | ✓ | acc=89.5% | cost=$0.0414
+  [  39/300] lints_27d_vsq1.0_seed46             | ✓ | acc=89.7% | cost=$0.0416
+  [  40/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.0% | cost=$0.0445
+  [  41/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.2% | cost=$0.0447
+  [  42/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.5% | cost=$0.0468
+  [  43/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.7% | cost=$0.0470
+  [  44/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.9% | cost=$0.0471
+  [  45/300] lints_27d_vsq1.0_seed46             | ✗ | acc=88.9% | cost=$0.0473
+  [  46/300] lints_27d_vsq1.0_seed46             | ✓ | acc=89.1% | cost=$0.0513
+  [  47/300] lints_27d_vsq1.0_seed46             | ✓ | acc=89.4% | cost=$0.0515
+  [  48/300] lints_27d_vsq1.0_seed46             | ✓ | acc=89.6% | cost=$0.0560
+  [  49/300] lints_27d_vsq1.0_seed46             | ✓ | acc=89.8% | cost=$0.0580
+  [  50/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.0% | cost=$0.0582
+  [  51/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.2% | cost=$0.0583
+  [  52/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.4% | cost=$0.0585
+  [  53/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.6% | cost=$0.0587
+  [  54/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.7% | cost=$0.0620
+  [  55/300] lints_27d_vsq1.0_seed46             | ✓ | acc=90.9% | cost=$0.0621
+  [  56/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.1% | cost=$0.0623
+  [  57/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.2% | cost=$0.0626
+  [  58/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.4% | cost=$0.0656
+  [  59/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.5% | cost=$0.0658
+  [  60/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.7% | cost=$0.0660
+  [  61/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.8% | cost=$0.0663
+  [  62/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.9% | cost=$0.0666
+  [  63/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.0668
+  [  64/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.0669
+  [  65/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.0671
+  [  66/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.0673
+  [  67/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.0674
+  [  68/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.0676
+  [  69/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.0678
+  [  70/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.0679
+  [  71/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.0681
+  [  72/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.0684
+  [  73/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.0686
+  [  74/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.0688
+  [  75/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.0689
+  [  76/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.4% | cost=$0.0692
+  [  77/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.5% | cost=$0.0720
+  [  78/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.6% | cost=$0.0723
+  [  79/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.7% | cost=$0.0725
+  [  80/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.8% | cost=$0.0754
+  [  81/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.6% | cost=$0.0756
+  [  82/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.0758
+  [  83/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.0759
+  [  84/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.0762
+  [  85/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.0764
+  [  86/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.0765
+  [  87/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.0767
+  [  88/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.0768
+  [  89/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.0807
+  [  90/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.0808
+  [  91/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.4% | cost=$0.0832
+  [  92/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.5% | cost=$0.0833
+  [  93/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.5% | cost=$0.0836
+  [  94/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.6% | cost=$0.0838
+  [  95/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.7% | cost=$0.0862
+  [  96/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.8% | cost=$0.0864
+  [  97/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.8% | cost=$0.0866
+  [  98/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.9% | cost=$0.0870
+  [  99/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.0872
+  [ 100/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.0873
+  [ 101/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.0876
+  [ 102/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.0878
+  [ 103/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.0880
+  [ 104/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.0881
+  [ 105/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.0882
+  [ 106/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.4% | cost=$0.0884
+  [ 107/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.5% | cost=$0.0886
+  [ 108/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.5% | cost=$0.0887
+  [ 109/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.7% | cost=$0.0891
+  [ 110/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.0914
+  [ 111/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.0917
+  [ 112/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.0919
+  [ 113/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.0921
+  [ 114/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.0923
+  [ 115/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.0925
+  [ 116/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.0954
+  [ 117/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.0980
+  [ 118/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.0981
+  [ 119/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.0982
+  [ 120/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.5% | cost=$0.0984
+  [ 121/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.0986
+  [ 122/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.0988
+  [ 123/300] lints_27d_vsq1.0_seed46             | ✗ | acc=91.9% | cost=$0.0991
+  [ 124/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.9% | cost=$0.1018
+  [ 125/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1056
+  [ 126/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1057
+  [ 127/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1059
+  [ 128/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1097
+  [ 129/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1099
+  [ 130/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1102
+  [ 131/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1104
+  [ 132/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1106
+  [ 133/300] lints_27d_vsq1.0_seed46             | ✗ | acc=91.7% | cost=$0.1108
+  [ 134/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.8% | cost=$0.1110
+  [ 135/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.9% | cost=$0.1111
+  [ 136/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.9% | cost=$0.1113
+  [ 137/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1114
+  [ 138/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1115
+  [ 139/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1160
+  [ 140/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1161
+  [ 141/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1163
+  [ 142/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1165
+  [ 143/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1166
+  [ 144/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1169
+  [ 145/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1195
+  [ 146/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1197
+  [ 147/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1199
+  [ 148/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1202
+  [ 149/300] lints_27d_vsq1.0_seed46             | ✗ | acc=91.9% | cost=$0.1205
+  [ 150/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1207
+  [ 151/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1209
+  [ 152/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1211
+  [ 153/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1233
+  [ 154/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1235
+  [ 155/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1237
+  [ 156/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1273
+  [ 157/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1298
+  [ 158/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1301
+  [ 159/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1303
+  [ 160/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1305
+  [ 161/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1306
+  [ 162/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1308
+  [ 163/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1310
+  [ 164/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1341
+  [ 165/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1343
+  [ 166/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.1345
+  [ 167/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.1347
+  [ 168/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.1349
+  [ 169/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.1350
+  [ 170/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.1353
+  [ 171/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.1382
+  [ 172/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.1384
+  [ 173/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.5% | cost=$0.1386
+  [ 174/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1387
+  [ 175/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1390
+  [ 176/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1392
+  [ 177/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1394
+  [ 178/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1395
+  [ 179/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.2% | cost=$0.1398
+  [ 180/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1400
+  [ 181/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1403
+  [ 182/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1404
+  [ 183/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1406
+  [ 184/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1408
+  [ 185/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1410
+  [ 186/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1413
+  [ 187/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1415
+  [ 188/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1416
+  [ 189/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1449
+  [ 190/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1452
+  [ 191/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1454
+  [ 192/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1485
+  [ 193/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1486
+  [ 194/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.1488
+  [ 195/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.3% | cost=$0.1492
+  [ 196/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1528
+  [ 197/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1530
+  [ 198/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1532
+  [ 199/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1535
+  [ 200/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1537
+  [ 201/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1539
+  [ 202/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1542
+  [ 203/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1544
+  [ 204/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1546
+  [ 205/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1548
+  [ 206/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.2% | cost=$0.1552
+  [ 207/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1554
+  [ 208/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1555
+  [ 209/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1556
+  [ 210/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1589
+  [ 211/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1592
+  [ 212/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1594
+  [ 213/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1596
+  [ 214/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1598
+  [ 215/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1600
+  [ 216/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1602
+  [ 217/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1604
+  [ 218/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1607
+  [ 219/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1608
+  [ 220/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1610
+  [ 221/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.1612
+  [ 222/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.1635
+  [ 223/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.1636
+  [ 224/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.1639
+  [ 225/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.1639
+  [ 226/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.1641
+  [ 227/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.1642
+  [ 228/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.1644
+  [ 229/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.1646
+  [ 230/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.0% | cost=$0.1648
+  [ 231/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.1649
+  [ 232/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.1652
+  [ 233/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.1653
+  [ 234/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.1655
+  [ 235/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.1656
+  [ 236/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.1657
+  [ 237/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.2% | cost=$0.1658
+  [ 238/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.1660
+  [ 239/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.1662
+  [ 240/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.3% | cost=$0.1664
+  [ 241/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.4% | cost=$0.1715
+  [ 242/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.4% | cost=$0.1717
+  [ 243/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.4% | cost=$0.1719
+  [ 244/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.4% | cost=$0.1721
+  [ 245/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.5% | cost=$0.1724
+  [ 246/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.5% | cost=$0.1725
+  [ 247/300] lints_27d_vsq1.0_seed46             | ✗ | acc=93.1% | cost=$0.1728
+  [ 248/300] lints_27d_vsq1.0_seed46             | ✓ | acc=93.1% | cost=$0.1730
+  [ 249/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.8% | cost=$0.1733
+  [ 250/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.1735
+  [ 251/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.8% | cost=$0.1738
+  [ 252/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.1740
+  [ 253/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.9% | cost=$0.1741
+  [ 254/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.5% | cost=$0.1744
+  [ 255/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1745
+  [ 256/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1798
+  [ 257/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1800
+  [ 258/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1802
+  [ 259/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1805
+  [ 260/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1807
+  [ 261/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1810
+  [ 262/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.7% | cost=$0.1811
+  [ 263/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.4% | cost=$0.1865
+  [ 264/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.4% | cost=$0.1867
+  [ 265/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1869
+  [ 266/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1871
+  [ 267/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1873
+  [ 268/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.5% | cost=$0.1875
+  [ 269/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.6% | cost=$0.1876
+  [ 270/300] lints_27d_vsq1.0_seed46             | ✗ | acc=92.2% | cost=$0.1880
+  [ 271/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1881
+  [ 272/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1883
+  [ 273/300] lints_27d_vsq1.0_seed46             | ✗ | acc=91.9% | cost=$0.1887
+  [ 274/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1888
+  [ 275/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1891
+  [ 276/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1893
+  [ 277/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1895
+  [ 278/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1897
+  [ 279/300] lints_27d_vsq1.0_seed46             | ✗ | acc=91.8% | cost=$0.1900
+  [ 280/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.8% | cost=$0.1902
+  [ 281/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.8% | cost=$0.1905
+  [ 282/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.8% | cost=$0.1907
+  [ 283/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.9% | cost=$0.1909
+  [ 284/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.9% | cost=$0.1910
+  [ 285/300] lints_27d_vsq1.0_seed46             | ✓ | acc=91.9% | cost=$0.1912
+  [ 286/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1914
+  [ 287/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1916
+  [ 288/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1918
+  [ 289/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.0% | cost=$0.1921
+  [ 290/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1952
+  [ 291/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1955
+  [ 292/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.1% | cost=$0.1958
+  [ 293/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1960
+  [ 294/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1963
+  [ 295/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1965
+  [ 296/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.2% | cost=$0.1967
+  [ 297/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1968
+  [ 298/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1970
+  [ 299/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1972
+  [ 300/300] lints_27d_vsq1.0_seed46             | ✓ | acc=92.3% | cost=$0.1975
+  DONE: n=300, acc=92.3%, cost=$0.1975
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.8%   0.593 $     0.5819    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+LinTS-27d (5 seeds avg)                        92.5%   0.153 $     0.9723    15.0%
+[11:36:14] Phase lints complete.
+[11:36:14] 
+[11:36:14] === Exp 1 Summary ===
+Loading datasets...
+MMLU: 600 queries, GSM8K: 300 queries
+
+============================================================
+PHASE: STATUS
+============================================================
+
+--- MMLU (600 queries) ---
+
+--- GSM8K (300 queries) ---
+
+
+=== EXPERIMENT 1 SUMMARY ===
+
+--- MMLU ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         77.7%   1.000 $     0.2137   100.0%
+Static-Weak (GPT-4o-mini)                      73.2%   0.000 $     0.0119     0.0%
+RouteLLM-SW (t=0.30)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.50)                           72.7%  -0.111 $     0.0119     0.0%
+RouteLLM-SW (t=0.70)                           72.2%  -0.222 $     0.0119     0.0%
+TS-Cat (5 seeds avg)                           72.4%  -0.163 $     0.2644    20.2%
+LinUCB-27d (5 seeds avg)                       78.2%   1.126 $     0.9789    87.6%
+LinTS-27d (5 seeds avg)                        75.8%   0.593 $     0.5819    50.0%
+
+--- GSM8K ---
+
+Strategy                                          Acc     PGR         Cost   Strong%
+------------------------------------------------------------------------------------
+Static-Strong (GPT-4o)                         97.3%   1.000 $     0.9042   100.0%
+Static-Weak (GPT-4o-mini)                      91.7%   0.000 $     0.0598     0.0%
+RouteLLM-SW (t=0.30)                           92.3%   0.118 $     0.0603     0.0%
+RouteLLM-SW (t=0.50)                           92.0%   0.059 $     0.0602     0.0%
+RouteLLM-SW (t=0.70)                           90.3%  -0.235 $     0.0601     0.0%
+TS-Cat (5 seeds avg)                           91.1%  -0.106 $     0.3336     0.9%
+LinUCB-27d (5 seeds avg)                       91.7%   0.012 $     0.6295     6.9%
+LinTS-27d (5 seeds avg)                        92.5%   0.153 $     0.9723    15.0%
+[11:36:16] 
+[11:36:16] Starting Experiment 2: 5-arm multi-model routing...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 146, in <module>
+    main()
+    ~~~~^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 124, in main
+    results = run_lints_5arm(queries, seed=seed, results_path=path)
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 80, in run_lints_5arm
+    resp, pt, ct = _call_model(model_id, q["prompt"])
+                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 39, in _call_model
+    resp = client.chat.completions.create(
+        model=model_id,
+    ...<5 lines>...
+        temperature=0.0,
+    )
+  File "/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 1192, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'error': {'message': 'zhipuai/glm-4-plus is not a valid model ID', 'code': 400}, 'user_id': 'user_3Ah13YNJLo5pEdnbXv981y8Cfdh'}
+=== Experiment 2: 5-Arm Multi-Model Quality Routing ===
+Using 600 MMLU queries, 5 arms, 3 seeds
+
+--- LinTS-5arm seed=42 ---
+  [   1/600] seed=42 arm=1(Claude-S) | ✗ | acc=0.0%
+  [   2/600] seed=42 arm=2(Qwen-Plu) | ✗ | acc=0.0%
+  [   3/600] seed=42 arm=0(GPT-4o) | ✗ | acc=0.0%
+  [   4/600] seed=42 arm=0(GPT-4o) | ✓ | acc=25.0%

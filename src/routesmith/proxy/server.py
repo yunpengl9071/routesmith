@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from routesmith import RouteSmith
+from routesmith.budget import BudgetExceededError
 from routesmith.proxy.handler import ChatCompletionRequest, RequestHandler
 from routesmith.proxy.responses import format_error
 
@@ -240,6 +241,8 @@ class RouteSmithProxyServer:
             try:
                 result = await self.handler.handle_completion(request)
                 await self._send_json(writer, result, 200)
+            except BudgetExceededError as e:
+                await self._send_json(writer, {"error": {"message": str(e), "type": "budget_exceeded", "code": 429}}, 429)
             except Exception as e:
                 logger.exception(f"Completion error: {e}")
                 await self._send_error(writer, str(e), 500)
@@ -278,7 +281,7 @@ class RouteSmithProxyServer:
     ) -> None:
         """Send JSON response."""
         body = json.dumps(data).encode("utf-8")
-        status_text = {200: "OK", 400: "Bad Request", 404: "Not Found", 500: "Internal Server Error"}.get(status, "OK")
+        status_text = {200: "OK", 400: "Bad Request", 404: "Not Found", 429: "Too Many Requests", 500: "Internal Server Error"}.get(status, "OK")
 
         response = (
             f"HTTP/1.1 {status} {status_text}\r\n"

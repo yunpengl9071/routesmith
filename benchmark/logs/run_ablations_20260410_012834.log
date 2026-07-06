@@ -1,0 +1,35 @@
+[01:28:34] === RouteSmith Experiment Runner ===
+[01:28:34] Phase: ablations
+[01:28:34] Log: benchmark/logs/run_ablations_20260410_012834.log
+[01:28:34] Recovery: experiments resume from last saved query automatically
+[01:28:34] 
+[01:28:34] Starting ablation experiments...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/ablations.py", line 116, in <module>
+    main()
+    ~~~~^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/ablations.py", line 108, in main
+    ablation_feature_dims(queries)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/ablations.py", line 65, in ablation_feature_dims
+    run_experiment(strat, queries, tag=f"dim{d}_ablation")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/harness.py", line 28, in run_experiment
+    results = strategy.run(queries, results_path)
+  File "/Users/yliulupo/Apps/routesmith/benchmark/strategies/base.py", line 65, in run
+    result = self.route(q)
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/ablations.py", line 37, in patched_route
+    result = orig_route(self, query)
+  File "/Users/yliulupo/Apps/routesmith/benchmark/strategies/lints.py", line 78, in route
+    self._router.update(arm=arm_chosen, x=x, reward=reward)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: _truncated_lints.<locals>.patched_route.<locals>.<lambda>() got an unexpected keyword argument 'x'. Did you mean '_x'?
+Loading MMLU dataset...
+
+=== Ablation: Feature Dimensionality ===
+
+--- LinTS 11d features ---
+
+=== lints_11d_seed42 (tag=dim11_ablation, 600 queries) ===

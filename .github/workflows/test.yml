@@ -1,0 +1,29 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: pip install -e ".[dev,proxy,cache]"
+      - name: Run tests
+        run: |
+          PERF_MULTIPLIER=3 python -m pytest tests/ -q \
+            --ignore=tests/manual \
+            --ignore=tests/test_anthropic_integration.py \
+            --ignore=tests/test_langchain_integration.py \
+            --ignore=tests/test_crewai_integration.py \
+            --ignore=tests/test_autogen_integration.py \
+            --ignore=tests/test_dspy_integration.py
+      - name: Check claims
+        if: hashFiles('scripts/check_claims.sh') != ''
+        run: bash scripts/check_claims.sh

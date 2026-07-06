@@ -80,10 +80,10 @@ class PredictorConfig:
     n_estimators: int = 50
     blend_alpha: float = 0.7
 
-    # LinTS-27d (predictor_type="lints")
+    # LinTS-35d (predictor_type="lints")
     lints_v_sq: float = 1.0   # Posterior variance scaling; rarely needs tuning
 
-    # LinUCB-27d (predictor_type="linucb")
+    # LinUCB-35d (predictor_type="linucb")
     linucb_alpha: float = 1.5         # Exploration parameter (0.5–3.0 typical)
     linucb_cost_lambda: float = 0.15  # Cost penalty weight in reward
     linucb_warmup_rounds: int = 1     # Round-robin rounds before UCB kicks in
@@ -120,7 +120,7 @@ class RouteSmithConfig:
     fallback_model: str | None = None  # Model to use if routing fails
 
     # Quality prediction
-    predictor_type: str = "adaptive"  # adaptive, embedding, classifier, random_forest
+    predictor_type: str = "lints"  # lints (default), linucb, adaptive, embedding
     predictor_model: str | None = None  # Custom predictor model path
 
     # Predictor settings

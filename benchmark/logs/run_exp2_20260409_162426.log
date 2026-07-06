@@ -1,0 +1,49 @@
+[16:24:26] === RouteSmith Experiment Runner ===
+[16:24:26] Phase: exp2
+[16:24:26] Log: benchmark/logs/run_exp2_20260409_162426.log
+[16:24:26] Recovery: experiments resume from last saved query automatically
+[16:24:26] 
+[16:24:26] Starting Experiment 2: 5-arm multi-model routing...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 147, in <module>
+    main()
+    ~~~~^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 125, in main
+    results = run_lints_5arm(queries, seed=seed, results_path=path)
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 81, in run_lints_5arm
+    resp, pt, ct = _call_model(model_id, q["prompt"])
+                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yliulupo/Apps/routesmith/benchmark/experiments/exp2_multimodel.py", line 39, in _call_model
+    resp = client.chat.completions.create(
+        model=model_id,
+    ...<6 lines>...
+        timeout=60.0,
+    )
+  File "/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 1192, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yliulupo/Apps/routesmith/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'error': {'message': 'zhipuai/glm-4-plus is not a valid model ID', 'code': 400}, 'user_id': 'user_3Ah13YNJLo5pEdnbXv981y8Cfdh'}
+=== Experiment 2: 5-Arm Multi-Model Quality Routing ===
+Using 600 MMLU queries, 5 arms, 3 seeds
+
+--- LinTS-5arm seed=42 ---
+  [   1/600] seed=42 arm=1(Claude-S) | ✗ | acc=0.0%
+  [   2/600] seed=42 arm=2(Qwen-Plu) | ✗ | acc=0.0%
+  [   3/600] seed=42 arm=0(GPT-4o) | ✗ | acc=0.0%
+  [   4/600] seed=42 arm=0(GPT-4o) | ✓ | acc=25.0%

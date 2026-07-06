@@ -14,6 +14,7 @@ from typing import Any
 import litellm
 from litellm import ModelResponse
 
+from routesmith.budget import BudgetTracker
 from routesmith.cache.semantic import SemanticCache
 from routesmith.config import (
     BudgetBehavior,
@@ -47,6 +48,7 @@ class RoutingMetadata:
     cost_savings_usd: float
     models_considered: list[str]
     cache_hit: bool = False
+    fallback_from: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for response attachment."""
@@ -91,6 +93,7 @@ class RouteSmith:
         )
         self._request_count = 0
         self._total_cost = 0.0
+        self._budget = BudgetTracker(self.config.budget)
         self._counterfactual_cost = 0.0  # Cost if always used most expensive model
         self._last_routing_metadata: RoutingMetadata | None = None
         self._budget_events: dict[str, int] = {
@@ -129,6 +132,13 @@ class RouteSmith:
                 max_entries=config.cache.max_entries,
                 embedding_model=config.cache.embedding_model,
             )
+
+        import importlib.util
+        self._cache_semantic = importlib.util.find_spec("sentence_transformers") is not None
+        if self.config.cache.enabled and not self._cache_semantic:
+            logger.warning("sentence-transformers not installed; cache runs exact-match only "
+                           "(pip install routesmith[cache] for semantic matching)")
+        self._cache_hits = 0
 
         # Resolve reward_fn from config (fail fast on bad expressions).
         self._reward_fn: Callable[..., float] | None = None
@@ -386,6 +396,27 @@ class RouteSmith:
         self._request_count += 1
         request_id = uuid.uuid4().hex[:16]
 
+        # Cache check (before routing, for exact/semantic match)
+        if self._cache is not None and not kwargs.get("tools") and not kwargs.get("stream"):
+            entry = self._cache.get(messages, model_id=model, semantic=self._cache_semantic)
+            if entry is not None:
+                self._cache_hits += 1
+                import copy
+                cached = copy.deepcopy(entry.response)
+                cached._routesmith_request_id = request_id
+                # Add basic metadata to cached response
+                cached.routesmith_explanation = f"Cache hit (request {request_id})"
+                if include_metadata:
+                    cached.routesmith_metadata = {
+                        "request_id": request_id,
+                        "cache_hit": True,
+                        "model_selected": entry.model_id,
+                    }
+                return cached
+
+        # Rolling-window budget check (pre-flight), after cache check to allow free cache hits
+        self._budget.check()
+
         # Infer agent role from messages when context is provided without one.
         if context is not None and context.agent_role is None:
             if not hasattr(self, "_agent_inferencer"):
@@ -447,6 +478,11 @@ class RouteSmith:
                 )
             # FALLBACK: handled below — select cheapest model
 
+        # Derive max_cost from max_cost_per_request before routing
+        if max_cost is None and self.config.budget.max_cost_per_request is not None:
+            est_tokens = sum(len(m.get("content", "")) for m in messages) / 4.0 + float(kwargs.get("max_tokens") or 1024)
+            max_cost = self.config.budget.max_cost_per_request / est_tokens * 1000.0
+
         # If specific model requested, skip routing
         if model:
             selected_model = model
@@ -491,11 +527,13 @@ class RouteSmith:
         # Cache check: after routing (to know model_id), before LLM call
         cache_hit = False
         cached_response: ModelResponse | None = None
-        if self._cache is not None:
+        if self._cache is not None and not kwargs.get("tools") and not kwargs.get("stream"):
             cached_entry = self._cache.get(messages, model_id=selected_model)
             if cached_entry is not None:
                 cache_hit = True
                 cached_response = cached_entry.response
+
+        fallback_from: str | None = None
 
         if cache_hit and cached_response is not None:
             response = cached_response
@@ -541,31 +579,128 @@ class RouteSmith:
                 # Store in cache after successful LLM call
                 if self._cache is not None:
                     try:
+                        import copy
                         self._cache.put(
-                            messages, response, model_id=selected_model
+                            messages, copy.deepcopy(response), model_id=selected_model, semantic=self._cache_semantic
                         )
                     except Exception:
                         pass  # cache store failure is non-fatal
             except RetryExhaustedError as e:
-                breaker.record_failure()
-                self._log.error(
-                    "llm_call_exhausted", model_id=selected_model,
-                    request_id=request_id,
-                )
-                self.feedback.record_outcome(
-                    request_id=request_id, success=False, feedback=str(e)
-                )
-                raise
+                primary_error = e.__cause__ or e
+                fb = self.config.fallback_model
+                if fb and fb != selected_model and self.registry.get(fb) is not None:
+                    logger.warning(
+                        "Primary model %s failed (%s); retrying with fallback %s",
+                        selected_model, primary_error, fb,
+                    )
+                    fallback_from = selected_model
+                    selected_model = fb
+                    breaker = self._circuit_breakers.get(selected_model)
+                    if breaker is None:
+                        breaker = CircuitBreaker(selected_model)
+                        self._circuit_breakers[selected_model] = breaker
+                    try:
+                        response = retry_with_backoff(
+                            lambda: litellm.completion(
+                                model=selected_model,
+                                messages=messages,
+                                **{**self.config.litellm_params, **kwargs},
+                            ),
+                            max_retries=2,
+                            base_delay=1.0,
+                        )
+                        breaker.record_success()
+                        self._log.info(
+                            "llm_call_success", model_id=selected_model,
+                            request_id=request_id,
+                        )
+
+                        # Store in cache after successful fallback LLM call
+                        if self._cache is not None:
+                            try:
+                                self._cache.put(
+                                    messages, response, model_id=selected_model
+                                )
+                            except Exception:
+                                pass
+                    except Exception:
+                        breaker.record_failure()
+                        self._log.error(
+                            "llm_call_failed", model_id=selected_model,
+                            request_id=request_id,
+                        )
+                        self.feedback.record_outcome(
+                            request_id=request_id, success=False, feedback=str(primary_error),
+                        )
+                        raise primary_error from None
+                else:
+                    breaker.record_failure()
+                    self._log.error(
+                        "llm_call_exhausted", model_id=selected_model,
+                        request_id=request_id,
+                    )
+                    self.feedback.record_outcome(
+                        request_id=request_id, success=False, feedback=str(e),
+                    )
+                    raise
             except Exception as e:
-                breaker.record_failure()
-                self._log.error(
-                    "llm_call_failed", model_id=selected_model,
-                    request_id=request_id,
-                )
-                self.feedback.record_outcome(
-                    request_id=request_id, success=False, feedback=str(e)
-                )
-                raise
+                primary_error = e
+                fb = self.config.fallback_model
+                if fb and fb != selected_model and self.registry.get(fb) is not None:
+                    logger.warning(
+                        "Primary model %s failed (%s); retrying with fallback %s",
+                        selected_model, primary_error, fb,
+                    )
+                    fallback_from = selected_model
+                    selected_model = fb
+                    breaker = self._circuit_breakers.get(selected_model)
+                    if breaker is None:
+                        breaker = CircuitBreaker(selected_model)
+                        self._circuit_breakers[selected_model] = breaker
+                    try:
+                        response = retry_with_backoff(
+                            lambda: litellm.completion(
+                                model=selected_model,
+                                messages=messages,
+                                **{**self.config.litellm_params, **kwargs},
+                            ),
+                            max_retries=2,
+                            base_delay=1.0,
+                        )
+                        breaker.record_success()
+                        self._log.info(
+                            "llm_call_success", model_id=selected_model,
+                            request_id=request_id,
+                        )
+
+                        # Store in cache after successful fallback LLM call
+                        if self._cache is not None:
+                            try:
+                                self._cache.put(
+                                    messages, response, model_id=selected_model
+                                )
+                            except Exception:
+                                pass
+                    except Exception:
+                        breaker.record_failure()
+                        self._log.error(
+                            "llm_call_failed", model_id=selected_model,
+                            request_id=request_id,
+                        )
+                        self.feedback.record_outcome(
+                            request_id=request_id, success=False, feedback=str(primary_error),
+                        )
+                        raise primary_error from None
+                else:
+                    breaker.record_failure()
+                    self._log.error(
+                        "llm_call_failed", model_id=selected_model,
+                        request_id=request_id,
+                    )
+                    self.feedback.record_outcome(
+                        request_id=request_id, success=False, feedback=str(e),
+                    )
+                    raise
 
         # Track costs and calculate counterfactual
         actual_cost = 0.0
@@ -579,6 +714,7 @@ class RouteSmith:
                     + (response.usage.completion_tokens / 1000) * model_config.cost_per_1k_output
                 )
                 self._total_cost += actual_cost
+                self._budget.record(actual_cost)
 
                 # Track per-cost-model usage
                 cm = model_config.cost_model.value
@@ -610,6 +746,7 @@ class RouteSmith:
             cost_savings_usd=round(counterfactual_cost - actual_cost, 6),
             models_considered=models_considered,
             cache_hit=cache_hit,
+            fallback_from=fallback_from,
         )
         self._last_routing_metadata = metadata
 
@@ -650,13 +787,14 @@ class RouteSmith:
             if expensive and expensive.model_id != selected_model:
                 try:
                     from routesmith.verification import shadow_execute
+                    cheap_cost = actual_cost
+
                     # Run shadow call to most expensive model
                     shadow_resp = litellm.completion(
                         model=expensive.model_id,
                         messages=messages,
                         **{**self.config.litellm_params, **{k: v for k, v in kwargs.items() if k != 'model'}},
                     )
-                    cheap_cost = actual_cost
                     shadow_tokens = shadow_resp.usage.prompt_tokens + shadow_resp.usage.completion_tokens if hasattr(shadow_resp, 'usage') and shadow_resp.usage else 0
                     expensive_cost = (shadow_tokens / 1000) * expensive.cost_per_1k_total
                     result = shadow_execute(
@@ -767,6 +905,9 @@ class RouteSmith:
         self._request_count += 1
         request_id = uuid.uuid4().hex[:16]
 
+        # Rolling-window budget check (pre-flight)
+        self._budget.check()
+
         # Infer agent role from messages when context is provided without one.
         if context is not None and context.agent_role is None:
             if not hasattr(self, "_agent_inferencer"):
@@ -828,6 +969,11 @@ class RouteSmith:
             context = RouteContext()
         context.metadata["tradeoff"] = effective_tradeoff
 
+        # Derive max_cost from max_cost_per_request before routing
+        if max_cost is None and self.config.budget.max_cost_per_request is not None:
+            est_tokens = sum(len(m.get("content", "")) for m in messages) / 4.0 + float(kwargs.get("max_tokens") or 1024)
+            max_cost = self.config.budget.max_cost_per_request / est_tokens * 1000.0
+
         # If specific model requested, skip routing
         if model:
             selected_model = model
@@ -877,6 +1023,8 @@ class RouteSmith:
                 cache_hit = True
                 cached_response = cached_entry.response
 
+        fallback_from: str | None = None
+
         if cache_hit and cached_response is not None:
             response = cached_response
             response._routesmith_request_id = request_id  # type: ignore[attr-defined]
@@ -886,6 +1034,7 @@ class RouteSmith:
             )
         else:
             # Execute completion via LiteLLM
+
             try:
                 response = await litellm.acompletion(
                     model=selected_model,
@@ -893,10 +1042,31 @@ class RouteSmith:
                     **{**self.config.litellm_params, **kwargs},
                 )
             except Exception as e:
-                self.feedback.record_outcome(
-                    request_id=request_id, success=False, feedback=str(e)
-                )
-                raise
+                primary_error = e
+                fb = self.config.fallback_model
+                if fb and fb != selected_model and self.registry.get(fb) is not None:
+                    logger.warning(
+                        "Primary model %s failed (%s); retrying with fallback %s",
+                        selected_model, primary_error, fb,
+                    )
+                    fallback_from = selected_model
+                    selected_model = fb
+                    try:
+                        response = await litellm.acompletion(
+                            model=selected_model,
+                            messages=messages,
+                            **{**self.config.litellm_params, **kwargs},
+                        )
+                    except Exception:
+                        self.feedback.record_outcome(
+                            request_id=request_id, success=False, feedback=str(primary_error),
+                        )
+                        raise primary_error from None
+                else:
+                    self.feedback.record_outcome(
+                        request_id=request_id, success=False, feedback=str(e),
+                    )
+                    raise
 
             # Store in cache after successful async LLM call
             if self._cache is not None:
@@ -919,6 +1089,7 @@ class RouteSmith:
                     + (response.usage.completion_tokens / 1000) * model_config.cost_per_1k_output
                 )
                 self._total_cost += actual_cost
+                self._budget.record(actual_cost)
 
                 # Track per-cost-model usage
                 cm = model_config.cost_model.value
@@ -950,6 +1121,7 @@ class RouteSmith:
             cost_savings_usd=round(counterfactual_cost - actual_cost, 6),
             models_considered=models_considered,
             cache_hit=cache_hit,
+            fallback_from=fallback_from,
         )
         self._last_routing_metadata = metadata
 
@@ -990,13 +1162,14 @@ class RouteSmith:
             if expensive and expensive.model_id != selected_model:
                 try:
                     from routesmith.verification import shadow_execute
+                    cheap_cost = actual_cost
+
                     # Run shadow call to most expensive model
                     shadow_resp = litellm.completion(
                         model=expensive.model_id,
                         messages=messages,
                         **{**self.config.litellm_params, **{k: v for k, v in kwargs.items() if k != 'model'}},
                     )
-                    cheap_cost = actual_cost
                     shadow_tokens = shadow_resp.usage.prompt_tokens + shadow_resp.usage.completion_tokens if hasattr(shadow_resp, 'usage') and shadow_resp.usage else 0
                     expensive_cost = (shadow_tokens / 1000) * expensive.cost_per_1k_total
                     result = shadow_execute(
@@ -1147,6 +1320,7 @@ class RouteSmith:
 
         result = {
             "request_count": self._request_count,
+            "cache_hits": self._cache_hits,
             "total_cost_usd": round(self._total_cost, 6),
             "estimated_without_routing": round(self._counterfactual_cost, 6),
             "cost_savings_usd": round(savings, 6),

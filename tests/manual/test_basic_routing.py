@@ -26,8 +26,9 @@ def test_basic_routing_mocked():
         # Import after patching
         from routesmith import RouteSmith
 
-        # Create router and register models
-        rs = RouteSmith()
+        # Create router and register models (use adaptive predictor for deterministic routing)
+        from routesmith.config import RouteSmithConfig
+        rs = RouteSmith(config=RouteSmithConfig(predictor_type="adaptive"))
 
         # Expensive, high-quality model
         rs.register_model(
@@ -80,8 +81,9 @@ def test_high_quality_routing_mocked():
         mock_completion.return_value = mock_response
 
         from routesmith import RouteSmith
+        from routesmith.config import RouteSmithConfig
 
-        rs = RouteSmith()
+        rs = RouteSmith(config=RouteSmithConfig(predictor_type="adaptive"))
         rs.register_model(
             "gpt-4o",
             cost_per_1k_input=0.005,

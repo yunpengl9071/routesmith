@@ -1,0 +1,42 @@
+# RouteSmith Configuration
+# Only models you have API keys for
+
+# Routing behavior
+routing:
+  strategy: direct
+  fallback_model: groq/llama-3.3-70b-versatile
+
+# Budget constraints (optional)
+budget:
+  max_cost_per_request: 0.10
+  max_cost_per_hour: 10.0
+  max_cost_per_day: 100.0
+  quality_threshold: 0.8
+
+# Semantic cache (optional, requires sentence-transformers)
+cache:
+  enabled: false
+  similarity_threshold: 0.95
+  ttl_seconds: 3600
+
+# Feedback collection
+feedback:
+  enabled: true
+  sample_rate: 0.1
+
+# Registered models - only providers with API keys
+models:
+  # Groq models (GROQ_API_KEY)
+  - id: groq/llama-3.3-70b-versatile
+    cost_per_1k_input: 0.00059
+    cost_per_1k_output: 0.00079
+    quality_score: 0.90
+    latency_p50_ms: 200
+    context_window: 131072
+
+  - id: groq/llama-3.3-70b-specdec
+    cost_per_1k_input: 0.00059
+    cost_per_1k_output: 0.00079
+    quality_score: 0.88
+    latency_p50_ms: 150
+    context_window: 131072

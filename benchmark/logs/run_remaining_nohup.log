@@ -1,0 +1,6 @@
+[22:26:36] === RouteSmith: Remaining Experiments ===
+[22:26:36] Phases: routellm, ts_cat, linucb, lints, exp2, ablations
+[22:26:36] Recovery: kill anytime and re-run — resumes from last saved query
+[22:26:36] Log: benchmark/logs/run_remaining_20260406_222636.log
+[22:26:36] 
+[22:26:36] Waiting for static phase to complete...

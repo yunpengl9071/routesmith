@@ -98,7 +98,7 @@ class TestRouterBasics:
 
     @pytest.fixture
     def config(self):
-        return RouteSmithConfig()
+        return RouteSmithConfig(predictor_type="adaptive")
 
     @pytest.fixture
     def router(self, config, registry):
@@ -108,6 +108,11 @@ class TestRouterBasics:
         """Test router initializes correctly."""
         assert router.registry is registry
         assert router.predictor is not None
+
+    def test_default_router_uses_lints(self, registry):
+        config = RouteSmithConfig()
+        router = Router(config, registry)
+        assert type(router.predictor).__name__ == "LinTSPredictor"
 
     def test_route_raises_without_models(self, config):
         """Test routing raises error with empty registry."""
@@ -143,7 +148,7 @@ class TestDirectRouting:
 
     @pytest.fixture
     def router(self, registry):
-        return Router(RouteSmithConfig(), registry)
+        return Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
     def test_direct_routing_selects_model(self, router):
         """Test direct routing returns a valid model."""
@@ -209,7 +214,7 @@ class TestCascadeRouting:
 
     @pytest.fixture
     def router(self, registry):
-        return Router(RouteSmithConfig(), registry)
+        return Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
     def test_cascade_starts_with_cheapest(self, router):
         """Test cascade routing starts with cheapest model."""
@@ -259,7 +264,7 @@ class TestParallelRouting:
 
     @pytest.fixture
     def router(self, registry):
-        return Router(RouteSmithConfig(), registry)
+        return Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
     def test_parallel_returns_highest_quality(self, router):
         """Test parallel routing returns highest quality model as primary."""
@@ -292,7 +297,7 @@ class TestSpeculativeRouting:
 
     @pytest.fixture
     def router(self, registry):
-        return Router(RouteSmithConfig(), registry)
+        return Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
     def test_speculative_starts_with_cheapest(self, router):
         """Test speculative routing starts with cheap model."""
@@ -323,7 +328,7 @@ class TestRouterWithDifferentConfigs:
         registry = ModelRegistry()
         registry.register("only_model", cost_per_1k_input=0.001, cost_per_1k_output=0.002, quality_score=0.9)
 
-        router = Router(RouteSmithConfig(), registry)
+        router = Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
         # Should always return the only model regardless of strategy
         for strategy in [RoutingStrategy.DIRECT, RoutingStrategy.CASCADE,
@@ -337,7 +342,7 @@ class TestRouterWithDifferentConfigs:
         registry.register("expensive", cost_per_1k_input=0.01, cost_per_1k_output=0.02, quality_score=0.85)
         registry.register("cheap", cost_per_1k_input=0.001, cost_per_1k_output=0.002, quality_score=0.85)
 
-        router = Router(RouteSmithConfig(), registry)
+        router = Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
         # With equal quality, should prefer cheaper
         model = router.route(
@@ -373,7 +378,7 @@ class TestCapabilityRouting:
 
     @pytest.fixture
     def router(self, registry):
-        return Router(RouteSmithConfig(), registry)
+        return Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
     def test_direct_route_filters_by_capability(self, router):
         """Models without tool_calling are excluded when tool_calling is required."""
@@ -458,7 +463,7 @@ class TestRouterEdgeCases:
         registry = ModelRegistry()
         registry.register("model", cost_per_1k_input=0.001, cost_per_1k_output=0.002)
 
-        router = Router(RouteSmithConfig(), registry)
+        router = Router(RouteSmithConfig(predictor_type="adaptive"), registry)
         # Should not raise, just route based on priors
         model = router.route([])
         assert model == "model"
@@ -468,7 +473,7 @@ class TestRouterEdgeCases:
         registry = ModelRegistry()
         registry.register("model", cost_per_1k_input=0.001, cost_per_1k_output=0.002)
 
-        router = Router(RouteSmithConfig(), registry)
+        router = Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
         # Create a long conversation
         messages = [
@@ -484,7 +489,7 @@ class TestRouterEdgeCases:
         registry = ModelRegistry()
         registry.register("model", cost_per_1k_input=0.001, cost_per_1k_output=0.002)
 
-        router = Router(RouteSmithConfig(), registry)
+        router = Router(RouteSmithConfig(predictor_type="adaptive"), registry)
 
         messages = [{"role": "user", "content": "Hello! 🎉 Special chars: <>&\"'"}]
         model = router.route(messages)
