@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import logging
 
-import pytest
-
-from routesmith.registry.openrouter import fetch_models, OpenRouterModel
+from routesmith.registry.openrouter import fetch_models
 
 
 def _entry(

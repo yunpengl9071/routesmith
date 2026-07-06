@@ -3,11 +3,7 @@ from __future__ import annotations
 
 import time
 
-import pytest
-
-from routesmith import RouteSmith
-from routesmith.config import CacheConfig, RouteSmithConfig
-from routesmith.config import BudgetConfig
+from routesmith.config import CacheConfig
 from tests.helpers import fake_response, make_rs
 
 

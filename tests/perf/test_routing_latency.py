@@ -16,7 +16,10 @@ class TestRoutingLatency:
     def test_routing_decision_latency(self):
         """Measure pure routing decision time. P99 must be <5ms."""
         from routesmith import RouteSmith
-        rs = RouteSmith()
+        from routesmith.config import RouteSmithConfig
+
+        # Use adaptive predictor for deterministic, low-overhead routing latency measurement
+        rs = RouteSmith(config=RouteSmithConfig(predictor_type="adaptive"))
         rs.register_model("groq/llama-3.3-70b-versatile",
                           cost_per_1k_input=0.00059, cost_per_1k_output=0.00079,
                           quality_score=0.90)

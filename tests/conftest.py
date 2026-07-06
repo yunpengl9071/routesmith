@@ -5,8 +5,8 @@ import sys
 
 # RS_TEST_MOCK_LITELLM shim: stub litellm before routesmith imports it
 if os.environ.get("RS_TEST_MOCK_LITELLM") == "1":
-    from unittest.mock import MagicMock
     import sys as _sys
+    from unittest.mock import MagicMock
     _sys.modules.setdefault("litellm", MagicMock())
 
 # Add src/ to path so tests can import from routesmith

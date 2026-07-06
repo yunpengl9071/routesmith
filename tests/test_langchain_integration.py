@@ -205,7 +205,9 @@ class TestChatRouteSmith:
     @pytest.fixture
     def llm(self):
         """Create a ChatRouteSmith with test models registered."""
-        rs = RouteSmith()
+        from routesmith.config import RouteSmithConfig
+
+        rs = RouteSmith(config=RouteSmithConfig(predictor_type="adaptive"))
         rs.register_model(
             "gpt-4o",
             cost_per_1k_input=0.005,
