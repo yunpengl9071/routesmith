@@ -151,12 +151,13 @@ class LinTSPredictor:
         v_sq: float = 1.0,
         cost_lambda: float = 0.3,
         seed: int = 42,
+        extractor: Any = None,
     ) -> None:
         from routesmith.predictor.base import PredictionResult
         from routesmith.predictor.features import FeatureExtractor
 
         self._registry = registry
-        self._extractor = FeatureExtractor(registry)
+        self._extractor = extractor or FeatureExtractor(registry)
         self._PredictionResult = PredictionResult
         self._cost_lambda = cost_lambda
 
@@ -164,7 +165,7 @@ class LinTSPredictor:
         self._arm_index: dict[str, int] = {m.model_id: i for i, m in enumerate(models)}
         self._arm_names: list[str] = [m.model_id for m in models]
         n_arms = len(models)
-        d = 35  # matches FeatureExtractor full output (27 base + 8 context)
+        d = self._extractor.dim
 
         self._router = LinTSRouter(n_arms=n_arms, d=d, v_sq=v_sq, seed=seed)
         self._total_updates = 0
@@ -182,9 +183,10 @@ class LinTSPredictor:
 
     def _features(self, messages: list[dict], model_id: str, context=None) -> np.ndarray:
         fv = self._extractor.extract(messages, model_id, context=context)
-        x = np.array(fv.features[:35], dtype=np.float64)
-        if len(x) < 35:
-            x = np.pad(x, (0, 35 - len(x)))
+        d = self._extractor.dim
+        x = np.array(fv.features[:d], dtype=np.float64)
+        if len(x) < d:
+            x = np.pad(x, (0, d - len(x)))
         return x  # LinTSRouter.select/update handles normalization internally
 
     def _features_from_parts(
@@ -194,9 +196,10 @@ class LinTSPredictor:
         model_id: str,
     ) -> np.ndarray:
         fv = self._extractor.extract_for_model(msg_features, context_features, model_id)
-        x = np.array(fv.features[:35], dtype=np.float64)
-        if len(x) < 35:
-            x = np.pad(x, (0, 35 - len(x)))
+        d = self._extractor.dim
+        x = np.array(fv.features[:d], dtype=np.float64)
+        if len(x) < d:
+            x = np.pad(x, (0, d - len(x)))
         return x
 
     def predict(

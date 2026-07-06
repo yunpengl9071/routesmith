@@ -104,7 +104,8 @@ class LinUCBPredictor(BasePredictor):
     ) -> np.ndarray:
         """Extract and normalize feature vector as context."""
         fv = self._extractor.extract(messages, model_id)
-        x = np.array(fv.features, dtype=np.float64)
+        d = self._extractor.dim
+        x = np.array(fv.features[:d], dtype=np.float64)
 
         # L2 normalize to stabilize ridge regression
         norm = np.linalg.norm(x)
