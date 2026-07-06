@@ -29,6 +29,9 @@ exp2:
 ablations:
 	python3 -m benchmark.experiments.ablations
 
+bench-product:
+	.venv/bin/python benchmark/run_product_bench.py
+
 paper-pdf:
 	bash paper/build.sh
 

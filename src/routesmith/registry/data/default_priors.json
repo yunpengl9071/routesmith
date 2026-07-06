@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "updated": "2026-07",
+  "priors": {
+    "openai/gpt-4o": 0.92,
+    "openai/gpt-4o-mini": 0.82,
+    "openai/gpt-4.1": 0.93,
+    "openai/gpt-4.1-mini": 0.84,
+    "openai/o3": 0.96,
+    "anthropic/claude-opus-4": 0.96,
+    "anthropic/claude-sonnet-4": 0.92,
+    "anthropic/claude-3.5-haiku": 0.80,
+    "anthropic/claude-haiku-4.5": 0.86,
+    "google/gemini-2.5-pro": 0.94,
+    "google/gemini-2.5-flash": 0.85,
+    "google/gemini-2.0-flash": 0.81,
+    "meta-llama/llama-3.1-70b-instruct": 0.80,
+    "meta-llama/llama-3.1-8b-instruct": 0.68,
+    "meta-llama/llama-4-maverick": 0.84,
+    "deepseek/deepseek-chat": 0.83,
+    "deepseek/deepseek-r1": 0.90,
+    "mistralai/mistral-large": 0.84,
+    "mistralai/mistral-small": 0.74,
+    "qwen/qwen-2.5-72b-instruct": 0.81
+  }
+}

@@ -14,6 +14,8 @@ import ssl
 import urllib.request
 from dataclasses import dataclass
 
+from routesmith.registry.priors import load_default_priors, lookup_prior
+
 logger = logging.getLogger(__name__)
 
 _MODELS_URL = "https://openrouter.ai/api/v1/models"
@@ -71,6 +73,7 @@ def fetch_models(
         with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as resp:
             raw = json.loads(resp.read().decode())
 
+    priors = load_default_priors()
     models: list[OpenRouterModel] = []
     n_free = 0
     for entry in raw.get("data", []):
@@ -95,6 +98,7 @@ def fetch_models(
 
         supports_vision = "image" in str(arch.get("input_modalities", []))
 
+        prior = lookup_prior(entry["id"], priors)
         models.append(OpenRouterModel(
             id=entry["id"],
             name=entry.get("name", entry["id"]),
@@ -103,7 +107,7 @@ def fetch_models(
             context_window=int(ctx),
             supports_function_calling=supports_fn,
             supports_vision=supports_vision,
-            quality_score=0.0,   # filled in below after sorting
+            quality_score=prior or 0.0,  # prior wins; 0.0 filled in after sorting
         ))
 
     if n_free:
@@ -117,8 +121,11 @@ def fetch_models(
 
     # Derive quality_score heuristic: cost rank → [0.60, 1.00]
     # More expensive = higher quality proxy (log scale to compress outliers)
+    # Only applies to models without a prior (prior already set above).
     n = len(models)
     for i, m in enumerate(models):
+        if m.quality_score > 0:
+            continue  # prior already set, skip
         rank = i + 1  # 1 = cheapest, n = most expensive
         m.quality_score = round(0.60 + 0.40 * math.log1p(rank) / math.log1p(n), 3)
 

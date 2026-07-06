@@ -302,7 +302,7 @@ class RouteSmith:
         model_id: str,
         cost_per_1k_input: float,
         cost_per_1k_output: float,
-        quality_score: float = 0.8,
+        quality_score: float | None = None,
         latency_p50_ms: float = 500.0,
         latency_p99_ms: float = 2000.0,
         context_window: int = 128000,
@@ -315,12 +315,15 @@ class RouteSmith:
             model_id: LiteLLM model identifier (e.g., "gpt-4o", "claude-3-opus")
             cost_per_1k_input: Cost in USD per 1000 input tokens
             cost_per_1k_output: Cost in USD per 1000 output tokens
-            quality_score: Expected quality score 0-1 (default 0.8)
+            quality_score: Expected quality score 0-1 (default: prior lookup or 0.8)
             latency_p50_ms: Median latency in milliseconds
             latency_p99_ms: 99th percentile latency in milliseconds
             context_window: Maximum context window size
             **kwargs: Additional model metadata
         """
+        if quality_score is None:
+            from routesmith.registry.priors import load_default_priors, lookup_prior
+            quality_score = lookup_prior(model_id, load_default_priors()) or 0.8
         self.registry.register(
             model_id=model_id,
             cost_per_1k_input=cost_per_1k_input,
@@ -528,6 +531,19 @@ class RouteSmith:
             )
             routing_reason = self._get_routing_reason(
                 effective_strategy, selected_model, max_cost, min_quality
+            )
+
+        # Cascade execution — intercept before single-model LLM call
+        if effective_strategy == RoutingStrategy.CASCADE:
+            return self._completion_cascade(
+                messages=messages,
+                min_quality=min_quality or self.config.budget.quality_threshold,
+                required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
+                context=context,
+                request_id=request_id,
+                include_metadata=include_metadata,
+                **kwargs,
             )
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
@@ -1035,6 +1051,19 @@ class RouteSmith:
                 effective_strategy, selected_model, max_cost, min_quality
             )
 
+        # Cascade execution — intercept before single-model LLM call (async)
+        if effective_strategy == RoutingStrategy.CASCADE:
+            return await self._acompletion_cascade(
+                messages=messages,
+                min_quality=min_quality or self.config.budget.quality_threshold,
+                required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
+                context=context,
+                request_id=request_id,
+                include_metadata=include_metadata,
+                **kwargs,
+            )
+
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
         # Record conversation model for session stickiness
         if context and context.conversation_id and context.conversation_id not in self._conversation_models:
@@ -1258,6 +1287,548 @@ class RouteSmith:
                 self.record_outcome(request_id, score=jscore)
 
         return response
+
+    def _execute_model(
+        self,
+        model_id: str,
+        messages: list[dict[str, str]],
+        request_id: str,
+        **kwargs: Any,
+    ) -> tuple[ModelResponse | None, int, int, float, str | None]:
+        """Execute a single model with retry, circuit breaker, and fallback.
+
+        Never raises — returns error_message on failure.
+        Returns (response, prompt_tokens, completion_tokens, latency_ms, error_message).
+        """
+        start = time.perf_counter()
+
+        breaker = self._circuit_breakers.get(model_id)
+        if breaker is None:
+            breaker = CircuitBreaker(model_id)
+            self._circuit_breakers[model_id] = breaker
+        if not breaker.allow_request():
+            return (None, 0, 0, 0, f"Circuit open for {model_id}")
+
+        models_to_try = [model_id]
+        fb = self.config.fallback_model
+        if fb and fb != model_id and self.registry.get(fb) is not None:
+            models_to_try.append(fb)
+
+        last_error: str | None = None
+        for i, m_id in enumerate(models_to_try):
+            try:
+                response = retry_with_backoff(
+                    lambda: litellm.completion(
+                        model=m_id,
+                        messages=messages,
+                        **{**self.config.litellm_params, **kwargs},
+                    ),
+                    max_retries=2,
+                    base_delay=1.0,
+                )
+                latency_ms = (time.perf_counter() - start) * 1000
+
+                brk = self._circuit_breakers.get(m_id)
+                if brk:
+                    brk.record_success()
+
+                if self._cache is not None:
+                    try:
+                        import copy
+                        self._cache.put(
+                            messages, copy.deepcopy(response), model_id=m_id, semantic=self._cache_semantic
+                        )
+                    except Exception:
+                        pass
+
+                pt = getattr(getattr(response, 'usage', None), 'prompt_tokens', 0) or 0
+                ct = getattr(getattr(response, 'usage', None), 'completion_tokens', 0) or 0
+                return (response, pt, ct, latency_ms, None)
+            except Exception as e:
+                err = getattr(e, '__cause__', e) if isinstance(e, RetryExhaustedError) else e
+                last_error = str(err)
+                brk = self._circuit_breakers.get(m_id)
+                if brk:
+                    brk.record_failure()
+                if i == 0 and len(models_to_try) > 1:
+                    logger.warning(
+                        "Primary model %s failed (%s); trying fallback %s",
+                        m_id, last_error, models_to_try[1],
+                    )
+
+        return (None, 0, 0, 0, last_error)
+
+    async def _aexecute_model(
+        self,
+        model_id: str,
+        messages: list[dict[str, str]],
+        request_id: str,
+        **kwargs: Any,
+    ) -> tuple[ModelResponse | None, int, int, float, str | None]:
+        """Async version of _execute_model."""
+        start = time.perf_counter()
+
+        models_to_try = [model_id]
+        fb = self.config.fallback_model
+        if fb and fb != model_id and self.registry.get(fb) is not None:
+            models_to_try.append(fb)
+
+        last_error: str | None = None
+        for i, m_id in enumerate(models_to_try):
+            try:
+                response = await litellm.acompletion(
+                    model=m_id,
+                    messages=messages,
+                    **{**self.config.litellm_params, **kwargs},
+                )
+                latency_ms = (time.perf_counter() - start) * 1000
+
+                if self._cache is not None:
+                    try:
+                        self._cache.put(messages, response, model_id=m_id)
+                    except Exception:
+                        pass
+
+                pt = getattr(getattr(response, 'usage', None), 'prompt_tokens', 0) or 0
+                ct = getattr(getattr(response, 'usage', None), 'completion_tokens', 0) or 0
+                return (response, pt, ct, latency_ms, None)
+            except Exception as e:
+                last_error = str(e)
+                if i == 0 and len(models_to_try) > 1:
+                    logger.warning(
+                        "Primary model %s failed (%s); trying fallback %s",
+                        m_id, last_error, models_to_try[1],
+                    )
+
+        return (None, 0, 0, 0, last_error)
+
+    def _completion_cascade(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext,
+        request_id: str,
+        **kwargs: Any,
+    ) -> ModelResponse:
+        """Execute cascade routing with per-tier verification.
+
+        Tries models from cheapest to most expensive, verifying each response
+        before accepting. Escalates on hard-negative signals or judge rejection.
+        Never fails a request that produced output — returns last response if
+        all tiers are rejected.
+        """
+        tiers = self.router.get_cascade_models(
+            min_quality=min_quality,
+            max_tiers=self.config.cascade_max_tiers,
+            required_capabilities=required_capabilities,
+        )
+
+        if not tiers:
+            best = self.registry.get_best_quality()
+            if best is None:
+                raise ValueError("No models available for cascade fallback")
+            response, pt, ct, lat, err = self._execute_model(
+                best.model_id, messages, request_id, **kwargs
+            )
+            if err:
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=err,
+                )
+                raise RuntimeError(f"Cascade fallback model {best.model_id} failed: {err}")
+            return response
+
+        if hasattr(self.feedback, '_signal_extractor') and self.feedback._signal_extractor is not None:
+            extractor = self.feedback._signal_extractor
+        else:
+            from routesmith.feedback.signals import SignalExtractor
+            extractor = SignalExtractor()
+
+        last_response = None
+        last_model: str | None = None
+        last_prompt_tokens = 0
+        last_completion_tokens = 0
+
+        cascaded_tiers: list[dict[str, Any]] = []
+        escalated_count = 0
+        total_cost = 0.0
+
+        for tier_model in tiers:
+            response, pt, ct, lat, err = self._execute_model(
+                tier_model, messages, request_id, **kwargs
+            )
+
+            tier_info: dict[str, Any] = {
+                "model": tier_model,
+                "succeeded": err is None,
+            }
+
+            if err:
+                tier_info["error"] = err
+                cascaded_tiers.append(tier_info)
+                cfg = self.registry.get(tier_model)
+                if cfg:
+                    total_cost += (pt / 1000) * cfg.cost_per_1k_input + (ct / 1000) * cfg.cost_per_1k_output
+                continue
+
+            signals = extractor.extract(response, tier_model, lat)
+            hard_negatives = {"error_detected", "refusal_detected", "empty_response"}
+            reject = any(
+                s.signal_value < 0.5
+                for s in signals
+                if s.signal_name in hard_negatives
+            )
+
+            if reject:
+                tier_info["rejected"] = True
+                tier_info["reason"] = "hard_negative_signal"
+                cascaded_tiers.append(tier_info)
+                escalated_count += 1
+                cfg = self.registry.get(tier_model)
+                if cfg:
+                    total_cost += (pt / 1000) * cfg.cost_per_1k_input + (ct / 1000) * cfg.cost_per_1k_output
+                last_response = response
+                last_model = tier_model
+                last_prompt_tokens = pt
+                last_completion_tokens = ct
+
+                # Record feedback so the bandit learns from the rejection
+                reject_request_id = uuid.uuid4().hex[:16]
+                reject_record = self.feedback.record(
+                    request_id=reject_request_id,
+                    messages=messages,
+                    model=tier_model,
+                    response=response,
+                    latency_ms=lat,
+                    agent_id=context.agent_id if context else None,
+                    agent_role=context.agent_role if context else None,
+                    conversation_id=context.conversation_id if context else None,
+                    turn_index=context.turn_index if context else None,
+                )
+                if reject_record is not None:
+                    self.record_outcome(request_id=reject_request_id, score=0.1)
+
+                continue
+
+            if self._judge is not None:
+                text = response.choices[0].message.content or ""
+                jscore = self._judge.score(messages, text)
+                if jscore is not None and jscore < self.config.cascade_accept_threshold:
+                    tier_info["rejected"] = True
+                    tier_info["reason"] = "judge_reject"
+                    tier_info["judge_score"] = jscore
+                    cascaded_tiers.append(tier_info)
+                    escalated_count += 1
+                    cfg = self.registry.get(tier_model)
+                    if cfg:
+                        total_cost += (pt / 1000) * cfg.cost_per_1k_input + (ct / 1000) * cfg.cost_per_1k_output
+                    last_response = response
+                    last_model = tier_model
+                    last_prompt_tokens = pt
+                    last_completion_tokens = ct
+
+                    # Record feedback so the bandit learns from the rejection
+                    judge_request_id = uuid.uuid4().hex[:16]
+                    judge_record = self.feedback.record(
+                        request_id=judge_request_id,
+                        messages=messages,
+                        model=tier_model,
+                        response=response,
+                        latency_ms=lat,
+                        agent_id=context.agent_id if context else None,
+                        agent_role=context.agent_role if context else None,
+                        conversation_id=context.conversation_id if context else None,
+                        turn_index=context.turn_index if context else None,
+                    )
+                    if judge_record is not None:
+                        self.record_outcome(request_id=judge_request_id, score=0.1)
+
+                    continue
+
+            tier_info["accepted"] = True
+            cascaded_tiers.append(tier_info)
+
+            cfg = self.registry.get(tier_model)
+            if cfg:
+                accepted_cost = (
+                    (pt / 1000) * cfg.cost_per_1k_input
+                    + (ct / 1000) * cfg.cost_per_1k_output
+                )
+                total_cost += accepted_cost
+                self._total_cost += total_cost
+                self._budget.record(accepted_cost)
+
+            cascade_metadata: dict[str, Any] = {
+                "strategy": "cascade",
+                "routing_reason": f"cascade accepted {tier_model} after "
+                                  f"{len(cascaded_tiers)} tier(s)",
+                "tiers_tried": cascaded_tiers,
+                "escalations": escalated_count,
+            }
+            if kwargs.get("include_metadata", False):
+                response.routesmith_metadata = cascade_metadata
+            response.routesmith_explanation = (
+                f"Cascade: tried {len(cascaded_tiers)} tier(s), "
+                f"{escalated_count} escalation(s), "
+                f"accepted {tier_model}"
+            )
+            response._routesmith_request_id = request_id
+
+            self.feedback.record(
+                request_id=request_id,
+                messages=messages,
+                model=tier_model,
+                response=response,
+                latency_ms=lat,
+                agent_id=context.agent_id if context else None,
+                agent_role=context.agent_role if context else None,
+                conversation_id=context.conversation_id if context else None,
+                turn_index=context.turn_index if context else None,
+            )
+
+            return response
+
+        if last_response is None:
+            raise ValueError(
+                "Cascade exhausted: no model produced a response"
+            )
+
+        cfg = self.registry.get(last_model)
+        if cfg:
+            total_cost += (
+                (last_prompt_tokens / 1000) * cfg.cost_per_1k_input
+                + (last_completion_tokens / 1000) * cfg.cost_per_1k_output
+            )
+            self._total_cost += total_cost
+            self._budget.record(
+                (last_prompt_tokens / 1000) * cfg.cost_per_1k_input
+                + (last_completion_tokens / 1000) * cfg.cost_per_1k_output
+            )
+
+        last_response.routesmith_metadata = {
+            "strategy": "cascade",
+            "routing_reason": f"cascade exhausted after {len(cascaded_tiers)} tiers",
+            "tiers_tried": cascaded_tiers,
+            "escalations": escalated_count,
+            "cascade_exhausted": True,
+        }
+        last_response.routesmith_explanation = (
+            f"Cascade exhausted ({len(cascaded_tiers)} tiers tried)"
+        )
+        last_response._routesmith_request_id = request_id
+        return last_response
+
+    async def _acompletion_cascade(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext,
+        request_id: str,
+        **kwargs: Any,
+    ) -> ModelResponse:
+        """Async version of _completion_cascade."""
+        tiers = self.router.get_cascade_models(
+            min_quality=min_quality,
+            max_tiers=self.config.cascade_max_tiers,
+            required_capabilities=required_capabilities,
+        )
+
+        if not tiers:
+            best = self.registry.get_best_quality()
+            if best is None:
+                raise ValueError("No models available for cascade fallback")
+            response, pt, ct, lat, err = await self._aexecute_model(
+                best.model_id, messages, request_id, **kwargs
+            )
+            if err:
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=err,
+                )
+                raise RuntimeError(f"Cascade fallback model {best.model_id} failed: {err}")
+            return response
+
+        if hasattr(self.feedback, '_signal_extractor') and self.feedback._signal_extractor is not None:
+            extractor = self.feedback._signal_extractor
+        else:
+            from routesmith.feedback.signals import SignalExtractor
+            extractor = SignalExtractor()
+
+        last_response = None
+        last_model: str | None = None
+        last_prompt_tokens = 0
+        last_completion_tokens = 0
+
+        cascaded_tiers: list[dict[str, Any]] = []
+        escalated_count = 0
+        total_cost = 0.0
+
+        for tier_model in tiers:
+            response, pt, ct, lat, err = await self._aexecute_model(
+                tier_model, messages, request_id, **kwargs
+            )
+
+            tier_info: dict[str, Any] = {
+                "model": tier_model,
+                "succeeded": err is None,
+            }
+
+            if err:
+                tier_info["error"] = err
+                cascaded_tiers.append(tier_info)
+                cfg = self.registry.get(tier_model)
+                if cfg:
+                    total_cost += (pt / 1000) * cfg.cost_per_1k_input + (ct / 1000) * cfg.cost_per_1k_output
+                continue
+
+            signals = extractor.extract(response, tier_model, lat)
+            hard_negatives = {"error_detected", "refusal_detected", "empty_response"}
+            reject = any(
+                s.signal_value < 0.5
+                for s in signals
+                if s.signal_name in hard_negatives
+            )
+
+            if reject:
+                tier_info["rejected"] = True
+                tier_info["reason"] = "hard_negative_signal"
+                cascaded_tiers.append(tier_info)
+                escalated_count += 1
+                cfg = self.registry.get(tier_model)
+                if cfg:
+                    total_cost += (pt / 1000) * cfg.cost_per_1k_input + (ct / 1000) * cfg.cost_per_1k_output
+                last_response = response
+                last_model = tier_model
+                last_prompt_tokens = pt
+                last_completion_tokens = ct
+
+                # Record feedback so the bandit learns from the rejection
+                reject_request_id = uuid.uuid4().hex[:16]
+                reject_record = self.feedback.record(
+                    request_id=reject_request_id,
+                    messages=messages,
+                    model=tier_model,
+                    response=response,
+                    latency_ms=lat,
+                    agent_id=context.agent_id if context else None,
+                    agent_role=context.agent_role if context else None,
+                    conversation_id=context.conversation_id if context else None,
+                    turn_index=context.turn_index if context else None,
+                )
+                if reject_record is not None:
+                    self.record_outcome(request_id=reject_request_id, score=0.1)
+
+                continue
+
+            if self._judge is not None:
+                text = response.choices[0].message.content or ""
+                jscore = self._judge.score(messages, text)
+                if jscore is not None and jscore < self.config.cascade_accept_threshold:
+                    tier_info["rejected"] = True
+                    tier_info["reason"] = "judge_reject"
+                    tier_info["judge_score"] = jscore
+                    cascaded_tiers.append(tier_info)
+                    escalated_count += 1
+                    cfg = self.registry.get(tier_model)
+                    if cfg:
+                        total_cost += (pt / 1000) * cfg.cost_per_1k_input + (ct / 1000) * cfg.cost_per_1k_output
+                    last_response = response
+                    last_model = tier_model
+                    last_prompt_tokens = pt
+                    last_completion_tokens = ct
+
+                    # Record feedback so the bandit learns from the rejection
+                    judge_request_id = uuid.uuid4().hex[:16]
+                    judge_record = self.feedback.record(
+                        request_id=judge_request_id,
+                        messages=messages,
+                        model=tier_model,
+                        response=response,
+                        latency_ms=lat,
+                        agent_id=context.agent_id if context else None,
+                        agent_role=context.agent_role if context else None,
+                        conversation_id=context.conversation_id if context else None,
+                        turn_index=context.turn_index if context else None,
+                    )
+                    if judge_record is not None:
+                        self.record_outcome(request_id=judge_request_id, score=0.1)
+
+                    continue
+
+            tier_info["accepted"] = True
+            cascaded_tiers.append(tier_info)
+
+            cfg = self.registry.get(tier_model)
+            if cfg:
+                accepted_cost = (
+                    (pt / 1000) * cfg.cost_per_1k_input
+                    + (ct / 1000) * cfg.cost_per_1k_output
+                )
+                total_cost += accepted_cost
+                self._total_cost += total_cost
+                self._budget.record(accepted_cost)
+
+            cascade_metadata: dict[str, Any] = {
+                "strategy": "cascade",
+                "routing_reason": f"cascade accepted {tier_model} after "
+                                  f"{len(cascaded_tiers)} tier(s)",
+                "tiers_tried": cascaded_tiers,
+                "escalations": escalated_count,
+            }
+            if kwargs.get("include_metadata", False):
+                response.routesmith_metadata = cascade_metadata
+            response.routesmith_explanation = (
+                f"Cascade: tried {len(cascaded_tiers)} tier(s), "
+                f"{escalated_count} escalation(s), "
+                f"accepted {tier_model}"
+            )
+            response._routesmith_request_id = request_id
+
+            self.feedback.record(
+                request_id=request_id,
+                messages=messages,
+                model=tier_model,
+                response=response,
+                latency_ms=lat,
+                agent_id=context.agent_id if context else None,
+                agent_role=context.agent_role if context else None,
+                conversation_id=context.conversation_id if context else None,
+                turn_index=context.turn_index if context else None,
+            )
+
+            return response
+
+        if last_response is None:
+            raise ValueError(
+                "Cascade exhausted: no model produced a response"
+            )
+
+        cfg = self.registry.get(last_model)
+        if cfg:
+            total_cost += (
+                (last_prompt_tokens / 1000) * cfg.cost_per_1k_input
+                + (last_completion_tokens / 1000) * cfg.cost_per_1k_output
+            )
+            self._total_cost += total_cost
+            self._budget.record(
+                (last_prompt_tokens / 1000) * cfg.cost_per_1k_input
+                + (last_completion_tokens / 1000) * cfg.cost_per_1k_output
+            )
+
+        last_response.routesmith_metadata = {
+            "strategy": "cascade",
+            "routing_reason": f"cascade exhausted after {len(cascaded_tiers)} tiers",
+            "tiers_tried": cascaded_tiers,
+            "escalations": escalated_count,
+            "cascade_exhausted": True,
+        }
+        last_response.routesmith_explanation = (
+            f"Cascade exhausted ({len(cascaded_tiers)} tiers tried)"
+        )
+        last_response._routesmith_request_id = request_id
+        return last_response
 
     def completion_stream(
         self,

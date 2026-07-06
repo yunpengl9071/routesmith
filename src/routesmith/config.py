@@ -110,6 +110,10 @@ class PredictorConfig:
     warmstart_latency_lambda: float = 0.0  # Latency penalty weight
     warmstart_warmup_rounds: int = 1       # Round-robin rounds before UCB
 
+    # Embedding features (P2.2 — optional semantic enrichment)
+    embedding_features: bool = False
+    embedding_model: str = "all-MiniLM-L6-v2"
+
 
 @dataclass
 class JudgeConfig:
@@ -181,6 +185,11 @@ class RouteSmithConfig:
     # Run before capability filtering; predictor only sees the filtered set.
     business_rules: list[Callable[..., list[Any]]] = field(default_factory=list)
 
+    # Cascade execution settings (P2.4)
+    cascade_max_tiers: int = 3
+    cascade_accept_threshold: float = 0.6
+    # Judge score below this escalates to the next tier (judge enabled only)
+
     # Budget enforcement behavior
     budget_behavior: BudgetBehavior = BudgetBehavior.FAIL
 
@@ -216,6 +225,8 @@ class RouteSmithConfig:
             business_rules=self.business_rules,
             budget_behavior=self.budget_behavior,
             judge=self.judge,
+            cascade_max_tiers=self.cascade_max_tiers,
+            cascade_accept_threshold=self.cascade_accept_threshold,
         )
 
     def with_budget(self, **kwargs: Any) -> RouteSmithConfig:
@@ -252,5 +263,7 @@ class RouteSmithConfig:
             business_rules=self.business_rules,
             budget_behavior=self.budget_behavior,
             judge=self.judge,
+            cascade_max_tiers=self.cascade_max_tiers,
+            cascade_accept_threshold=self.cascade_accept_threshold,
         )
 
