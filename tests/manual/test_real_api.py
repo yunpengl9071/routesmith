@@ -93,10 +93,10 @@ def test_groq_routing():
         quality_score=0.90,
     )
     rs.register_model(
-        "groq/llama-3.3-70b-specdec",
-        cost_per_1k_input=0.00059,
-        cost_per_1k_output=0.00079,
-        quality_score=0.88,
+        "groq/llama-3.1-8b-instant",
+        cost_per_1k_input=0.00004,
+        cost_per_1k_output=0.00004,
+        quality_score=0.80,
     )
 
     response = rs.completion(
@@ -217,11 +217,11 @@ def test_feedback_system():
     print(f"  Implicit signals: {[(s['signal_name'], s['signal_value']) for s in signals]}")
 
     # 4. Record outcome and verify predictor update
-    old_prior = rs.router.predictor._ema_priors.get("gpt-4o-mini")
+    old_updates = rs.router.predictor._total_updates
     rs.record_outcome(rid, score=0.95, feedback="correct answer")
-    new_prior = rs.router.predictor._ema_priors.get("gpt-4o-mini")
-    assert new_prior != old_prior, "Predictor was not updated"
-    print(f"  Predictor updated: {old_prior:.4f} -> {new_prior:.4f}")
+    new_updates = rs.router.predictor._total_updates
+    assert new_updates == old_updates + 1, "Predictor was not updated"
+    print(f"  Predictor updated: _total_updates {old_updates} -> {new_updates}")
 
     # 5. Verify outcome in storage
     stored = rs.feedback._storage.get_record(rid)
