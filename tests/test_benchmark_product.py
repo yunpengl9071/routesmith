@@ -1,9 +1,13 @@
 """Test that ProductRouterStrategy can run offline (no API calls)."""
-from __future__ import annotations
 
+import os
 from unittest.mock import patch
 
 import pytest
+
+# benchmark/config.py raises OSError at import time if OPENROUTER_API_KEY is
+# not set. Set a dummy key before any benchmark imports.
+os.environ.setdefault("OPENROUTER_API_KEY", "sk-test-dummy")
 
 from benchmark.config import STRONG_MODEL, WEAK_MODEL
 from benchmark.strategies.product_router import ProductRouterStrategy
