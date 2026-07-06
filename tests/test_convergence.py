@@ -4,7 +4,6 @@ from routesmith.predictor.lints import LinTSPredictor
 from routesmith.predictor.linucb import LinUCBPredictor
 from routesmith.registry.models import ModelRegistry
 
-
 MATH = [{"role": "user", "content": "solve the integral of x^2 dx"}]
 CHAT = [{"role": "user", "content": "write a short friendly greeting"}]
 

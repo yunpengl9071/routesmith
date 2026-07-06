@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from routesmith import RouteSmith
 from routesmith.config import RouteSmithConfig
 from routesmith.feedback.signals import (
-    IMPLICIT_QUALITY,
     QualitySignal,
     implicit_quality,
 )

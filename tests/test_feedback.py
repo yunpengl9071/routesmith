@@ -622,8 +622,8 @@ class TestPredictorStatePersistence:
 class TestSampleRate:
     def test_default_sample_rate_records_all(self):
         """Default config records all completions."""
-        from tests.helpers import fake_response
         from routesmith.config import RouteSmithConfig
+        from tests.helpers import fake_response
         rs = RouteSmith(config=RouteSmithConfig(feedback_storage_path=":memory:"))
         rs.register_model("test-model", 0.001, 0.002, quality_score=0.85)
         with patch("litellm.completion", return_value=fake_response()):
@@ -634,8 +634,8 @@ class TestSampleRate:
 
     def test_record_outcome_always_persists_signal(self):
         """record_outcome always persists even when sample_rate=1.0."""
-        from tests.helpers import fake_response
         from routesmith.config import RouteSmithConfig
+        from tests.helpers import fake_response
         rs = RouteSmith(config=RouteSmithConfig(feedback_storage_path=":memory:"))
         rs.register_model("test-model", 0.001, 0.002, quality_score=0.85)
         request_ids = []

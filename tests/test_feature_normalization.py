@@ -4,7 +4,6 @@ from routesmith.predictor.features import (
     FEATURE_SCALES,
     FEATURE_VERSION,
     FeatureExtractor,
-    _normalize,
 )
 from routesmith.registry.models import ModelRegistry
 
