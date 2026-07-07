@@ -84,6 +84,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="Require Bearer auth on proxy requests (default: no auth)",
     )
 
+    # quickstart command
+    quickstart_parser = subparsers.add_parser(
+        "quickstart",
+        help="Detect provider, generate config, start server in one command",
+        description="Detect API keys, generate routesmith.yaml, show connection snippets.",
+    )
+    quickstart_parser.add_argument(
+        "--port", "-p",
+        type=int,
+        default=9119,
+        help="Port for proxy server (default: 9119)",
+    )
+    quickstart_parser.add_argument(
+        "--yes", "-y",
+        action="store_true",
+        help="Overwrite existing config without prompting",
+    )
+
     # openclaw-config command
     openclaw_parser = subparsers.add_parser(
         "openclaw-config",
@@ -259,6 +277,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "openclaw-config":
         from routesmith.cli.openclaw import run_openclaw_config
         return run_openclaw_config(args)
+    elif args.command == "quickstart":
+        from routesmith.cli.quickstart import run_quickstart
+        return run_quickstart(args)
     elif args.command == "audit":
         from routesmith.cli.audit import run_audit
         return run_audit(args)

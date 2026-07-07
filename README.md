@@ -13,7 +13,17 @@ RouteSmith sits between your AI coding tool and the LLM. It routes every request
 to the best model for that specific task — cheap models for simple edits, frontier
 models for complex refactors. You never think about model IDs again.
 
-**v0.7.0**: Per-project cost stats, decision audit log, per-role policy CLI, CI/CD evaluate. Phase 3 complete.
+| | OpenRouter Auto | RouteSmith |
+|---|---|---|
+| Learns from your traffic | ❌ | ✅ Online bandit learning |
+| Self-hosted / no data leak | ❌ | ✅ Open source, self-hosted |
+| Custom model pool | ❌ | ✅ Any model, any provider |
+| Custom rewards & policies | ❌ | ✅ Per-role, configurable reward fns |
+| Decision audit log | ❌ | ✅ Full routing decision trace |
+| Budget caps (daily/hourly) | ❌ | ✅ Monthly, per-request, per-project |
+| Conversation stickiness | ✅ | ✅ 
+
+**v0.7.0**: Per-project cost stats, decision audit log, per-role policy CLI, Anthropic `/v1/messages` endpoint. Phase 5 complete.
 
 ## Who it's for
 
