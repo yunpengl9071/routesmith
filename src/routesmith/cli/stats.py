@@ -56,11 +56,12 @@ def _run_local_stats(args: Namespace) -> int:
     import time
 
     db_path = args.db or "routesmith_feedback.db"
+    project = getattr(args, "project", "") or None
 
     def _fetch_local_stats() -> dict:
         from routesmith.feedback.storage import FeedbackStorage
         storage = FeedbackStorage(db_path)
-        records = storage.get_all_records(limit=10000)
+        records = storage.get_all_records(limit=10000, project_id=project)
         total_cost = 0.0
         request_count = len(records)
         by_model: dict[str, int] = {}
@@ -68,13 +69,23 @@ def _run_local_stats(args: Namespace) -> int:
             total_cost += float(r.get("estimated_cost_usd", 0) or 0)
             model = r.get("model_id", "unknown")
             by_model[model] = by_model.get(model, 0) + 1
-        return {
+
+        result: dict = {
             "request_count": request_count,
             "total_cost_usd": round(total_cost, 6),
             "registered_models": len(by_model),
             "feedback_samples": request_count,
-            "project": "local",
         }
+        if project:
+            result["project"] = project
+            result["title"] = f"RouteSmith Cost Report (project: {project})"
+        else:
+            result["project"] = "local"
+            # Include per-project breakdown when not filtering
+            proj_stats = storage.get_project_stats()
+            if proj_stats:
+                result["projects"] = proj_stats
+        return result
 
     while True:
         stats = _fetch_local_stats()
@@ -98,8 +109,10 @@ def print_stats_table(stats: dict) -> None:
         stats: Stats dictionary from RouteSmith server.
     """
     print()
+    title = stats.get("title", "RouteSmith Cost Report")
+    title_line = f"\u2502  {title:47s}\u2502"
     print("\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e")
-    print("\u2502         RouteSmith Cost Report              \u2502")
+    print(title_line)
     print("\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524")
 
     request_count = stats.get("request_count", 0)
@@ -112,13 +125,27 @@ def print_stats_table(stats: dict) -> None:
 
     print(f"\u2502  Requests:           {request_count:>15,}  \u2502")
     print(f"\u2502  Actual Cost:        ${total_cost:>14,.4f}  \u2502")
-    print(f"\u2502  Without Routing:    ${without_routing:>14,.4f}  \u2502")
-    print(f"\u2502  You Saved:          ${savings:>10,.4f} ({savings_pct:>4.1f}%)  \u2502")
+    if without_routing:
+        print(f"\u2502  Without Routing:    ${without_routing:>14,.4f}  \u2502")
+    if savings:
+        print(f"\u2502  You Saved:          ${savings:>10,.4f} ({savings_pct:>4.1f}%)  \u2502")
     print("\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524")
     print(f"\u2502  Registered Models:  {models:>15}  \u2502")
     print(f"\u2502  Feedback Samples:   {samples:>15}  \u2502")
     print("\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f")
     print()
+
+    # Per-project breakdown if available
+    if "projects" in stats and stats["projects"]:
+        print("Per-project breakdown:")
+        print(f"  {'Project':<20} {'Requests':<12} {'Avg Latency':<14} {'Avg Quality':<14}")
+        print(f"  {'-'*20} {'-'*12} {'-'*14} {'-'*14}")
+        for proj, pstats in stats["projects"].items():
+            lat = pstats.get("avg_latency_ms", 0)
+            qual = pstats.get("avg_quality", 0)
+            qual_str = f"{qual:.4f}" if qual else "N/A"
+            print(f"  {proj:<20} {pstats['request_count']:<12} {lat:>8.1f}ms{'':>5} {qual_str:<14}")
+        print()
 
     # Show last routing if available
     if "last_routing" in stats:

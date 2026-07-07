@@ -129,6 +129,91 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="Live refresh stats every 2 seconds (--local only)",
     )
+    stats_parser.add_argument(
+        "--project", "--proj",
+        type=str,
+        default="",
+        help="Filter stats to a specific project name",
+    )
+
+    # audit command
+    audit_parser = subparsers.add_parser(
+        "audit",
+        help="View routing decision audit log",
+        description="Retrieve and display the structured audit log of routing decisions.",
+    )
+    audit_parser.add_argument(
+        "--db",
+        type=str,
+        default="routesmith_feedback.db",
+        help="SQLite database path (default: routesmith_feedback.db)",
+    )
+    audit_parser.add_argument(
+        "--limit", "-n",
+        type=int,
+        default=50,
+        help="Number of audit entries to show (default: 50)",
+    )
+    audit_parser.add_argument(
+        "--project", "--proj",
+        type=str,
+        default="",
+        help="Filter by project name",
+    )
+    audit_parser.add_argument(
+        "--model",
+        type=str,
+        default="",
+        help="Filter by selected model",
+    )
+    audit_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output as JSON",
+    )
+
+    # roles command
+    roles_parser = subparsers.add_parser(
+        "roles",
+        help="Manage per-role routing policies",
+        description="Configure routing policies (reward functions, model pools) per agent role.",
+    )
+    roles_parser.add_argument(
+        "action",
+        nargs="?",
+        choices=["list", "set", "unset"],
+        default="list",
+        help="Action: list (default), set, or unset a policy",
+    )
+    roles_parser.add_argument(
+        "--role", "-r",
+        type=str,
+        default="",
+        help="Agent role name",
+    )
+    roles_parser.add_argument(
+        "--config",
+        type=str,
+        default="routesmith.yaml",
+        help="Routesmith config file path (default: routesmith.yaml)",
+    )
+    roles_parser.add_argument(
+        "--model-pool",
+        type=str,
+        nargs="*",
+        help="List of model IDs for this role (with set action)",
+    )
+    roles_parser.add_argument(
+        "--reward",
+        type=str,
+        nargs="*",
+        help="Reward function names for this role (with set action)",
+    )
+    roles_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output as JSON",
+    )
 
     # dashboard command
     dashboard_parser = subparsers.add_parser(
@@ -168,6 +253,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "openclaw-config":
         from routesmith.cli.openclaw import run_openclaw_config
         return run_openclaw_config(args)
+    elif args.command == "audit":
+        from routesmith.cli.audit import run_audit
+        return run_audit(args)
+    elif args.command == "roles":
+        from routesmith.cli.roles import run_roles
+        return run_roles(args)
     elif args.command == "dashboard":
         from routesmith.cli_dashboard import run_dashboard
         return run_dashboard(db_path=args.db)

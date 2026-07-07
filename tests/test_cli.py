@@ -411,7 +411,7 @@ class TestStatsFormatting:
         print_stats_table(stats)
         captured = capsys.readouterr()
         assert "0" in captured.out
-        assert "0.0%" in captured.out
+        # Savings/without-routing lines are suppressed when 0
 
     def test_print_stats_large_values(self, capsys):
         """Test stats table with large values."""
