@@ -78,6 +78,7 @@ def run_serve(args: Namespace) -> int:
     server_config = ServerConfig(
         host=args.host,
         port=args.port,
+        api_key=getattr(args, "api_key", None) or None,
     )
     server = RouteSmithProxyServer(rs, server_config)
 

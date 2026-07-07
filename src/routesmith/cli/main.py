@@ -77,6 +77,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         default="INFO",
         help="Logging level (default: INFO)",
     )
+    serve_parser.add_argument(
+        "--api-key",
+        type=str,
+        default="",
+        help="Require Bearer auth on proxy requests (default: no auth)",
+    )
 
     # openclaw-config command
     openclaw_parser = subparsers.add_parser(
