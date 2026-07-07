@@ -327,13 +327,17 @@ class TestPredictorRewardOverride:
         pred_b.update(_MSGS, "m", actual_quality=0.8, reward_override=None)
         assert pred_a.model_quality_priors["m"] == pred_b.model_quality_priors["m"]
 
-    def test_embedding_reward_override_changes_prior(self):
+    def test_embedding_reward_override_changes_model_embedding(self):
         from routesmith.predictor.embedding import EmbeddingPredictor
         pred_a = EmbeddingPredictor(model_quality_priors={"m": 0.5})
         pred_b = EmbeddingPredictor(model_quality_priors={"m": 0.5})
         pred_a.update(_MSGS, "m", actual_quality=0.8)
         pred_b.update(_MSGS, "m", actual_quality=0.8, reward_override=0.1)
-        assert pred_a.model_quality_priors["m"] != pred_b.model_quality_priors["m"]
+        # Different reward_override should produce different model embeddings
+        emb_a = pred_a._model_embeddings.get("m")
+        emb_b = pred_b._model_embeddings.get("m")
+        assert emb_a is not None and emb_b is not None
+        assert not np.allclose(emb_a, emb_b)
 
     def test_adaptive_none_override_identical_to_default(self):
         pred_a = _make_adaptive()

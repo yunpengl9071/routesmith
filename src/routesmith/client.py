@@ -546,6 +546,33 @@ class RouteSmith:
                 **kwargs,
             )
 
+        # Parallel execution — run multiple models, compare, pick best
+        if effective_strategy == RoutingStrategy.PARALLEL:
+            return self._completion_parallel(
+                messages=messages,
+                min_quality=min_quality or self.config.budget.quality_threshold,
+                max_cost=max_cost,
+                required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
+                context=context,
+                request_id=request_id,
+                include_metadata=include_metadata,
+                **kwargs,
+            )
+
+        # Speculative execution — start cheap, escalate on low confidence
+        if effective_strategy == RoutingStrategy.SPECULATIVE:
+            return self._completion_speculative(
+                messages=messages,
+                min_quality=min_quality or self.config.budget.quality_threshold,
+                required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
+                context=context,
+                request_id=request_id,
+                include_metadata=include_metadata,
+                **kwargs,
+            )
+
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
         # Record conversation model for session stickiness
         if context and context.conversation_id and context.conversation_id not in self._conversation_models:
@@ -1054,6 +1081,33 @@ class RouteSmith:
         # Cascade execution — intercept before single-model LLM call (async)
         if effective_strategy == RoutingStrategy.CASCADE:
             return await self._acompletion_cascade(
+                messages=messages,
+                min_quality=min_quality or self.config.budget.quality_threshold,
+                required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
+                context=context,
+                request_id=request_id,
+                include_metadata=include_metadata,
+                **kwargs,
+            )
+
+        # Parallel execution (async)
+        if effective_strategy == RoutingStrategy.PARALLEL:
+            return await self._acompletion_parallel(
+                messages=messages,
+                min_quality=min_quality or self.config.budget.quality_threshold,
+                max_cost=max_cost,
+                required_capabilities=required_capabilities or None,
+                required_compliance=required_compliance,
+                context=context,
+                request_id=request_id,
+                include_metadata=include_metadata,
+                **kwargs,
+            )
+
+        # Speculative execution (async)
+        if effective_strategy == RoutingStrategy.SPECULATIVE:
+            return await self._acompletion_speculative(
                 messages=messages,
                 min_quality=min_quality or self.config.budget.quality_threshold,
                 required_capabilities=required_capabilities or None,
@@ -1829,6 +1883,483 @@ class RouteSmith:
         )
         last_response._routesmith_request_id = request_id
         return last_response
+
+    def _completion_parallel(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float,
+        max_cost: float | None,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext,
+        request_id: str,
+        **kwargs: Any,
+    ) -> ModelResponse:
+        """Execute parallel strategy: run 2 models concurrently, pick best response."""
+        import concurrent.futures
+
+        candidates = self.router.get_parallel_candidates(
+            messages=messages,
+            n_candidates=2,
+            max_cost=max_cost,
+            min_quality=min_quality,
+            required_capabilities=required_capabilities,
+            required_compliance=required_compliance,
+            context=context,
+        )
+        if not candidates:
+            return self._execute_single(
+                messages, min_quality, required_capabilities,
+                required_compliance, context, request_id, **kwargs
+            )
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(candidates)) as pool:
+            futures = {
+                pool.submit(
+                    self._execute_model, m_id, messages, request_id, **kwargs
+                ): m_id for m_id in candidates
+            }
+            results: dict[str, tuple] = {}
+            for future in concurrent.futures.as_completed(futures):
+                m_id = futures[future]
+                try:
+                    results[m_id] = future.result()
+                except Exception as e:
+                    results[m_id] = (None, 0, 0, 0, str(e))
+
+        # Pick best among successful responses
+        cost_map = {}
+        for m_id in candidates:
+            cfg = self.registry.get(m_id)
+            if cfg:
+                cost_map[m_id] = cfg.cost_per_1k_total
+
+        successful = {m_id: r for m_id, r in results.items() if r[0] is not None}
+        if not successful:
+            raise RuntimeError(f"All parallel models failed: {list(results.values())}")
+
+        if len(successful) == 1:
+            m_id, (resp, pt, ct, lat, err) = next(iter(successful.items()))
+        else:
+            from routesmith.verification import compare_responses
+            m_ids = list(successful.keys())
+            resp_a, pt_a, ct_a, lat_a, _ = successful[m_ids[0]]
+            resp_b, pt_b, ct_b, lat_b, _ = successful[m_ids[1]]
+            comp = compare_responses(resp_a, resp_b)
+            # If responses are equivalent, pick cheaper
+            if comp["equivalent"]:
+                cost_a = cost_map.get(m_ids[0], float("inf"))
+                cost_b = cost_map.get(m_ids[1], float("inf"))
+                if cost_a <= cost_b:
+                    m_id, resp, pt, ct, lat = m_ids[0], resp_a, pt_a, ct_a, lat_a
+                else:
+                    m_id, resp, pt, ct, lat = m_ids[1], resp_b, pt_b, ct_b, lat_b
+            else:
+                # Not equivalent: pick higher-quality model
+                qual_map = {}
+                candidate_ids = [m for m in m_ids if m in cost_map]
+                preds = self.router.predictor.predict(messages, candidate_ids) if candidate_ids else []
+                for p in preds:
+                    qual_map[p.model_id] = p.predicted_quality
+                qual_a = qual_map.get(m_ids[0], 0.0)
+                qual_b = qual_map.get(m_ids[1], 0.0)
+                if qual_a >= qual_b:
+                    m_id, resp, pt, ct, lat = m_ids[0], resp_a, pt_a, ct_a, lat_a
+                else:
+                    m_id, resp, pt, ct, lat = m_ids[1], resp_b, pt_b, ct_b, lat_b
+
+        # Track cost for the selected response
+        self._track_cost(m_id, pt, ct, context, request_id)
+        resp._routesmith_request_id = request_id
+        metadata = RoutingMetadata(
+            request_id=request_id,
+            model_selected=m_id,
+            routing_strategy="parallel",
+            routing_reason=f"parallel: compared {len(successful)} model(s), selected {m_id}",
+            routing_latency_ms=0.0,
+            estimated_cost_usd=0.0,
+            counterfactual_cost_usd=0.0,
+            cost_savings_usd=0.0,
+            models_considered=candidates,
+        )
+        self._last_routing_metadata = metadata
+        if kwargs.get("include_metadata", False):
+            resp.routesmith_metadata = metadata.to_dict()
+        resp.routesmith_explanation = (
+            f"Parallel: ran {len(candidates)} model(s), "
+            f"selected {m_id}"
+        )
+        self.feedback.record(
+            request_id=request_id, messages=messages, model=m_id,
+            response=resp, latency_ms=lat,
+            agent_id=context.agent_id if context else None,
+            agent_role=context.agent_role if context else None,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
+        )
+        return resp
+
+    async def _acompletion_parallel(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float,
+        max_cost: float | None,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext,
+        request_id: str,
+        **kwargs: Any,
+    ) -> ModelResponse:
+        """Async parallel execution: run 2 models concurrently via asyncio."""
+        import asyncio
+
+        candidates = self.router.get_parallel_candidates(
+            messages=messages, n_candidates=2, max_cost=max_cost,
+            min_quality=min_quality,
+            required_capabilities=required_capabilities,
+            required_compliance=required_compliance, context=context,
+        )
+        if not candidates:
+            return await self._aexecute_single(
+                messages, min_quality, required_capabilities,
+                required_compliance, context, request_id, **kwargs
+            )
+
+        async def run(m_id: str) -> tuple[str, Any]:
+            result = await self._aexecute_model(m_id, messages, request_id, **kwargs)
+            return (m_id, result)
+
+        results_list = await asyncio.gather(*[run(m_id) for m_id in candidates], return_exceptions=True)
+        results: dict[str, tuple] = {}
+        for item in results_list:
+            if isinstance(item, Exception):
+                continue
+            m_id, result = item
+            results[m_id] = result
+
+        cost_map = {}
+        for m_id in candidates:
+            cfg = self.registry.get(m_id)
+            if cfg:
+                cost_map[m_id] = cfg.cost_per_1k_total
+
+        successful = {m_id: r for m_id, r in results.items() if r[0] is not None}
+        if not successful:
+            raise RuntimeError(f"All parallel models failed: {list(results.values())}")
+
+        if len(successful) == 1:
+            m_id, (resp, pt, ct, lat, _) = next(iter(successful.items()))
+        else:
+            from routesmith.verification import compare_responses
+            m_ids = list(successful.keys())
+            resp_a, pt_a, ct_a, lat_a, _ = successful[m_ids[0]]
+            resp_b, pt_b, ct_b, lat_b, _ = successful[m_ids[1]]
+            comp = compare_responses(resp_a, resp_b)
+            if comp["equivalent"]:
+                cost_a = cost_map.get(m_ids[0], float("inf"))
+                cost_b = cost_map.get(m_ids[1], float("inf"))
+                if cost_a <= cost_b:
+                    m_id, resp, pt, ct, lat = m_ids[0], resp_a, pt_a, ct_a, lat_a
+                else:
+                    m_id, resp, pt, ct, lat = m_ids[1], resp_b, pt_b, ct_b, lat_b
+            else:
+                qual_map = {}
+                candidate_ids = [m for m in m_ids if m in cost_map]
+                preds = self.router.predictor.predict(messages, candidate_ids) if candidate_ids else []
+                for p in preds:
+                    qual_map[p.model_id] = p.predicted_quality
+                qual_a = qual_map.get(m_ids[0], 0.0)
+                qual_b = qual_map.get(m_ids[1], 0.0)
+                if qual_a >= qual_b:
+                    m_id, resp, pt, ct, lat = m_ids[0], resp_a, pt_a, ct_a, lat_a
+                else:
+                    m_id, resp, pt, ct, lat = m_ids[1], resp_b, pt_b, ct_b, lat_b
+
+        self._track_cost(m_id, pt, ct, context, request_id)
+        resp._routesmith_request_id = request_id
+        metadata = RoutingMetadata(
+            request_id=request_id, model_selected=m_id,
+            routing_strategy="parallel",
+            routing_reason=f"parallel: compared {len(successful)} model(s), selected {m_id}",
+            routing_latency_ms=0.0, estimated_cost_usd=0.0,
+            counterfactual_cost_usd=0.0, cost_savings_usd=0.0,
+            models_considered=candidates,
+        )
+        self._last_routing_metadata = metadata
+        if kwargs.get("include_metadata", False):
+            resp.routesmith_metadata = metadata.to_dict()
+        resp.routesmith_explanation = (
+            f"Parallel: ran {len(candidates)} model(s), selected {m_id}"
+        )
+        self.feedback.record(
+            request_id=request_id, messages=messages, model=m_id,
+            response=resp, latency_ms=lat,
+            agent_id=context.agent_id if context else None,
+            agent_role=context.agent_role if context else None,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
+        )
+        return resp
+
+    def _completion_speculative(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext,
+        request_id: str,
+        **kwargs: Any,
+    ) -> ModelResponse:
+        """Execute speculative strategy: start cheap, escalate on hard negatives."""
+        cheap_id, expensive_id = self.router.get_speculative_plan(
+            messages=messages, min_quality=min_quality,
+            required_capabilities=required_capabilities,
+            required_compliance=required_compliance, context=context,
+        )
+        if not cheap_id:
+            raise ValueError("No models available for speculative routing")
+
+        if hasattr(self.feedback, '_signal_extractor') and self.feedback._signal_extractor is not None:
+            extractor = self.feedback._signal_extractor
+        else:
+            from routesmith.feedback.signals import SignalExtractor
+            extractor = SignalExtractor()
+
+        response, pt, ct, lat, err = self._execute_model(
+            cheap_id, messages, request_id, **kwargs
+        )
+
+        if err:
+            if expensive_id and expensive_id != cheap_id:
+                response, pt, ct, lat, err = self._execute_model(
+                    expensive_id, messages, request_id, **kwargs
+                )
+                if err:
+                    self.feedback.record_outcome(
+                        request_id=request_id, success=False, feedback=err,
+                    )
+                    raise RuntimeError(f"Speculative: cheap ({cheap_id}) and expensive ({expensive_id}) both failed")
+                escalated = True
+            else:
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=err,
+                )
+                raise RuntimeError(f"Speculative: cheap model {cheap_id} failed and no escalation target")
+        else:
+            signals = extractor.extract(response, cheap_id, lat)
+            hard_negatives = {"error_detected", "refusal_detected", "empty_response"}
+            reject = any(
+                s.signal_value < 0.5
+                for s in signals
+                if s.signal_name in hard_negatives
+            )
+            if reject and expensive_id and expensive_id != cheap_id:
+                response, pt, ct, lat, err = self._execute_model(
+                    expensive_id, messages, request_id, **kwargs
+                )
+                if err:
+                    response, pt, ct, lat, _ = self._execute_model(
+                        cheap_id, messages, request_id, **kwargs
+                    )
+                escalated = True
+            else:
+                escalated = False
+
+        self._track_cost(cheap_id if not escalated else (expensive_id or cheap_id), pt, ct, context, request_id)
+        response._routesmith_request_id = request_id
+        routing_str = f"speculative escalated {cheap_id} → {expensive_id}" if escalated else f"speculative accepted {cheap_id}"
+        routing_reason = routing_str
+        metadata = RoutingMetadata(
+            request_id=request_id,
+            model_selected=cheap_id if not escalated else (expensive_id or cheap_id),
+            routing_strategy="speculative",
+            routing_reason=routing_reason,
+            routing_latency_ms=0.0,
+            estimated_cost_usd=0.0,
+            counterfactual_cost_usd=0.0,
+            cost_savings_usd=0.0,
+            models_considered=[cheap_id, expensive_id] if expensive_id else [cheap_id],
+        )
+        self._last_routing_metadata = metadata
+        if kwargs.get("include_metadata", False):
+            response.routesmith_metadata = metadata.to_dict()
+        response.routesmith_explanation = routing_str
+        self.feedback.record(
+            request_id=request_id, messages=messages,
+            model=cheap_id if not escalated else (expensive_id or cheap_id),
+            response=response, latency_ms=lat,
+            agent_id=context.agent_id if context else None,
+            agent_role=context.agent_role if context else None,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
+        )
+        return response
+
+    async def _acompletion_speculative(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext,
+        request_id: str,
+        **kwargs: Any,
+    ) -> ModelResponse:
+        """Async speculative execution."""
+        cheap_id, expensive_id = self.router.get_speculative_plan(
+            messages=messages, min_quality=min_quality,
+            required_capabilities=required_capabilities,
+            required_compliance=required_compliance, context=context,
+        )
+        if not cheap_id:
+            raise ValueError("No models available for speculative routing")
+
+        if hasattr(self.feedback, '_signal_extractor') and self.feedback._signal_extractor is not None:
+            extractor = self.feedback._signal_extractor
+        else:
+            from routesmith.feedback.signals import SignalExtractor
+            extractor = SignalExtractor()
+
+        response, pt, ct, lat, err = await self._aexecute_model(
+            cheap_id, messages, request_id, **kwargs
+        )
+
+        if err:
+            if expensive_id and expensive_id != cheap_id:
+                response, pt, ct, lat, err = await self._aexecute_model(
+                    expensive_id, messages, request_id, **kwargs
+                )
+                if err:
+                    self.feedback.record_outcome(
+                        request_id=request_id, success=False, feedback=err,
+                    )
+                    raise RuntimeError("Speculative: cheap and expensive both failed")
+                escalated = True
+            else:
+                self.feedback.record_outcome(
+                    request_id=request_id, success=False, feedback=err,
+                )
+                raise RuntimeError(f"Speculative: cheap model {cheap_id} failed")
+        else:
+            signals = extractor.extract(response, cheap_id, lat)
+            hard_negatives = {"error_detected", "refusal_detected", "empty_response"}
+            reject = any(
+                s.signal_value < 0.5
+                for s in signals
+                if s.signal_name in hard_negatives
+            )
+            if reject and expensive_id and expensive_id != cheap_id:
+                response, pt, ct, lat, err = await self._aexecute_model(
+                    expensive_id, messages, request_id, **kwargs
+                )
+                if err:
+                    response, pt, ct, lat, _ = await self._aexecute_model(
+                        cheap_id, messages, request_id, **kwargs
+                    )
+                escalated = True
+            else:
+                escalated = False
+
+        self._track_cost(
+            cheap_id if not escalated else (expensive_id or cheap_id),
+            pt, ct, context, request_id,
+        )
+        response._routesmith_request_id = request_id
+        routing_str = f"speculative escalated {cheap_id} → {expensive_id}" if escalated else f"speculative accepted {cheap_id}"
+        metadata = RoutingMetadata(
+            request_id=request_id,
+            model_selected=cheap_id if not escalated else (expensive_id or cheap_id),
+            routing_strategy="speculative",
+            routing_reason=routing_str,
+            routing_latency_ms=0.0,
+            estimated_cost_usd=0.0,
+            counterfactual_cost_usd=0.0,
+            cost_savings_usd=0.0,
+            models_considered=[cheap_id, expensive_id] if expensive_id else [cheap_id],
+        )
+        self._last_routing_metadata = metadata
+        if kwargs.get("include_metadata", False):
+            response.routesmith_metadata = metadata.to_dict()
+        response.routesmith_explanation = routing_str
+        self.feedback.record(
+            request_id=request_id, messages=messages,
+            model=cheap_id if not escalated else (expensive_id or cheap_id),
+            response=response, latency_ms=lat,
+            agent_id=context.agent_id if context else None,
+            agent_role=context.agent_role if context else None,
+            conversation_id=context.conversation_id if context else None,
+            turn_index=context.turn_index if context else None,
+        )
+        return response
+
+    def _execute_single(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext,
+        request_id: str,
+        **kwargs: Any,
+    ) -> ModelResponse:
+        """Fallback: route via direct strategy and execute a single model."""
+        selected = self.router.route(messages, strategy=RoutingStrategy.DIRECT,
+                                     min_quality=min_quality,
+                                     required_capabilities=required_capabilities,
+                                     required_compliance=required_compliance,
+                                     context=context)
+        response, pt, ct, lat, err = self._execute_model(
+            selected, messages, request_id, **kwargs
+        )
+        if err:
+            raise RuntimeError(f"Single model {selected} failed: {err}")
+        self._track_cost(selected, pt, ct, context, request_id)
+        return response
+
+    async def _aexecute_single(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext,
+        request_id: str,
+        **kwargs: Any,
+    ) -> ModelResponse:
+        """Async fallback: route via direct strategy and execute a single model."""
+        selected = self.router.route(messages, strategy=RoutingStrategy.DIRECT,
+                                     min_quality=min_quality,
+                                     required_capabilities=required_capabilities,
+                                     required_compliance=required_compliance,
+                                     context=context)
+        response, pt, ct, lat, err = await self._aexecute_model(
+            selected, messages, request_id, **kwargs
+        )
+        if err:
+            raise RuntimeError(f"Single model {selected} failed: {err}")
+        self._track_cost(selected, pt, ct, context, request_id)
+        return response
+
+    def _track_cost(
+        self, model_id: str, prompt_tokens: int, completion_tokens: int,
+        context: RouteContext, request_id: str,
+    ) -> None:
+        """Update running cost and per-cost-model counts."""
+        cfg = self.registry.get(model_id)
+        if not cfg:
+            return
+        cost = (
+            (prompt_tokens / 1000) * cfg.cost_per_1k_input
+            + (completion_tokens / 1000) * cfg.cost_per_1k_output
+        )
+        self._total_cost += cost
+        self._budget.record(cost)
+        cm = cfg.cost_model.value
+        if cm not in self._cost_model_counts:
+            self._cost_model_counts[cm] = {"request_count": 0.0, "total_cost": 0.0}
+        self._cost_model_counts[cm]["request_count"] += 1
+        self._cost_model_counts[cm]["total_cost"] += cost
 
     def completion_stream(
         self,
