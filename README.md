@@ -13,7 +13,7 @@ RouteSmith sits between your AI coding tool and the LLM. It routes every request
 to the best model for that specific task — cheap models for simple edits, frontier
 models for complex refactors. You never think about model IDs again.
 
-**New in v0.5.0-beta**: NeuralUCB, REINFORCE, and WarmStart LinUCB predictors. Research paper with benchmark results included.
+**v0.7.0**: Per-project cost stats, decision audit log, per-role policy CLI, CI/CD evaluate. Phase 3 complete.
 
 ## Who it's for
 
@@ -137,6 +137,14 @@ routesmith serve
 
 # Check stats
 routesmith stats
+
+# View routing decisions
+routesmith audit
+
+# Manage per-role routing policies
+routesmith roles list
+routesmith roles set --role coder --model-pool gpt-4o-mini gpt-4o
+routesmith roles unset --role coder
 ```
 
 ```python

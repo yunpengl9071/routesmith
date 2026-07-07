@@ -1,11 +1,16 @@
 """Rolling-window budget enforcement."""
 from __future__ import annotations
 
+import asyncio
 import threading
 import time
 from collections import deque
 
 WINDOWS = {"minute": 60.0, "hour": 3600.0, "day": 86400.0}
+
+# How long we wait between budget-poll cycles when queueing
+_POLL_INTERVAL = 0.5
+_MAX_QUEUE_WAIT = 3600.0
 
 
 class BudgetExceededError(RuntimeError):
@@ -61,3 +66,67 @@ class BudgetTracker:
         with self._lock:
             self._events.append((now, cost))
             self._prune(now)
+
+    def seconds_until_available(self, now: float | None = None) -> float:
+        """Return seconds until the earliest budget window is available.
+
+        Returns 0 if already within budget.
+        """
+        now = time.time() if now is None else now
+        limits = {
+            "minute": self._config.max_cost_per_minute,
+            "hour": self._config.max_cost_per_hour,
+            "day": self._config.max_cost_per_day,
+        }
+        max_wait = 0.0
+        with self._lock:
+            self._prune(now)
+            for window, limit in limits.items():
+                if limit is None:
+                    continue
+                spent = sum(c for ts, c in self._events if ts >= now - WINDOWS[window])
+                if spent < limit:
+                    continue
+                # Find oldest event in this window — that's when we'll be under budget
+                cutoff = now - WINDOWS[window]
+                oldest_in_window = now
+                for ts, _ in self._events:
+                    if ts >= cutoff:
+                        oldest_in_window = min(oldest_in_window, ts)
+                wait = oldest_in_window + WINDOWS[window] - now + 0.1  # small buffer
+                max_wait = max(max_wait, wait)
+        return max_wait
+
+    def wait_until_available(self, now: float | None = None) -> float:
+        """Block until a budget slot opens. Returns total seconds waited."""
+        now = time.time() if now is None else now
+        deadline = now + _MAX_QUEUE_WAIT
+        total_waited = 0.0
+        while True:
+            wait = self.seconds_until_available(now)
+            if wait <= 0:
+                return total_waited
+            if time.time() + wait > deadline:
+                raise BudgetExceededError(
+                    "queued", _MAX_QUEUE_WAIT, total_waited,
+                )
+            time.sleep(min(_POLL_INTERVAL, wait))
+            now = time.time()
+            total_waited += _POLL_INTERVAL
+
+    async def await_until_available(self, now: float | None = None) -> float:
+        """Async wait until a budget slot opens. Returns total seconds waited."""
+        now = time.time() if now is None else now
+        deadline = now + _MAX_QUEUE_WAIT
+        total_waited = 0.0
+        while True:
+            wait = self.seconds_until_available(now)
+            if wait <= 0:
+                return total_waited
+            if time.time() + wait > deadline:
+                raise BudgetExceededError(
+                    "queued", _MAX_QUEUE_WAIT, total_waited,
+                )
+            await asyncio.sleep(min(_POLL_INTERVAL, wait))
+            now = time.time()
+            total_waited += _POLL_INTERVAL

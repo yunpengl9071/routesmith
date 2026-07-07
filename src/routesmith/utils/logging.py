@@ -17,7 +17,7 @@ _LOG_LEVELS: dict[str, int] = {
     "ERROR": logging.ERROR,
 }
 
-_EXTRA_KEYS = {"model_id", "request_id", "cost_usd", "routing_latency_ms"}
+_EXTRA_KEYS = {"model_id", "request_id", "cost_usd", "routing_latency_ms", "waited_seconds"}
 
 
 class JsonFormatter(logging.Formatter):
