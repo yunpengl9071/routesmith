@@ -20,6 +20,7 @@ class CacheEntry:
     ttl_seconds: int
     hit_count: int = 0
     metadata: dict[str, Any] = field(default_factory=dict)
+    namespace: str = "default"
 
     @property
     def is_expired(self) -> bool:
@@ -47,6 +48,7 @@ class SemanticCache:
         max_entries: int = 10000,
         embedding_model: str = "all-MiniLM-L6-v2",
         lock: bool = False,
+        namespace: str = "default",
     ) -> None:
         """
         Initialize semantic cache.
@@ -56,11 +58,13 @@ class SemanticCache:
             ttl_seconds: Time-to-live for cache entries.
             max_entries: Maximum number of cached entries.
             embedding_model: Model for computing embeddings.
+            namespace: Isolation namespace for multi-tenant use.
         """
         self.similarity_threshold = similarity_threshold
         self.ttl_seconds = ttl_seconds
         self.max_entries = max_entries
         self.embedding_model = embedding_model
+        self.namespace = namespace
 
         self._exact_cache: dict[str, CacheEntry] = {}
         self._semantic_entries: list[CacheEntry] = []
@@ -90,8 +94,8 @@ class SemanticCache:
         return hashlib.sha256(content.encode()).hexdigest()
 
     def _composite_key(self, messages: list[dict[str, str]], model_id: str) -> str:
-        """Create a composite cache key from messages and model_id."""
-        return self._hash_messages(messages) + "|" + model_id
+        """Create a composite cache key from messages, namespace, and model_id."""
+        return f"{self.namespace}|{self._hash_messages(messages)}|{model_id}"
 
     def _compute_embedding(self, messages: list[dict[str, str]]) -> list[float]:
         """Compute embedding for messages."""
@@ -143,8 +147,10 @@ class SemanticCache:
             else:
                 # Backward-compatible: model-unaware exact match.
                 # Iterate composite keys to find any entry for this query hash.
+                # Keys may be "hash|model_id" (legacy) or "ns|hash|model_id" (namespaced).
                 for key, entry in list(self._exact_cache.items()):
-                    if key.startswith(query_hash + "|"):
+                    sep_hash = "|" + query_hash + "|"
+                    if key.startswith(query_hash + "|") or sep_hash in key:
                         if not entry.is_expired:
                             entry.hit_count += 1
                             return entry
@@ -163,6 +169,8 @@ class SemanticCache:
                     if entry.query_embedding is None:
                         continue
                     if model_id is not None and entry.model_id != model_id:
+                        continue
+                    if entry.namespace != self.namespace:
                         continue
 
                     similarity = self._cosine_similarity(query_embedding, entry.query_embedding)
@@ -188,6 +196,7 @@ class SemanticCache:
         model_id: str,
         semantic: bool = True,
         metadata: dict[str, Any] | None = None,
+        namespace: str | None = None,
     ) -> CacheEntry:
         """
         Store response in cache.
@@ -198,10 +207,12 @@ class SemanticCache:
             model_id: Model that generated the response.
             semantic: Whether to enable semantic matching.
             metadata: Additional metadata to store.
+            namespace: Override namespace (defaults to self.namespace).
 
         Returns:
             The created cache entry.
         """
+        ns = namespace or self.namespace
         query_hash = self._hash_messages(messages)
         composite_key = self._composite_key(messages, model_id)
         query_embedding = self._compute_embedding(messages) if semantic else None
@@ -214,6 +225,7 @@ class SemanticCache:
             created_at=time.time(),
             ttl_seconds=self.ttl_seconds,
             metadata=metadata or {},
+            namespace=ns,
         )
 
         def _store() -> None:
@@ -255,48 +267,54 @@ class SemanticCache:
             )
             self._semantic_entries.pop(oldest_idx)
 
-    def invalidate(self, messages: list[dict[str, str]], model_id: str | None = None) -> bool:
+    def invalidate(self, messages: list[dict[str, str]], model_id: str | None = None,
+                   namespace: str | None = None) -> bool:
         """
         Invalidate cache entry for messages.
 
         Args:
             messages: Query messages to invalidate.
             model_id: If provided, only invalidate entries for this model.
+            namespace: If provided, only invalidate entries in this namespace.
 
         Returns:
             True if entry was found and removed.
         """
+        ns = namespace or self.namespace
         query_hash = self._hash_messages(messages)
+        ns_prefix = f"{ns}|{query_hash}|"
         found = False
 
         if model_id is not None:
-            composite_key = self._composite_key(messages, model_id)
+            composite_key = f"{ns_prefix}{model_id}"
             if composite_key in self._exact_cache:
                 del self._exact_cache[composite_key]
                 found = True
             self._semantic_entries = [
                 e for e in self._semantic_entries
-                if not (e.query_hash == query_hash and e.model_id == model_id)
+                if not (e.query_hash == query_hash and e.model_id == model_id and e.namespace == ns)
             ]
         else:
-            # Invalidate all entries for this query hash
-            keys_to_remove = [
-                k for k in self._exact_cache if k.startswith(query_hash + "|")
-            ]
+            keys_to_remove = [k for k in self._exact_cache if k.startswith(ns_prefix)]
             for k in keys_to_remove:
                 del self._exact_cache[k]
                 found = True
             self._semantic_entries = [
                 e for e in self._semantic_entries
-                if e.query_hash != query_hash
+                if not (e.query_hash == query_hash and e.namespace == ns)
             ]
 
         return found
 
-    def clear(self) -> None:
-        """Clear all cache entries."""
-        self._exact_cache.clear()
-        self._semantic_entries.clear()
+    def clear(self, namespace: str | None = None) -> None:
+        """Clear cache entries, optionally for a specific namespace."""
+        if namespace is None:
+            self._exact_cache.clear()
+            self._semantic_entries.clear()
+        else:
+            ns_prefix = f"{namespace}|"
+            self._exact_cache = {k: v for k, v in self._exact_cache.items() if not k.startswith(ns_prefix)}
+            self._semantic_entries = [e for e in self._semantic_entries if e.namespace != namespace]
 
     @property
     def stats(self) -> dict[str, Any]:

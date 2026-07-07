@@ -53,7 +53,8 @@ class FeedbackStorage:
                 agent_id TEXT,
                 agent_role TEXT,
                 conversation_id TEXT,
-                turn_index INTEGER
+                turn_index INTEGER,
+                project_id TEXT
             );
 
             CREATE TABLE IF NOT EXISTS outcome_signals (
@@ -102,6 +103,7 @@ class FeedbackStorage:
             ("agent_role", "TEXT"),
             ("conversation_id", "TEXT"),
             ("turn_index", "INTEGER"),
+            ("project_id", "TEXT"),
         ]:
             try:
                 self._conn.execute(
@@ -124,6 +126,7 @@ class FeedbackStorage:
         agent_role: str | None = None,
         conversation_id: str | None = None,
         turn_index: int | None = None,
+        project_id: str | None = None,
     ) -> None:
         """Store a feedback record."""
         conn = self._get_conn()
@@ -131,8 +134,8 @@ class FeedbackStorage:
             """INSERT OR REPLACE INTO feedback_records
                (request_id, model_id, messages_json, latency_ms,
                 quality_score, user_feedback, metadata_json, created_at,
-                agent_id, agent_role, conversation_id, turn_index)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                agent_id, agent_role, conversation_id, turn_index, project_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 request_id,
                 model_id,
@@ -146,6 +149,7 @@ class FeedbackStorage:
                 agent_role,
                 conversation_id,
                 turn_index,
+                project_id,
             ),
         )
         conn.commit()
@@ -234,13 +238,19 @@ class FeedbackStorage:
         rows = conn.execute(query, params).fetchall()
         return [self._row_to_dict(r) for r in rows]
 
-    def get_all_records(self, limit: int = 10000) -> list[dict[str, Any]]:
-        """Fetch all feedback records for local stats aggregation."""
+    def get_all_records(self, limit: int = 10000, project_id: str | None = None) -> list[dict[str, Any]]:
+        """Fetch feedback records, optionally filtered by project."""
         conn = self._get_conn()
-        rows = conn.execute(
-            "SELECT * FROM feedback_records ORDER BY created_at DESC LIMIT ?",
-            (limit,),
-        ).fetchall()
+        if project_id is not None:
+            rows = conn.execute(
+                "SELECT * FROM feedback_records WHERE project_id = ? ORDER BY created_at DESC LIMIT ?",
+                (project_id, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM feedback_records ORDER BY created_at DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
         return [self._row_to_dict(r) for r in rows]
 
     def get_model_stats(self) -> dict[str, dict[str, Any]]:

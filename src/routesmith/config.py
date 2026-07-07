@@ -54,6 +54,8 @@ class CacheConfig:
     ttl_seconds: int = 3600
     max_entries: int = 10000
     embedding_model: str = "all-MiniLM-L6-v2"
+    namespace: str = "default"
+    project_name: str | None = None  # Override for multi-tenant isolation
 
 
 @dataclass
