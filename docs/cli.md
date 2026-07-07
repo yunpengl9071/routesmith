@@ -10,6 +10,25 @@ All commands are invoked via `routesmith <command> [options]`.
 
 ---
 
+## `routesmith quickstart`
+
+Single-command setup. Detects provider API keys in environment, generates `routesmith.yaml`, prints curl/Python/Anthropic SDK snippets.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--port`, `-p` | `9119` | Port for the proxy server |
+| `--yes`, `-y` | — | Overwrite existing config without prompting |
+
+Detects keys in order: `OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`. Exits 1 if none found.
+
+```bash
+export OPENROUTER_API_KEY=sk-or-...
+routesmith quickstart --yes
+routesmith serve
+```
+
+---
+
 ## `routesmith init`
 
 Interactive setup. Fetches the OpenRouter model catalog with live pricing and generates `routesmith.yaml`.

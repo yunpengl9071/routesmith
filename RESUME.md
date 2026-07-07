@@ -1,41 +1,43 @@
 # Resume
 
 ## Current Pipeline Step
-**Step 6/6** — v0.7.0 tagged on `dev`
+**Step 1/6** — Phase 5, P5.1: examples/ directory + CI smoke harness
 
 ## Status
-- All 4 phases complete — nothing pending
-- v0.7.0 tagged: https://github.com/yunpengl9071/routesmith/tree/v0.7.0
-- PR #43 merged: https://github.com/yunpengl9071/routesmith/pull/43
+- Phase 5 feature branch: `feature/phase-5-integrations`
+- PR #44 merged (docs + QUEUE + proxy auth)
 - CI gate: ruff ✓, mypy ✓, pytest 844/23 ✓
 
-## What's Done
+## What's Done (All 4 phases + v0.7.1 enhancements)
 - Phase 1: Feature normalization, record-all, proxy feedback, implicit signals, LLM judge, convergence
 - Phase 2: Routing quality benchmarking, experiment runner
-- Phase 3: Parallel/speculative strategies, LinTS predictor, multi-tenant cache, evaluate CLI, per-project stats, audit log, per-role policies, v0.7.0 tagged
+- Phase 3: Parallel/speculative strategies, LinTS predictor, multi-tenant cache, evaluate CLI, per-project stats, audit log, per-role policies
 - Phase 4: LangChain, Anthropic, DSPy, CrewAI, AutoGen, OpenClaw integrations + A/B test framework
+- v0.7.1: docs/cli.md, QUEUE budget behavior, proxy --api-key auth
 
 ## What's Next (if continuing)
 - Combined UAT with real API keys (needs GROQ_API_KEY or similar)
 - PyPI publish: `python -m build && twine check dist/* && twine upload dist/*`
 - arXiv paper publication
+- Benchmark experiments (LinTS-27d, 5-arm multi-model, ablations)
 - New feature requests / bug reports
 
 ## Commands to Resume
 ```bash
 git checkout dev && git pull origin dev
-# Check status:
-git log --oneline -5
+# Check PR #44 status:
+gh pr view 44
 # Un-skip UAT with API key:
 # export GROQ_API_KEY=...
 # uv run pytest tests/manual/test_real_api.py -v
 ```
 
-## Key Files Changed (this session)
-- `src/routesmith/cli/audit.py` — **NEW** audit CLI
-- `src/routesmith/cli/roles.py` — **NEW** per-role policy CLI
-- `src/routesmith/cli/stats.py` — **MODIFIED** `--project` filter, per-project breakdown
-- `src/routesmith/feedback/audit.py` — **NEW** AuditStorage class
-- `src/routesmith/feedback/storage.py` — **MODIFIED** get_project_stats(), get_known_projects()
-- `src/routesmith/client.py` — **MODIFIED** _record_audit() wired into all 6 routing points
-- `src/routesmith/cli/main.py` — **MODIFIED** audit + roles subparsers, --project flag
+## Key Files Changed (v0.7.1 session)
+- `docs/cli.md` — **NEW** full CLI reference
+- `README.md` — **MODIFIED** updated version, added audit/roles examples
+- `src/routesmith/budget.py` — **MODIFIED** wait_until_available(), await_until_available()
+- `src/routesmith/client.py` — **MODIFIED** QUEUE mode uses blocking wait instead of error
+- `src/routesmith/proxy/server.py` — **MODIFIED** api_key config, _check_auth()
+- `src/routesmith/cli/serve.py` — **MODIFIED** --api-key flag
+- `src/routesmith/cli/main.py` — **MODIFIED** --api-key on serve parser
+- `src/routesmith/utils/logging.py` — **MODIFIED** waited_seconds in _EXTRA_KEYS

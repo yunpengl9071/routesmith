@@ -11,6 +11,11 @@ from typing import Any
 
 from routesmith import RouteSmith
 from routesmith.budget import BudgetExceededError
+from routesmith.proxy.anthropic_compat import (
+    _STOP_REASON_MAP,
+    AnthropicSSEStream,
+    anthropic_to_internal,
+)
 from routesmith.proxy.handler import ChatCompletionRequest, RequestHandler
 from routesmith.proxy.responses import format_error
 
@@ -175,7 +180,9 @@ class RouteSmithProxyServer:
         """Check if request is authorized.
 
         Returns True if authorized, False if not.
-        Health/liveness/readiness endpoints are always allowed.
+        Accepts both Authorization: Bearer <key> and x-api-key: <key>
+        (Anthropic convention). Health/liveness/readiness endpoints are
+        always allowed.
         """
         api_key = self.config.api_key
         if api_key is None:
@@ -183,7 +190,10 @@ class RouteSmithProxyServer:
         if path in ("/health", "/live", "/ready"):
             return True
         auth = headers.get("authorization", "")
-        return auth == f"Bearer {api_key}"
+        if auth == f"Bearer {api_key}":
+            return True
+        x_api_key = headers.get("x-api-key", "")
+        return x_api_key == api_key
 
     async def _route_request(
         self,
@@ -230,9 +240,14 @@ class RouteSmithProxyServer:
             await self._send_json(writer, result, 200)
             return
 
-        # Chat completions
+        # Chat completions (OpenAI format)
         if path == "/v1/chat/completions" and method == "POST":
             await self._handle_completion(writer, body)
+            return
+
+        # Anthropic Messages API endpoint
+        if path == "/v1/messages" and method == "POST":
+            await self._handle_anthropic_messages(writer, body)
             return
 
         # Feedback endpoint
@@ -249,7 +264,7 @@ class RouteSmithProxyServer:
         writer: asyncio.StreamWriter,
         body: bytes,
     ) -> None:
-        """Handle chat completion request."""
+        """Handle OpenAI-format chat completion request."""
         try:
             data = json.loads(body.decode("utf-8"))
             request = ChatCompletionRequest.from_dict(data)
@@ -272,6 +287,98 @@ class RouteSmithProxyServer:
                 await self._send_json(writer, {"error": {"message": str(e), "type": "budget_exceeded", "code": 429}}, 429)
             except Exception as e:
                 logger.exception(f"Completion error: {e}")
+                await self._send_error(writer, str(e), 500)
+
+    async def _handle_anthropic_messages(
+        self,
+        writer: asyncio.StreamWriter,
+        body: bytes,
+    ) -> None:
+        """Handle Anthropic /v1/messages request."""
+        try:
+            data = json.loads(body.decode("utf-8"))
+            messages, kwargs = anthropic_to_internal(data)
+        except json.JSONDecodeError as e:
+            await self._send_error(writer, f"Invalid JSON: {e}", 400)
+            return
+        except ValueError as e:
+            await self._send_error(writer, str(e), 400)
+            return
+
+        stream = data.get("stream", False)
+        request_model = kwargs.pop("model", "auto")
+
+        # Extract RouteSmith headers from HTTP request context
+        # (headers are passed through via the calling code)
+
+        # Build an OpenAI-format ChatCompletionRequest
+
+        openai_request = ChatCompletionRequest(
+            model="auto",
+            messages=messages,
+            stream=stream,
+            max_tokens=kwargs.get("max_tokens", 1024),
+            temperature=kwargs.get("temperature", 1.0),
+            top_p=kwargs.get("top_p", 1.0),
+            stop=kwargs.get("stop"),
+        )
+
+        if stream:
+            anthropic_chunks: list[dict] = []
+            try:
+                async for chunk in self.handler.handle_completion_stream(openai_request):
+                    data_chunk = json.loads(chunk.removeprefix("data: ").strip())
+                    if data_chunk.get("choices"):
+                        anthropic_chunks.append(data_chunk)
+            except Exception as e:
+                logger.exception(f"Anthropic stream error: {e}")
+
+            sse = AnthropicSSEStream(
+                request_id=self.routesmith._last_routing_metadata.request_id if self.routesmith._last_routing_metadata else "unknown",
+                request_model=request_model,
+            )
+            events = sse.iter_chunks(anthropic_chunks)
+            response_body = "".join(events).encode("utf-8")
+            status_text = "OK"
+            status = 200
+            await writer.write(
+                f"HTTP/1.1 {status} {status_text}\r\n"
+                f"Content-Type: text/event-stream\r\n"
+                f"Cache-Control: no-cache\r\n"
+                f"Connection: keep-alive\r\n"
+                f"Access-Control-Allow-Origin: *\r\n"
+                f"\r\n".encode() + response_body
+            )
+            await writer.drain()
+        else:
+            try:
+                result = await self.handler.handle_completion(openai_request)
+                choice = result.get("choices", [{}])[0]
+                msg = choice.get("message", {})
+                content_text = msg.get("content", "")
+                finish = choice.get("finish_reason", "stop")
+                usage = result.get("usage", {})
+                actual_model = result.get("model", request_model)
+                anthropic_resp = {
+                    "id": f"msg_{self.routesmith._last_routing_metadata.request_id}" if self.routesmith._last_routing_metadata else "msg_unknown",
+                    "type": "message",
+                    "role": "assistant",
+                    "model": actual_model,
+                    "content": [{"type": "text", "text": content_text}],
+                    "stop_reason": _STOP_REASON_MAP.get(finish, "end_turn"),
+                    "stop_sequence": None,
+                    "usage": {
+                        "input_tokens": usage.get("prompt_tokens", 0),
+                        "output_tokens": usage.get("completion_tokens", 0),
+                    },
+                }
+                if result.get("routesmith_metadata"):
+                    anthropic_resp["routesmith_metadata"] = result["routesmith_metadata"]
+                await self._send_json(writer, anthropic_resp, 200)
+            except BudgetExceededError as e:
+                await self._send_json(writer, {"error": {"message": str(e), "type": "budget_exceeded", "code": 429}}, 429)
+            except Exception as e:
+                logger.exception(f"Anthropic completion error: {e}")
                 await self._send_error(writer, str(e), 500)
 
     async def _send_stream(
