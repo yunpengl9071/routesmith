@@ -143,6 +143,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="SQLite database path (default: routesmith_feedback.db)",
     )
 
+    # evaluate command
+    from routesmith.cli.evaluate import register_subparser as register_evaluate
+    register_evaluate(subparsers)
+
     # version command
     parser.add_argument(
         "--version", "-v",
@@ -167,6 +171,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "dashboard":
         from routesmith.cli_dashboard import run_dashboard
         return run_dashboard(db_path=args.db)
+    elif args.command == "evaluate":
+        from routesmith.cli.evaluate import run_evaluate
+        return run_evaluate(args)
     else:
         parser.print_help()
         return 0

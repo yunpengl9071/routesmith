@@ -54,6 +54,7 @@ class FeedbackCollector:
         config: RouteSmithConfig,
         registry: ModelRegistry | None = None,
         max_records: int = 10000,
+        project_id: str | None = None,
     ) -> None:
         """
         Initialize feedback collector.
@@ -62,9 +63,11 @@ class FeedbackCollector:
             config: RouteSmith configuration.
             registry: Model registry (enables signal extraction with latency baselines).
             max_records: Maximum feedback records to retain in memory.
+            project_id: Multi-tenant isolation namespace.
         """
         self.config = config
         self.max_records = max_records
+        self.project_id = project_id
         self._records: list[FeedbackRecord] = []
         self._request_index: dict[str, FeedbackRecord] = {}
         self._quality_evaluator: Callable[[FeedbackRecord], float] | None = None
@@ -161,6 +164,7 @@ class FeedbackCollector:
                 agent_role=agent_role,
                 conversation_id=conversation_id,
                 turn_index=turn_index,
+                project_id=self.project_id,
             )
 
         # Extract implicit signals

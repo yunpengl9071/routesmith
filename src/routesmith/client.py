@@ -88,7 +88,7 @@ class RouteSmith:
         self.config = config or RouteSmithConfig()
         self.registry = registry or ModelRegistry()
         self.project = project
-        self.feedback = FeedbackCollector(self.config, registry=self.registry)
+        self.feedback = FeedbackCollector(self.config, registry=self.registry, project_id=self.project)
         self.router = Router(
             self.config, self.registry, storage=self.feedback._storage
         )
@@ -137,11 +137,13 @@ class RouteSmith:
         # Semantic cache (lazy-instantiated when enabled)
         self._cache: SemanticCache | None = None
         if self.config.cache.enabled:
+            ns = self.config.cache.project_name or self.project or self.config.cache.namespace
             self._cache = SemanticCache(
                 similarity_threshold=config.cache.similarity_threshold,
                 ttl_seconds=config.cache.ttl_seconds,
                 max_entries=config.cache.max_entries,
                 embedding_model=config.cache.embedding_model,
+                namespace=ns,
             )
 
         import importlib.util
