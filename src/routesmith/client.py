@@ -495,11 +495,9 @@ class RouteSmith:
                 )
             elif self.config.budget_behavior == BudgetBehavior.QUEUE:
                 self._budget_events["queued"] += 1
-                raise BudgetExceededError(
-                    "Budget exceeded. Use acompletion() with QUEUE behavior for async queueing.",
-                    current_spend=self._total_cost,
-                    limit=budget.max_cost_per_day or 0.0,
-                )
+                waited = self._budget.wait_until_available()
+                if waited > 0:
+                    self._log.info("queue_resolved", waited_seconds=round(waited, 2))
             # FALLBACK: handled below — select cheapest model
 
         # Derive max_cost from max_cost_per_request before routing
@@ -1024,11 +1022,9 @@ class RouteSmith:
                 )
             elif self.config.budget_behavior == BudgetBehavior.QUEUE:
                 self._budget_events["queued"] += 1
-                raise BudgetExceededError(
-                    "Budget exceeded. Use acompletion() with QUEUE behavior for async queueing.",
-                    current_spend=self._total_cost,
-                    limit=budget.max_cost_per_day or 0.0,
-                )
+                waited = self._budget.await_until_available()
+                if waited > 0:
+                    self._log.info("queue_resolved", waited_seconds=round(waited, 2))
             # FALLBACK: handled below
 
         # Determine routing strategy

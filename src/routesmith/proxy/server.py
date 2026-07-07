@@ -25,6 +25,7 @@ class ServerConfig:
     port: int = 9119
     read_timeout: float = 30.0
     max_request_size: int = 10 * 1024 * 1024  # 10MB
+    api_key: str | None = None  # If set, require Bearer auth on all routes except /health
 
 
 class RouteSmithProxyServer:
@@ -170,6 +171,20 @@ class RouteSmithProxyServer:
             except Exception:
                 pass
 
+    def _check_auth(self, headers: dict[str, str], path: str) -> bool:
+        """Check if request is authorized.
+
+        Returns True if authorized, False if not.
+        Health/liveness/readiness endpoints are always allowed.
+        """
+        api_key = self.config.api_key
+        if api_key is None:
+            return True
+        if path in ("/health", "/live", "/ready"):
+            return True
+        auth = headers.get("authorization", "")
+        return auth == f"Bearer {api_key}"
+
     async def _route_request(
         self,
         writer: asyncio.StreamWriter,
@@ -179,6 +194,12 @@ class RouteSmithProxyServer:
         body: bytes,
     ) -> None:
         """Route request to appropriate handler."""
+        # Auth check
+        if not self._check_auth(headers, path):
+            error_body, _ = format_error("Unauthorized", status_code=401)
+            await self._send_json(writer, error_body, 401)
+            return
+
         # Health check
         if path == "/health" and method == "GET":
             result = await self.handler.handle_health()
