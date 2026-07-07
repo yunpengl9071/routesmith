@@ -159,6 +159,14 @@ print(response.choices[0].message.content)
 rs.record_outcome(response._routesmith_request_id, score=0.9)
 ```
 
+## Examples
+
+| File | Description |
+|------|-------------|
+| `examples/quickstart_python.py` | Register models, call completion, print stats, record feedback |
+| `examples/quickstart_proxy.sh` | Generate config, start proxy, curl completion + feedback + stats |
+| `examples/multi_agent_roles.py` | Per-role routing (planner/coder/summarizer) with RouteContext |
+
 ## Documentation
 
 - [CHANGELOG.md](CHANGELOG.md)
