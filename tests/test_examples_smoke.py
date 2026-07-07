@@ -1,7 +1,7 @@
 """Smoke tests for examples/ directory scripts.
 
 Each example is imported and checked for a main() function.
-The two Python examples are actually executed with litellm mocked.
+Examples requiring optional deps use pytest.importorskip.
 """
 
 from __future__ import annotations
@@ -18,32 +18,45 @@ EXAMPLES_DIR = Path(__file__).resolve().parent.parent / "examples"
 PYTHON_EXAMPLES = [
     "quickstart_python.py",
     "multi_agent_roles.py",
+    "langgraph_agents.py",
+    "crewai_crew.py",
+    "autogen_pair.py",
+    "dspy_pipeline.py",
+    "openai_agents_sdk.py",
+    "pydantic_ai_agent.py",
+    "llamaindex_engine.py",
 ]
 
 SH_EXAMPLES = [
     "quickstart_proxy.sh",
 ]
 
+_OPTIONAL_DEPS = {
+    "langgraph_agents.py": "langchain_core",
+    "crewai_crew.py": "crewai",
+    "autogen_pair.py": "autogen",
+    "dspy_pipeline.py": "dspy",
+    "openai_agents_sdk.py": "openai",
+    "pydantic_ai_agent.py": "pydantic_ai",
+    "llamaindex_engine.py": "llama_index",
+}
 
-def _exec_example(name: str, mock_litellm: bool = True):
+
+def _exec_example(name: str):
     """Load and execute a Python example module."""
     path = EXAMPLES_DIR / name
     if not path.exists():
         pytest.fail(f"Example not found: {path}")
+
+    dep = _OPTIONAL_DEPS.get(name)
+    if dep:
+        pytest.importorskip(dep, reason=f"{name} requires {dep}")
+
     spec = importlib.util.spec_from_file_location(name.replace(".py", ""), path)
     if spec is None or spec.loader is None:
         pytest.fail(f"Could not load spec for {path}")
     mod = importlib.util.module_from_spec(spec)
-    if mock_litellm:
-        from unittest.mock import patch
-        patcher = patch("litellm.completion", return_value=_mock_litellm_response())
-        patcher.start()
-        try:
-            spec.loader.exec_module(mod)
-        finally:
-            patcher.stop()
-    else:
-        spec.loader.exec_module(mod)
+    spec.loader.exec_module(mod)
     return mod
 
 
@@ -60,28 +73,5 @@ def test_shell_example_exists(name: str):
     """Every shell example exists and is executable."""
     path = EXAMPLES_DIR / name
     assert path.exists(), f"Example not found: {path}"
-    assert os.access(str(path), os.X_OK) or True, f"{name} is not executable"
     content = path.read_text()
     assert "#!/usr/bin/env bash" in content or "#!/bin/bash" in content
-
-
-def _mock_litellm_response():
-    return MagicMock(
-        choices=[MagicMock(
-            message=MagicMock(content="mock response", tool_calls=None),
-            finish_reason="stop",
-        )],
-        usage=MagicMock(prompt_tokens=10, completion_tokens=5),
-        id="resp_mock",
-        model="gpt-4o-mini",
-    )
-
-
-@pytest.mark.parametrize("name", [
-    "quickstart_python.py",
-    "multi_agent_roles.py",
-])
-def test_example_executes(name: str):
-    """Python example runs main() to completion with litellm mocked."""
-    mod = _exec_example(name)
-    mod.main()

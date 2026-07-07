@@ -51,6 +51,9 @@ Point any AI coding tool at `http://localhost:9119/v1`:
 | OpenClaw | `routesmith openclaw-config` |
 | pi | `routesmith openclaw-config` (OpenClaw-compatible provider) |
 | OpenCode | Set `base_url` to `http://localhost:9119/v1` in provider config |
+| Anthropic SDK | `export ANTHROPIC_BASE_URL=http://localhost:9119` |
+
+> **Anthropic-native endpoint** (`POST /v1/messages`): Set `ANTHROPIC_BASE_URL=http://localhost:9119` and any Anthropic SDK client routes through RouteSmith. Supports streaming and non-streaming.
 
 [Integration guides →](https://github.com/yunpengl9071/routesmith/tree/dev/docs/integrations)
 
@@ -161,11 +164,18 @@ rs.record_outcome(response._routesmith_request_id, score=0.9)
 
 ## Examples
 
-| File | Description |
-|------|-------------|
-| `examples/quickstart_python.py` | Register models, call completion, print stats, record feedback |
-| `examples/quickstart_proxy.sh` | Generate config, start proxy, curl completion + feedback + stats |
-| `examples/multi_agent_roles.py` | Per-role routing (planner/coder/summarizer) with RouteContext |
+| File | Requires | Description |
+|------|----------|-------------|
+| `examples/quickstart_python.py` | — | Register models, completion, stats, feedback |
+| `examples/quickstart_proxy.sh` | `routesmith[proxy]` | Proxy via CLI: init → serve → curl |
+| `examples/multi_agent_roles.py` | — | Per-role routing (planner/coder/summarizer) |
+| `examples/langgraph_agents.py` | `langchain_core` | 2-node LangGraph with per-role `ChatRouteSmith` |
+| `examples/crewai_crew.py` | `crewai` | 2-agent CrewAI crew with shared RouteSmith |
+| `examples/autogen_pair.py` | `autogen` | AutoGen agent pair via proxy |
+| `examples/dspy_pipeline.py` | `dspy` | DSPy `Predict` with `RouteSmithLM` |
+| `examples/openai_agents_sdk.py` | `openai` | OpenAI SDK pointed at proxy |
+| `examples/pydantic_ai_agent.py` | `pydantic_ai` | Pydantic AI agent via proxy |
+| `examples/llamaindex_engine.py` | `llama_index` | LlamaIndex `OpenAILike` via proxy |
 
 ## Documentation
 
