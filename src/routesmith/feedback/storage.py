@@ -276,6 +276,52 @@ class FeedbackStorage:
             for row in rows
         }
 
+    def get_known_projects(self) -> list[str]:
+        """Return distinct project IDs that have feedback records."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT DISTINCT project_id FROM feedback_records WHERE project_id IS NOT NULL"
+        ).fetchall()
+        return [r[0] for r in rows]
+
+    def get_project_stats(self, project_id: str | None = None) -> dict[str, Any]:
+        """Get aggregated statistics per project or for a specific project."""
+        conn = self._get_conn()
+        if project_id is not None:
+            rows = conn.execute("""
+                SELECT
+                    project_id,
+                    COUNT(*) as request_count,
+                    AVG(latency_ms) as avg_latency_ms,
+                    AVG(quality_score) as avg_quality,
+                    COUNT(quality_score) as quality_samples
+                FROM feedback_records
+                WHERE project_id = ?
+                GROUP BY project_id
+            """, (project_id,)).fetchall()
+        else:
+            rows = conn.execute("""
+                SELECT
+                    project_id,
+                    COUNT(*) as request_count,
+                    AVG(latency_ms) as avg_latency_ms,
+                    AVG(quality_score) as avg_quality,
+                    COUNT(quality_score) as quality_samples
+                FROM feedback_records
+                WHERE project_id IS NOT NULL
+                GROUP BY project_id
+                ORDER BY request_count DESC
+            """).fetchall()
+        return {
+            row["project_id"]: {
+                "request_count": row["request_count"],
+                "avg_latency_ms": row["avg_latency_ms"],
+                "avg_quality": row["avg_quality"],
+                "quality_samples": row["quality_samples"],
+            }
+            for row in rows
+        }
+
     def get_known_roles(self) -> list[str]:
         """Return distinct agent roles that have feedback records."""
         conn = self._get_conn()

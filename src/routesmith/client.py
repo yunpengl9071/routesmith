@@ -24,6 +24,7 @@ from routesmith.config import (
 )
 from routesmith.exceptions import BudgetExceededError
 from routesmith.explanation import format_explanation
+from routesmith.feedback.audit import AuditStorage, NullAuditStorage
 from routesmith.feedback.collector import FeedbackCollector
 from routesmith.feedback.signals import implicit_quality
 from routesmith.registry.models import ModelRegistry
@@ -89,6 +90,13 @@ class RouteSmith:
         self.registry = registry or ModelRegistry()
         self.project = project
         self.feedback = FeedbackCollector(self.config, registry=self.registry, project_id=self.project)
+        self._audit_storage: AuditStorage | NullAuditStorage
+        try:
+            self._audit_storage = AuditStorage(
+                self.config.cache.store_path if hasattr(self.config.cache, "store_path") and self.config.cache.store_path else "routesmith_feedback.db"
+            )
+        except Exception:
+            self._audit_storage = NullAuditStorage()
         self.router = Router(
             self.config, self.registry, storage=self.feedback._storage
         )
@@ -805,6 +813,7 @@ class RouteSmith:
             fallback_from=fallback_from,
         )
         self._last_routing_metadata = metadata
+        self._record_audit(metadata, context)
 
         # Attach metadata to response if requested
         if include_metadata:
@@ -1235,6 +1244,7 @@ class RouteSmith:
             fallback_from=fallback_from,
         )
         self._last_routing_metadata = metadata
+        self._record_audit(metadata, context)
 
         # Attach metadata to response if requested
         if include_metadata:
@@ -1985,6 +1995,7 @@ class RouteSmith:
             models_considered=candidates,
         )
         self._last_routing_metadata = metadata
+        self._record_audit(metadata, context)
         if kwargs.get("include_metadata", False):
             resp.routesmith_metadata = metadata.to_dict()
         resp.routesmith_explanation = (
@@ -2088,6 +2099,7 @@ class RouteSmith:
             models_considered=candidates,
         )
         self._last_routing_metadata = metadata
+        self._record_audit(metadata, context)
         if kwargs.get("include_metadata", False):
             resp.routesmith_metadata = metadata.to_dict()
         resp.routesmith_explanation = (
@@ -2184,6 +2196,7 @@ class RouteSmith:
             models_considered=[cheap_id, expensive_id] if expensive_id else [cheap_id],
         )
         self._last_routing_metadata = metadata
+        self._record_audit(metadata, context)
         if kwargs.get("include_metadata", False):
             response.routesmith_metadata = metadata.to_dict()
         response.routesmith_explanation = routing_str
@@ -2281,6 +2294,7 @@ class RouteSmith:
             models_considered=[cheap_id, expensive_id] if expensive_id else [cheap_id],
         )
         self._last_routing_metadata = metadata
+        self._record_audit(metadata, context)
         if kwargs.get("include_metadata", False):
             response.routesmith_metadata = metadata.to_dict()
         response.routesmith_explanation = routing_str
@@ -2483,6 +2497,30 @@ class RouteSmith:
             result["last_routing"] = self._last_routing_metadata.to_dict()
 
         return result
+
+    def _record_audit(self, metadata: RoutingMetadata, context: RouteContext | None = None) -> None:
+        """Record an audit log entry for a routing decision."""
+        ctx = asdict(context) if context else {}
+        try:
+            self._audit_storage.record(
+                request_id=metadata.request_id,
+                project_id=self.project,
+                model_selected=metadata.model_selected,
+                routing_strategy=metadata.routing_strategy,
+                routing_reason=metadata.routing_reason,
+                routing_latency_ms=metadata.routing_latency_ms,
+                estimated_cost_usd=metadata.estimated_cost_usd,
+                counterfactual_cost_usd=metadata.counterfactual_cost_usd,
+                cost_savings_usd=metadata.cost_savings_usd,
+                models_considered=metadata.models_considered,
+                cache_hit=metadata.cache_hit,
+                fallback_from=metadata.fallback_from,
+                context_metadata=ctx.get("metadata"),
+                agent_role=ctx.get("agent_role"),
+                conversation_id=ctx.get("conversation_id"),
+            )
+        except Exception:
+            pass
 
     @property
     def last_routing_metadata(self) -> RoutingMetadata | None:
