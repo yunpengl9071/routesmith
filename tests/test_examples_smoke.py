@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import importlib.util
 import os
-import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -36,7 +35,6 @@ def _exec_example(name: str, mock_litellm: bool = True):
         pytest.fail(f"Could not load spec for {path}")
     mod = importlib.util.module_from_spec(spec)
     if mock_litellm:
-        import litellm as _  # force import so patch works
         from unittest.mock import patch
         patcher = patch("litellm.completion", return_value=_mock_litellm_response())
         patcher.start()
