@@ -380,29 +380,17 @@ class Router:
         context: RouteContext | None = None,
     ) -> str:
         """
-        Parallel routing: run multiple models, select best.
+        Parallel routing: return highest-quality model as primary.
 
-        Note: Full parallel execution happens in client.py.
-        This returns the primary model to use.
+        The actual parallel execution (running multiple models concurrently,
+        comparing responses) happens in client.py._completion_parallel().
         """
-        # For parallel strategy, get candidates and filter by capabilities
-        if max_cost is not None:
-            candidates = self.registry.filter_by_cost(max_cost)
-        else:
-            candidates = self.registry.list_models()
-
-        # Apply business rules before capability/compliance filtering
-        candidates = self._apply_business_rules(candidates, context)
-
-        candidates = self._filter_by_capabilities(candidates, required_capabilities)
-
-        # Filter by required compliance
-        candidates = self._filter_by_compliance(candidates, required_compliance)
-
+        candidates = self._get_candidates(
+            max_cost, required_capabilities, required_compliance, context
+        )
         if candidates:
             best = max(candidates, key=lambda m: m.quality_score)
             return best.model_id
-
         raise ValueError("No models available for parallel execution")
 
     def _route_speculative(
@@ -415,12 +403,143 @@ class Router:
         context: RouteContext | None = None,
     ) -> str:
         """
-        Speculative routing: start cheap while evaluating escalation.
+        Speculative routing: return cheapest qualifying model as primary.
 
-        Similar to cascade but begins generation immediately.
+        The actual speculative flow (start cheap, escalate on low confidence)
+        happens in client.py._completion_speculative().
         """
-        # Start with cheapest model
-        return self._route_cascade(messages, max_cost, min_quality, required_capabilities, required_compliance, context)
+        candidates = self._get_candidates(
+            max_cost, required_capabilities, required_compliance, context
+        )
+        candidate_ids = [m.model_id for m in candidates]
+        predictions = self.predictor.predict(messages, candidate_ids) if candidate_ids else []
+        cost_map = {m.model_id: m.cost_per_1k_total for m in candidates}
+
+        qualifying = [p for p in predictions if p.predicted_quality >= min_quality]
+        if qualifying:
+            return min(qualifying, key=lambda p: cost_map.get(p.model_id, float("inf"))).model_id
+        cheapest = self.registry.get_cheapest()
+        if cheapest:
+            return cheapest.model_id
+        raise ValueError("No models available for speculative routing")
+
+    def _get_candidates(
+        self,
+        max_cost: float | None,
+        required_capabilities: set[str] | None,
+        required_compliance: set[str] | None,
+        context: RouteContext | None,
+    ) -> list[Any]:
+        """Filter and return candidate models for execution strategies."""
+        if max_cost is not None:
+            candidates = self.registry.filter_by_cost(max_cost)
+        else:
+            candidates = self.registry.list_models()
+        candidates = self._apply_business_rules(candidates, context)
+        candidates = self._filter_by_capabilities(candidates, required_capabilities)
+        candidates = self._filter_by_compliance(candidates, required_compliance)
+        return candidates
+
+    def get_parallel_candidates(
+        self,
+        messages: list[dict[str, str]],
+        n_candidates: int = 2,
+        max_cost: float | None = None,
+        min_quality: float = 0.0,
+        required_capabilities: set[str] | None = None,
+        required_compliance: set[str] | None = None,
+        context: RouteContext | None = None,
+    ) -> list[str]:
+        """Return top N diverse model candidates to run in parallel.
+
+        Selects models that span cost-quality space:
+          1. Cheapest model (cost-efficient)
+          2. Highest quality model (best quality)
+        More than 2 is wasteful — most value comes from comparing cheap vs best.
+        Falls back to registered quality_score when predictor confidence is low.
+        """
+        candidates = self._get_candidates(
+            max_cost, required_capabilities, required_compliance, context
+        )
+        if not candidates:
+            cheapest = self.registry.get_cheapest()
+            return [cheapest.model_id] if cheapest else []
+
+        candidate_ids = [m.model_id for m in candidates]
+        predictions = self.predictor.predict(messages, candidate_ids)
+        qual_map = {m.model_id: m.quality_score for m in candidates}
+
+        result: list[str] = []
+
+        pred_qual = {p.model_id: p.predicted_quality for p in predictions}
+        lowest_conf = min((p.confidence for p in predictions), default=1.0)
+
+        # On cold start (low confidence), use registered quality_score instead
+        if lowest_conf < 0.05:
+            effective_quality = qual_map
+        else:
+            effective_quality = pred_qual
+
+        # Cheapest model
+        cheapest = min(candidates, key=lambda m: m.cost_per_1k_total)
+        if cheapest.model_id not in result:
+            result.append(cheapest.model_id)
+
+        # Highest quality (by effective quality)
+        sorted_by_qual = sorted(predictions, key=lambda p: effective_quality.get(p.model_id, 0.0), reverse=True)
+        for p in sorted_by_qual:
+            if p.model_id not in result:
+                result.append(p.model_id)
+                if len(result) >= n_candidates:
+                    break
+
+        return result[:n_candidates]
+
+    def get_speculative_plan(
+        self,
+        messages: list[dict[str, str]],
+        min_quality: float = 0.0,
+        required_capabilities: set[str] | None = None,
+        required_compliance: set[str] | None = None,
+        context: RouteContext | None = None,
+    ) -> tuple[str, str | None]:
+        """Return (cheap_model, expensive_model_or_None) for speculative execution.
+
+        The cheap model is the cheapest overall (cost-efficient).
+        The expensive model is the highest-quality model (escalation target).
+        Falls back to registered quality_score when predictor confidence is low.
+        """
+        candidates = self._get_candidates(
+            None, required_capabilities, required_compliance, context
+        )
+        if not candidates:
+            cheapest = self.registry.get_cheapest()
+            return (cheapest.model_id, None) if cheapest else ("", None)
+
+        # On cold start, use registered quality_score instead of predictor
+        candidate_ids = [m.model_id for m in candidates]
+        predictions = self.predictor.predict(messages, candidate_ids)
+        qual_map = {m.model_id: m.quality_score for m in candidates}
+
+        lowest_conf = min((p.confidence for p in predictions), default=1.0)
+        if lowest_conf < 0.05:
+            effective_quality = qual_map
+        else:
+            effective_quality = {p.model_id: p.predicted_quality for p in predictions}
+
+        # Cheapest model (by cost)
+        cheapest = min(candidates, key=lambda m: m.cost_per_1k_total)
+        cheap_id = cheapest.model_id
+
+        # Highest quality model (by effective quality, different from cheap)
+        sorted_models = sorted(candidates, key=lambda m: effective_quality.get(m.model_id, 0.0), reverse=True)
+        expensive_id = None
+        for m in sorted_models:
+            if m.model_id != cheap_id:
+                expensive_id = m.model_id
+                break
+
+        return (cheap_id, expensive_id)
 
     def get_cascade_models(
         self,
