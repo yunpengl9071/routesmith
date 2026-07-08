@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "routesmith"
-version = "0.7.0"
+name = "routesmith-llm"
+version = "0.8.0"
 description = "Adaptive LLM execution engine - intelligent routing, cascading, caching, and budget management"
 readme = "README.md"
 license = "MIT"
