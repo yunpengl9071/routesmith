@@ -3,8 +3,11 @@
 Real API test - Requires API keys.
 
 This test makes actual API calls to validate end-to-end functionality.
-Set environment variables before running:
+Set one of these environment variables before running:
   export OPENAI_API_KEY=sk-...
+  export GROQ_API_KEY=gsk_...
+  export ANTHROPIC_API_KEY=sk-ant-...
+  export OPENROUTER_API_KEY=sk-or-...
 
 Run with: python tests/manual/test_real_api.py
 
@@ -18,8 +21,9 @@ import pytest
 
 # Skip all tests in this module unless API keys are set
 pytestmark = pytest.mark.skipif(
-    not os.getenv("OPENAI_API_KEY") and not os.getenv("GROQ_API_KEY") and not os.getenv("ANTHROPIC_API_KEY"),
-    reason="Requires API keys. Set OPENAI_API_KEY, GROQ_API_KEY, or ANTHROPIC_API_KEY to run."
+    not os.getenv("OPENAI_API_KEY") and not os.getenv("GROQ_API_KEY")
+    and not os.getenv("ANTHROPIC_API_KEY") and not os.getenv("OPENROUTER_API_KEY"),
+    reason="Requires API keys. Set OPENAI_API_KEY, GROQ_API_KEY, ANTHROPIC_API_KEY, or OPENROUTER_API_KEY to run."
 )
 
 
@@ -28,14 +32,16 @@ def check_api_keys():
     openai_key = os.getenv("OPENAI_API_KEY")
     anthropic_key = os.getenv("ANTHROPIC_API_KEY")
     groq_key = os.getenv("GROQ_API_KEY")
+    openrouter_key = os.getenv("OPENROUTER_API_KEY")
 
-    if not any([openai_key, anthropic_key, groq_key]):
+    if not any([openai_key, anthropic_key, groq_key, openrouter_key]):
         print("ERROR: No API keys found!")
         print()
         print("Set at least one of:")
         print("  export OPENAI_API_KEY=sk-...")
         print("  export ANTHROPIC_API_KEY=sk-ant-...")
         print("  export GROQ_API_KEY=gsk_...")
+        print("  export OPENROUTER_API_KEY=sk-or-...")
         print()
         print("Tip: Groq has a generous free tier for testing.")
         sys.exit(1)
@@ -44,6 +50,7 @@ def check_api_keys():
         "openai": bool(openai_key),
         "anthropic": bool(anthropic_key),
         "groq": bool(groq_key),
+        "openrouter": bool(openrouter_key),
     }
 
 
@@ -107,6 +114,37 @@ def test_groq_routing():
     print(f"  Response: {response.choices[0].message.content}")
     print(f"  Stats: {rs.stats}")
     print("  Groq routing test PASSED")
+    return True
+
+
+def test_openrouter_routing():
+    """Test routing with OpenRouter models."""
+    from routesmith import RouteSmith
+
+    print("Testing OpenRouter routing...")
+
+    rs = RouteSmith()
+    rs.register_model(
+        "openrouter/openai/gpt-4o",
+        cost_per_1k_input=0.005,
+        cost_per_1k_output=0.015,
+        quality_score=0.95,
+    )
+    rs.register_model(
+        "openrouter/openai/gpt-4o-mini",
+        cost_per_1k_input=0.00015,
+        cost_per_1k_output=0.0006,
+        quality_score=0.85,
+    )
+
+    response = rs.completion(
+        messages=[{"role": "user", "content": "What is 2 + 2? Reply with just the number."}],
+        min_quality=0.8,
+    )
+
+    print(f"  Response: {response.choices[0].message.content}")
+    print(f"  Stats: {rs.stats}")
+    print("  OpenRouter routing test PASSED")
     return True
 
 
@@ -288,6 +326,15 @@ if __name__ == "__main__":
                 tests_passed += 1
         except Exception as e:
             print(f"  Groq test FAILED: {e}")
+        print()
+
+    if available["openrouter"]:
+        tests_run += 1
+        try:
+            if test_openrouter_routing():
+                tests_passed += 1
+        except Exception as e:
+            print(f"  OpenRouter test FAILED: {e}")
         print()
 
     if available["openai"]:

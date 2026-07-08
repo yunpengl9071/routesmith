@@ -2,9 +2,10 @@
 """
 Live API test for LangChain integration.
 
-Supports OpenAI or Groq. Set one of:
+Supports OpenAI, Groq, or OpenRouter. Set one of:
   export OPENAI_API_KEY=sk-...
   export GROQ_API_KEY=gsk_...
+  export OPENROUTER_API_KEY=sk-or-...
 
 Run with: python tests/manual/test_langchain_live.py
 
@@ -18,8 +19,9 @@ import warnings
 import pytest
 
 pytestmark = pytest.mark.skipif(
-    not os.getenv("OPENAI_API_KEY") and not os.getenv("GROQ_API_KEY"),
-    reason="Requires OPENAI_API_KEY or GROQ_API_KEY to run.",
+    not os.getenv("OPENAI_API_KEY") and not os.getenv("GROQ_API_KEY")
+    and not os.getenv("OPENROUTER_API_KEY"),
+    reason="Requires OPENAI_API_KEY, GROQ_API_KEY, or OPENROUTER_API_KEY to run.",
 )
 
 
@@ -29,6 +31,8 @@ def _detect_provider() -> str:
         return "groq"
     if os.getenv("OPENAI_API_KEY"):
         return "openai"
+    if os.getenv("OPENROUTER_API_KEY"):
+        return "openrouter"
     return ""
 
 
@@ -39,6 +43,8 @@ def _make_llm(**kwargs):
     provider = _detect_provider()
     if provider == "groq":
         return ChatRouteSmith.with_groq_models(**kwargs)
+    if provider == "openrouter":
+        return ChatRouteSmith.with_openai_models(**kwargs)
     return ChatRouteSmith.with_openai_models(**kwargs)
 
 
@@ -76,6 +82,7 @@ def check_api_key():
         print("ERROR: No API key found.")
         print("  export OPENAI_API_KEY=sk-...")
         print("  export GROQ_API_KEY=gsk_...")
+        print("  export OPENROUTER_API_KEY=sk-or-...")
         sys.exit(1)
     print(f"Provider: {provider}")
     return provider
