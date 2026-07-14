@@ -158,7 +158,7 @@ class RouteSmith:
         self._cache_semantic = importlib.util.find_spec("sentence_transformers") is not None
         if self.config.cache.enabled and not self._cache_semantic:
             logger.warning("sentence-transformers not installed; cache runs exact-match only "
-                           "(pip install routesmith[cache] for semantic matching)")
+                           "(pip install routesmith-llm[cache] for semantic matching)")
         self._cache_hits = 0
 
         # Resolve reward_fn from config (fail fast on bad expressions).

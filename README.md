@@ -1,9 +1,13 @@
 # RouteSmith
 
+[![PyPI](https://img.shields.io/pypi/v/routesmith-llm)](https://pypi.org/project/routesmith-llm/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/routesmith-llm/)
+[![License](https://img.shields.io/github/license/yunpengl9071/routesmith)](LICENSE)
+
 **The smart router for AI coding tools.** 40-60% cost savings. Zero quality loss. Backed by contextual bandit research.
 
 ```bash
-pip install "routesmith[proxy]"
+pip install "routesmith-llm[proxy]"
 routesmith init
 routesmith serve
 # → Proxy at http://localhost:9119/v1
@@ -23,7 +27,7 @@ models for complex refactors. You never think about model IDs again.
 | Budget caps (daily/hourly) | ❌ | ✅ Monthly, per-request, per-project |
 | Conversation stickiness | ✅ | ✅ 
 
-**v0.7.0**: Per-project cost stats, decision audit log, per-role policy CLI, Anthropic `/v1/messages` endpoint. Phase 5 complete.
+**v0.8.0**: Now on PyPI as [`routesmith-llm`](https://pypi.org/project/routesmith-llm/). Anthropic `/v1/messages` endpoint, agent-framework examples (OpenAI SDK, Pydantic AI, LlamaIndex), quickstart CLI, per-project cost stats, decision audit log, per-role policy CLI.
 
 ## Who it's for
 
@@ -177,7 +181,7 @@ rs.record_outcome(response._routesmith_request_id, score=0.9)
 | File | Requires | Description |
 |------|----------|-------------|
 | `examples/quickstart_python.py` | — | Register models, completion, stats, feedback |
-| `examples/quickstart_proxy.sh` | `routesmith[proxy]` | Proxy via CLI: init → serve → curl |
+| `examples/quickstart_proxy.sh` | `routesmith-llm[proxy]` | Proxy via CLI: init → serve → curl |
 | `examples/multi_agent_roles.py` | — | Per-role routing (planner/coder/summarizer) |
 | `examples/langgraph_agents.py` | `langchain_core` | 2-node LangGraph with per-role `ChatRouteSmith` |
 | `examples/crewai_crew.py` | `crewai` | 2-agent CrewAI crew with shared RouteSmith |
@@ -199,16 +203,16 @@ rs.record_outcome(response._routesmith_request_id, score=0.9)
 
 ```bash
 # Proxy + interactive setup (recommended)
-pip install "routesmith[proxy]"
+pip install "routesmith-llm[proxy]"
 
 # Core Python API only
-pip install routesmith
+pip install routesmith-llm
 
 # With specific integrations
-pip install "routesmith[langchain]"
-pip install "routesmith[anthropic]"
-pip install "routesmith[cache]"
-pip install "routesmith[all]"
+pip install "routesmith-llm[langchain]"
+pip install "routesmith-llm[anthropic]"
+pip install "routesmith-llm[cache]"
+pip install "routesmith-llm[all]"
 ```
 
 Requires Python 3.10+. Set `OPENROUTER_API_KEY` to use OpenRouter models.

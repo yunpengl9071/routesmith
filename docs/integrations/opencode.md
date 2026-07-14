@@ -9,7 +9,7 @@ RouteSmith is a one-line config change.
 ## Setup
 
 ```bash
-pip install routesmith
+pip install routesmith-llm
 routesmith init --output routesmith.yaml
 routesmith serve --config routesmith.yaml
 ```

@@ -128,7 +128,7 @@ def routesmith_autogen_agents(
         except ImportError as e:
             raise ImportError(
                 "AutoGen integration requires pyautogen or autogen-agentchat. "
-                "Install with: pip install 'routesmith[autogen]'"
+                "Install with: pip install 'routesmith-llm[autogen]'"
             ) from e
 
     llm_config = routesmith_autogen_llm_config(host=host)

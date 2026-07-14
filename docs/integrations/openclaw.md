@@ -6,7 +6,7 @@ intelligent model selection for better quality at lower cost.
 ## Setup
 
 ```bash
-pip install routesmith
+pip install routesmith-llm
 ```
 
 RouteSmith needs a model catalog. Generate one interactively:

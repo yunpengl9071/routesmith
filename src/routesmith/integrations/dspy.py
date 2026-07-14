@@ -52,7 +52,7 @@ def routesmith_lm(
     except ImportError as e:
         raise ImportError(
             "DSPy integration requires dspy-ai. "
-            "Install with: pip install 'routesmith[dspy]'"
+            "Install with: pip install 'routesmith-llm[dspy]'"
         ) from e
 
     return dspy.LM(

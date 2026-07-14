@@ -24,7 +24,7 @@ workflow.
 ### 1. Start RouteSmith
 
 ```bash
-pip install routesmith
+pip install routesmith-llm
 
 # Generate a model catalog
 routesmith init --output routesmith.yaml

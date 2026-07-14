@@ -52,7 +52,7 @@ def run_serve(args: Namespace) -> int:
         from routesmith.cli.yaml_loader import load_config_file
         routesmith_config, models = load_config_file(config_path)
     except ImportError:
-        print("PyYAML not installed. Run: pip install 'routesmith[proxy]'")
+        print("PyYAML not installed. Run: pip install 'routesmith-llm[proxy]'")
         return 1
     except Exception as e:
         logger.error(f"Error loading config: {e}")

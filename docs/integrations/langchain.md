@@ -5,7 +5,7 @@ RouteSmith provides `ChatRouteSmith`, a drop-in replacement for LangChain chat m
 ## Installation
 
 ```bash
-pip install routesmith[langchain]
+pip install routesmith-llm[langchain]
 ```
 
 ## Usage

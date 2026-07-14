@@ -1,7 +1,7 @@
 """
 DSPy pipeline with RouteSmith native LM.
 
-Requires: routesmith[dspy]
+Requires: routesmith-llm[dspy]
           pip install dspy-ai
 """
 
@@ -12,7 +12,7 @@ def main() -> None:
     try:
         import dspy
     except ImportError:
-        print("dspy-ai not installed. Install with: pip install 'routesmith[dspy]'")
+        print("dspy-ai not installed. Install with: pip install 'routesmith-llm[dspy]'")
         return
 
     lm = RouteSmithLM()

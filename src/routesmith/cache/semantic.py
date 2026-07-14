@@ -84,7 +84,7 @@ class SemanticCache:
             except ImportError:
                 raise ImportError(
                     "sentence-transformers required for semantic caching. "
-                    "Install with: pip install routesmith[cache]"
+                    "Install with: pip install routesmith-llm[cache]"
                 )
         return self._encoder
 

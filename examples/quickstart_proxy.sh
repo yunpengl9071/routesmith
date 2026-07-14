@@ -5,7 +5,7 @@
 #   export OPENROUTER_API_KEY=sk-or-...
 #   bash examples/quickstart_proxy.sh
 #
-# Requires: routesmith[proxy]
+# Requires: routesmith-llm[proxy]
 
 set -euo pipefail
 

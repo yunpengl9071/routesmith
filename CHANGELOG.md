@@ -2,6 +2,29 @@
 
 All notable changes to RouteSmith will be documented in this file.
 
+## [0.8.0] — 2026-07-13
+
+First release published to PyPI, as [`routesmith-llm`](https://pypi.org/project/routesmith-llm/)
+(the `routesmith` name was taken). The import name is unchanged: `import routesmith`.
+This entry consolidates the 0.6.x–0.8.0 work since 0.5.0-beta.
+
+### Added
+- **PyPI package**: `pip install routesmith-llm` (extras: `[proxy]`, `[langchain]`, `[anthropic]`, `[cache]`, `[all]`)
+- **Anthropic-native proxy endpoint**: `POST /v1/messages` with streaming and non-streaming support — point any Anthropic SDK client at RouteSmith via `ANTHROPIC_BASE_URL`
+- **Agent-framework examples**: OpenAI SDK, Pydantic AI, LlamaIndex, plus an `examples/` directory with a CI smoke harness
+- **Quickstart CLI**: `routesmith init` interactive setup and packaging/docs polish
+- **Proxy auth**: `--api-key` flag to protect the proxy endpoint
+- **Per-project cost stats**: cost allocation and stats per project
+- **Decision audit log**: every routing choice recorded with per-candidate scores
+- **Per-role policy CLI**: configure routing policies per agent role
+- **Multi-tenant cache isolation** and `routesmith evaluate` CLI
+- **Parallel/speculative strategies** and matrix-factorization predictor
+- **QUEUE budget behavior** and expanded CLI docs (`docs/cli.md`)
+- **Research paper**: all 9 figures, 14 references, compiled PDF checked in
+
+### Changed
+- Docs and error messages updated for the `routesmith-llm` package name
+
 ## [0.5.0-beta] — 2026-06-20
 
 ### Added

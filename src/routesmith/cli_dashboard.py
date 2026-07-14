@@ -3,7 +3,7 @@
 Provides a live-refreshing terminal dashboard showing cost savings,
 model usage, and verification stats. Requires the 'textual' library.
 
-To install: pip install routesmith[tui]
+To install: pip install routesmith-llm[tui]
 To run: routesmith dashboard
 """
 
@@ -24,7 +24,7 @@ def run_dashboard(db_path: str = "routesmith_feedback.db") -> int:
         from textual.containers import Container
         from textual.widgets import Footer, Header, Static
     except ImportError:
-        print("textual not installed. Install with: pip install routesmith[tui]")
+        print("textual not installed. Install with: pip install routesmith-llm[tui]")
         print()
         print("Falling back to stats --local:")
         from argparse import Namespace
