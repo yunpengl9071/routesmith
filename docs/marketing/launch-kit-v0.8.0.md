@@ -9,7 +9,7 @@ taste before posting.
 - PyPI: `pip install routesmith-llm` — first published release (0.8.0)
 - Zero pretraining labels; learns online from ~100 queries (RouteLLM/Not Diamond need 55K+)
 - 5-arm multi-model routing (GPT-4o, Claude Sonnet 4.5, Qwen-Plus, MiniMax-M1, DeepSeek-V3): **71.0% accuracy at 45% cost savings** (LinTS)
-- Binary routing: LinTS-27d achieves APGR 0.593 with **46% MMLU cost reduction** vs Always-Strong
+- Binary routing (paper experiments): LinTS achieves APGR 0.593 with **46% MMLU cost reduction** vs Always-Strong
 - Sub-millisecond routing overhead (<0.5ms P99, 5-arm deployment)
 - Self-hosted, open source — prompts never transit a third-party router
 - Works as a local proxy for Claude Code, Codex, OpenCode, any OpenAI- or Anthropic-SDK client
@@ -67,9 +67,9 @@ The interesting part is *how* it picks. Existing routers (RouteLLM,
 Not Diamond, OpenRouter's auto mode) are supervised classifiers trained
 once on 55K+ preference labels — static, binary (strong vs weak model),
 and trained on everyone's traffic, not yours. RouteSmith frames routing
-as a contextual bandit (LinUCB / Linear Thompson Sampling over a 27-dim
-feature space): zero pretraining labels, learns online from your own
-feedback, scales past two models, and adds <0.5ms routing overhead.
+as a contextual bandit (LinUCB / Linear Thompson Sampling over a compact
+query-feature vector): zero pretraining labels, learns online from your
+own feedback, scales past two models, and adds <0.5ms routing overhead.
 
 In our experiments (real API calls, MMLU + GSM8K), 5-arm routing across
 GPT-4o, Claude Sonnet 4.5, Qwen-Plus, MiniMax-M1, and DeepSeek-V3 hit
