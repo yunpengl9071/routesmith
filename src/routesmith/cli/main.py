@@ -83,6 +83,78 @@ def main(argv: Sequence[str] | None = None) -> int:
         default="",
         help="Require Bearer auth on proxy requests (default: no auth)",
     )
+    serve_parser.add_argument(
+        "--daemon",
+        action="store_true",
+        help="Run as a background daemon (double-fork, pidfile, logfile)",
+    )
+
+    # run command
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Run a command with RouteSmith proxy (starts daemon if needed)",
+        description=(
+            "Run a CLI command through the RouteSmith proxy. "
+            "Automatically injects the correct env vars into the child process "
+            "and starts the proxy as a daemon if it's not already running."
+        ),
+    )
+    run_parser.add_argument(
+        "--host", "-H",
+        type=str,
+        default="127.0.0.1",
+        help="Proxy host (default: 127.0.0.1)",
+    )
+    run_parser.add_argument(
+        "--port", "-p",
+        type=int,
+        default=9119,
+        help="Proxy port (default: 9119)",
+    )
+    run_parser.add_argument(
+        "--config", "-c",
+        type=str,
+        default=None,
+        help="Config file path (default: ./routesmith.yaml → ~/.routesmith/routesmith.yaml)",
+    )
+    run_parser.add_argument(
+        "--family",
+        type=str,
+        choices=["anthropic", "openai"],
+        default=None,
+        help="Force env var family (default: auto-detect from command basename)",
+    )
+    run_parser.add_argument(
+        "command",
+        nargs=argparse.REMAINDER,
+        help="Command to run and its arguments",
+    )
+
+    # status command
+    status_parser = subparsers.add_parser(
+        "status",
+        help="Show RouteSmith proxy status",
+        description="Check if the RouteSmith proxy daemon is running and show summary info.",
+    )
+    status_parser.add_argument(
+        "--host", "-H",
+        type=str,
+        default="127.0.0.1",
+        help="Proxy host (default: 127.0.0.1)",
+    )
+    status_parser.add_argument(
+        "--port", "-p",
+        type=int,
+        default=9119,
+        help="Proxy port (default: 9119)",
+    )
+
+    # down command
+    subparsers.add_parser(
+        "down",
+        help="Stop the RouteSmith proxy daemon",
+        description="Send SIGTERM to the RouteSmith proxy daemon and clean up the pidfile.",
+    )
 
     # quickstart command
     quickstart_parser = subparsers.add_parser(
@@ -334,6 +406,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "evaluate":
         from routesmith.cli.evaluate import run_evaluate
         return run_evaluate(args)
+    elif args.command == "run":
+        from routesmith.cli.run import run_run
+        return run_run(args)
+    elif args.command == "status":
+        from routesmith.cli.run import run_status
+        return run_status(args)
+    elif args.command == "down":
+        from routesmith.cli.run import run_down
+        return run_down(args)
     else:
         parser.print_help()
         return 0
