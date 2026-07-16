@@ -30,6 +30,43 @@ Requirement IDs (R1–R6) and acceptance criteria (AC-1…AC-15) refer to the sp
   final phase (this is a feature release).
 - **After each phase:** run the full local gate (see §CI below) before committing.
 
+### Milestone structure — plumbing first (binding execution order)
+
+The work is split into two milestones. **Milestone 1 (plumbing)** must be complete and
+pass its gate before any Milestone 2 work starts. Rationale: transport correctness is
+provable in isolation; routing policy quality is not, and must never be the reason a
+session breaks.
+
+**Milestone 1 — Plumbing** (execution order; phases defined in detail below):
+1. **P3** — intercept decision point, `routesmith_metadata`, counters
+2. **P4** — full `/v1/messages` agent support, protocol-native fast path, `count_tokens`
+3. **P5** — `connect` + `--verify`
+4. **P5b-lifecycle** — `routesmith run`, `serve --daemon` / `status` / `down`
+   (the auto-stickiness half of P5b is Milestone 2)
+
+**Gate G-M1 (transparency gate)** — exit criterion for Milestone 1:
+with a hand-written config whose pool contains **exactly one model** and
+`intercept: all`, a session through the proxy must be indistinguishable from a direct
+API session. With one model in the pool, the bandit has no choice to make — any observable
+difference is a plumbing defect. Checks:
+- Automated: the simulated Claude Code first-contact scenario (tester B4.2) and the
+  interleaving/streaming scenarios run against the single-model config; `cache_control`
+  reaches the mocked upstream intact (native fast path); `count_tokens` responds;
+  `connect claude-code --verify` and `connect opencode --verify` exit 0.
+- Live (if a real key is available, else deferred to the tester's B4-live): one real
+  Claude Code session and one real OpenCode session via `routesmith run`, single-model
+  pool, skim `routesmith audit` — no errors, no dropped streams, no login prompts.
+
+**Milestone 2 — Pool & policy** (only after G-M1 passes):
+5. **P1** — provider-aware catalogs (quickstart/init)
+6. **P2** — `models refresh` / `models list`
+7. **P5b-stickiness** — auto conversation stickiness (only matters once pool > 1)
+8. **P6** — docs, claims guard, version bump
+
+Commit order follows this milestone order (one commit per numbered item above, eight
+total). If Milestone 2 must be cut for time, Milestone 1 alone is shippable behind a
+hand-written config; the reverse is not true.
+
 ### CI & local gate (run before every commit)
 
 The GitHub workflow is `.github/workflows/test.yml`. Reproduce locally:
@@ -102,9 +139,9 @@ Never introduce those strings in docs you touch.
 
 **Modified files**
 - `src/routesmith/cli/quickstart.py`: replace `_DEFAULT_MODELS`/`_detect_provider` usage
-  with `catalog.build_default_pool()`; add `--provider` (append action); write
-  `catalog:` stamp and `routing.intercept: all` (field exists after P3 — in P1 write the
-  stamp only, add the intercept line in P3's commit) into generated YAML.
+  with `catalog.build_default_pool()`; add `--provider` (append action); write the
+  `catalog:` stamp, `routing.intercept: all`, and `routing.sticky: auto` into generated
+  YAML (the config fields already exist — P3 ran in Milestone 1).
 - `src/routesmith/cli/init.py`: same for its non-interactive path; interactive
   OpenRouter picker untouched.
 
@@ -166,8 +203,9 @@ Never introduce those strings in docs you touch.
   same `resolve_routing` (spec R3.5); expose counters in the `/v1/stats` payload
   (handler already owns stats surface at :288).
 - `src/routesmith/cli/stats.py`: render the two counters + by-reason breakdown.
-- `src/routesmith/cli/quickstart.py` + `init.py`: now write `routing.intercept: all`
-  (deferred from P1).
+- Generated-config changes (quickstart/init writing `intercept: all`) happen in P1,
+  which runs later in milestone order; P3 only adds the config fields, loader support,
+  and proxy behavior.
 
 **Tests (extend `tests/test_proxy.py`, new `tests/test_intercept.py`)**
 - Full AC-6 and AC-7 matrix on both endpoints: intercept all/auto × concrete-model/auto ×
@@ -296,10 +334,13 @@ Never introduce those strings in docs you touch.
 
 ### Executor definition of done
 
-1. AC-1 … AC-14 and AC-16 … AC-20 all covered by passing automated tests.
+1. AC-1 … AC-14 and AC-16 … AC-21 all covered by passing automated tests.
 2. Local gate (§CI) fully green: pytest (existing 709 + new), check_claims, mypy, ruff.
 3. `python -m build --wheel` succeeds and the wheel contains `registry/data/catalogs/*`.
-4. Seven commits (P1–P5, P5b, P6) on `feature/integration-dx`, pushed with
+4. Gate G-M1 demonstrably passed before any Milestone 2 commit exists in the history
+   (the tester agent will check commit order).
+5. Eight commits in milestone order (P3, P4, P5, P5b-lifecycle, P1, P2, P5b-stickiness,
+   P6) on `feature/integration-dx`, pushed with
    `git push -u origin feature/integration-dx`.
 5. Do **not** open a PR and do not merge; the tester agent goes next.
 
@@ -320,6 +361,14 @@ pip install -e ".[proxy,all]" || pip install -e ".[proxy]"
 No provider keys are required for B2–B4 (mocks only). If `OPENROUTER_API_KEY` is present,
 also run B4-live.
 
+### B1b. Milestone gate audit (do this first)
+
+Verify from `git log` that all Milestone 1 commits (P3, P4, P5, P5b-lifecycle) precede
+all Milestone 2 commits, and re-run gate G-M1 yourself: single-model pool +
+`intercept: all` hand-written config, then the B4.2/B4.3 scenarios and both `--verify`
+calls against it. G-M1 failing on re-run is automatically a **critical finding**
+regardless of what the executor reported.
+
 ### B2. Gate reproduction
 
 Run the exact CI gate from Part A §CI. Record: total passed/failed/skipped vs. the
@@ -328,7 +377,7 @@ and is **not** enumerated in spec §9 is automatically a **critical finding**.
 
 ### B3. Acceptance-criteria audit
 
-For each of AC-1 … AC-14 and AC-16 … AC-20: identify the test(s) that cover it (by file::test name), run
+For each of AC-1 … AC-14 and AC-16 … AC-21: identify the test(s) that cover it (by file::test name), run
 them in isolation, and mark COVERED / PARTIAL / MISSING. An AC with no covering test is a
 **major finding** even if the feature "looks implemented."
 

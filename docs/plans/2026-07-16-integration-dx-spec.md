@@ -582,6 +582,12 @@ field; the same request routed to a non-Anthropic model arrives translated with 
 `cache_control` and the audit entry has `cache_control_stripped: true`.
 `POST /v1/messages/count_tokens` returns `{"input_tokens": <int>}` both with a mocked
 Anthropic upstream and in estimate mode (no key), never 404.
+**AC-21 (plumbing gate):** With a hand-written single-model pool and `intercept: all`,
+the full simulated Claude Code session (tools, streaming, `cache_control`,
+`count_tokens`) and an OpenCode-style chat-completions session complete with responses
+equivalent to direct API use (same content path, valid SSE grammar, caching markers
+intact via the native fast path). This is the exit gate for the plumbing milestone — see
+the implementation plan's "Gate G-M1".
 **AC-15 [manual, tester agent]:** End-to-end smoke with a real key if
 `OPENROUTER_API_KEY` is available in the environment (CI provides it for smoke tests —
 see `.github/workflows`): `routesmith quickstart --yes` → `serve` → one real completion
