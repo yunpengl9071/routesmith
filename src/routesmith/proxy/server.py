@@ -242,12 +242,12 @@ class RouteSmithProxyServer:
 
         # Chat completions (OpenAI format)
         if path == "/v1/chat/completions" and method == "POST":
-            await self._handle_completion(writer, body)
+            await self._handle_completion(writer, body, headers=headers)
             return
 
         # Anthropic Messages API endpoint
         if path == "/v1/messages" and method == "POST":
-            await self._handle_anthropic_messages(writer, body)
+            await self._handle_anthropic_messages(writer, body, headers=headers)
             return
 
         # Feedback endpoint
@@ -263,6 +263,7 @@ class RouteSmithProxyServer:
         self,
         writer: asyncio.StreamWriter,
         body: bytes,
+        headers: dict[str, str] | None = None,
     ) -> None:
         """Handle OpenAI-format chat completion request."""
         try:
@@ -277,11 +278,11 @@ class RouteSmithProxyServer:
 
         # Streaming response
         if request.stream:
-            await self._send_stream(writer, request)
+            await self._send_stream(writer, request, headers=headers)
         else:
             # Non-streaming response
             try:
-                result = await self.handler.handle_completion(request)
+                result = await self.handler.handle_completion(request, headers=headers)
                 await self._send_json(writer, result, 200)
             except BudgetExceededError as e:
                 await self._send_json(writer, {"error": {"message": str(e), "type": "budget_exceeded", "code": 429}}, 429)
@@ -293,6 +294,7 @@ class RouteSmithProxyServer:
         self,
         writer: asyncio.StreamWriter,
         body: bytes,
+        headers: dict[str, str] | None = None,
     ) -> None:
         """Handle Anthropic /v1/messages request."""
         try:
@@ -308,13 +310,8 @@ class RouteSmithProxyServer:
         stream = data.get("stream", False)
         request_model = kwargs.pop("model", "auto")
 
-        # Extract RouteSmith headers from HTTP request context
-        # (headers are passed through via the calling code)
-
-        # Build an OpenAI-format ChatCompletionRequest
-
         openai_request = ChatCompletionRequest(
-            model="auto",
+            model=request_model,
             messages=messages,
             stream=stream,
             max_tokens=kwargs.get("max_tokens", 1024),
@@ -323,19 +320,31 @@ class RouteSmithProxyServer:
             stop=kwargs.get("stop"),
         )
 
+        decision = self.handler.resolve_routing(openai_request, headers or {})
+
         if stream:
+            routesmith_metadata = {
+                "routed": decision.route,
+                "selected_model": request_model,
+                "requested_model": request_model,
+                "passthrough_reason": decision.passthrough_reason,
+            }
+
             anthropic_chunks: list[dict] = []
             try:
-                async for chunk in self.handler.handle_completion_stream(openai_request):
+                async for chunk in self.handler.handle_completion_stream(openai_request, headers=headers, decision=decision):
                     data_chunk = json.loads(chunk.removeprefix("data: ").strip())
                     if data_chunk.get("choices"):
                         anthropic_chunks.append(data_chunk)
+                        if data_chunk.get("model"):
+                            routesmith_metadata["selected_model"] = data_chunk["model"]
             except Exception as e:
                 logger.exception(f"Anthropic stream error: {e}")
 
             sse = AnthropicSSEStream(
                 request_id=self.routesmith._last_routing_metadata.request_id if self.routesmith._last_routing_metadata else "unknown",
                 request_model=request_model,
+                routesmith_metadata=routesmith_metadata,
             )
             events = sse.iter_chunks(anthropic_chunks)
             response_body = "".join(events).encode("utf-8")
@@ -352,7 +361,7 @@ class RouteSmithProxyServer:
             await writer.drain()
         else:
             try:
-                result = await self.handler.handle_completion(openai_request)
+                result = await self.handler.handle_completion(openai_request, headers=headers, decision=decision)
                 choice = result.get("choices", [{}])[0]
                 msg = choice.get("message", {})
                 content_text = msg.get("content", "")
@@ -385,6 +394,7 @@ class RouteSmithProxyServer:
         self,
         writer: asyncio.StreamWriter,
         request: ChatCompletionRequest,
+        headers: dict[str, str] | None = None,
     ) -> None:
         """Send streaming response."""
         # Send headers for SSE
@@ -400,7 +410,7 @@ class RouteSmithProxyServer:
         await writer.drain()
 
         try:
-            async for chunk in self.handler.handle_completion_stream(request):
+            async for chunk in self.handler.handle_completion_stream(request, headers=headers):
                 writer.write(chunk.encode("utf-8"))
                 await writer.drain()
         except Exception as e:

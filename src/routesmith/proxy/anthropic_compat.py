@@ -142,12 +142,13 @@ class AnthropicSSEStream:
     """Build Anthropic-format SSE event strings from streamed chunks.
 
     Emits: message_start → content_block_start → content_block_delta+ →
-           content_block_stop → message_delta → message_stop
+           content_block_stop → message_delta → [routesmith_metadata] → message_stop
     """
 
-    def __init__(self, request_id: str, request_model: str) -> None:
+    def __init__(self, request_id: str, request_model: str, routesmith_metadata: dict | None = None) -> None:
         self._request_id = request_id
         self._request_model = request_model
+        self._routesmith_metadata = routesmith_metadata
         self._started = False
 
     def iter_chunks(self, chunks: list[dict]) -> list[str]:
@@ -205,14 +206,17 @@ class AnthropicSSEStream:
     def _build_stop(self, finish: str, full_text: str) -> list[str]:
         stop_reason = _STOP_REASON_MAP.get(finish, "end_turn")
         output_tokens = max(1, len(full_text) // 4)
-        return [
+        events = [
             self._event("content_block_stop", {"index": 0}),
             self._event("message_delta", {
                 "delta": {"stop_reason": stop_reason, "stop_sequence": None},
                 "usage": {"output_tokens": output_tokens},
             }),
-            self._event("message_stop", {}),
         ]
+        if self._routesmith_metadata:
+            events.append(self._event("routesmith_metadata", self._routesmith_metadata))
+        events.append(self._event("message_stop", {}))
+        return events
 
     @staticmethod
     def _event(name: str, data: dict) -> str:
