@@ -23,13 +23,15 @@ class TestCLIMain:
         assert "stats" in captured.out
 
     def test_version_flag(self, capsys):
-        """Test --version shows version."""
+        """--version reports the actual package version, not a stale literal."""
+        from routesmith import __version__
+
         with pytest.raises(SystemExit) as exc_info:
             main(["--version"])
 
         assert exc_info.value.code == 0
         captured = capsys.readouterr()
-        assert "0.1.0" in captured.out
+        assert __version__ in captured.out
 
     def test_serve_help(self, capsys):
         """Test serve --help shows usage."""

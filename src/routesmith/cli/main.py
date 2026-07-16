@@ -6,6 +6,8 @@ import argparse
 import sys
 from collections.abc import Sequence
 
+from routesmith import __version__
+
 
 def main(argv: Sequence[str] | None = None) -> int:
     """
@@ -415,7 +417,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--version", "-v",
         action="version",
-        version="%(prog)s 0.1.0",
+        version=f"%(prog)s {__version__}",
     )
 
     args = parser.parse_args(argv)
