@@ -208,6 +208,11 @@ cost, quality, context window, capabilities, and a staleness note if
 **R2.4 Staleness hint at serve time.** `routesmith serve` logs exactly one INFO line at
 startup if `catalog.refreshed_at` is absent or >30 days old:
 `model catalog last refreshed <date|never> — run 'routesmith models refresh'`.
+Additionally, if `routing.intercept` is `"auto"` or absent (legacy configs) and the
+config was *generated* by `quickstart`/`init` rather than hand-written, log one INFO:
+`routing.intercept is 'auto' — set routing.intercept: all to route all requests,
+not just 'auto' model names`. Hand-written configs are detected by the absence of a
+`catalog` block (they never had one); skip the hint for those.
 
 ### R3 — Intercept routing (fixes G1)
 
@@ -242,9 +247,11 @@ model id is recorded as `requested_model` in the decision audit log and in
 
 **R3.4 Visibility.** The handler maintains counters `routed_requests` and
 `passthrough_requests` (with a `by_reason` breakdown: `explicit_header`,
-`passthrough_list`, `unregistered_model`, `intercept_auto`). Exposed in `GET /v1/stats`
-JSON and in `routesmith stats` output. When `intercept: auto` and ≥5 consecutive
-passthroughs occur, log one WARNING:
+`passthrough_list`, `unregistered_model`, `intercept_auto`). Counters are shared between
+streaming and non‑streaming code paths — increment in the single `resolve_routing`
+function, not in each path separately. Exposed in `GET /v1/stats` JSON and in
+`routesmith stats` output. When `intercept: auto` and ≥5 consecutive passthroughs occur,
+log one WARNING:
 `N requests passed through unrouted — set routing.intercept: all to route them`.
 
 **R3.5 Both endpoints.** Interception applies identically to `/v1/chat/completions` and
@@ -327,7 +334,7 @@ tool against `--url`:
 
 | tool | emitted setup |
 |---|---|
-| `claude-code` | `export ANTHROPIC_BASE_URL=<url>` **and** `export ANTHROPIC_AUTH_TOKEN=<proxy --api-key value, or "routesmith" when the proxy runs keyless>` — without the auth token Claude Code falls into its login flow instead of using the base URL (+ note: or put both in the `env` block of `~/.claude/settings.json`). Must print the caveat that this applies to API-key usage; subscription (OAuth) Claude Code sessions cannot be re-routed. Requires R4. Recommended footer on output: "or just use: routesmith run claude" (R7). |
+| `claude-code` | `export ANTHROPIC_BASE_URL=<url>` **and** `export ANTHROPIC_API_KEY=<proxy --api-key value, or "routesmith" when the proxy runs keyless>` — without an API key Claude Code falls into its OAuth login flow instead of using the base URL. **Implementation note:** verify the exact env var name Claude Code checks for API-key auth (`ANTHROPIC_API_KEY` is the standard Anthropic SDK var; Claude Code may use the same or require `ANTHROPIC_AUTH_TOKEN`). If neither works, document the discovered name in a comment and match it. (+ note: or put both in the `env` block of `~/.claude/settings.json`). Must print the caveat that this applies to API-key usage; subscription (OAuth) Claude Code sessions cannot be re-routed. Requires R4. Recommended footer on output: "or just use: routesmith run claude" (R7). |
 | `codex` | `export OPENAI_BASE_URL=<url>/v1` + `~/.codex/config.yaml` snippet defining a custom provider with `base_url` **and `wire_api = "chat"`** — Codex defaults to the OpenAI Responses API, which RouteSmith does not serve; the chat wire API must be selected explicitly |
 | `opencode` | JSON `providers.routesmith` snippet with `base_url: <url>/v1` |
 | `openclaw` | delegate to the existing generator (`cli/openclaw.py`) — same output as `routesmith openclaw-config` |
@@ -345,6 +352,8 @@ file → refuse unless `--yes`; on apply, print what was written where. All othe
 `--apply` prints the snippet and a note that manual placement is required (exit 0).
 
 **R5.4 `--verify`.** Performs a live end-to-end check against `--url`:
+0. `GET /health` — if unreachable (connection refused, timeout), print the exact command
+   to start the proxy (`routesmith serve --daemon` or `routesmith run`), exit 1.
 1. `GET /health` must return ok.
 2. Send a minimal completion through the endpoint family the tool uses
    (`/v1/messages` for `claude-code`/`anthropic-sdk`, `/v1/chat/completions` otherwise)
@@ -406,7 +415,8 @@ Behavior:
    If no config exists, print the `routesmith quickstart` hint and exit 1 — `run` must not
    silently generate config.
 2. Inject the correct env **only into the child process**: for commands recognized as
-   Anthropic-family (`claude`) set `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`; for all
+   Anthropic-family (`claude`) set `ANTHROPIC_BASE_URL` + an API-key env var (same var
+   verified in R5.2 as the one Claude Code reads — see that note); for all
    others set `OPENAI_BASE_URL` (+ `OPENAI_API_KEY=routesmith` if unset — some tools
    refuse to start without one). Recognition is by basename of the command with a
    `--family anthropic|openai` override flag. The parent shell env is never modified.

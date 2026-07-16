@@ -302,9 +302,9 @@ Never introduce those strings in docs you touch.
   spec R8.2 (a small ordered-dict helper is fine; no new dependency).
 - `src/routesmith/config.py` / `cli/yaml_loader.py`: `routing.sticky` field, default
   `"header"`; quickstart/init write `"auto"`.
-- `cli/connect.py`: claude-code output gains the `ANTHROPIC_AUTH_TOKEN` line, the
-  OAuth/subscription caveat, and the `routesmith run claude` footer (spec R5.2 table, as
-  amended).
+- `cli/connect.py`: claude-code output gains the API-key env var line (see spec R5.2 note
+  on verifying the correct env var name), the OAuth/subscription caveat, and the
+  `routesmith run claude` footer (spec R5.2 table, as amended).
 
 **Tests (new `tests/test_cli_run.py`, `tests/test_sticky_auto.py`)**
 - AC-16: stub child script dumps env → assert injected vars, unmodified parent env, exit
@@ -459,6 +459,35 @@ green. Otherwise FAIL with the findings list — the executor agent picks the re
 from this file path.
 
 ---
+
+### R4.5 implementation notes (read before implementing protocol-native fast path)
+
+8. **JSON fidelity on the native fast path.** The spec (R4.5) requires forwarding the
+   original request body byte-identically with only `model` replaced. Straightforward
+   `json.loads(body)` → `d["model"] = selected` → `json.dumps(d)` **will not preserve**
+   key order, whitespace, or number formatting from the original request. Anthropic's SDK
+   and Claude Code may not be sensitive to key order, but `cache_control` fidelity (the
+   *raison d'être* of the fast path) requires the JSON structure to round-trip without
+   corruption.
+   
+   **Implementation strategy:**
+   - Parse with `json.JSONDecoder(object_pairs_hook=collections.OrderedDict)` to get an
+     ordered mapping.
+   - Replace only the `"model"` key value (it's a top-level string field — no nesting).
+   - Serialize with `json.dumps(obj, ensure_ascii=True, sort_keys=False, indent=None,
+     separators=(",", ":"))` — default separators match Anthropic's request format.
+   - Test: capture a real Claude Code request body via `curl --trace-ascii`, round-trip
+     it through the translator, and diff the raw bytes. The `model` value should differ;
+     nothing else should.
+
+   If the real body has `\n` line breaks inside the JSON (unusual but possible), the
+   indented format will not match — use `separators=(",", ":")` (compact) always, which
+   is what all Anthropic SDK versions emit.
+
+9. **`anthropic-beta` header forwarding.** The spec R4.5 says "forward `anthropic-beta`
+   headers to Anthropic targets; drop on crossings." These headers arrive as HTTP headers
+   (`anthropic-beta: prompt-caching-2025-02-19`), not JSON body fields. Ensure they are
+   plumbed through the handler's header map, not just the body.
 
 ## Shared appendix — things that will bite you
 
