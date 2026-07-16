@@ -102,6 +102,40 @@ class TestChatCompletionRequest:
         assert kwargs["max_tokens"] == 50
         assert kwargs["stop"] == ["END"]
 
+    def test_to_litellm_kwargs_omits_default_penalties(self):
+        """Default-value frequency_penalty/presence_penalty must not be
+        forwarded to litellm.
+
+        Regression test: these were previously always included (even at
+        their 0.0 default), and litellm.UnsupportedParamsError rejects
+        them for Anthropic — so every request routed to an Anthropic
+        model failed, on both /v1/chat/completions and /v1/messages,
+        regardless of whether the original client ever set them.
+        """
+        request = ChatCompletionRequest(
+            model="claude-sonnet-4-5",
+            messages=[{"role": "user", "content": "Hi"}],
+        )
+        kwargs = request.to_litellm_kwargs()
+
+        assert "frequency_penalty" not in kwargs
+        assert "presence_penalty" not in kwargs
+        assert "temperature" not in kwargs
+        assert "top_p" not in kwargs
+
+    def test_to_litellm_kwargs_includes_explicit_penalties(self):
+        """A client-provided non-default penalty value must still reach litellm."""
+        request = ChatCompletionRequest(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": "Hi"}],
+            frequency_penalty=0.3,
+            presence_penalty=-0.2,
+        )
+        kwargs = request.to_litellm_kwargs()
+
+        assert kwargs["frequency_penalty"] == 0.3
+        assert kwargs["presence_penalty"] == -0.2
+
     def test_extra_kwargs_preserved(self):
         """Test that unknown fields are preserved in extra_kwargs."""
         data = {

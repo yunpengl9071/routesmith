@@ -374,6 +374,41 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="Output model list as JSON",
     )
 
+    # `models list` / `models refresh` subcommands (documented, primary form).
+    # The flags above remain valid directly on `models` for back-compat.
+    models_subparsers = models_parser.add_subparsers(dest="models_command")
+
+    models_list_parser = models_subparsers.add_parser(
+        "list",
+        help="List registered models from config",
+    )
+    models_list_parser.add_argument(
+        "--config", "-c", type=str, default=None,
+        help="Config file path (default: ./routesmith.yaml → ~/.routesmith/routesmith.yaml)",
+    )
+    models_list_parser.add_argument(
+        "--json", action="store_true", help="Output model list as JSON",
+    )
+    models_list_parser.set_defaults(refresh=False)
+
+    models_refresh_parser = models_subparsers.add_parser(
+        "refresh",
+        help="Re-detect providers and rebuild model pool from catalogs",
+    )
+    models_refresh_parser.add_argument(
+        "--config", "-c", type=str, default=None,
+        help="Config file path (default: ./routesmith.yaml → ~/.routesmith/routesmith.yaml)",
+    )
+    models_refresh_parser.add_argument(
+        "--provider", action="append", dest="provider",
+        choices=["anthropic", "openai", "openrouter", "groq"],
+        help="Force provider(s) (repeatable, overrides env detection)",
+    )
+    models_refresh_parser.add_argument(
+        "--json", action="store_true", help="Output model list as JSON",
+    )
+    models_refresh_parser.set_defaults(refresh=True)
+
     # connect command
     connect_parser = subparsers.add_parser(
         "connect",

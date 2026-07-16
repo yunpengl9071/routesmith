@@ -117,14 +117,21 @@ class ChatCompletionRequest:
 
     def to_litellm_kwargs(self) -> dict[str, Any]:
         """Convert to kwargs for litellm completion."""
-        kwargs: dict[str, Any] = {
-            "frequency_penalty": self.frequency_penalty,
-            "presence_penalty": self.presence_penalty,
-        }
+        kwargs: dict[str, Any] = {}
         if self.temperature != 1.0:
             kwargs["temperature"] = self.temperature
         if self.top_p != 1.0:
             kwargs["top_p"] = self.top_p
+        # Anthropic (and some other providers) reject frequency_penalty /
+        # presence_penalty outright — litellm.UnsupportedParamsError — so
+        # these must be omitted unless the client explicitly asked for a
+        # non-default value, same as temperature/top_p above. Sending them
+        # unconditionally (even at their 0.0 default) previously broke
+        # every request routed to an Anthropic model, on both endpoints.
+        if self.frequency_penalty != 0.0:
+            kwargs["frequency_penalty"] = self.frequency_penalty
+        if self.presence_penalty != 0.0:
+            kwargs["presence_penalty"] = self.presence_penalty
         if self.max_tokens is not None:
             kwargs["max_tokens"] = self.max_tokens
         if self.stop is not None:

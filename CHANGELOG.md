@@ -2,6 +2,56 @@
 
 All notable changes to RouteSmith will be documented in this file.
 
+## [0.9.2] — 2026-07-16
+
+Critical fixes found by actually running the 0.9.1 CLI end-to-end (quickstart →
+serve → route a real request) rather than relying on unit tests alone — several
+of the flagship one-command flows this project exists for were broken in ways
+no existing test caught, because on-disk config generation and config loading
+were never tested together.
+
+### Fixed
+- **`routesmith serve` crashed on any config from `quickstart`, `models
+  refresh`, or `init --provider`** with `Error loading config: 'id'`. Those
+  three commands wrote the internal catalog schema (key `model_id`) straight
+  into `routesmith.yaml`; the loader requires the on-disk schema (key `id`,
+  matching `routesmith.yaml.example`). The flagship `routesmith quickstart`
+  one-liner could not get past its own generated config.
+- **Every request routed to an Anthropic model failed**, on both
+  `/v1/chat/completions` and `/v1/messages`, with
+  `litellm.UnsupportedParamsError`. The proxy unconditionally sent
+  `frequency_penalty`/`presence_penalty` (even at their 0.0 default) to
+  whatever model was selected; Anthropic's API rejects both params outright.
+  This is the same class of issue an earlier 0.9.1 fix addressed for
+  `temperature`/`top_p` but didn't extend to the penalty params — the single
+  most common path (Claude Code or any client → RouteSmith → an Anthropic
+  model) was unusable.
+- **Tool-calling capability silently dropped** on any catalog-generated
+  config: the catalog schema's `supports_tools` key was never translated to
+  the loader's `supports_function_calling` key. Currently masked by both
+  defaulting to `True`, but relying on that coincidence was fragile — fixed
+  with an explicit, tested translation.
+- **`routesmith --version` was hardcoded to `0.1.0`**, disconnected from the
+  actual package version since the CLI was first scaffolded.
+- **`routesmith connect <tool> --verify` crashed with a raw Python traceback**
+  on any downstream failure (e.g. a missing/invalid provider API key — the
+  most common first-run mistake) instead of the clean pass/fail signal the
+  command exists to provide. Now prints the actual upstream error message and
+  exits 1.
+- **`routesmith models list` displayed a blank Model ID column** against any
+  real config, and **`routesmith models refresh`/`models list` subcommands
+  documented in every integration guide didn't exist** — only `models
+  --refresh`/`--json` flags did. Added the documented `models list` / `models
+  refresh` subcommands (flags remain as a back-compat alias) and fixed the
+  display to read the correct on-disk key.
+
+### Added
+- Round-trip regression tests for `quickstart`, `models refresh`, and `init
+  --provider`: each now asserts the generated config actually loads via
+  `load_config_file()` and registers tool-capable models — the exact
+  generate-then-load path that was broken and that no test previously
+  exercised end-to-end.
+
 ## [0.9.1] — 2026-07-16
 
 Follow-up fixes to the 0.9.0 integration DX overhaul: the PyPI package name was
