@@ -342,6 +342,36 @@ def main(argv: Sequence[str] | None = None) -> int:
     from routesmith.cli.evaluate import register_subparser as register_evaluate
     register_evaluate(subparsers)
 
+    # models command
+    models_parser = subparsers.add_parser(
+        "models",
+        help="List and refresh the model pool",
+        description="List registered models from config or refresh from provider catalogs.",
+    )
+    models_parser.add_argument(
+        "--config", "-c",
+        type=str,
+        default=None,
+        help="Config file path (default: ./routesmith.yaml → ~/.routesmith/routesmith.yaml)",
+    )
+    models_parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Re-detect providers and rebuild model pool from catalogs",
+    )
+    models_parser.add_argument(
+        "--provider",
+        action="append",
+        dest="provider",
+        choices=["anthropic", "openai", "openrouter", "groq"],
+        help="Force provider(s) for --refresh (repeatable, overrides env detection)",
+    )
+    models_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output model list as JSON",
+    )
+
     # connect command
     connect_parser = subparsers.add_parser(
         "connect",
@@ -405,6 +435,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "openclaw-config":
         from routesmith.cli.openclaw import run_openclaw_config
         return run_openclaw_config(args)
+    elif args.command == "models":
+        from routesmith.cli.models import run_models
+        return run_models(args)
     elif args.command == "quickstart":
         from routesmith.cli.quickstart import run_quickstart
         return run_quickstart(args)
