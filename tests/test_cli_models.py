@@ -30,7 +30,6 @@ def _write_config(config_path: str, data: dict | None = None) -> None:
 
 def test_models_no_config():
     """Without a config file, models prints help and exits 1."""
-    from routesmith.cli import models as models_module
     from routesmith.cli.models import run_models
 
     args = Namespace(config="nonexistent.yaml", refresh=False, json=False, provider=None)

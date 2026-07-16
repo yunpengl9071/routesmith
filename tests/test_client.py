@@ -805,7 +805,7 @@ class TestConversationScopedRouting:
         """sticky=off prevents model reuse across turns."""
         from unittest.mock import MagicMock, patch
 
-        from routesmith.config import RouteSmithConfig, RouteContext
+        from routesmith.config import RouteContext, RouteSmithConfig
 
         config = RouteSmithConfig(sticky="off")
         rs = RouteSmith(config=config)
@@ -837,7 +837,6 @@ class TestConversationScopedRouting:
         import os
         import tempfile
 
-        from routesmith.config import RouteSmithConfig, RouteContext
         from routesmith.feedback.storage import FeedbackStorage
 
         db_fd, db_path = tempfile.mkstemp(suffix=".db")
@@ -871,7 +870,7 @@ class TestConversationScopedRouting:
         import os
         import tempfile
 
-        from routesmith.config import RouteSmithConfig, RouteContext
+        from routesmith.config import RouteContext, RouteSmithConfig
         from routesmith.feedback.storage import FeedbackStorage
 
         db_fd, db_path = tempfile.mkstemp(suffix=".db")
