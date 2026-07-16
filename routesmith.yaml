@@ -1,42 +1,40 @@
-# RouteSmith Configuration
-# Only models you have API keys for
-
-# Routing behavior
+catalog:
+  refreshed_at: '2026-07-16T04:39:11Z'
+  providers:
+  - openai
 routing:
-  strategy: direct
-  fallback_model: groq/llama-3.3-70b-versatile
-
-# Budget constraints (optional)
-budget:
-  max_cost_per_request: 0.10
-  max_cost_per_hour: 10.0
-  max_cost_per_day: 100.0
-  quality_threshold: 0.8
-
-# Semantic cache (optional, requires sentence-transformers)
-cache:
-  enabled: false
-  similarity_threshold: 0.95
-  ttl_seconds: 3600
-
-# Feedback collection
-feedback:
-  enabled: true
-  sample_rate: 0.1
-
-# Registered models - only providers with API keys
+  intercept: all
+  sticky: auto
+predictor_type: lints
+budget: {}
 models:
-  # Groq models (GROQ_API_KEY)
-  - id: groq/llama-3.3-70b-versatile
-    cost_per_1k_input: 0.00059
-    cost_per_1k_output: 0.00079
-    quality_score: 0.90
-    latency_p50_ms: 200
-    context_window: 131072
-
-  - id: groq/llama-3.3-70b-specdec
-    cost_per_1k_input: 0.00059
-    cost_per_1k_output: 0.00079
-    quality_score: 0.88
-    latency_p50_ms: 150
-    context_window: 131072
+- model_id: gpt-4o-mini
+  display_name: GPT-4o Mini
+  cost_per_1k_input: 0.00015
+  cost_per_1k_output: 0.0006
+  quality_score: 0.82
+  context_window: 128000
+  latency_p50_ms: 400
+  supports_tools: true
+  supports_vision: true
+  default: true
+- model_id: gpt-4o
+  display_name: GPT-4o
+  cost_per_1k_input: 0.0025
+  cost_per_1k_output: 0.01
+  quality_score: 0.92
+  context_window: 128000
+  latency_p50_ms: 800
+  supports_tools: true
+  supports_vision: true
+  default: true
+- model_id: o4-mini
+  display_name: o4-mini
+  cost_per_1k_input: 0.0011
+  cost_per_1k_output: 0.0044
+  quality_score: 0.94
+  context_window: 200000
+  latency_p50_ms: 500
+  supports_tools: true
+  supports_vision: true
+  default: true
