@@ -118,11 +118,13 @@ class ChatCompletionRequest:
     def to_litellm_kwargs(self) -> dict[str, Any]:
         """Convert to kwargs for litellm completion."""
         kwargs: dict[str, Any] = {
-            "temperature": self.temperature,
-            "top_p": self.top_p,
             "frequency_penalty": self.frequency_penalty,
             "presence_penalty": self.presence_penalty,
         }
+        if self.temperature != 1.0:
+            kwargs["temperature"] = self.temperature
+        if self.top_p != 1.0:
+            kwargs["top_p"] = self.top_p
         if self.max_tokens is not None:
             kwargs["max_tokens"] = self.max_tokens
         if self.stop is not None:

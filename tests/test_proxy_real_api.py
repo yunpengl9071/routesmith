@@ -106,11 +106,14 @@ async def test_anthropic_messages_via_proxy():
     if not api_key:
         pytest.skip("ANTHROPIC_API_KEY not set")
 
+    import litellm
+    litellm.drop_params = True
+
     from routesmith import RouteSmith
     from routesmith.config import RouteSmithConfig
     from routesmith.proxy.server import RouteSmithProxyServer, ServerConfig
 
-    model_id = "claude-3-5-haiku-latest"
+    model_id = "anthropic/claude-haiku-4-5-20251001"
     print(f"\n  Using Anthropic model: {model_id}")
 
     rs = RouteSmith(config=RouteSmithConfig(intercept="all"))
@@ -134,6 +137,7 @@ async def test_anthropic_messages_via_proxy():
                 json={
                     "model": "auto",
                     "max_tokens": 50,
+                    "temperature": 0.7,
                     "messages": [{"role": "user", "content": "Reply with exactly: hello world"}],
                 },
             )
