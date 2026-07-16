@@ -1,6 +1,6 @@
 site_name: RouteSmith
 site_description: Adaptive LLM Execution Engine — intelligent routing, cascading, caching, and budget management
-repo_url: https://github.com/routesmith/routesmith
+repo_url: https://github.com/yunpengl9071/routesmith
 theme:
   name: material
   palette:
