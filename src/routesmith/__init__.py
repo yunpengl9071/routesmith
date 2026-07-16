@@ -27,7 +27,7 @@ from routesmith.predictor.linucb import LinUCBPredictor
 from routesmith.registry.models import ModelConfig, ModelRegistry
 from routesmith.strategy.ab_test import ABTestRunner
 
-__version__ = "0.9.2"
+__version__ = "0.9.3"
 
 __all__ = [
     "ABTestRunner",

@@ -2,6 +2,29 @@
 
 All notable changes to RouteSmith will be documented in this file.
 
+## [0.9.3] — 2026-07-16
+
+Supersedes 0.9.2 on PyPI (0.9.2 was tagged but never published there — this
+release includes everything in it).
+
+### Fixed
+- **`pip install "routesmith-llm[all]"` installed a stranger's package.** The
+  self-referential `all` extra in `pyproject.toml` still said
+  `routesmith[proxy,...]` — the old distribution name, which on PyPI belongs
+  to an unrelated project — so every `[all]` install since 0.8.0 silently
+  pulled that third-party `routesmith` package into the environment (visible
+  as installer warnings like `The package routesmith==0.1.8 does not have an
+  extra named 'anthropic'`). Now correctly `routesmith-llm[...]`.
+- **PyPI sidebar links pointed at a nonexistent repository**
+  (`github.com/routesmith/routesmith`) in `[project.urls]`; same wrong URL in
+  `mkdocs.yml`. Both now point at the real repo.
+
+### Added
+- `tests/test_packaging.py`: parses `pyproject.toml` and fails CI if any
+  dependency (including self-referential extras) resolves to the bare
+  `routesmith` PyPI name, if the `all` extra drops a user-facing extra, or if
+  project URLs point at the wrong GitHub org.
+
 ## [0.9.2] — 2026-07-16
 
 Critical fixes found by actually running the 0.9.1 CLI end-to-end (quickstart →

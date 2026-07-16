@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "routesmith-llm"
-version = "0.9.2"
+version = "0.9.3"
 description = "Adaptive LLM execution engine - intelligent routing, cascading, caching, and budget management"
 readme = "README.md"
 license = "MIT"
@@ -98,13 +98,13 @@ docs = [
 ]
 # All optional dependencies (complete install)
 all = [
-    "routesmith[proxy,cache,tui,predictor,anthropic,dspy,crewai,autogen,langchain,docs]",
+    "routesmith-llm[proxy,cache,tui,predictor,anthropic,dspy,crewai,autogen,langchain,docs]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/routesmith/routesmith"
-Documentation = "https://github.com/routesmith/routesmith#readme"
-Repository = "https://github.com/routesmith/routesmith"
+Homepage = "https://github.com/yunpengl9071/routesmith"
+Documentation = "https://github.com/yunpengl9071/routesmith#readme"
+Repository = "https://github.com/yunpengl9071/routesmith"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/routesmith"]
