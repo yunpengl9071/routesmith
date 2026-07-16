@@ -243,6 +243,8 @@ class RouteSmithProxyServer:
                 await self._send_json(writer, result, 200)
             except BudgetExceededError as e:
                 await self._send_json(writer, {"error": {"message": str(e), "type": "budget_exceeded", "code": 429}}, 429)
+            except (NoCapableModelError, ValueError) as e:
+                await self._send_error(writer, str(e), 400)
             except Exception as e:
                 logger.exception(f"Completion error: {e}")
                 await self._send_error(writer, str(e), 500)
@@ -384,7 +386,7 @@ class RouteSmithProxyServer:
                         anthropic_chunks.append(data_chunk)
                         if data_chunk.get("model"):
                             routesmith_metadata["selected_model"] = data_chunk["model"]
-            except NoCapableModelError as e:
+            except (NoCapableModelError, ValueError) as e:
                 await self._send_json(writer, self._anthropic_error(str(e)), 400)
                 return
             except Exception as e:
@@ -472,7 +474,7 @@ class RouteSmithProxyServer:
                     anthropic_resp["routesmith_metadata"].update(audit_extra)
 
                 await self._send_json(writer, anthropic_resp, 200)
-            except NoCapableModelError as e:
+            except (NoCapableModelError, ValueError) as e:
                 await self._send_json(writer, self._anthropic_error(str(e)), 400)
             except BudgetExceededError as e:
                 await self._send_json(writer, self._anthropic_error(str(e)), 429)
