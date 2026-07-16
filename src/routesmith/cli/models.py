@@ -11,7 +11,11 @@ from typing import Any
 
 import yaml
 
-from routesmith.registry.catalog import build_default_pool, detect_providers
+from routesmith.registry.catalog import (
+    build_default_pool,
+    detect_providers,
+    pool_entry_to_yaml_model,
+)
 
 
 def _resolve_config(config_arg: str | None) -> Path | None:
@@ -24,7 +28,7 @@ def _resolve_config(config_arg: str | None) -> Path | None:
     return None
 
 
-def _provider_from_model_id(model_id: str) -> str:
+def _provider_from_id(model_id: str) -> str:
     if model_id.startswith("openrouter/"):
         return "openrouter"
     if model_id.startswith("groq/"):
@@ -53,7 +57,7 @@ def run_models(args: Namespace) -> int:
             print("  ANTHROPIC_API_KEY, OPENAI_API_KEY, OPENROUTER_API_KEY, GROQ_API_KEY", file=sys.stderr)
             return 1
 
-        models = build_default_pool(providers)
+        models = [pool_entry_to_yaml_model(m) for m in build_default_pool(providers)]
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         with open(config_path) as f:
@@ -91,10 +95,11 @@ def run_models(args: Namespace) -> int:
         print(f"  {'Provider':<14} {'Model ID':<52} {'$/1k in':>10} {'$/1k out':>10} {'Quality':>8}")
         print(f"  {'-'*14} {'-'*52} {'-'*10} {'-'*10} {'-'*8}")
         for m in model_entries:
-            provider = _provider_from_model_id(m.get("model_id", ""))
+            model_id = m.get("id", "")
+            provider = _provider_from_id(model_id)
             cost_in = m.get("cost_per_1k_input", 0)
             cost_out = m.get("cost_per_1k_output", 0)
             quality = m.get("quality_score", 0)
-            print(f"  {provider:<14} {m.get('model_id', ''):<52} ${cost_in:>8.4f} ${cost_out:>8.4f} {quality:>7.2f}")
+            print(f"  {provider:<14} {model_id:<52} ${cost_in:>8.4f} ${cost_out:>8.4f} {quality:>7.2f}")
 
     return 0

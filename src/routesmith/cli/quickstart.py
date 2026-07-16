@@ -15,7 +15,11 @@ from typing import Any
 
 import yaml
 
-from routesmith.registry.catalog import build_default_pool, detect_providers
+from routesmith.registry.catalog import (
+    build_default_pool,
+    detect_providers,
+    pool_entry_to_yaml_model,
+)
 
 
 def _generate_config(
@@ -29,7 +33,7 @@ def _generate_config(
         print(f"'{output}' exists. Use --yes to overwrite.")
         return 1
 
-    models = build_default_pool(providers)
+    models = [pool_entry_to_yaml_model(m) for m in build_default_pool(providers)]
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     config: dict[str, Any] = {
@@ -111,6 +115,8 @@ def run_quickstart(args: Namespace) -> int:
                 cost_per_1k_input=m.get("cost_per_1k_input", 0),
                 cost_per_1k_output=m.get("cost_per_1k_output", 0),
                 quality_score=m.get("quality_score", 0.5),
+                supports_function_calling=m.get("supports_tools", True),
+                supports_vision=m.get("supports_vision", False),
             )
 
         import asyncio

@@ -227,6 +227,53 @@ class TestConnectVerify:
         err = stderr.getvalue()
         assert "Health check failed" in err
 
+    def test_verify_downstream_failure_prints_clean_error(self):
+        """A 500 from the completion request (e.g. the selected model's
+        provider key is missing/invalid downstream) must print a clean,
+        actionable error and exit 1 — not dump an unhandled urllib
+        traceback to the user's terminal.
+
+        Regression test: --verify's whole purpose is to give a clear
+        pass/fail signal for a freshly-configured proxy; a raw traceback
+        on the single most common first-run failure (bad/missing provider
+        key) defeats that purpose.
+        """
+        from urllib.error import HTTPError
+
+        from routesmith.cli.connect import run_connect
+
+        health_resp = {"status": "healthy", "registered_models": 2}
+        error_body = json.dumps({
+            "error": {
+                "message": "litellm.InternalServerError: Missing credentials for OPENAI_API_KEY",
+                "type": "invalid_request_error",
+            }
+        }).encode("utf-8")
+
+        def _raise_http_error(*a, **kw):
+            raise HTTPError(
+                "http://localhost:9119/v1/chat/completions", 500, "Internal Server Error",
+                {}, io.BytesIO(error_body),
+            )
+
+        args = _make_args("opencode", verify=True)
+
+        with patch("sys.stdout", new_callable=io.StringIO):
+            with patch("sys.stderr", new_callable=io.StringIO) as stderr:
+                with patch(
+                    "routesmith.cli.connect._http_get",
+                    return_value=health_resp,
+                ):
+                    with patch(
+                        "routesmith.cli.connect._send_verify_request",
+                        side_effect=_raise_http_error,
+                    ):
+                        rc = run_connect(args)
+        assert rc == 1
+        err = stderr.getvalue()
+        assert "500" in err
+        assert "Missing credentials" in err
+
     def test_verify_routed_success(self):
         from routesmith.cli.connect import run_connect
 

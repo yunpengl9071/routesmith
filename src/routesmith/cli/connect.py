@@ -8,7 +8,7 @@ import sys
 from argparse import Namespace
 from pathlib import Path
 from typing import Any
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
@@ -264,7 +264,24 @@ def _run_verify(tool: str, url: str, args: Namespace) -> int:
     endpoint = _VERIFY_ENDPOINTS.get(tool, "/v1/chat/completions")
     is_anthropic = endpoint == "/v1/messages"
 
-    resp = _send_verify_request(url, key, endpoint, is_anthropic)
+    try:
+        resp = _send_verify_request(url, key, endpoint, is_anthropic)
+    except HTTPError as exc:
+        print(f"Proxy reached, but the verification request failed ({exc.code}).", file=sys.stderr)
+        try:
+            detail = json.loads(exc.read().decode("utf-8"))
+            message = detail.get("error", {}).get("message", json.dumps(detail))
+        except Exception:
+            message = exc.reason
+        print(f"Error: {message}", file=sys.stderr)
+        print(file=sys.stderr)
+        print("This is usually a missing/invalid provider API key for the", file=sys.stderr)
+        print("model RouteSmith selected — check the proxy's environment and", file=sys.stderr)
+        print("`routesmith audit` for the routing decision.", file=sys.stderr)
+        return 1
+    except (URLError, ConnectionError, OSError) as exc:
+        print(f"Could not reach RouteSmith proxy at {url}: {exc}", file=sys.stderr)
+        return 1
 
     # Step 3: assert routesmith_metadata.routed == true
     metadata = resp.get("routesmith_metadata", {})

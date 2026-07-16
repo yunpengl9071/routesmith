@@ -71,3 +71,31 @@ def build_default_pool(providers: list[str] | None = None) -> list[dict]:
                 entry["quality_score"] = prior
 
     return result
+
+
+def pool_entry_to_yaml_model(entry: dict) -> dict:
+    """Translate a catalog/pool entry (registry.catalog schema) to the
+    routesmith.yaml on-disk model schema (yaml_loader._parse_model_entry).
+
+    The two schemas disagree on two keys — "model_id" vs "id" and
+    "supports_tools" vs "supports_function_calling" — so writing a pool
+    entry straight into models: without this translation either crashes
+    config load (KeyError: 'id') or silently drops tool-calling capability
+    (every model registers with supports_function_calling=False, so no
+    model ever qualifies for a request that includes `tools`).
+    """
+    out = {
+        "id": entry["model_id"],
+        "cost_per_1k_input": entry.get("cost_per_1k_input", 0.0),
+        "cost_per_1k_output": entry.get("cost_per_1k_output", 0.0),
+        "quality_score": entry.get("quality_score", 0.8),
+    }
+    if "context_window" in entry:
+        out["context_window"] = entry["context_window"]
+    if "latency_p50_ms" in entry:
+        out["latency_p50_ms"] = entry["latency_p50_ms"]
+    if "supports_tools" in entry:
+        out["supports_function_calling"] = entry["supports_tools"]
+    if "supports_vision" in entry:
+        out["supports_vision"] = entry["supports_vision"]
+    return out

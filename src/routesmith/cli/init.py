@@ -24,9 +24,9 @@ def run_init(args: Any) -> int:
     if providers:
         from datetime import datetime, timezone
 
-        from routesmith.registry.catalog import build_default_pool
+        from routesmith.registry.catalog import build_default_pool, pool_entry_to_yaml_model
 
-        catalog_models = build_default_pool(providers)
+        catalog_models = [pool_entry_to_yaml_model(m) for m in build_default_pool(providers)]
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         config = {
             "catalog": {
