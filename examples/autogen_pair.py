@@ -4,7 +4,7 @@ AutoGen agent pair with RouteSmith.
 Uses the RouteSmith proxy server — start it first:
     routesmith serve --port 9119
 
-Requires: routesmith[autogen]
+Requires: routesmith-llm[autogen]
 """
 
 from routesmith.integrations.autogen import routesmith_autogen_agents
@@ -14,7 +14,7 @@ def main() -> None:
     try:
         from autogen import ChatResult
     except ImportError:
-        print("pyautogen not installed. Install with: pip install 'routesmith[autogen]'")
+        print("pyautogen not installed. Install with: pip install 'routesmith-llm[autogen]'")
         return
 
     assistant, user = routesmith_autogen_agents()

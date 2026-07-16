@@ -10,6 +10,6 @@ check_absent "27-dimensional"
 check_absent "LinTS-27d"
 check_absent "rs.complete("
 check_absent "response.request_id"
-check_absent "_detect_provider"
-check_absent "LinTS-27d"
+check_absent "Codex plugin"
+check_absent "zero quality loss"
 exit $fail

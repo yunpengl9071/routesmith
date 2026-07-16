@@ -6,7 +6,7 @@ import logging
 import random
 import time
 import uuid
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from collections.abc import AsyncIterator, Callable, Iterator
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -34,6 +34,13 @@ from routesmith.utils.logging import RouteSmithLogger, setup_logger
 from routesmith.utils.retry import RetryExhaustedError, retry_with_backoff
 
 logger = logging.getLogger(__name__)
+
+# Bounds for the in-memory conversation-stickiness map. Applies regardless of
+# whether persistent (SQLite) storage is configured, since the default proxy
+# config has no feedback_storage_path and would otherwise grow this dict
+# forever over the life of a long-running `routesmith serve` process.
+_STICKY_MAX_ENTRIES = 1000
+_STICKY_TTL_SECONDS = 24 * 3600
 
 
 @dataclass
@@ -118,8 +125,9 @@ class RouteSmith:
             setup_logger("routesmith", json_format=True)
         )
 
-        # Conversation-scoped model stickiness (persisted to storage)
-        self._conversation_models: dict[str, str] = {}
+        # Conversation-scoped model stickiness (persisted to storage when
+        # configured). Bounded LRU + TTL — see _sticky_lookup/_sticky_remember.
+        self._conversation_models: OrderedDict[str, tuple[str, float]] = OrderedDict()
         self._load_stickiness()
 
         # Quality poll sampler
@@ -159,7 +167,7 @@ class RouteSmith:
         self._cache_semantic = importlib.util.find_spec("sentence_transformers") is not None
         if self.config.cache.enabled and not self._cache_semantic:
             logger.warning("sentence-transformers not installed; cache runs exact-match only "
-                           "(pip install routesmith[cache] for semantic matching)")
+                           "(pip install routesmith-llm[cache] for semantic matching)")
         self._cache_hits = 0
 
         # Resolve reward_fn from config (fail fast on bad expressions).
@@ -191,7 +199,12 @@ class RouteSmith:
         if self.feedback._storage is not None:
             try:
                 loaded = self.feedback._storage.load_conversation_models()
-                self._conversation_models.update(loaded)
+                for conversation_id, (model_id, updated_at) in loaded.items():
+                    self._conversation_models[conversation_id] = (model_id, updated_at)
+                # Sort by recency so LRU eviction order is correct after load.
+                for cid in sorted(self._conversation_models, key=lambda k: self._conversation_models[k][1]):
+                    self._conversation_models.move_to_end(cid)
+                self._evict_sticky_overflow()
             except Exception:
                 pass
 
@@ -201,6 +214,30 @@ class RouteSmith:
                 self.feedback._storage.save_conversation_model(conversation_id, model_id)
             except Exception:
                 pass
+
+    def _evict_sticky_overflow(self) -> None:
+        """Enforce the LRU cap on the in-memory stickiness map."""
+        while len(self._conversation_models) > _STICKY_MAX_ENTRIES:
+            self._conversation_models.popitem(last=False)
+
+    def _sticky_lookup(self, conversation_id: str) -> str | None:
+        """Return the sticky model for a conversation, or None if absent/expired."""
+        entry = self._conversation_models.get(conversation_id)
+        if entry is None:
+            return None
+        model_id, updated_at = entry
+        if time.time() - updated_at > _STICKY_TTL_SECONDS:
+            self._conversation_models.pop(conversation_id, None)
+            return None
+        self._conversation_models.move_to_end(conversation_id)
+        return model_id
+
+    def _sticky_remember(self, conversation_id: str, model_id: str) -> None:
+        """Record the model chosen for a conversation, evicting LRU overflow."""
+        self._conversation_models[conversation_id] = (model_id, time.time())
+        self._conversation_models.move_to_end(conversation_id)
+        self._evict_sticky_overflow()
+        self._persist_stickiness(conversation_id, model_id)
 
     def clear_stickiness(self, conversation_id: str | None = None) -> None:
         if conversation_id:
@@ -546,9 +583,9 @@ class RouteSmith:
         elif (
             self.config.sticky != "off"
             and context.conversation_id
-            and context.conversation_id in self._conversation_models
+            and (_sticky_model := self._sticky_lookup(context.conversation_id)) is not None
         ):
-            selected_model = self._conversation_models[context.conversation_id]
+            selected_model = _sticky_model
             routing_reason = "conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
             self._budget_events["fallbacks"] += 1
@@ -623,10 +660,9 @@ class RouteSmith:
             self.config.sticky != "off"
             and context
             and context.conversation_id
-            and context.conversation_id not in self._conversation_models
+            and self._sticky_lookup(context.conversation_id) is None
         ):
-            self._conversation_models[context.conversation_id] = selected_model
-            self._persist_stickiness(context.conversation_id, selected_model)
+            self._sticky_remember(context.conversation_id, selected_model)
 
         # Cache check: after routing (to know model_id), before LLM call
         cache_hit = False
@@ -1099,9 +1135,9 @@ class RouteSmith:
         elif (
             self.config.sticky != "off"
             and context.conversation_id
-            and context.conversation_id in self._conversation_models
+            and (_sticky_model := self._sticky_lookup(context.conversation_id)) is not None
         ):
-            selected_model = self._conversation_models[context.conversation_id]
+            selected_model = _sticky_model
             routing_reason = "conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
             self._budget_events["fallbacks"] += 1
@@ -1176,10 +1212,9 @@ class RouteSmith:
             self.config.sticky != "off"
             and context
             and context.conversation_id
-            and context.conversation_id not in self._conversation_models
+            and self._sticky_lookup(context.conversation_id) is None
         ):
-            self._conversation_models[context.conversation_id] = selected_model
-            self._persist_stickiness(context.conversation_id, selected_model)
+            self._sticky_remember(context.conversation_id, selected_model)
 
         # Cache check: after routing (to know model_id), before LLM call
         cache_hit = False

@@ -4,7 +4,7 @@ LangGraph multi-agent with per-role routing.
 Two agents (planner, executor) each with their own ChatRouteSmith
 over a shared RouteSmith instance.
 
-Requires: routesmith[langchain]
+Requires: routesmith-llm[langchain]
           pip install langgraph
 """
 

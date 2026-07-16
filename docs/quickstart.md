@@ -3,7 +3,7 @@
 ## 1. Install
 
 ```bash
-pip install routesmith
+pip install routesmith-llm
 ```
 
 ## 2. Create Client

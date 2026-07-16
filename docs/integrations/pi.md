@@ -1,31 +1,25 @@
 # pi Integration
 
 RouteSmith optimizes your pi sessions — route every request through intelligent
-model selection for better quality at lower cost.
-
-pi speaks OpenAI format through its provider system. Pointing it at
-RouteSmith is one line of configuration.
+model selection.
 
 ## Setup
 
 ```bash
-pip install routesmith
-routesmith init --output routesmith.yaml
-routesmith serve --config routesmith.yaml
+pip install "routesmith-llm[proxy]"
+routesmith quickstart
 ```
-
-Proxy runs at `http://localhost:9119/v1`.
-
-## Configure pi
 
 pi uses an OpenClaw-compatible provider config. Generate it:
 
 ```bash
-routesmith openclaw-config --output routesmith-provider.json
+routesmith connect pi
 ```
 
-Add the generated provider to your pi configuration. RouteSmith appears as
-`routesmith/auto` in your model list.
+This is the same generator as `routesmith openclaw-config` — it creates a provider
+entry that adds `routesmith/auto` to your model list. Add the generated config to
+your pi configuration, and make sure the proxy is running (`routesmith serve` or
+`routesmith run <another tool>` first) before starting pi.
 
 ## What Happens
 
@@ -36,11 +30,14 @@ quality at lower cost without changing your workflow.
 ## Verify
 
 ```bash
-curl http://localhost:9119/health
-# → {"status": "ok"}
+routesmith connect pi --verify
 ```
+
+Does a live round-trip through the proxy and confirms the response was actually
+routed, not just that the server answered.
 
 ## Advanced
 
-See the [OpenClaw integration guide](openclaw.md) for budget enforcement,
-cost tracking (`routesmith stats`), and semantic caching configuration.
+See the [Claude Code integration guide](claude-code.md) for budget enforcement,
+cost tracking (`routesmith stats`), catalog refresh (`routesmith models refresh`),
+and semantic caching configuration.

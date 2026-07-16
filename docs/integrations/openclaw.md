@@ -6,17 +6,20 @@ intelligent model selection for better quality at lower cost.
 ## Setup
 
 ```bash
-pip install routesmith
+pip install "routesmith-llm[proxy]"
+
+# Detects your provider API keys and builds a matching model pool
+routesmith quickstart
 ```
 
-RouteSmith needs a model catalog. Generate one interactively:
+Or generate a catalog interactively (browse OpenRouter's model list, pick 3–10
+models):
 
 ```bash
 routesmith init --output routesmith.yaml
 ```
 
-This fetches OpenRouter's model list, lets you pick 3–10 models, and writes a
-config file. Then start the proxy:
+Start the proxy:
 
 ```bash
 routesmith serve --config routesmith.yaml
@@ -30,12 +33,13 @@ format that OpenClaw already understands.
 Generate the provider config:
 
 ```bash
-routesmith openclaw-config --output routesmith-provider.json
+routesmith connect openclaw
 ```
 
-This creates a provider entry that adds `routesmith/auto` as an available model.
-Add the generated config to your OpenClaw settings. Make sure RouteSmith is
-running (`routesmith serve --config routesmith.yaml`) before starting OpenClaw.
+(equivalent to `routesmith openclaw-config`). This creates a provider entry that
+adds `routesmith/auto` as an available model. Add the generated config to your
+OpenClaw settings. Make sure RouteSmith is running (`routesmith serve --config
+routesmith.yaml`) before starting OpenClaw.
 
 > **Note:** If you're using the `--config` flag with OpenClaw, you can pass the
 > generated file directly: `openclaw --config routesmith-provider.json`
@@ -56,21 +60,13 @@ routes accordingly:
 
 ## Verify
 
-Check that everything is connected:
-
 ```bash
-# Proxy health
-curl http://localhost:9119/health
-# → {"status": "ok"}
-
-# Test a completion through the proxy
-curl http://localhost:9119/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "auto",
-    "messages": [{"role": "user", "content": "Say hello in one word."}]
-  }'
+routesmith connect openclaw --verify
 ```
+
+Does a live round-trip through the proxy and confirms the response was actually
+routed — not just that the server is reachable. A bare `curl /health` check will
+report OK even when every request is silently passing through unrouted.
 
 ## Advanced
 

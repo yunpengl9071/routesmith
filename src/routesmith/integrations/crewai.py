@@ -50,7 +50,7 @@ def routesmith_crewai_llm(
     except ImportError as e:
         raise ImportError(
             "CrewAI integration requires crewai. "
-            "Install with: pip install 'routesmith[crewai]'"
+            "Install with: pip install 'routesmith-llm[crewai]'"
         ) from e
 
     return LLM(

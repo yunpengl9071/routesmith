@@ -23,7 +23,7 @@ try:
 except ImportError as e:
     raise ImportError(
         "Anthropic integration requires the anthropic package. "
-        "Install it with: pip install routesmith[anthropic]"
+        "Install it with: pip install routesmith-llm[anthropic]"
     ) from e
 
 from routesmith.client import RouteSmith

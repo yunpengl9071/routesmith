@@ -1,13 +1,20 @@
 # RouteSmith
 
-**The smart router for AI coding tools.** 40-60% cost savings. Zero quality loss. Backed by contextual bandit research.
+[![PyPI](https://img.shields.io/pypi/v/routesmith-llm)](https://pypi.org/project/routesmith-llm/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/routesmith-llm/)
+[![License](https://img.shields.io/github/license/yunpengl9071/routesmith)](LICENSE)
+
+**The smart router for AI coding tools.** Backed by contextual bandit research — see [Research](#research) for measured results.
 
 ```bash
-pip install "routesmith[proxy]"
-routesmith init
-routesmith serve
-# → Proxy at http://localhost:9119/v1
+pip install "routesmith-llm[proxy]"
+routesmith quickstart        # detects your provider keys, builds a matching model pool
+routesmith run claude        # or: routesmith run codex / routesmith run opencode
 ```
+
+That's it — Claude Code (or Codex, or OpenCode) now runs exactly as normal, except every
+request is silently routed to the best model for it. No tool config to edit, no model
+picker, no server terminal to babysit.
 
 RouteSmith sits between your AI coding tool and the LLM. It routes every request
 to the best model for that specific task — cheap models for simple edits, frontier
@@ -23,13 +30,15 @@ models for complex refactors. You never think about model IDs again.
 | Budget caps (daily/hourly) | ❌ | ✅ Monthly, per-request, per-project |
 | Conversation stickiness | ✅ | ✅ 
 
-**v0.9.0**: Provider-aware catalogs, `routesmith models` CLI, persistent stickiness, `routesmith connect`, `routesmith run`. Integration DX overhaul.
+**v0.9.0**: `routesmith run <tool>` one-command integration, provider-aware model catalogs, `routesmith models refresh`, persistent conversation stickiness, `routesmith connect --verify`. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Who it's for
 
-**💰 You pay for API access. Cut your bill 40-60%.**
-Your Claude Code or Codex session burns through tokens. RouteSmith sends typos and
-formatting to gpt-4o-mini, saves Claude Opus for architecture decisions.
+**💰 You pay for API access. Cut your bill.**
+Your Claude Code or Codex session burns through tokens on every turn, including
+subagent calls. RouteSmith sends typos and formatting to gpt-4o-mini, saves Claude
+Opus for architecture decisions. Paper experiments measured 45% cost savings at 71%
+accuracy on 5-model routing — see [Research](#research).
 
 **🆓 You use free models. Get better answers.**
 Free models are good individually — but none is great at everything. RouteSmith
@@ -52,20 +61,23 @@ response = rs.completion(messages=[{"role": "user", "content": "Explain recursio
 
 ## AI coding tools
 
-Point any AI coding tool at `http://localhost:9119/v1`:
+The fastest path for any tool is `routesmith run <tool>` (see [Quick start](#quick-start)).
+For manual setup or CI, `routesmith connect <tool>` prints the exact config, and
+`routesmith connect <tool> --verify` confirms requests are actually being routed
+(not just reachable):
 
-| Tool | Config |
-|------|--------|
-| Claude Code | Enable Codex plugin, set `OPENAI_BASE_URL=http://localhost:9119/v1` |
-| Codex | `export OPENAI_BASE_URL="http://localhost:9119/v1"` |
-| OpenClaw | `routesmith openclaw-config` |
-| pi | `routesmith openclaw-config` (OpenClaw-compatible provider) |
-| OpenCode | Set `base_url` to `http://localhost:9119/v1` in provider config |
-| Anthropic SDK | `export ANTHROPIC_BASE_URL=http://localhost:9119` |
+| Tool | `routesmith connect <tool>` |
+|------|------------------------------|
+| Claude Code | `claude-code` — sets `ANTHROPIC_BASE_URL` (native `/v1/messages`, full tool-use support) |
+| Codex | `codex` — sets `OPENAI_BASE_URL` + `wire_api: chat` |
+| OpenCode | `opencode` |
+| OpenClaw | `openclaw` |
+| pi | `pi` |
+| Hermes | `hermes` |
+| OpenAI SDK | `openai-sdk` |
+| Anthropic SDK | `anthropic-sdk` |
 
-> **Anthropic-native endpoint** (`POST /v1/messages`): Set `ANTHROPIC_BASE_URL=http://localhost:9119` and any Anthropic SDK client routes through RouteSmith. Supports streaming and non-streaming.
-
-[Integration guides →](https://github.com/yunpengl9071/routesmith/tree/dev/docs/integrations)
+[Integration guides →](docs/integrations/)
 
 ## Why RouteSmith
 
@@ -199,16 +211,16 @@ rs.record_outcome(response._routesmith_request_id, score=0.9)
 
 ```bash
 # Proxy + interactive setup (recommended)
-pip install "routesmith[proxy]"
+pip install "routesmith-llm[proxy]"
 
 # Core Python API only
-pip install routesmith
+pip install routesmith-llm
 
 # With specific integrations
-pip install "routesmith[langchain]"
-pip install "routesmith[anthropic]"
-pip install "routesmith[cache]"
-pip install "routesmith[all]"
+pip install "routesmith-llm[langchain]"
+pip install "routesmith-llm[anthropic]"
+pip install "routesmith-llm[cache]"
+pip install "routesmith-llm[all]"
 ```
 
 Requires Python 3.10+. Set `OPENROUTER_API_KEY` to use OpenRouter models.

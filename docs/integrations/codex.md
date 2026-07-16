@@ -1,38 +1,29 @@
 # Codex Integration
 
 RouteSmith optimizes your Codex sessions — route every request through
-intelligent model selection for 40-60% cost savings.
-
-Codex speaks OpenAI format natively. Pointing it at RouteSmith is one
-line of configuration.
+intelligent model selection.
 
 ## Setup
 
 ```bash
-pip install routesmith
-routesmith init --output routesmith.yaml
-routesmith serve --config routesmith.yaml
+pip install "routesmith-llm[proxy]"
+routesmith quickstart
+routesmith run codex
 ```
 
-Proxy runs at `http://localhost:9119/v1`.
+`routesmith run codex` starts the proxy (if needed) and launches Codex with
+`OPENAI_BASE_URL` pointed at it for this session only.
 
-## Configure Codex
-
-Set the OpenAI base URL to RouteSmith's proxy:
+## Manual configuration (alternative to `routesmith run`)
 
 ```bash
-export OPENAI_BASE_URL="http://localhost:9119/v1"
+routesmith connect codex
 ```
 
-Or in your Codex config file (`~/.codex/config.yaml`):
-
-```yaml
-provider: openai
-base_url: http://localhost:9119/v1
-api_key: ${OPENAI_API_KEY}
-```
-
-That's it. Codex now routes every request through RouteSmith.
+Prints the `OPENAI_BASE_URL` export and the `~/.codex/config.yaml` provider block.
+Codex defaults to OpenAI's Responses API — the generated config sets
+`wire_api: chat` explicitly, since RouteSmith serves the chat-completions wire
+format.
 
 ## What Happens
 
@@ -43,11 +34,14 @@ quality at lower cost without changing how you use Codex.
 ## Verify
 
 ```bash
-curl http://localhost:9119/health
-# → {"status": "ok"}
+routesmith connect codex --verify
 ```
+
+Does a live round-trip through the proxy and confirms the response was actually
+routed, not just that the server answered.
 
 ## Advanced
 
-See the [OpenClaw integration guide](openclaw.md) for budget enforcement,
-cost tracking (`routesmith stats`), and semantic caching configuration.
+See the [Claude Code integration guide](claude-code.md) for budget enforcement,
+cost tracking (`routesmith stats`), catalog refresh (`routesmith models refresh`),
+and semantic caching configuration.
