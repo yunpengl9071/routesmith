@@ -4,7 +4,7 @@
 **Spec:** `docs/plans/2026-07-16-integration-dx-spec.md` (referenced below as "spec §…").
 **Audience:** an autonomous **executor agent** (Part A) and an autonomous **tester agent**
 (Part B). Both parts are self-contained; no further instructions will be provided.
-Requirement IDs (R1–R6) and acceptance criteria (AC-1…AC-15) refer to the spec.
+Requirement IDs (R1–R8) and acceptance criteria (AC-1…AC-21) refer to the spec.
 
 ---
 
@@ -13,8 +13,9 @@ Requirement IDs (R1–R6) and acceptance criteria (AC-1…AC-15) refer to the sp
 ### A0. Workflow & ground rules
 
 - **Branch:** create `feature/integration-dx` off `origin/dev`. All implementation
-  commits go there. One commit per phase (P1–P6 below), message prefix `feat(dx):` /
-  `docs(dx):` matching repo convention (`git log --oneline` for examples).
+  commits go there. One commit per milestone item (eight total — see "Milestone
+  structure" below for the binding order), message prefix `feat(dx):` / `docs(dx):`
+  matching repo convention (`git log --oneline` for examples).
 - **Related branch:** `claude/release-social-visibility-g9t0jx` (unmerged at time of
   writing) fixes the PyPI package name (`routesmith` → `routesmith-llm`) across docs and
   error strings, bumps `__version__` to 0.8.0, and adds a launch kit. If it has merged
