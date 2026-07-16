@@ -88,3 +88,5 @@ paper/*.log
 paper/*.out
 paper/*.toc
 uv.lock
+benchmark/pack_results.sh
+routesmith-arxiv.tar.gz

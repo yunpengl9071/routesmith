@@ -256,6 +256,45 @@ def main(argv: Sequence[str] | None = None) -> int:
     from routesmith.cli.evaluate import register_subparser as register_evaluate
     register_evaluate(subparsers)
 
+    # connect command
+    connect_parser = subparsers.add_parser(
+        "connect",
+        help="Generate tool-specific config and verify proxy setup",
+        description="Emit copy-pasteable configuration for connecting an AI coding tool to RouteSmith.",
+    )
+    connect_parser.add_argument(
+        "tool",
+        type=str,
+        help="Tool name: claude-code, codex, opencode, openclaw, pi, hermes, openai-sdk, anthropic-sdk",
+    )
+    connect_parser.add_argument(
+        "--url",
+        type=str,
+        default="http://localhost:9119",
+        help="RouteSmith proxy URL (default: http://localhost:9119)",
+    )
+    connect_parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Write config file for supported tools",
+    )
+    connect_parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Live end-to-end verification against the proxy",
+    )
+    connect_parser.add_argument(
+        "--yes",
+        action="store_true",
+        help="Overwrite existing config files without prompting",
+    )
+    connect_parser.add_argument(
+        "--proxy-api-key",
+        type=str,
+        default="",
+        help="API key for proxy authentication",
+    )
+
     # version command
     parser.add_argument(
         "--version", "-v",
@@ -265,7 +304,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    if args.command == "init":
+    if args.command == "connect":
+        from routesmith.cli.connect import run_connect
+        return run_connect(args)
+    elif args.command == "init":
         from routesmith.cli.init import run_init
         return run_init(args)
     elif args.command == "serve":
