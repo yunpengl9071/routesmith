@@ -199,7 +199,18 @@ Never introduce those strings in docs you touch.
   check what `routesmith.acompletion` raises for an empty candidate set, see
   `src/routesmith/exceptions.py`, and map it).
 
+**Also in this phase (spec R4.5/R4.6):**
+- Protocol-native fast path in `proxy/server.py`: selected model is `claude-*` and
+  inbound is `/v1/messages` → forward original body (model swapped, RouteSmith headers
+  stripped, `anthropic-beta` headers forwarded) and relay the raw response/SSE; routing
+  still happens first (the fast path is about *transport*, not selection). Audit records
+  `cache_control_stripped` on crossings.
+- `POST /v1/messages/count_tokens` route: verbatim forward to Anthropic when
+  `ANTHROPIC_API_KEY` is set, chars/4 estimate otherwise.
+
 **Tests (extend `tests/test_anthropic_endpoint.py`, new `tests/test_anthropic_tools.py`)**
+- AC-20: cache_control byte-preservation on native path; stripped+audited on crossing;
+  count_tokens both modes, never 404.
 - AC-8 round-trip (non-streaming), asserting the exact downstream message shapes the mock
   received.
 - AC-9 SSE grammar for tool deltas; text+tool interleave; malformed `arguments` JSON →
@@ -285,7 +296,7 @@ Never introduce those strings in docs you touch.
 
 ### Executor definition of done
 
-1. AC-1 … AC-14 and AC-16 … AC-19 all covered by passing automated tests.
+1. AC-1 … AC-14 and AC-16 … AC-20 all covered by passing automated tests.
 2. Local gate (§CI) fully green: pytest (existing 709 + new), check_claims, mypy, ruff.
 3. `python -m build --wheel` succeeds and the wheel contains `registry/data/catalogs/*`.
 4. Seven commits (P1–P5, P5b, P6) on `feature/integration-dx`, pushed with
@@ -317,7 +328,7 @@ and is **not** enumerated in spec §9 is automatically a **critical finding**.
 
 ### B3. Acceptance-criteria audit
 
-For each of AC-1 … AC-14 and AC-16 … AC-19: identify the test(s) that cover it (by file::test name), run
+For each of AC-1 … AC-14 and AC-16 … AC-20: identify the test(s) that cover it (by file::test name), run
 them in isolation, and mark COVERED / PARTIAL / MISSING. An AC with no covering test is a
 **major finding** even if the feature "looks implemented."
 
@@ -367,6 +378,11 @@ Run each; mocks per `tests/helpers.py`:
 12. **Stale pidfile recovery:** write a pidfile pointing at a dead pid, then
     `routesmith run <stub>` — must clean up, start the daemon, and proceed (no crash, no
     duplicate daemon).
+13. **Cache-economics regression tripwire:** an `/v1/messages` request with
+    `cache_control` blocks and a pool containing both `claude-*` and non-Anthropic
+    models, forced (via mocked bandit choice) to the Anthropic arm — assert the mocked
+    upstream received `cache_control` intact (spec R4.5). If this fails, Claude Code
+    users silently lose prompt caching: file it as **critical**.
 
 ### B4-live (only if `OPENROUTER_API_KEY` is set)
 

@@ -291,6 +291,26 @@ final chunk when the upstream provides them, falling back to the current estimat
 **R4.4 Error shape.** All 4xx from this endpoint use the Anthropic error envelope (see
 R4.1 table), because Anthropic SDK clients parse it.
 
+**R4.5 Protocol-native fast path (critical for prompt caching).** When the *selected*
+model's provider protocol matches the inbound endpoint's protocol — an `/v1/messages`
+request routed to an Anthropic (`claude-*`) model — the proxy must forward the **original
+request body** with only the `model` field replaced (RouteSmith headers stripped), and
+relay the raw response/SSE untouched. The OpenAI-internal translation (R4.1–R4.3) runs
+only on protocol crossings. This preserves everything translation cannot represent:
+`cache_control` blocks (Claude Code depends on prompt caching — losing it can cost more
+than routing saves), `thinking` blocks, fine-grained tool-choice options, and
+`anthropic-beta` headers (forward these to Anthropic targets; drop them on crossings).
+On crossings, `cache_control` is stripped silently and the audit entry records
+`cache_control_stripped: true`. The symmetric case (OpenAI-format inbound → OpenAI-family
+target) is naturally near-lossless but must follow the same forward-verbatim principle
+where the internal representation would drop fields.
+
+**R4.6 `POST /v1/messages/count_tokens`.** Claude Code calls this endpoint for context
+management; a 404 breaks the session. Implement it: if `ANTHROPIC_API_KEY` is set,
+forward the request verbatim to `https://api.anthropic.com/v1/messages/count_tokens` and
+relay the response; otherwise return the estimate `{"input_tokens": ceil(total_chars/4)}`
+computed over serialized message text. Never 404, never 500 on well-formed input.
+
 ### R5 — `routesmith connect <tool>` + honest verification (fixes G5)
 
 **R5.1 CLI.** New file `src/routesmith/cli/connect.py`, subcommand:
@@ -308,7 +328,7 @@ tool against `--url`:
 | tool | emitted setup |
 |---|---|
 | `claude-code` | `export ANTHROPIC_BASE_URL=<url>` **and** `export ANTHROPIC_AUTH_TOKEN=<proxy --api-key value, or "routesmith" when the proxy runs keyless>` — without the auth token Claude Code falls into its login flow instead of using the base URL (+ note: or put both in the `env` block of `~/.claude/settings.json`). Must print the caveat that this applies to API-key usage; subscription (OAuth) Claude Code sessions cannot be re-routed. Requires R4. Recommended footer on output: "or just use: routesmith run claude" (R7). |
-| `codex` | `export OPENAI_BASE_URL=<url>/v1` + `~/.codex/config.yaml` snippet (`provider: openai`, `base_url`) |
+| `codex` | `export OPENAI_BASE_URL=<url>/v1` + `~/.codex/config.yaml` snippet defining a custom provider with `base_url` **and `wire_api = "chat"`** — Codex defaults to the OpenAI Responses API, which RouteSmith does not serve; the chat wire API must be selected explicitly |
 | `opencode` | JSON `providers.routesmith` snippet with `base_url: <url>/v1` |
 | `openclaw` | delegate to the existing generator (`cli/openclaw.py`) — same output as `routesmith openclaw-config` |
 | `pi` | same OpenClaw-compatible provider JSON, labeled for pi |
@@ -556,6 +576,12 @@ first user message routes independently; an explicit `x-routesmith-conversation-
 header overrides the fingerprint. Same on `/v1/chat/completions`.
 **AC-19 (R8):** The stickiness map evicts beyond 1,000 entries (LRU) and after 24h TTL
 (inject a fake clock); sticky turns still record feedback/outcomes for the bandit.
+**AC-20 (R4.5/R4.6):** An `/v1/messages` request containing `cache_control` blocks routed
+to a `claude-*` model reaches the (mocked) upstream byte-identical except the `model`
+field; the same request routed to a non-Anthropic model arrives translated with no
+`cache_control` and the audit entry has `cache_control_stripped: true`.
+`POST /v1/messages/count_tokens` returns `{"input_tokens": <int>}` both with a mocked
+Anthropic upstream and in estimate mode (no key), never 404.
 **AC-15 [manual, tester agent]:** End-to-end smoke with a real key if
 `OPENROUTER_API_KEY` is available in the environment (CI provides it for smoke tests —
 see `.github/workflows`): `routesmith quickstart --yes` → `serve` → one real completion
@@ -585,6 +611,23 @@ cleanly when the key is absent.
    in generated configs — same back-compat pattern as `intercept`.
 10. No launchd/systemd/Windows-service integration in this iteration; `--daemon` +
     pidfile is the ceiling.
+
+## 8b. Risks and rollout guardrails (read before implementing, cite in the PR)
+
+1. **Quality risk on agentic traffic is the top product risk.** The paper's savings
+   numbers come from MMLU/GSM8K-style single-shot evals, not long-horizon agent sessions;
+   a cheap model that fumbles tool-call formatting can wreck an agent loop. Guardrails:
+   catalog files must set `default: true` only on models with dependable tool-calling;
+   capability filtering (R3.2/AC-10) is mandatory, and conversation stickiness (R8)
+   prevents mid-session thrash. Do not weaken any of these to "make routing more
+   aggressive."
+2. **Prompt-cache economics.** R4.5 exists because losing Anthropic prompt caching on a
+   cache-heavy Claude Code session can exceed routing savings. Any future change that
+   forces Anthropic→Anthropic traffic through the translation layer is a regression.
+3. **Release gate:** before this ships in a release, a human (or the tester agent with a
+   real key, B4-live) should run one real Claude Code session and one real OpenCode
+   session through the proxy and skim `routesmith audit` for the session. Automated tests
+   validate the protocol; only a real session validates the experience.
 
 ## 9. Known intentional behavior changes (tests that may be updated)
 
