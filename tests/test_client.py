@@ -1,5 +1,6 @@
 """Tests for RouteSmith client, cost tracking, and metadata."""
 
+import time
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -846,15 +847,18 @@ class TestConversationScopedRouting:
             storage = FeedbackStorage(db_path)
             storage.save_conversation_model("persist-test", "gpt-4o-mini")
             storage.save_conversation_model("another-conv", "gpt-4o")
+            # load_conversation_models() returns {conversation_id: (model_id, updated_at)}
+            # so TTL/LRU bounds (spec: 2026-07-16 integration-dx §R8.2) can be enforced
+            # from the persisted timestamp, not just at write time.
             loaded = storage.load_conversation_models()
-            assert loaded["persist-test"] == "gpt-4o-mini"
-            assert loaded["another-conv"] == "gpt-4o"
+            assert loaded["persist-test"][0] == "gpt-4o-mini"
+            assert loaded["another-conv"][0] == "gpt-4o"
             assert len(loaded) == 2
 
             # Update existing mapping
             storage.save_conversation_model("persist-test", "gpt-4o")
             loaded = storage.load_conversation_models()
-            assert loaded["persist-test"] == "gpt-4o"
+            assert loaded["persist-test"][0] == "gpt-4o"
 
             # Delete single mapping
             storage.delete_conversation_model("another-conv")
@@ -899,7 +903,7 @@ class TestConversationScopedRouting:
 
             storage2 = FeedbackStorage(db_path)
             loaded = storage2.load_conversation_models()
-            assert loaded["persist-client"] == first_model
+            assert loaded["persist-client"][0] == first_model
 
         finally:
             os.unlink(db_path)
@@ -953,6 +957,72 @@ class TestConversationScopedRouting:
         assert len(rs._conversation_models) >= 2
         rs.clear_stickiness()
         assert len(rs._conversation_models) == 0
+
+    def test_sticky_lru_evicts_oldest_beyond_cap(self):
+        """In-memory stickiness map is capped at _STICKY_MAX_ENTRIES (spec §R8.2)."""
+        from routesmith.client import _STICKY_MAX_ENTRIES
+
+        rs = RouteSmith()
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        for i in range(_STICKY_MAX_ENTRIES + 5):
+            rs._sticky_remember(f"conv-{i}", "gpt-4o-mini")
+
+        assert len(rs._conversation_models) == _STICKY_MAX_ENTRIES
+        # Oldest entries evicted first (LRU), most recent survive.
+        assert "conv-0" not in rs._conversation_models
+        assert f"conv-{_STICKY_MAX_ENTRIES + 4}" in rs._conversation_models
+
+    def test_sticky_lookup_expires_after_ttl(self):
+        """A sticky mapping older than _STICKY_TTL_SECONDS is treated as absent."""
+        rs = RouteSmith()
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        rs._sticky_remember("expiring-conv", "gpt-4o-mini")
+        assert rs._sticky_lookup("expiring-conv") == "gpt-4o-mini"
+
+        # Backdate the entry past the TTL and confirm lookup treats it as gone.
+        model_id, _ = rs._conversation_models["expiring-conv"]
+        rs._conversation_models["expiring-conv"] = (model_id, time.time() - 25 * 3600)
+
+        assert rs._sticky_lookup("expiring-conv") is None
+        assert "expiring-conv" not in rs._conversation_models
+
+    def test_sticky_turn_still_records_feedback(self):
+        """Sticky (non-routed) turns still feed outcomes back to the bandit."""
+        from routesmith.config import RouteContext
+
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        from unittest.mock import MagicMock, patch
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            ctx = RouteContext(conversation_id="sticky-feedback", turn_index=1)
+            resp1 = rs.completion(
+                messages=[{"role": "user", "content": "Hello"}],
+                context=ctx,
+                include_metadata=True,
+            )
+            request_id_1 = resp1.routesmith_metadata["request_id"]
+
+            ctx2 = RouteContext(conversation_id="sticky-feedback", turn_index=2)
+            resp2 = rs.completion(
+                messages=[{"role": "user", "content": "Follow-up"}],
+                context=ctx2,
+                include_metadata=True,
+            )
+            request_id_2 = resp2.routesmith_metadata["request_id"]
+
+        assert resp2.routesmith_metadata["routing_reason"].startswith("conversation stickiness")
+        # Both turns must be recordable — stickiness bypasses selection, not feedback.
+        assert rs.record_outcome(request_id_1, score=0.9) is True
+        assert rs.record_outcome(request_id_2, score=0.9) is True
 
 
 class TestTradeoff:

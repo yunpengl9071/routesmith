@@ -63,7 +63,7 @@ class EmbeddingPredictor(BasePredictor):
             except ImportError:
                 raise ImportError(
                     "sentence-transformers required for EmbeddingPredictor. "
-                    "Install with: pip install routesmith[predictor]"
+                    "Install with: pip install routesmith-llm[predictor]"
                 )
         return self._encoder
 

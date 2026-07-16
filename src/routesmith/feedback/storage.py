@@ -7,6 +7,11 @@ import sqlite3
 import time
 from typing import Any
 
+# Bounds for conversation_stickiness so a long-running proxy doesn't grow the
+# table (and the in-memory mirror in RouteSmith._conversation_models) forever.
+STICKINESS_TTL_SECONDS = 24 * 3600
+STICKINESS_MAX_ENTRIES = 1000
+
 
 class FeedbackStorage:
     """
@@ -384,14 +389,23 @@ class FeedbackStorage:
             del d["metadata_json"]
         return d
 
-    def load_conversation_models(self) -> dict[str, str]:
-        """Load all conversation stickiness mappings from storage."""
+    def load_conversation_models(self) -> dict[str, tuple[str, float]]:
+        """Load non-expired conversation stickiness mappings from storage.
+
+        Returns {conversation_id: (model_id, updated_at)}. Expired rows
+        (older than STICKINESS_TTL_SECONDS) are purged as a side effect.
+        """
         conn = self._get_conn()
-        rows = conn.execute("SELECT conversation_id, model_id FROM conversation_stickiness").fetchall()
-        return {row[0]: row[1] for row in rows}
+        cutoff = time.time() - STICKINESS_TTL_SECONDS
+        conn.execute("DELETE FROM conversation_stickiness WHERE updated_at < ?", (cutoff,))
+        conn.commit()
+        rows = conn.execute(
+            "SELECT conversation_id, model_id, updated_at FROM conversation_stickiness"
+        ).fetchall()
+        return {row[0]: (row[1], row[2]) for row in rows}
 
     def save_conversation_model(self, conversation_id: str, model_id: str) -> None:
-        """Upsert a conversation stickiness mapping."""
+        """Upsert a conversation stickiness mapping and enforce TTL/count bounds."""
         conn = self._get_conn()
         now = time.time()
         conn.execute(
@@ -401,6 +415,16 @@ class FeedbackStorage:
                  model_id = excluded.model_id,
                  updated_at = excluded.updated_at""",
             (conversation_id, model_id, now, now),
+        )
+        cutoff = now - STICKINESS_TTL_SECONDS
+        conn.execute("DELETE FROM conversation_stickiness WHERE updated_at < ?", (cutoff,))
+        conn.execute(
+            """DELETE FROM conversation_stickiness WHERE conversation_id IN (
+                   SELECT conversation_id FROM conversation_stickiness
+                   ORDER BY updated_at DESC
+                   LIMIT -1 OFFSET ?
+               )""",
+            (STICKINESS_MAX_ENTRIES,),
         )
         conn.commit()
 

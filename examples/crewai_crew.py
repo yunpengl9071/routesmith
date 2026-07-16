@@ -4,7 +4,7 @@ CrewAI multi-agent crew with RouteSmith.
 Two agents (researcher, writer) using a shared RouteSmith instance
 via the native ChatRouteSmith integration.
 
-Requires: routesmith[crewai]
+Requires: routesmith-llm[crewai]
 """
 
 from routesmith import RouteSmith
@@ -15,7 +15,7 @@ def main() -> None:
     try:
         from crewai import Agent, Crew, Task
     except ImportError:
-        print("crewai not installed. Install with: pip install 'routesmith[crewai]'")
+        print("crewai not installed. Install with: pip install 'routesmith-llm[crewai]'")
         return
 
     rs = RouteSmith()

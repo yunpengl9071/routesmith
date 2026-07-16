@@ -78,7 +78,7 @@ def _select_models(models: list[OpenRouterModel]) -> list[OpenRouterModel] | Non
         import questionary
         from questionary import Choice
     except ImportError:
-        print("questionary not installed. Run: pip install 'routesmith[proxy]'")
+        print("questionary not installed. Run: pip install 'routesmith-llm[proxy]'")
         return _fallback_select(models)
 
     # Build choices: value = index, title = formatted label

@@ -1,43 +1,27 @@
 # OpenCode Integration
 
 RouteSmith optimizes your OpenCode sessions — route every request through
-intelligent model selection for 40-60% cost savings.
-
-OpenCode supports any OpenAI-compatible endpoint. Pointing it at
-RouteSmith is a one-line config change.
+intelligent model selection.
 
 ## Setup
 
 ```bash
-pip install routesmith
-routesmith init --output routesmith.yaml
-routesmith serve --config routesmith.yaml
+pip install "routesmith-llm[proxy]"
+routesmith quickstart
+routesmith run opencode
 ```
 
-Proxy runs at `http://localhost:9119/v1`.
+`routesmith run opencode` starts the proxy (if needed) and launches OpenCode with
+`OPENAI_BASE_URL` pointed at it for this session only.
 
-## Configure OpenCode
-
-Set the API base URL to RouteSmith's proxy:
-
-```json
-{
-  "providers": {
-    "routesmith": {
-      "base_url": "http://localhost:9119/v1",
-      "api_key": "${OPENAI_API_KEY}"
-    }
-  }
-}
-```
-
-Or via environment variables:
+## Manual configuration (alternative to `routesmith run`)
 
 ```bash
-export OPENAI_BASE_URL="http://localhost:9119/v1"
+routesmith connect opencode
 ```
 
-That's it. OpenCode now routes every request through RouteSmith.
+Prints the exact `providers.routesmith` block for `opencode.json`, or the
+equivalent `OPENAI_BASE_URL` export.
 
 ## What Happens
 
@@ -48,11 +32,16 @@ quality at lower cost without changing how you use OpenCode.
 ## Verify
 
 ```bash
-curl http://localhost:9119/health
-# → {"status": "ok"}
+routesmith connect opencode --verify
 ```
+
+Does a live round-trip through the proxy and confirms the response was actually
+routed, not just that the server answered. `curl http://localhost:9119/health` only
+proves the process is up — it will report OK even when every request is silently
+passing through unrouted.
 
 ## Advanced
 
-See the [OpenClaw integration guide](openclaw.md) for budget enforcement,
-cost tracking (`routesmith stats`), and semantic caching configuration.
+See the [Claude Code integration guide](claude-code.md) for budget enforcement,
+cost tracking (`routesmith stats`), catalog refresh (`routesmith models refresh`),
+and semantic caching configuration.

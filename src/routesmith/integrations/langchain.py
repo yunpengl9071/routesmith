@@ -38,7 +38,7 @@ try:
 except ImportError as e:
     raise ImportError(
         "LangChain integration requires langchain-core. "
-        "Install it with: pip install routesmith[langchain]"
+        "Install it with: pip install routesmith-llm[langchain]"
     ) from e
 
 from pydantic import ConfigDict, PrivateAttr
