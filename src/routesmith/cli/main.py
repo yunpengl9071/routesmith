@@ -45,6 +45,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="Overwrite existing config file",
     )
+    init_parser.add_argument(
+        "--provider",
+        action="append",
+        dest="provider",
+        choices=["anthropic", "openai", "openrouter", "groq"],
+        help="Force provider selection (repeatable, skips interactive picker)",
+    )
 
     # serve command
     serve_parser = subparsers.add_parser(
@@ -172,6 +179,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--yes", "-y",
         action="store_true",
         help="Overwrite existing config without prompting",
+    )
+    quickstart_parser.add_argument(
+        "--provider",
+        action="append",
+        dest="provider",
+        choices=["anthropic", "openai", "openrouter", "groq"],
+        help="Force provider selection (repeatable, overrides env detection)",
     )
 
     # openclaw-config command

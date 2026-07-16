@@ -18,6 +18,7 @@ from routesmith.exceptions import (
     CircuitOpenError,
     NoCapableModelError,
     NoCompliantModelError,
+    NoProviderDetectedError,
     ProviderUnavailableError,
     RouteSmithError,
 )
@@ -42,6 +43,7 @@ __all__ = [
     "ModelRegistry",
     "NoCapableModelError",
     "NoCompliantModelError",
+    "NoProviderDetectedError",
     "ProviderUnavailableError",
     "RouteContext",
     "RouteSmith",

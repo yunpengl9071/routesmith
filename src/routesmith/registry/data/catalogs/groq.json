@@ -1,0 +1,30 @@
+{
+  "provider": "groq",
+  "generated_at": "2026-07-16",
+  "models": [
+    {
+      "model_id": "groq/llama-3.3-70b-versatile",
+      "display_name": "Llama 3.3 70B (Groq)",
+      "cost_per_1k_input": 0.00059,
+      "cost_per_1k_output": 0.00079,
+      "quality_score": 0.90,
+      "context_window": 131072,
+      "latency_p50_ms": 200,
+      "supports_tools": true,
+      "supports_vision": false,
+      "default": true
+    },
+    {
+      "model_id": "groq/llama-3.3-70b-specdec",
+      "display_name": "Llama 3.3 70B SpecDec (Groq)",
+      "cost_per_1k_input": 0.00059,
+      "cost_per_1k_output": 0.00079,
+      "quality_score": 0.88,
+      "context_window": 131072,
+      "latency_p50_ms": 150,
+      "supports_tools": true,
+      "supports_vision": false,
+      "default": true
+    }
+  ]
+}

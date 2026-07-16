@@ -1,0 +1,78 @@
+{
+  "provider": "openrouter",
+  "generated_at": "2026-07-16",
+  "models": [
+    {
+      "model_id": "openrouter/anthropic/claude-sonnet-4-5-20251001",
+      "display_name": "Anthropic: Claude Sonnet 4.5 (OpenRouter)",
+      "cost_per_1k_input": 0.003,
+      "cost_per_1k_output": 0.015,
+      "quality_score": 0.92,
+      "context_window": 200000,
+      "latency_p50_ms": 650,
+      "supports_tools": true,
+      "supports_vision": true,
+      "default": true
+    },
+    {
+      "model_id": "openrouter/openai/gpt-4o",
+      "display_name": "OpenAI: GPT-4o (OpenRouter)",
+      "cost_per_1k_input": 0.0025,
+      "cost_per_1k_output": 0.01,
+      "quality_score": 0.92,
+      "context_window": 128000,
+      "latency_p50_ms": 850,
+      "supports_tools": true,
+      "supports_vision": true,
+      "default": true
+    },
+    {
+      "model_id": "openrouter/meta-llama/llama-4-maverick",
+      "display_name": "Meta: Llama 4 Maverick (OpenRouter)",
+      "cost_per_1k_input": 0.0002,
+      "cost_per_1k_output": 0.0002,
+      "quality_score": 0.84,
+      "context_window": 131072,
+      "latency_p50_ms": 400,
+      "supports_tools": true,
+      "supports_vision": true,
+      "default": true
+    },
+    {
+      "model_id": "openrouter/deepseek/deepseek-chat",
+      "display_name": "DeepSeek: DeepSeek Chat (OpenRouter)",
+      "cost_per_1k_input": 0.0002,
+      "cost_per_1k_output": 0.0002,
+      "quality_score": 0.83,
+      "context_window": 131072,
+      "latency_p50_ms": 500,
+      "supports_tools": true,
+      "supports_vision": false,
+      "default": true
+    },
+    {
+      "model_id": "openrouter/google/gemini-2.5-flash",
+      "display_name": "Google: Gemini 2.5 Flash (OpenRouter)",
+      "cost_per_1k_input": 0.00015,
+      "cost_per_1k_output": 0.0006,
+      "quality_score": 0.85,
+      "context_window": 1048576,
+      "latency_p50_ms": 350,
+      "supports_tools": true,
+      "supports_vision": true,
+      "default": false
+    },
+    {
+      "model_id": "openrouter/mistralai/mistral-large",
+      "display_name": "Mistral: Mistral Large (OpenRouter)",
+      "cost_per_1k_input": 0.002,
+      "cost_per_1k_output": 0.006,
+      "quality_score": 0.84,
+      "context_window": 131072,
+      "latency_p50_ms": 700,
+      "supports_tools": true,
+      "supports_vision": false,
+      "default": false
+    }
+  ]
+}

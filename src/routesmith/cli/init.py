@@ -20,6 +20,33 @@ def run_init(args: Any) -> int:
         print(f"'{out_path}' already exists. Use --force to overwrite.")
         return 1
 
+    providers = getattr(args, "provider", None)
+    if providers:
+        from datetime import datetime, timezone
+
+        from routesmith.registry.catalog import build_default_pool
+
+        catalog_models = build_default_pool(providers)
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        config = {
+            "catalog": {
+                "refreshed_at": now,
+                "providers": providers,
+            },
+            "routing": {
+                "intercept": "all",
+                "sticky": "auto",
+            },
+            "predictor_type": "lints",
+            "budget": {},
+            "models": catalog_models,
+        }
+        import yaml
+        yaml_text = yaml.dump(config, default_flow_style=False, sort_keys=False)
+        out_path.write_text(yaml_text)
+        print(f"\nWrote {out_path}")
+        return 0
+
     print("Fetching model catalog from OpenRouter...")
     try:
         models = fetch_models()
