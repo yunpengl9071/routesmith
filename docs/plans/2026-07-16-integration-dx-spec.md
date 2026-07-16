@@ -12,6 +12,41 @@ decision was open, it has been made here — do not re-litigate decisions, imple
 
 ---
 
+## 0. Target UX (the thing every requirement serves)
+
+This is the experience the whole spec exists to produce. When a design question is not
+answered explicitly below, resolve it in favor of this narrative.
+
+```bash
+# One-time setup (~2 minutes)
+pip install "routesmith-llm[proxy]"
+routesmith quickstart            # detects the user's API keys, builds a matching pool
+
+# Daily workflow — this is everything the user does
+routesmith run claude            # or: routesmith run codex / opencode <args...>
+```
+
+The user opens Claude Code (or Codex, or OpenCode) and simply works. The tool sends its
+completely normal traffic — concrete model names, tool definitions, streaming. RouteSmith,
+invisibly: routes every request to the best model for it, keeps the **same** model within
+a conversation so multi-turn agent sessions stay coherent, and enforces budgets. The user
+never selects a model, never edits the tool's model setting, and never babysits a server
+terminal. RouteSmith is visible in exactly one place: `routesmith stats` showing routing
+decisions and savings.
+
+Corollaries that follow from this narrative (binding):
+
+- **Nothing may require the user to change their tool's model configuration.** That is
+  what `routing.intercept: all` (R3) exists for.
+- **A stopped proxy must never brick the user's tool.** The `routesmith run` wrapper (R7)
+  injects env only into the wrapped session — if the user launches the tool normally,
+  it works normally.
+- **Multi-turn coherence is part of correctness, not a nice-to-have.** Auto conversation
+  stickiness (R8) is required because no coding tool sends the
+  `x-routesmith-conversation-id` header.
+- **Setup must be verifiable in one command** (`connect --verify`, R5), and the
+  verification must fail loudly when requests are being silently passed through.
+
 ## 1. Problem statement
 
 RouteSmith's promise is "point your AI coding tool at `http://localhost:9119` and stop
@@ -272,7 +307,7 @@ tool against `--url`:
 
 | tool | emitted setup |
 |---|---|
-| `claude-code` | `export ANTHROPIC_BASE_URL=<url>` (+ note: or put it in the `env` block of `~/.claude/settings.json`). Requires R4; the command must state "requires RouteSmith ≥0.9". |
+| `claude-code` | `export ANTHROPIC_BASE_URL=<url>` **and** `export ANTHROPIC_AUTH_TOKEN=<proxy --api-key value, or "routesmith" when the proxy runs keyless>` — without the auth token Claude Code falls into its login flow instead of using the base URL (+ note: or put both in the `env` block of `~/.claude/settings.json`). Must print the caveat that this applies to API-key usage; subscription (OAuth) Claude Code sessions cannot be re-routed. Requires R4. Recommended footer on output: "or just use: routesmith run claude" (R7). |
 | `codex` | `export OPENAI_BASE_URL=<url>/v1` + `~/.codex/config.yaml` snippet (`provider: openai`, `base_url`) |
 | `opencode` | JSON `providers.routesmith` snippet with `base_url: <url>/v1` |
 | `openclaw` | delegate to the existing generator (`cli/openclaw.py`) — same output as `routesmith openclaw-config` |
@@ -332,6 +367,75 @@ including at minimum: `routed: bool`, `selected_model`, `requested_model`,
 6. `docs/quickstart.md` gains a short "Refreshing your model list" section
    (`routesmith models refresh`).
 
+### R7 — Proxy lifecycle: `routesmith run` and daemon mode (serves UX corollary 2)
+
+The foreground `routesmith serve` terminal is acceptable for debugging, not for the daily
+workflow. Two additions:
+
+**R7.1 `routesmith run <command> [args...]`** — the recommended daily entry point:
+
+```
+routesmith run claude
+routesmith run codex --some-codex-flag
+routesmith run -- opencode .
+```
+
+Behavior:
+1. Ensure the proxy is running (R7.2 `status` check); if not, start it as a daemon with
+   the default config resolution (`./routesmith.yaml`, then `~/.routesmith/routesmith.yaml`).
+   If no config exists, print the `routesmith quickstart` hint and exit 1 — `run` must not
+   silently generate config.
+2. Inject the correct env **only into the child process**: for commands recognized as
+   Anthropic-family (`claude`) set `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`; for all
+   others set `OPENAI_BASE_URL` (+ `OPENAI_API_KEY=routesmith` if unset — some tools
+   refuse to start without one). Recognition is by basename of the command with a
+   `--family anthropic|openai` override flag. The parent shell env is never modified.
+3. `exec` the tool (`os.execvpe` on POSIX), so signals/exit codes pass through and no
+   wrapper process lingers.
+4. Because env lives only inside the wrapped session, launching the tool *without*
+   `routesmith run` uses the provider directly — a stopped proxy can never brick the
+   user's tools.
+
+**R7.2 Daemon management.** `routesmith serve --daemon` (double-fork/detach, pidfile +
+log file under `~/.routesmith/`), `routesmith status` (running? port? config path? pool
+size? counters summary), `routesmith down` (SIGTERM by pidfile, wait, report). `run`
+uses these primitives. Stale-pidfile handling: `status`/`run` verify the pid is alive
+*and* `/health` responds; otherwise clean up and treat as stopped. Windows: `--daemon`
+may fall back to a detached subprocess (`CREATE_NEW_PROCESS_GROUP`); document the
+limitation, do not gate the feature on service-manager integration (launchd/systemd
+integration is explicitly out of scope for this iteration).
+
+### R8 — Automatic conversation stickiness (serves UX corollary 3)
+
+Conversation stickiness currently activates only via the `x-routesmith-conversation-id`
+header (`proxy/handler.py:23` → `client.py:512–515`). No coding tool sends it, so under
+`intercept: all` every turn of an agent session would be routed independently — mid-task
+model switching, incoherent multi-turn behavior. Fix:
+
+**R8.1 Fingerprinting.** New config:
+
+```yaml
+routing:
+  sticky: auto     # "auto" | "header" | "off"  (default "header" = current behavior;
+                   #  quickstart/init write "auto")
+```
+
+Under `auto`, when no conversation header is present the proxy derives
+`conversation_id = sha256(normalized(system_prompt) + "\x00" + normalized(first_user_message))[:16]`
+where `normalized` = strip whitespace, take first 2,000 chars. Rationale: agent tools
+resend the full message history every turn, so this fingerprint is stable across turns of
+one session and distinct across sessions. An explicit header always wins. Applies to both
+endpoints (`/v1/chat/completions` and `/v1/messages`).
+
+**R8.2 Bounded memory.** The stickiness map (`client.py:122` `_conversation_models` —
+currently unbounded) becomes an LRU capped at 1,000 entries with 24h TTL; document both
+constants in the config reference as non-configurable defaults for this iteration.
+
+**R8.3 Stickiness vs. learning.** Sticky turns bypass per-request model selection but
+must still record outcomes/feedback for the bandit (verify the existing header-based path
+already does this — mirror it). The audit log entry for a sticky decision keeps
+`routing_reason: "conversation stickiness …"` as today.
+
 ---
 
 ## 4. Config schema — consolidated delta
@@ -347,6 +451,7 @@ routing:
   fallback_model: gpt-4o-mini # unchanged
   intercept: all              # NEW: "all" | "auto" (default "auto")
   passthrough_models: []      # NEW: optional
+  sticky: auto                # NEW: "auto" | "header" | "off" (default "header")
 
 models:
   - id: claude-haiku-4-5-20251001
@@ -436,6 +541,21 @@ contains `"zero quality loss"`, `"Codex plugin"`, or a Before/After dollar table
 tests listed in §9. CI command: see implementation plan §CI.
 **AC-14 (regression):** Perf guard: existing `tests/perf` suite passes with
 `PERF_MULTIPLIER=3` (routing overhead budget unchanged).
+**AC-16 (R7):** `routesmith run <cmd>` with a running proxy execs the child with the
+correct env family injected (Anthropic vars for `claude`, OpenAI vars otherwise) and the
+parent environment unmodified; with a stopped proxy and a valid config it daemonizes
+first; with no config it exits 1 naming `routesmith quickstart`. Child exit code is
+propagated. (Test with a stub child script that dumps its env and exit code.)
+**AC-17 (R7):** `serve --daemon` writes a pidfile under `~/.routesmith/` (temp `$HOME` in
+tests); `status` reports running with port/config/pool; `down` terminates and cleans up;
+a stale pidfile (dead pid) is detected and cleaned by both `status` and `run`.
+**AC-18 (R8):** With `sticky: auto`, two `/v1/messages` requests sharing system prompt +
+first user message (turn 1 and turn 2 of a simulated agent session) route to the same
+model with `routing_reason` indicating stickiness on turn 2; a request with a different
+first user message routes independently; an explicit `x-routesmith-conversation-id`
+header overrides the fingerprint. Same on `/v1/chat/completions`.
+**AC-19 (R8):** The stickiness map evicts beyond 1,000 entries (LRU) and after 24h TTL
+(inject a fake clock); sticky turns still record feedback/outcomes for the bandit.
 **AC-15 [manual, tester agent]:** End-to-end smoke with a real key if
 `OPENROUTER_API_KEY` is available in the environment (CI provides it for smoke tests —
 see `.github/workflows`): `routesmith quickstart --yes` → `serve` → one real completion
@@ -457,6 +577,14 @@ cleanly when the key is absent.
 7. Catalog pricing lives in packaged JSON (curated), refreshed from live APIs where the
    provider offers one (OpenRouter fully; OpenAI/Anthropic existence-only + curated
    pricing).
+8. `routesmith run` injects env per-session and execs the tool; globally exporting
+   `*_BASE_URL` is documented as an alternative, never the recommended path (a stopped
+   proxy must not brick tools).
+9. Stickiness fingerprint is the sha256 of normalized system prompt + first user message
+   (first 2,000 chars each); `sticky` defaults to `"header"` in the library and `"auto"`
+   in generated configs — same back-compat pattern as `intercept`.
+10. No launchd/systemd/Windows-service integration in this iteration; `--daemon` +
+    pidfile is the ceiling.
 
 ## 9. Known intentional behavior changes (tests that may be updated)
 

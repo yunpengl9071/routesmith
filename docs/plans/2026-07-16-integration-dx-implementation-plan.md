@@ -230,6 +230,43 @@ Never introduce those strings in docs you touch.
   printed under `intercept: all`; exit 1 + fix text under `auto` (AC-11). Follow the
   in-process server pattern used by `tests/test_proxy_feedback_e2e.py`.
 
+### P5b — Proxy lifecycle + auto-stickiness (spec R7, R8)
+
+**New files**
+- `src/routesmith/cli/run.py`: `routesmith run <command> [args...]` per spec R7.1 —
+  family detection by command basename (`claude` → Anthropic env; everything else →
+  OpenAI env; `--family` override), config resolution order, daemon-ensure, then
+  `os.execvpe`. Windows: fall back to `subprocess` + exit-code propagation when `execvpe`
+  is unavailable.
+- Daemon primitives in `src/routesmith/cli/serve.py` (or a small `daemon.py` helper):
+  `--daemon` flag (detach, pidfile + logfile under `~/.routesmith/`), plus `status` and
+  `down` subcommands per spec R7.2, including stale-pidfile cleanup (pid alive AND
+  `/health` responding).
+
+**Modified files**
+- `src/routesmith/proxy/handler.py`: when `routing.sticky == "auto"` and no
+  `x-routesmith-conversation-id` header, compute the fingerprint per spec R8.1 and pass
+  it as `conversation_id` in the `RouteContext` (the header path at `handler.py:23`
+  already plumbs this — reuse it, both endpoints).
+- `src/routesmith/client.py`: cap `_conversation_models` (:122) with an LRU + 24h TTL per
+  spec R8.2 (a small ordered-dict helper is fine; no new dependency).
+- `src/routesmith/config.py` / `cli/yaml_loader.py`: `routing.sticky` field, default
+  `"header"`; quickstart/init write `"auto"`.
+- `cli/connect.py`: claude-code output gains the `ANTHROPIC_AUTH_TOKEN` line, the
+  OAuth/subscription caveat, and the `routesmith run claude` footer (spec R5.2 table, as
+  amended).
+
+**Tests (new `tests/test_cli_run.py`, `tests/test_sticky_auto.py`)**
+- AC-16: stub child script dumps env → assert injected vars, unmodified parent env, exit
+  code propagation; no-config path exits 1 naming quickstart.
+- AC-17: daemon lifecycle under temp `$HOME`; stale pidfile (write a dead pid) cleaned by
+  both `status` and `run`.
+- AC-18: same-fingerprint turn 1/turn 2 → same model + stickiness routing_reason; changed
+  first message → independent; header overrides fingerprint. Both endpoints.
+- AC-19: LRU eviction at 1,000; TTL expiry with injected clock; sticky turns still record
+  outcomes (assert the feedback path is hit, mirroring the header-based stickiness tests
+  if present — see `tests/test_conversation_tracker.py`).
+
 ### P6 — Docs + claims guard + version (spec R6)
 
 - Rewrite `docs/integrations/claude-code.md`; create `docs/integrations/hermes.md`;
@@ -240,16 +277,18 @@ Never introduce those strings in docs you touch.
   label.
 - Append `check_absent "Codex plugin"` and `check_absent "zero quality loss"` to
   `scripts/check_claims.sh` (R6.5) — then run it; it must pass.
-- `docs/quickstart.md`: add refresh section (R6.6).
+- `docs/quickstart.md`: add refresh section (R6.6) and make `routesmith run <tool>` the
+  headline daily workflow; document `serve --daemon` / `status` / `down` and
+  `routing.sticky` in `docs/cli.md`.
 - Bump version to `0.9.0` (`pyproject.toml` + `__init__.py`); add a `## [0.9.0]`
   CHANGELOG entry summarizing R1–R6 in the established format.
 
 ### Executor definition of done
 
-1. AC-1 … AC-14 all covered by passing automated tests.
+1. AC-1 … AC-14 and AC-16 … AC-19 all covered by passing automated tests.
 2. Local gate (§CI) fully green: pytest (existing 709 + new), check_claims, mypy, ruff.
 3. `python -m build --wheel` succeeds and the wheel contains `registry/data/catalogs/*`.
-4. Six commits (P1–P6) on `feature/integration-dx`, pushed with
+4. Seven commits (P1–P5, P5b, P6) on `feature/integration-dx`, pushed with
    `git push -u origin feature/integration-dx`.
 5. Do **not** open a PR and do not merge; the tester agent goes next.
 
@@ -278,7 +317,7 @@ and is **not** enumerated in spec §9 is automatically a **critical finding**.
 
 ### B3. Acceptance-criteria audit
 
-For each of AC-1 … AC-14: identify the test(s) that cover it (by file::test name), run
+For each of AC-1 … AC-14 and AC-16 … AC-19: identify the test(s) that cover it (by file::test name), run
 them in isolation, and mark COVERED / PARTIAL / MISSING. An AC with no covering test is a
 **major finding** even if the feature "looks implemented."
 
@@ -315,6 +354,19 @@ Run each; mocks per `tests/helpers.py`:
 9. **Wheel data check:** `python -m build --wheel`; catalogs present in the wheel;
    `pip install dist/*.whl` into a scratch venv; `routesmith models list` works there
    (catches importlib.resources path bugs that editable installs mask).
+10. **`run` wrapper hygiene:** `routesmith run <stub>` where the stub dumps env — parent
+    shell env unmodified afterward; stub exit code 42 propagates; running the stub
+    *without* the wrapper sees no RouteSmith env (UX corollary: stopped proxy can't brick
+    tools).
+11. **Subagent fan-out simulation:** against one in-process proxy with `sticky: auto` +
+    `intercept: all`, drive three interleaved "conversations" (distinct system prompt +
+    first message, multi-turn each, mocked upstream) mimicking a main agent plus two
+    subagents — each conversation must be internally sticky (one model throughout) while
+    conversations route independently; counters and audit entries must attribute all
+    turns correctly.
+12. **Stale pidfile recovery:** write a pidfile pointing at a dead pid, then
+    `routesmith run <stub>` — must clean up, start the daemon, and proceed (no crash, no
+    duplicate daemon).
 
 ### B4-live (only if `OPENROUTER_API_KEY` is set)
 
