@@ -18,6 +18,7 @@ from routesmith.exceptions import (
     CircuitOpenError,
     NoCapableModelError,
     NoCompliantModelError,
+    NoProviderDetectedError,
     ProviderUnavailableError,
     RouteSmithError,
 )
@@ -26,7 +27,7 @@ from routesmith.predictor.linucb import LinUCBPredictor
 from routesmith.registry.models import ModelConfig, ModelRegistry
 from routesmith.strategy.ab_test import ABTestRunner
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 __all__ = [
     "ABTestRunner",
@@ -42,6 +43,7 @@ __all__ = [
     "ModelRegistry",
     "NoCapableModelError",
     "NoCompliantModelError",
+    "NoProviderDetectedError",
     "ProviderUnavailableError",
     "RouteContext",
     "RouteSmith",

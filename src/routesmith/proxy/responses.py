@@ -58,6 +58,7 @@ def format_stream_chunk(
     model: str,
     chunk_id: str | None = None,
     finish_reason: str | None = None,
+    routesmith_metadata: dict[str, Any] | None = None,
 ) -> str:
     """
     Format a streaming chunk as Server-Sent Event (SSE).
@@ -67,6 +68,7 @@ def format_stream_chunk(
         model: Model identifier used.
         chunk_id: Optional chunk ID (generated if not provided).
         finish_reason: Set to "stop" for final chunk, None otherwise.
+        routesmith_metadata: Optional routing metadata to include.
 
     Returns:
         SSE-formatted string with "data: " prefix.
@@ -85,6 +87,8 @@ def format_stream_chunk(
             }
         ],
     }
+    if routesmith_metadata:
+        chunk["routesmith_metadata"] = routesmith_metadata
     return f"data: {json.dumps(chunk)}\n\n"
 
 

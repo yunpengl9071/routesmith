@@ -10,9 +10,15 @@ def fake_response(
     prompt_tokens: int = 10,
     completion_tokens: int = 20,
     finish_reason: str = "stop",
+    tool_calls: list | None = None,
 ):
-    """Build an object that quacks like a litellm ModelResponse."""
-    message = SimpleNamespace(content=content, tool_calls=None, role="assistant")
+    """Build an object that quacks like a litellm ModelResponse.
+
+    Args:
+        tool_calls: Optional list of SimpleNamespace with id/function.name/function.arguments.
+                    Each item should be: SimpleNamespace(id="...", function=SimpleNamespace(name="...", arguments="{}"))
+    """
+    message = SimpleNamespace(content=content, tool_calls=tool_calls, role="assistant")
     choice = SimpleNamespace(message=message, finish_reason=finish_reason, index=0)
     usage = SimpleNamespace(
         prompt_tokens=prompt_tokens,

@@ -123,6 +123,10 @@ def print_stats_table(stats: dict) -> None:
     models = stats.get("registered_models", 0)
     samples = stats.get("feedback_samples", 0)
 
+    routed = stats.get("routed_requests", 0)
+    passthrough = stats.get("passthrough_requests", 0)
+    passthrough_by_reason = stats.get("passthrough_by_reason", {})
+
     print(f"\u2502  Requests:           {request_count:>15,}  \u2502")
     print(f"\u2502  Actual Cost:        ${total_cost:>14,.4f}  \u2502")
     if without_routing:
@@ -130,6 +134,11 @@ def print_stats_table(stats: dict) -> None:
     if savings:
         print(f"\u2502  You Saved:          ${savings:>10,.4f} ({savings_pct:>4.1f}%)  \u2502")
     print("\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524")
+    print(f"\u2502  Routed:             {routed:>15,}  \u2502")
+    print(f"\u2502  Passthrough:        {passthrough:>15,}  \u2502")
+    if passthrough_by_reason:
+        for reason, count in sorted(passthrough_by_reason.items()):
+            print(f"\u2502    - {reason:<20}{count:>9,}  \u2502")
     print(f"\u2502  Registered Models:  {models:>15}  \u2502")
     print(f"\u2502  Feedback Samples:   {samples:>15}  \u2502")
     print("\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f")

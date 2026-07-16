@@ -801,6 +801,159 @@ class TestConversationScopedRouting:
             # Models might differ (fresh exploration), or be same (no strong signal yet)
             # Either is acceptable
 
+    def test_sticky_off_disables_stickiness(self):
+        """sticky=off prevents model reuse across turns."""
+        from unittest.mock import MagicMock, patch
+
+        from routesmith.config import RouteContext, RouteSmithConfig
+
+        config = RouteSmithConfig(sticky="off")
+        rs = RouteSmith(config=config)
+        rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            ctx1 = RouteContext(conversation_id="conv-off", turn_index=1)
+            rs.completion(
+                messages=[{"role": "user", "content": "Hello"}],
+                context=ctx1,
+                include_metadata=True,
+            )
+            ctx2 = RouteContext(conversation_id="conv-off", turn_index=2)
+            resp2 = rs.completion(
+                messages=[{"role": "user", "content": "Continue"}],
+                context=ctx2,
+                include_metadata=True,
+            )
+
+        assert "stickiness" not in resp2.routesmith_metadata.get("routing_reason", "")
+
+    def test_stickiness_persists_to_storage(self):
+        """Conversation-model mapping is persisted to SQLite and survives reload."""
+        import os
+        import tempfile
+
+        from routesmith.feedback.storage import FeedbackStorage
+
+        db_fd, db_path = tempfile.mkstemp(suffix=".db")
+        os.close(db_fd)
+
+        try:
+            storage = FeedbackStorage(db_path)
+            storage.save_conversation_model("persist-test", "gpt-4o-mini")
+            storage.save_conversation_model("another-conv", "gpt-4o")
+            loaded = storage.load_conversation_models()
+            assert loaded["persist-test"] == "gpt-4o-mini"
+            assert loaded["another-conv"] == "gpt-4o"
+            assert len(loaded) == 2
+
+            # Update existing mapping
+            storage.save_conversation_model("persist-test", "gpt-4o")
+            loaded = storage.load_conversation_models()
+            assert loaded["persist-test"] == "gpt-4o"
+
+            # Delete single mapping
+            storage.delete_conversation_model("another-conv")
+            loaded = storage.load_conversation_models()
+            assert "another-conv" not in loaded
+            assert "persist-test" in loaded
+
+        finally:
+            os.unlink(db_path)
+
+    def test_stickiness_persists_through_client(self):
+        """RouteSmith persists conversation stickiness to storage on completion."""
+        import os
+        import tempfile
+
+        from routesmith.config import RouteContext, RouteSmithConfig
+        from routesmith.feedback.storage import FeedbackStorage
+
+        db_fd, db_path = tempfile.mkstemp(suffix=".db")
+        os.close(db_fd)
+
+        try:
+            config = RouteSmithConfig(feedback_storage_path=db_path, feedback_enabled=False)
+            rs = RouteSmith(config=config)
+            rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+            rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+            from unittest.mock import MagicMock, patch
+
+            with patch("litellm.completion") as mock:
+                mock.return_value = MagicMock(
+                    choices=[MagicMock(message=MagicMock(content="ok"))],
+                    usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+                )
+                ctx = RouteContext(conversation_id="persist-client", turn_index=1)
+                resp = rs.completion(
+                    messages=[{"role": "user", "content": "Hello"}],
+                    context=ctx,
+                    include_metadata=True,
+                )
+                first_model = resp.routesmith_metadata["model_selected"]
+
+            storage2 = FeedbackStorage(db_path)
+            loaded = storage2.load_conversation_models()
+            assert loaded["persist-client"] == first_model
+
+        finally:
+            os.unlink(db_path)
+
+    def test_clear_stickiness_removes_mapping(self):
+        """clear_stickiness removes conversation stickiness."""
+        from routesmith.config import RouteContext
+
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        from unittest.mock import MagicMock, patch
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            ctx = RouteContext(conversation_id="clear-test", turn_index=1)
+            rs.completion(
+                messages=[{"role": "user", "content": "Hello"}],
+                context=ctx,
+                include_metadata=True,
+            )
+
+        assert "clear-test" in rs._conversation_models
+        rs.clear_stickiness("clear-test")
+        assert "clear-test" not in rs._conversation_models
+
+    def test_clear_all_stickiness(self):
+        """clear_stickiness() with no arg removes all mappings."""
+        from routesmith.config import RouteContext
+
+        rs = RouteSmith()
+        rs.register_model("gpt-4o", 0.005, 0.015, quality_score=0.95)
+        rs.register_model("gpt-4o-mini", 0.00015, 0.0006, quality_score=0.85)
+
+        from unittest.mock import MagicMock, patch
+
+        with patch("litellm.completion") as mock:
+            mock.return_value = MagicMock(
+                choices=[MagicMock(message=MagicMock(content="ok"))],
+                usage=MagicMock(prompt_tokens=10, completion_tokens=5),
+            )
+            ctx1 = RouteContext(conversation_id="clear-a", turn_index=1)
+            rs.completion(messages=[{"role": "user", "content": "Hi"}], context=ctx1)
+            ctx2 = RouteContext(conversation_id="clear-b", turn_index=1)
+            rs.completion(messages=[{"role": "user", "content": "Hi"}], context=ctx2)
+
+        assert len(rs._conversation_models) >= 2
+        rs.clear_stickiness()
+        assert len(rs._conversation_models) == 0
+
 
 class TestTradeoff:
     def _make_client(self):

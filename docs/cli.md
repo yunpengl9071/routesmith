@@ -40,6 +40,26 @@ Interactive setup. Fetches the OpenRouter model catalog with live pricing and ge
 
 ---
 
+## `routesmith models`
+
+List registered models from the config file, or refresh the model pool from provider catalogs.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--config`, `-c` | `./routesmith.yaml` → `~/.routesmith/routesmith.yaml` | Config file path |
+| `--refresh` | — | Re-detect providers and rebuild model pool from catalogs |
+| `--provider` | auto-detect | Force provider(s) for `--refresh` (repeatable) |
+| `--json` | — | Output model list as JSON |
+
+```bash
+routesmith models                    # List models from config
+routesmith models --json             # JSON output
+routesmith models --refresh          # Rebuild pool from detected providers
+routesmith models --refresh --provider openai --provider anthropic
+```
+
+---
+
 ## `routesmith serve`
 
 Start the OpenAI-compatible proxy server.
@@ -149,6 +169,67 @@ Launch the interactive Textual TUI dashboard.
 | `--db` | `routesmith_feedback.db` | SQLite database path |
 
 Requires `textual`. Falls back to `routesmith stats --local` if not installed.
+
+---
+
+---
+
+## `routesmith connect`
+
+Generate tool-specific configuration and verify the proxy setup.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `tool` | — | Tool name: `claude-code`, `codex`, `opencode`, `openclaw`, `pi`, `hermes`, `openai-sdk`, `anthropic-sdk` |
+| `--url` | `http://localhost:9119` | RouteSmith proxy URL |
+| `--apply` | — | Write config file for supported tools |
+| `--verify` | — | Live end-to-end HTTP check against the proxy |
+| `--yes` | — | Overwrite existing config files without prompting |
+| `--proxy-api-key` | — | API key for proxy authentication |
+
+```bash
+routesmith connect claude-code --verify
+routesmith connect openai-sdk --apply
+```
+
+---
+
+## `routesmith run`, `status`, `down`
+
+Proxy lifecycle management — run a CLI command through RouteSmith, or check/stop the daemon.
+
+### `routesmith run`
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--host`, `-H` | `127.0.0.1` | Proxy host |
+| `--port`, `-p` | `9119` | Proxy port |
+| `--config`, `-c` | auto-resolve | Config file path |
+| `--family` | auto-detect | Force env var family: `anthropic` or `openai` |
+| `command` | — | Command to run (use `--` before command) |
+
+Starts the proxy as a daemon if not already running, injects the right env vars (`ANTHROPIC_BASE_URL` or `OPENAI_BASE_URL`), and runs the command.
+
+```bash
+routesmith run -- claude
+routesmith run --family anthropic -- python my_agent.py
+```
+
+### `routesmith status`
+
+Check whether the proxy daemon is running.
+
+```bash
+routesmith status
+```
+
+### `routesmith down`
+
+Stop the proxy daemon.
+
+```bash
+routesmith down
+```
 
 ---
 

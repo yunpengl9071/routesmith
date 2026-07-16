@@ -135,6 +135,13 @@ class NoCompliantModelError(RouteSmithError):
         self.available_tags = available_tags or set()
 
 
+class NoProviderDetectedError(RouteSmithError):
+    """Raised when no provider API keys are detected in the environment."""
+
+    def __init__(self, message: str = "", **kwargs: object) -> None:
+        super().__init__(message, **kwargs)
+
+
 class CircuitOpenError(RouteSmithError):
     """
     Raised when the circuit breaker is open for a model.

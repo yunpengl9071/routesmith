@@ -95,6 +95,13 @@ class FeedbackStorage:
                 ON feedback_records(agent_role);
             CREATE INDEX IF NOT EXISTS idx_records_conversation
                 ON feedback_records(conversation_id);
+
+            CREATE TABLE IF NOT EXISTS conversation_stickiness (
+                conversation_id TEXT PRIMARY KEY,
+                model_id TEXT NOT NULL,
+                created_at REAL NOT NULL,
+                updated_at REAL NOT NULL
+            );
         """)
 
         # Idempotent migration for existing databases
@@ -376,6 +383,32 @@ class FeedbackStorage:
             d["metadata"] = json.loads(d["metadata_json"]) if d["metadata_json"] else {}
             del d["metadata_json"]
         return d
+
+    def load_conversation_models(self) -> dict[str, str]:
+        """Load all conversation stickiness mappings from storage."""
+        conn = self._get_conn()
+        rows = conn.execute("SELECT conversation_id, model_id FROM conversation_stickiness").fetchall()
+        return {row[0]: row[1] for row in rows}
+
+    def save_conversation_model(self, conversation_id: str, model_id: str) -> None:
+        """Upsert a conversation stickiness mapping."""
+        conn = self._get_conn()
+        now = time.time()
+        conn.execute(
+            """INSERT INTO conversation_stickiness (conversation_id, model_id, created_at, updated_at)
+               VALUES (?, ?, ?, ?)
+               ON CONFLICT(conversation_id) DO UPDATE SET
+                 model_id = excluded.model_id,
+                 updated_at = excluded.updated_at""",
+            (conversation_id, model_id, now, now),
+        )
+        conn.commit()
+
+    def delete_conversation_model(self, conversation_id: str) -> None:
+        """Remove a conversation stickiness mapping."""
+        conn = self._get_conn()
+        conn.execute("DELETE FROM conversation_stickiness WHERE conversation_id = ?", (conversation_id,))
+        conn.commit()
 
     def close(self) -> None:
         """Close the database connection."""

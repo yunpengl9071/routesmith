@@ -118,8 +118,9 @@ class RouteSmith:
             setup_logger("routesmith", json_format=True)
         )
 
-        # Conversation-scoped model stickiness
+        # Conversation-scoped model stickiness (persisted to storage)
         self._conversation_models: dict[str, str] = {}
+        self._load_stickiness()
 
         # Quality poll sampler
         from routesmith.feedback.polls import PollSampler
@@ -185,6 +186,39 @@ class RouteSmith:
                     predictor.load_state(blob)
                 except Exception:
                     pass  # corrupt or incompatible state; cold start
+
+    def _load_stickiness(self) -> None:
+        if self.feedback._storage is not None:
+            try:
+                loaded = self.feedback._storage.load_conversation_models()
+                self._conversation_models.update(loaded)
+            except Exception:
+                pass
+
+    def _persist_stickiness(self, conversation_id: str, model_id: str) -> None:
+        if self.feedback._storage is not None:
+            try:
+                self.feedback._storage.save_conversation_model(conversation_id, model_id)
+            except Exception:
+                pass
+
+    def clear_stickiness(self, conversation_id: str | None = None) -> None:
+        if conversation_id:
+            self._conversation_models.pop(conversation_id, None)
+            if self.feedback._storage is not None:
+                try:
+                    self.feedback._storage.delete_conversation_model(conversation_id)
+                except Exception:
+                    pass
+        else:
+            self._conversation_models.clear()
+            if self.feedback._storage is not None:
+                try:
+                    conn = self.feedback._storage._get_conn()
+                    conn.execute("DELETE FROM conversation_stickiness")
+                    conn.commit()
+                except Exception:
+                    pass
 
     @classmethod
     def with_auto(
@@ -509,12 +543,14 @@ class RouteSmith:
         if model:
             selected_model = model
             routing_reason = "explicit model specified"
-        elif context.conversation_id and context.conversation_id in self._conversation_models:
-            # Conversation stickiness: reuse the model from the first turn
+        elif (
+            self.config.sticky != "off"
+            and context.conversation_id
+            and context.conversation_id in self._conversation_models
+        ):
             selected_model = self._conversation_models[context.conversation_id]
             routing_reason = "conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
-            # FALLBACK: use cheapest model regardless of quality
             self._budget_events["fallbacks"] += 1
             cheapest = self.registry.get_cheapest()
             if cheapest:
@@ -583,8 +619,14 @@ class RouteSmith:
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
         # Record conversation model for session stickiness
-        if context and context.conversation_id and context.conversation_id not in self._conversation_models:
+        if (
+            self.config.sticky != "off"
+            and context
+            and context.conversation_id
+            and context.conversation_id not in self._conversation_models
+        ):
             self._conversation_models[context.conversation_id] = selected_model
+            self._persist_stickiness(context.conversation_id, selected_model)
 
         # Cache check: after routing (to know model_id), before LLM call
         cache_hit = False
@@ -1054,8 +1096,11 @@ class RouteSmith:
         if model:
             selected_model = model
             routing_reason = "explicit model specified"
-        elif context.conversation_id and context.conversation_id in self._conversation_models:
-            # Conversation stickiness: reuse the model from the first turn
+        elif (
+            self.config.sticky != "off"
+            and context.conversation_id
+            and context.conversation_id in self._conversation_models
+        ):
             selected_model = self._conversation_models[context.conversation_id]
             routing_reason = "conversation stickiness (reusing model from turn 1)"
         elif over_budget and self.config.budget_behavior == BudgetBehavior.FALLBACK:
@@ -1127,8 +1172,14 @@ class RouteSmith:
 
         routing_latency_ms = (time.perf_counter() - routing_start) * 1000
         # Record conversation model for session stickiness
-        if context and context.conversation_id and context.conversation_id not in self._conversation_models:
+        if (
+            self.config.sticky != "off"
+            and context
+            and context.conversation_id
+            and context.conversation_id not in self._conversation_models
+        ):
             self._conversation_models[context.conversation_id] = selected_model
+            self._persist_stickiness(context.conversation_id, selected_model)
 
         # Cache check: after routing (to know model_id), before LLM call
         cache_hit = False

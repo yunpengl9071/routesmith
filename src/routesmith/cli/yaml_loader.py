@@ -63,7 +63,14 @@ def load_config_file(path: Path) -> tuple[RouteSmithConfig, list[dict[str, Any]]
         fallback_model=routing_cfg.get("fallback_model"),
         predictor_type=predictor_type,
         predictor=predictor,
+        intercept=routing_cfg.get("intercept", "auto"),
+        passthrough_models=routing_cfg.get("passthrough_models", []),
+        sticky=routing_cfg.get("sticky", "header"),
     )
+
+    # Parse catalog block (P3)
+    if "catalog" in data:
+        config.catalog = data["catalog"]
 
     # ── Budget ────────────────────────────────────────────────────────────────
     if "budget" in data:
@@ -120,6 +127,7 @@ def _parse_model_entry(m: dict[str, Any]) -> dict[str, Any]:
         "cost_per_1k_input": m["cost_per_1k_input"],
         "cost_per_1k_output": m["cost_per_1k_output"],
         "quality_score": m.get("quality_score", 0.8),
+        "pinned": m.get("pinned", False),
     }
     for key in ("latency_p50_ms", "latency_p99_ms", "context_window",
                 "supports_vision", "supports_function_calling"):

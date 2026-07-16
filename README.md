@@ -23,7 +23,7 @@ models for complex refactors. You never think about model IDs again.
 | Budget caps (daily/hourly) | ❌ | ✅ Monthly, per-request, per-project |
 | Conversation stickiness | ✅ | ✅ 
 
-**v0.7.0**: Per-project cost stats, decision audit log, per-role policy CLI, Anthropic `/v1/messages` endpoint. Phase 5 complete.
+**v0.9.0**: Provider-aware catalogs, `routesmith models` CLI, persistent stickiness, `routesmith connect`, `routesmith run`. Integration DX overhaul.
 
 ## Who it's for
 

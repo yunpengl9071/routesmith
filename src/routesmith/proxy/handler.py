@@ -118,11 +118,13 @@ class ChatCompletionRequest:
     def to_litellm_kwargs(self) -> dict[str, Any]:
         """Convert to kwargs for litellm completion."""
         kwargs: dict[str, Any] = {
-            "temperature": self.temperature,
-            "top_p": self.top_p,
             "frequency_penalty": self.frequency_penalty,
             "presence_penalty": self.presence_penalty,
         }
+        if self.temperature != 1.0:
+            kwargs["temperature"] = self.temperature
+        if self.top_p != 1.0:
+            kwargs["top_p"] = self.top_p
         if self.max_tokens is not None:
             kwargs["max_tokens"] = self.max_tokens
         if self.stop is not None:
@@ -132,6 +134,12 @@ class ChatCompletionRequest:
         # Add any extra kwargs
         kwargs.update(self.extra_kwargs)
         return kwargs
+
+
+@dataclass
+class RoutingDecision:
+    route: bool
+    passthrough_reason: str | None = None
 
 
 class RequestHandler:
@@ -156,11 +164,77 @@ class RequestHandler:
             routesmith: RouteSmith instance to use for routing and completion.
         """
         self.routesmith = routesmith
+        self.routed_requests: int = 0
+        self.passthrough_requests: int = 0
+        self.passthrough_by_reason: dict[str, int] = {}
+        self._passthrough_consecutive: int = 0
+
+    def resolve_routing(
+        self,
+        request: ChatCompletionRequest,
+        headers: dict[str, str],
+    ) -> RoutingDecision:
+        config = self.routesmith.config
+        model_lower = request.model.lower()
+
+        # Auto models always route
+        if model_lower in self.AUTO_MODELS:
+            self.routed_requests += 1
+            self._passthrough_consecutive = 0
+            return RoutingDecision(route=True)
+
+        normalized_headers = {k.lower(): v for k, v in headers.items()}
+
+        # Explicit passthrough header
+        if normalized_headers.get("x-routesmith-passthrough", "").lower() == "true":
+            self.passthrough_requests += 1
+            self.passthrough_by_reason["explicit_header"] = self.passthrough_by_reason.get("explicit_header", 0) + 1
+            self._passthrough_consecutive += 1
+            self._check_passthrough_warning()
+            return RoutingDecision(route=False, passthrough_reason="explicit_header")
+
+        # Passthrough models list
+        if request.model in config.passthrough_models:
+            self.passthrough_requests += 1
+            self.passthrough_by_reason["passthrough_list"] = self.passthrough_by_reason.get("passthrough_list", 0) + 1
+            self._passthrough_consecutive += 1
+            self._check_passthrough_warning()
+            return RoutingDecision(route=False, passthrough_reason="passthrough_list")
+
+        # Unregistered model
+        registered = {m.model_id for m in self.routesmith.registry.list_models()}
+        if request.model not in registered:
+            self.passthrough_requests += 1
+            self.passthrough_by_reason["unregistered_model"] = self.passthrough_by_reason.get("unregistered_model", 0) + 1
+            self._passthrough_consecutive += 1
+            self._check_passthrough_warning()
+            return RoutingDecision(route=False, passthrough_reason="unregistered_model")
+
+        # Intercept all
+        if config.intercept == "all":
+            self.routed_requests += 1
+            self._passthrough_consecutive = 0
+            return RoutingDecision(route=True)
+
+        # Auto intercept, non-auto model -> passthrough
+        self.passthrough_requests += 1
+        self.passthrough_by_reason["intercept_auto"] = self.passthrough_by_reason.get("intercept_auto", 0) + 1
+        self._passthrough_consecutive += 1
+        self._check_passthrough_warning()
+        return RoutingDecision(route=False, passthrough_reason="intercept_auto")
+
+    def _check_passthrough_warning(self) -> None:
+        if self._passthrough_consecutive == 5 and self.routesmith.config.intercept == "auto":
+            logger.warning(
+                "5 requests passed through unrouted "
+                "— set routing.intercept: all to route them"
+            )
 
     async def handle_completion(
         self,
         request: ChatCompletionRequest,
         headers: dict[str, str] | None = None,
+        decision: RoutingDecision | None = None,
     ) -> dict[str, Any]:
         """
         Handle non-streaming chat completion request.
@@ -171,16 +245,16 @@ class RequestHandler:
             request: Parsed completion request.
             headers: Optional HTTP request headers; X-RouteSmith-* values are
                      extracted and forwarded as a RouteContext.
+            decision: Pre-computed routing decision (avoids double resolution).
 
         Returns:
             OpenAI-compatible response dict.
         """
-        # Determine if we should use routing or explicit model
-        model = None
-        if request.model.lower() not in self.AUTO_MODELS:
-            model = request.model
+        if decision is None:
+            decision = self.resolve_routing(request, headers or {})
 
-        # Parse RouteSmith-specific options
+        model = None if decision.route else request.model
+
         strategy = None
         if request.routesmith_strategy:
             try:
@@ -188,10 +262,8 @@ class RequestHandler:
             except ValueError:
                 logger.warning(f"Unknown strategy: {request.routesmith_strategy}")
 
-        # Extract route context from X-RouteSmith-* headers (if any)
         ctx = extract_route_context_from_headers(headers or {})
 
-        # Execute through RouteSmith
         response = await self.routesmith.acompletion(
             messages=request.messages,
             model=model,
@@ -203,22 +275,28 @@ class RequestHandler:
             **request.to_litellm_kwargs(),
         )
 
-        # Convert to dict - litellm responses have model_dump()
         if hasattr(response, "model_dump"):
             response_dict = response.model_dump()
         else:
-            # Fallback for older litellm versions
             response_dict = dict(response)
 
-        # Include RouteSmith metadata if present
-        if hasattr(response, "routesmith_metadata"):
-            response_dict["routesmith_metadata"] = response.routesmith_metadata
+        selected_model = response_dict.get("model", request.model)
+        routesmith_metadata = dict(response.routesmith_metadata) if hasattr(response, "routesmith_metadata") and response.routesmith_metadata else {}
+        routesmith_metadata.update({
+            "routed": decision.route,
+            "selected_model": selected_model,
+            "requested_model": request.model,
+            "passthrough_reason": decision.passthrough_reason,
+        })
+        response_dict["routesmith_metadata"] = routesmith_metadata
 
         return response_dict
 
     async def handle_completion_stream(
         self,
         request: ChatCompletionRequest,
+        headers: dict[str, str] | None = None,
+        decision: RoutingDecision | None = None,
     ) -> AsyncIterator[str]:
         """
         Handle streaming chat completion.
@@ -227,16 +305,17 @@ class RequestHandler:
 
         Args:
             request: Parsed completion request.
+            headers: Optional HTTP request headers for routing decisions.
+            decision: Pre-computed routing decision (avoids double resolution).
 
         Yields:
             SSE-formatted strings for each chunk.
         """
-        # Determine if we should use routing or explicit model
-        model = None
-        if request.model.lower() not in self.AUTO_MODELS:
-            model = request.model
+        if decision is None:
+            decision = self.resolve_routing(request, headers or {})
 
-        # Parse RouteSmith-specific options
+        model = None if decision.route else request.model
+
         strategy = None
         if request.routesmith_strategy:
             try:
@@ -244,7 +323,6 @@ class RequestHandler:
             except ValueError:
                 logger.warning(f"Unknown strategy: {request.routesmith_strategy}")
 
-        # Stream through RouteSmith
         stream = self.routesmith.acompletion_stream(
             messages=request.messages,
             model=model,
@@ -252,17 +330,24 @@ class RequestHandler:
             **request.to_litellm_kwargs(),
         )
 
+        selected_model = request.model
         async for chunk in stream:
-            # Extract content from chunk
             if hasattr(chunk, "choices") and chunk.choices:
                 choice = chunk.choices[0]
                 if hasattr(choice, "delta") and hasattr(choice.delta, "content"):
                     content = choice.delta.content or ""
                     finish_reason = getattr(choice, "finish_reason", None)
                     model_name = getattr(chunk, "model", request.model)
+                    selected_model = model_name
                     yield format_stream_chunk(content, model_name, finish_reason=finish_reason)
 
-        # Send done marker
+        routesmith_metadata = {
+            "routed": decision.route,
+            "selected_model": selected_model,
+            "requested_model": request.model,
+            "passthrough_reason": decision.passthrough_reason,
+        }
+        yield format_stream_chunk("", request.model, finish_reason=None, routesmith_metadata=routesmith_metadata)
         yield format_stream_done()
 
     async def handle_models(self) -> dict[str, Any]:
@@ -280,12 +365,16 @@ class RequestHandler:
 
     async def handle_stats(self) -> dict[str, Any]:
         """
-        Return RouteSmith statistics.
+        Return RouteSmith statistics including proxy-level counters.
 
         Returns:
-            Stats dict from RouteSmith.
+            Stats dict from RouteSmith merged with proxy counters.
         """
-        return self.routesmith.stats
+        stats = dict(self.routesmith.stats)
+        stats["routed_requests"] = self.routed_requests
+        stats["passthrough_requests"] = self.passthrough_requests
+        stats["passthrough_by_reason"] = dict(self.passthrough_by_reason)
+        return stats
 
     async def handle_health(self) -> dict[str, Any]:
         """

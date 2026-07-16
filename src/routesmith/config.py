@@ -131,9 +131,22 @@ class JudgeConfig:
 class RouteSmithConfig:
     """Main configuration for RouteSmith."""
 
+    # Intercept routing (P3)
+    intercept: str = "auto"  # "all" | "auto" — whether to intercept all models or only auto
+    passthrough_models: list[str] = field(default_factory=list)  # Models to always passthrough
+    sticky: str = "header"  # "auto" | "header" | "off" — sticky routing mode
+    catalog: dict = field(default_factory=dict)  # Model catalog block from YAML
+
     # Routing behavior
     default_strategy: RoutingStrategy = RoutingStrategy.DIRECT
     fallback_model: str | None = None  # Model to use if routing fails
+
+    def __post_init__(self) -> None:
+        """Validate field values."""
+        if self.intercept not in ("all", "auto"):
+            raise ValueError(f"intercept must be 'all' or 'auto', got {self.intercept!r}")
+        if self.sticky not in ("auto", "header", "off"):
+            raise ValueError(f"sticky must be 'auto', 'header', or 'off', got {self.sticky!r}")
 
     # Quality prediction
     predictor_type: str = "lints"  # lints (default), linucb, adaptive, embedding
@@ -207,6 +220,10 @@ class RouteSmithConfig:
             embedding_model=kwargs.get("embedding_model", self.cache.embedding_model),
         )
         return RouteSmithConfig(
+            intercept=self.intercept,
+            passthrough_models=self.passthrough_models,
+            sticky=self.sticky,
+            catalog=self.catalog,
             default_strategy=self.default_strategy,
             fallback_model=self.fallback_model,
             predictor_type=self.predictor_type,
@@ -245,6 +262,10 @@ class RouteSmithConfig:
             quality_threshold=kwargs.get("quality_threshold", self.budget.quality_threshold),
         )
         return RouteSmithConfig(
+            intercept=self.intercept,
+            passthrough_models=self.passthrough_models,
+            sticky=self.sticky,
+            catalog=self.catalog,
             default_strategy=self.default_strategy,
             fallback_model=self.fallback_model,
             predictor_type=self.predictor_type,

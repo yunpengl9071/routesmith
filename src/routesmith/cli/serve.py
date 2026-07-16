@@ -22,6 +22,14 @@ def run_serve(args: Namespace) -> int:
     Returns:
         Exit code.
     """
+    # Daemon mode: double-fork and redirect stdio to logfile
+    if args.daemon:
+        from routesmith.cli.run import _daemon_logfile, _daemon_pidfile, _daemonize
+        pidfile = _daemon_pidfile()
+        logfile = _daemon_logfile()
+        _daemonize(pidfile, logfile, exit_parent=True)
+        # Only daemon process reaches here
+
     # Configure logging
     logging.basicConfig(
         level=getattr(logging, args.log_level),
