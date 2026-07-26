@@ -2,6 +2,28 @@
 
 All notable changes to RouteSmith will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Propensity-logging research instrument** (`routesmith.research`): wraps a
+  `LinTSRouter` to make each routing decision propensity-logged under an enforced
+  exploration floor and exactly replayable from the logged posterior state + a
+  per-decision seed. Thompson-sampling propensities are Monte-Carlo estimated via a
+  univariate score reduction (no d-dimensional draws), floored into the mixture
+  `p(a|x) = (1-ε)·p_TS(a|x) + ε/K` (positivity for off-policy estimators). Includes a
+  `DecisionLog` SQLite sink (its own `routing_decisions` table; core storage untouched)
+  and `shadow_replay`. Purely additive — production routing hot path is unchanged.
+  Substrate for the off-policy-evaluation study (Proposal B v4.1, WU-0.2).
+
+### Changed
+- **`routesmith.RouteSmith` / `RoutingMetadata` now load lazily** (PEP 562 `__getattr__`).
+  These live in `routesmith.client`, which imports `litellm` (a heavy, native-built
+  dependency); loading them eagerly meant importing *any* routesmith submodule pulled in
+  the full LLM-calling stack. They now resolve on first access, so lightweight submodules
+  — notably `routesmith.research` — import standalone without `litellm`. `from routesmith
+  import RouteSmith` and attribute access are unchanged. (Verified: the research + LinTS
+  test suites pass with `litellm` absent.)
+
 ## [0.9.3] — 2026-07-16
 
 Supersedes 0.9.2 on PyPI (0.9.2 was tagged but never published there — this
